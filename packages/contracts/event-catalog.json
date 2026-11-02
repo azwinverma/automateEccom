@@ -620,6 +620,25 @@
           "error_code"
         ]
       }
+    },
+    {
+      "type": "video.job_queued",
+      "version": 1,
+      "description": "A video job (Auto Reel or premium) was requested; the handler enqueues the media worker task.",
+      "aggregate": "video",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "job_id"
+        ]
+      }
     }
   ]
 }

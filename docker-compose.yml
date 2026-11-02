@@ -52,6 +52,7 @@ services:
   api:
     build: { context: ./apps/backend, additional_contexts: { contracts: ./packages/contracts } }
     environment: *backend-env
+    volumes: [objects:/app/.data]  # local object storage must be shared with the worker
     ports: ["${API_PORT:-8000}:8000"]
     depends_on:
       migrate: { condition: service_completed_successfully }
@@ -60,7 +61,8 @@ services:
   worker:
     build: { context: ./apps/backend, additional_contexts: { contracts: ./packages/contracts } }
     environment: *backend-env
-    command: ["celery", "-A", "app.worker.celery_app:celery", "worker", "-Q", "default,outbox,ai", "--concurrency", "4", "--loglevel", "INFO"]
+    volumes: [objects:/app/.data]
+    command: ["celery", "-A", "app.worker.celery_app:celery", "worker", "-Q", "default,outbox,ai,media", "--concurrency", "4", "--loglevel", "INFO"]
     depends_on:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
@@ -82,4 +84,5 @@ services:
 
 volumes:
   pgdata:
+  objects:
   miniodata:

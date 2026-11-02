@@ -18,7 +18,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base, IdMixin, TenantScoped, TimestampMixin
@@ -80,3 +80,49 @@ class MediaDerivative(IdMixin, TenantScoped, Base):
     width: Mapped[int] = mapped_column(Integer, nullable=False)
     height: Mapped[int] = mapped_column(Integer, nullable=False)
     size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
+class VideoJob(IdMixin, TimestampMixin, TenantScoped, Base):
+    """Video generation job (MED-008 Auto Reels; premium AI video uses the same lifecycle).
+
+    QUEUED → SUBMITTED (premium only, provider accepted) → GENERATING → POST_PROCESSING → READY
+    any non-terminal → FAILED | CANCELLED
+    """
+
+    __tablename__ = "media_video_jobs"
+    __table_args__ = (
+        CheckConstraint(
+            "status in ('queued','submitted','generating','post_processing','ready','failed','cancelled')",
+            name="status",
+        ),
+        CheckConstraint("kind in ('auto_reel','premium')", name="kind"),
+        CheckConstraint("aspect in ('9:16','1:1','4:5','16:9')", name="aspect"),
+        Index("ix_video_stale", "updated_at", postgresql_where=text("status in ('queued','generating')")),
+    )
+
+    kind: Mapped[str] = mapped_column(String(16), default="auto_reel", nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="queued", nullable=False)
+    template: Mapped[str] = mapped_column(String(32), default="showcase", nullable=False)
+    aspect: Mapped[str] = mapped_column(String(5), default="9:16", nullable=False)
+    asset_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)), nullable=False)
+    product_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("catalog_products.id", ondelete="SET NULL")
+    )
+    locale: Mapped[str] = mapped_column(String(5), default="ne", nullable=False)
+    headline: Mapped[str | None] = mapped_column(String(80))
+    cta: Mapped[str | None] = mapped_column(String(60))
+    show_price: Mapped[bool] = mapped_column(default=False, nullable=False)
+    seconds_per_slide: Mapped[float] = mapped_column(Float, default=2.5, nullable=False)
+    output_asset_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("media_assets.id", ondelete="SET NULL")
+    )
+    duration_s: Mapped[float | None] = mapped_column(Float)
+    provider: Mapped[str | None] = mapped_column(String(32))
+    model: Mapped[str | None] = mapped_column(String(100))
+    provider_cost_usd_micros: Mapped[int | None] = mapped_column(BigInteger)
+    credits_charged: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    usage_reservation_id: Mapped[uuid.UUID | None]
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    finished_at: Mapped[datetime | None]

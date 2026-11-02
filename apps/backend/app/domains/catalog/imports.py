@@ -289,7 +289,16 @@ def process(db: Session, job_id: uuid.UUID) -> ImportJob:
     from app.domains.merchants.models import Membership
     from app.domains.merchants.rbac import permissions_for
 
-    role = db.scalar(select(Membership.role).where(Membership.user_id == job.created_by_user_id)) or "staff"
+    role = (
+        db.scalar(
+            select(Membership.role).where(
+                Membership.user_id == job.created_by_user_id,
+                Membership.merchant_id == job.merchant_id,
+                Membership.status == "active",
+            )
+        )
+        or "staff"
+    )
     ctx = TenantContext(
         merchant_id=job.merchant_id,
         actor=actor,

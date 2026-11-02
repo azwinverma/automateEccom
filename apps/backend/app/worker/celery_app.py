@@ -22,6 +22,7 @@ celery.conf.update(
     task_routes={
         "app.worker.tasks.dispatch_outbox": {"queue": "outbox"},
         "app.worker.tasks.run_studio_job": {"queue": "ai"},
+        "app.worker.tasks.run_video_job": {"queue": "media"},
     },
     beat_schedule={
         "dispatch-outbox": {"task": "app.worker.tasks.dispatch_outbox", "schedule": 2.0},

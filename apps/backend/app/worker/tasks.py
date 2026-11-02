@@ -77,6 +77,15 @@ def publish_due_content() -> dict[str, int]:
     return stats
 
 
+@celery.task(name="app.worker.tasks.run_video_job", ignore_result=True, acks_late=True)
+def run_video_job(job_id: str) -> None:
+    import uuid
+
+    from app.domains.media.video import run_job
+
+    run_job(uuid.UUID(job_id))
+
+
 @celery.task(name="app.worker.tasks.purge_idempotency", ignore_result=True)
 def purge_idempotency() -> int:
     with session_scope() as db:

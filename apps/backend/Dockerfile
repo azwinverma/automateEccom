@@ -11,6 +11,9 @@ COPY alembic.ini ./
 RUN uv sync --frozen --no-dev
 
 FROM python:3.12-slim-bookworm AS runtime
+# ffmpeg: Auto Reels. libraqm0: correct Devanagari (Nepali) text shaping in rendered overlays.
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg libraqm0 \
+    && rm -rf /var/lib/apt/lists/*
 RUN groupadd --system app && useradd --system --gid app --home /app app && mkdir -p /app/.data && chown app:app /app/.data
 WORKDIR /app
 COPY --from=build --chown=app:app /app /app

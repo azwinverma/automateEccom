@@ -6,11 +6,11 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-# Side-effect imports: each module registers its outbox handlers at import time.
 import app.domains.catalog.imports
 import app.domains.channels.service
 import app.domains.media.service
-import app.domains.studio.service  # noqa: F401
+import app.domains.media.video
+import app.domains.studio.service
 from app.core.config import get_settings
 from app.core.crypto import SealedSecret
 from app.domains.accounts.models import User
@@ -19,6 +19,15 @@ from app.domains.merchants.models import Invitation, Merchant
 from app.domains.platform.models import OutboxEvent
 from app.domains.platform.outbox import handler
 from app.integrations_i18n import email_copy
+
+# Modules whose import registers outbox handlers (referenced so the import is explicit, not accidental).
+HANDLER_MODULES = (
+    app.domains.catalog.imports,
+    app.domains.channels.service,
+    app.domains.media.service,
+    app.domains.media.video,
+    app.domains.studio.service,
+)
 
 WEB_BASE_URL_DEFAULT = "http://localhost:3000"
 
