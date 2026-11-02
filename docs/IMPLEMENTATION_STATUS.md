@@ -7,13 +7,13 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases are provisional because `22_PHASED_ROADMAP.md` is not in the repository (GAP-SPEC-22): **P0** Foundation · **P1** Product → Publish · **P2** Conversation → Order (CRM, orders, inventory, payments) · **P3** Fulfil & return · **P4** Automation · **P5** Analytics, procurement, growth. ADM/UX items ship alongside the phase they support.
 
-_Last updated: 2026-11-02 — Phase 0 complete (open: CI run, staging target); Phase 1 backend core built._
+_Last updated: 2026-11-02. Phase 0 complete (open: CI run, staging target). Phase 1 backend + mobile built; web Studio/Channels/Content/Reels screens in progress._
 
 ## Summary
 
 | Area | Result (2026-11-02) |
 |---|---|
-| Backend | ruff + mypy clean · 144 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 8 migrations, upgrade/downgrade/check clean |
+| Backend | ruff + mypy clean · 151 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 9 migrations, upgrade/downgrade/check clean |
 | Web | typecheck, lint, 95 component tests, 20 api-client tests, production build; Playwright E2E (2 specs × desktop + 360px) passing against the **real** backend |
 | Mobile | `flutter analyze` clean · 51 tests · not yet built for a device or run against the real backend |
 | Containers | backend image built; compose stack booted (migrate → api → worker/beat) and outbox email dispatch verified |
@@ -21,15 +21,16 @@ _Last updated: 2026-11-02 — Phase 0 complete (open: CI run, staging target); P
 
 ## Phase 1 (Product → Publish) progress
 
-| Area | State |
-|---|---|
-| Catalog (CAT-001…010) | Backend TESTED; web screens in progress |
-| Media pipeline (MED-001…004, 008, 009, 010, 011) | Backend TESTED incl. Auto Reels (ffmpeg; Nepali overlays verified in Docker). AI image edit/generation + fidelity review not started |
-| AI Product Studio (CNT-002…006) | Backend TESTED with the sandbox provider; **no live model call yet** (needs `COS_ANTHROPIC_API_KEY`) |
-| Content engine (CNT-008…011) | Backend TESTED; calendar UI pending |
-| Channels (CHN-003/004/009/010/011/013) | Framework TESTED (stateful sandbox). **WooCommerce adapter IMPLEMENTED** (contract-tested; needs a live store to verify). Meta/TikTok/Shopify BLOCKED on platform app approval (GAP-CHANNEL-APPS) |
-| Exception Inbox feed | Backend TESTED; client wiring in progress |
-| Mobile capture → draft → publish | In progress |
+| Area | Backend | Web | Mobile |
+|---|---|---|---|
+| Catalog (CAT-001…010) | TESTED (incl. add variant, category move, collection membership, variant lock) | Products list, editor, CSV import, categories: TESTED + E2E vs real backend | Product go-live, AI attribute confirmation |
+| Media (MED-001…004, 008–011) | TESTED, incl. HEIC, GPS stripping, malware scan path, Auto Reels (Nepali overlays verified in Docker) | In progress | Capture + resumable signed upload: TESTED + live run |
+| AI Product Studio (CNT-001…006, AIG-012/015) | TESTED with the sandbox provider. Brand voice and eval harness built. **Not yet called with a live model** | In progress | Draft review: TESTED + live run |
+| Content engine (CNT-008…011) | TESTED | In progress | Posts: submit/approve/schedule |
+| Channels (CHN-003/004/009/010/011/013) | TESTED framework + sandbox; **WooCommerce IMPLEMENTED** (contract-tested incl. per-store webhooks); Meta/TikTok/Shopify BLOCKED on platform approval | In progress | Publish + reconnect hand-off |
+| Exception Inbox | TESTED (derived from live state) | In progress | Live on Home: TESTED |
+
+Totals (2026-11-02): backend 151 tests (87% coverage, 9 migrations); web 157 + api-client 22 tests and E2E 18/18 vs real backend; mobile 99 tests plus one live end-to-end run. The mobile app has never run on a device (GAP-MOBILE-TOOLCHAIN).
 
 ## Phase 0 exit criteria
 
