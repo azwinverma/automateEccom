@@ -1,6 +1,8 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { CommerceLoop, HandUnderline, NivaroLogo } from "@/components/brand/Brand";
 import { getTranslator } from "@/i18n/server";
+import { ThemeToggle } from "@/lib/theme/ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import styles from "./auth.module.css";
 
@@ -15,7 +17,9 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
   return (
     <div className={styles.layout}>
       <aside className={styles.aside}>
-        <NivaroLogo height={26} label={t("brand.name")} />
+        <Link href="/" className={styles.homeLink}>
+          <NivaroLogo height={26} label={t("brand.name")} />
+        </Link>
         <div className={styles.asideCopy}>
           <p className={styles.asideTitle}>
             {t("brand.taglineLead")}
@@ -31,9 +35,10 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
       </aside>
       <div className={styles.main}>
         <div className={styles.topRow}>
-          <span className={styles.mobileLogo}>
+          <Link href="/" className={styles.mobileLogo}>
             <NivaroLogo height={22} label={t("brand.name")} />
-          </span>
+          </Link>
+          <ThemeToggle />
           <LanguageToggle />
         </div>
         <main className={styles.formWrap}>{children}</main>

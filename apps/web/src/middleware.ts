@@ -5,14 +5,15 @@ const PUBLIC_PREFIXES = ["/login", "/register", "/dev"];
 
 export function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
-  if (PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+  // "/" is the public website; the app lives under /home and the other section routes.
+  if (pathname === "/" || PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return NextResponse.next();
   }
   if (!req.cookies.get(SESSION_MARKER_COOKIE)?.value) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
-    if (pathname !== "/") url.searchParams.set("next", `${pathname}${search}`);
+    url.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();
