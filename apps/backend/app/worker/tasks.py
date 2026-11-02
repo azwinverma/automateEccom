@@ -30,6 +30,14 @@ def release_expired_usage() -> int:
     return n
 
 
+@celery.task(name="app.worker.tasks.cleanup_media_uploads", ignore_result=True)
+def cleanup_media_uploads() -> int:
+    from app.domains.media.service import cleanup_expired_uploads
+
+    with session_scope() as db:
+        return cleanup_expired_uploads(db)
+
+
 @celery.task(name="app.worker.tasks.purge_idempotency", ignore_result=True)
 def purge_idempotency() -> int:
     with session_scope() as db:

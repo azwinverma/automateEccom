@@ -43,12 +43,15 @@ def create_app() -> FastAPI:
     from app.domains.audit.router import router as audit
     from app.domains.billing.router import router as billing
     from app.domains.catalog.router import router as catalog
+    from app.domains.media.router import dev_router as media_dev
+    from app.domains.media.router import router as media
     from app.domains.merchants.router import router as merchants
     from app.domains.platform.router import health_router
     from app.domains.platform.router import router as platform
 
     app.include_router(health_router)
-    for r in (accounts, merchants, billing, catalog, audit, platform, ai, admin):
+    app.include_router(media_dev)
+    for r in (accounts, merchants, billing, catalog, media, audit, platform, ai, admin):
         app.include_router(r, prefix=API_PREFIX)
     return app
 

@@ -65,6 +65,14 @@ class Settings(BaseSettings):
     s3_access_key_id: SecretStr | None = None
     s3_secret_access_key: SecretStr | None = None
 
+    # Media
+    media_max_upload_bytes: int = 20 * 1024 * 1024
+    media_upload_ttl_seconds: int = 900
+    malware_scanner: str = "none"  # none (dev/test only) | clamd
+    clamd_host: str = "localhost"
+    clamd_port: int = 3310
+    public_api_base_url: str = "http://localhost:8000"
+
     # AI provider platform keys (server-side only; never sent to clients or logged)
     anthropic_api_key: SecretStr | None = None
     openai_api_key: SecretStr | None = None
@@ -94,6 +102,10 @@ class Settings(BaseSettings):
                 raise ValueError("COS_LOCAL_KEK_B64 must not use the development key outside development")
             if self.ai_enable_sandbox_provider and self.environment == Environment.PRODUCTION:
                 raise ValueError("Sandbox AI provider must be disabled in production")
+            if self.malware_scanner == "none" and self.environment == Environment.PRODUCTION:
+                raise ValueError(
+                    "Production requires a malware scanner for uploads (COS_MALWARE_SCANNER=clamd)"
+                )
         return self
 
     @property

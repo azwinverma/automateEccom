@@ -422,6 +422,51 @@
           "import_id"
         ]
       }
+    },
+    {
+      "type": "media.uploaded",
+      "version": 1,
+      "description": "Original bytes received; the handler scans, validates and builds derivatives.",
+      "aggregate": "media",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "asset_id"
+        ]
+      }
+    },
+    {
+      "type": "media.ready",
+      "version": 1,
+      "description": "Derivatives are available; quality flags tell the UI what to warn about.",
+      "aggregate": "media",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quality_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "asset_id",
+          "quality_flags"
+        ]
+      }
     }
   ]
 }

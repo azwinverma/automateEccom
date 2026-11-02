@@ -279,3 +279,22 @@ class ImportJob(IdMixin, TimestampMixin, TenantScoped, Base):
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     started_at: Mapped[datetime | None]
     finished_at: Mapped[datetime | None]
+
+
+class ProductMedia(TenantScoped, Base):
+    """Ordered product images. ``variant_id`` pins an image to a variant (e.g. the Navy photo)."""
+
+    __tablename__ = "catalog_product_media"
+    __table_args__ = (UniqueConstraint("product_id", "position"),)
+
+    product_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("catalog_products.id", ondelete="CASCADE"), primary_key=True
+    )
+    asset_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("media_assets.id", ondelete="RESTRICT"), primary_key=True
+    )
+    variant_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("catalog_variants.id", ondelete="SET NULL")
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    alt_text: Mapped[str | None] = mapped_column(String(300))

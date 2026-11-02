@@ -102,6 +102,16 @@ class ConfirmIn(BaseModel):
     keys: list[str] = Field(min_length=1, max_length=50)
 
 
+class MediaItemIn(BaseModel):
+    asset_id: uuid.UUID
+    variant_id: uuid.UUID | None = None
+    alt_text: str | None = Field(default=None, max_length=300)
+
+
+class MediaIn(BaseModel):
+    items: list[MediaItemIn] = Field(max_length=20)
+
+
 class CategoryIn(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     name_ne: str | None = Field(default=None, max_length=120)
@@ -272,6 +282,17 @@ def confirm_attributes(
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
     service.confirm_attributes(db, ctx, product_id, body.keys)
+    return service.product_detail(db, ctx, product_id)
+
+
+@router.put("/products/{product_id}/media")
+def set_media(
+    product_id: uuid.UUID,
+    body: MediaIn,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    service.set_product_media(db, ctx, product_id, [service.MediaInput(**i.model_dump()) for i in body.items])
     return service.product_detail(db, ctx, product_id)
 
 

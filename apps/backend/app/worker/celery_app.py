@@ -23,6 +23,7 @@ celery.conf.update(
     beat_schedule={
         "dispatch-outbox": {"task": "app.worker.tasks.dispatch_outbox", "schedule": 2.0},
         "release-expired-usage": {"task": "app.worker.tasks.release_expired_usage", "schedule": 60.0},
+        "cleanup-media-uploads": {"task": "app.worker.tasks.cleanup_media_uploads", "schedule": 3600.0},
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
     },
 )

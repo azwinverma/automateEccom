@@ -24,6 +24,7 @@ from app.domains.catalog.models import (
     CollectionProduct,
     Product,
     ProductAttribute,
+    ProductMedia,
     ProductOption,
     ProductOptionValue,
     Variant,
@@ -711,6 +712,116 @@ def confirm_attributes(db: Session, ctx: TenantContext, product_id: uuid.UUID, k
     return len(rows)
 
 
+# ----------------------------------------------------------------------------- media
+@dataclass
+class MediaInput:
+    asset_id: uuid.UUID
+    variant_id: uuid.UUID | None = None
+    alt_text: str | None = None
+
+
+MAX_PRODUCT_MEDIA = 20
+
+
+def set_product_media(
+    db: Session, ctx: TenantContext, product_id: uuid.UUID, items: list[MediaInput]
+) -> None:
+    """Replace the ordered photo list. Only processed (ready) photos of this merchant are accepted."""
+    from app.domains.media.models import MediaAsset
+
+    p = _get_product(db, ctx, product_id)
+    if len(items) > MAX_PRODUCT_MEDIA:
+        raise ValidationFailed(f"At most {MAX_PRODUCT_MEDIA} photos per product", code="too_many_media")
+    ids = [i.asset_id for i in items]
+    if len(set(ids)) != len(ids):
+        raise ValidationFailed("The same photo is listed twice", code="duplicate_media")
+    assets = {
+        a.id: a
+        for a in db.scalars(
+            select(MediaAsset).where(MediaAsset.merchant_id == ctx.merchant_id, MediaAsset.id.in_(ids))
+        )
+    }
+    missing = [str(i) for i in ids if i not in assets]
+    if missing:
+        raise NotFound("Some photos were not found", code="media_not_found", details={"asset_ids": missing})
+    not_ready = [str(i) for i in ids if assets[i].status != "ready"]
+    if not_ready:
+        raise Conflict(
+            "Some photos are still processing or were rejected",
+            code="media_not_ready",
+            details={"asset_ids": not_ready},
+        )
+    variant_ids = set(db.scalars(select(Variant.id).where(Variant.product_id == p.id)))
+    bad_variants = [str(i.variant_id) for i in items if i.variant_id and i.variant_id not in variant_ids]
+    if bad_variants:
+        raise ValidationFailed(
+            "Photo is linked to a variant of another product",
+            code="invalid_variant",
+            details={"variant_ids": bad_variants},
+        )
+    current = db.scalars(
+        select(ProductMedia).where(ProductMedia.product_id == p.id).order_by(ProductMedia.position)
+    ).all()
+    before = [str(r.asset_id) for r in current]
+    for row in current:
+        db.delete(row)
+    db.flush()
+    for pos, it in enumerate(items):
+        db.add(
+            ProductMedia(
+                merchant_id=ctx.merchant_id,
+                product_id=p.id,
+                asset_id=it.asset_id,
+                variant_id=it.variant_id,
+                position=pos,
+                alt_text=(it.alt_text or "")[:300] or None,
+            )
+        )
+    p.updated_at = utcnow()
+    db.flush()
+    after = [str(i) for i in ids]
+    if before != after:
+        audit.record(
+            db,
+            action="catalog.product_media_set",
+            resource_type="product",
+            resource_id=p.id,
+            actor=ctx.actor,
+            merchant_id=ctx.merchant_id,
+            meta=ctx.meta,
+            changes={"media": [before, after]},
+        )
+        _publish(db, ctx, "catalog.product_updated", p, {"fields": ["media"]})
+
+
+def _media_views(db: Session, product_id: uuid.UUID) -> list[dict[str, Any]]:
+    from app.domains.media.models import MediaAsset
+    from app.domains.media.service import asset_view
+
+    rows = db.execute(
+        select(ProductMedia, MediaAsset)
+        .join(MediaAsset, MediaAsset.id == ProductMedia.asset_id)
+        .where(ProductMedia.product_id == product_id)
+        .order_by(ProductMedia.position)
+    ).all()
+    out = []
+    for pm, asset in rows:
+        view = asset_view(db, asset)
+        out.append(
+            {
+                "asset_id": asset.id,
+                "position": pm.position,
+                "variant_id": pm.variant_id,
+                "alt_text": pm.alt_text,
+                "quality_flags": view["quality_flags"],
+                "source": view["source"],
+                "thumb": view["derivatives"].get("thumb"),
+                "medium": view["derivatives"].get("medium"),
+            }
+        )
+    return out
+
+
 # ----------------------------------------------------------------------------- collections
 def create_collection(db: Session, ctx: TenantContext, title: str, description: str | None) -> Collection:
     handle = rules.handleize(title) or f"collection-{uuid.uuid4().hex[:6]}"
@@ -813,6 +924,7 @@ def product_detail(db: Session, ctx: TenantContext, product_id: uuid.UUID) -> di
     collections = list(
         db.scalars(select(CollectionProduct.collection_id).where(CollectionProduct.product_id == p.id))
     )
+    media = _media_views(db, p.id)
     return {
         "id": p.id,
         "title": p.title,
@@ -879,5 +991,6 @@ def product_detail(db: Session, ctx: TenantContext, product_id: uuid.UUID) -> di
             for a in attrs
         ],
         "collection_ids": collections,
+        "media": media,
         "needs_review": any(not a.confirmed for a in attrs),
     }
