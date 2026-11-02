@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -50,8 +51,27 @@ class AppDirCaptureFileStore implements CaptureFileStore {
   }
 }
 
+/// Flutter web (local testing in Chrome): there is no app file system, so picked photos are kept in
+/// memory for the session, keyed by their blob URL. A page reload drops unfinished uploads.
+class MemoryCaptureFileStore implements CaptureFileStore {
+  final _bytes = <String, Uint8List>{};
+
+  @override
+  Future<String> persist(String sourcePath, String extension) async {
+    _bytes[sourcePath] = await XFile(sourcePath).readAsBytes();
+    return sourcePath;
+  }
+
+  @override
+  Future<Uint8List> read(String path) async =>
+      _bytes[path] ?? (throw StateError('photo no longer available'));
+
+  @override
+  Future<void> delete(String path) async => _bytes.remove(path);
+}
+
 final captureFileStoreProvider = Provider<CaptureFileStore>(
-  (ref) => AppDirCaptureFileStore(),
+  (ref) => kIsWeb ? MemoryCaptureFileStore() : AppDirCaptureFileStore(),
 );
 
 /// Content type from file extension; null if the API won't accept it.

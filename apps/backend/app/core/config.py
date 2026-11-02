@@ -60,7 +60,8 @@ class Settings(BaseSettings):
     local_kek_b64: SecretStr = SecretStr("ZGV2LW9ubHkta2VrLWRldi1vbmx5LWtlay0zMmJ5dGU=")
 
     # CORS / web
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    # First origin is also the web base used in email links. Web dev server: 3010 (apps/web package.json).
+    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3010"])
     trusted_proxy_count: int = 0
 
     # Object storage

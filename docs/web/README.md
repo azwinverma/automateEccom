@@ -10,7 +10,7 @@
 pnpm install
 pnpm --filter @commerce-os/design-system build   # regenerate tokens (never hand-edit dist/)
 cp apps/web/.env.example apps/web/.env.local      # BACKEND_URL defaults to http://localhost:8000
-pnpm --filter @commerce-os/web dev                # http://localhost:3000
+pnpm --filter @commerce-os/web dev                # http://localhost:3010
 ```
 
 | Script | What it does |

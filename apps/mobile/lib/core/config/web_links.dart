@@ -2,7 +2,7 @@
 /// Override with `--dart-define=WEB_BASE_URL=https://app.example.np`.
 const webBaseUrl = String.fromEnvironment(
   'WEB_BASE_URL',
-  defaultValue: 'http://localhost:3000',
+  defaultValue: 'http://localhost:3010',
 );
 
 String channelsSettingsUrl({String? connectionId}) =>

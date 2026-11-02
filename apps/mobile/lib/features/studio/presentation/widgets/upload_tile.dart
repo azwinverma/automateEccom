@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/errors/api_error.dart';
@@ -92,8 +94,9 @@ class UploadTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.sm),
             child: SizedBox.square(
               dimension: 64,
-              child: Image.file(
-                File(item.filePath),
+              // Web keeps the picker's blob URL; phones keep a file in app storage.
+              child: (kIsWeb ? Image.network : _fileImage)(
+                item.filePath,
                 fit: BoxFit.cover,
                 cacheWidth: 192,
                 errorBuilder:
@@ -164,3 +167,15 @@ class UploadTile extends StatelessWidget {
     );
   }
 }
+
+Image _fileImage(
+  String path, {
+  BoxFit? fit,
+  int? cacheWidth,
+  ImageErrorWidgetBuilder? errorBuilder,
+}) => Image.file(
+  File(path),
+  fit: fit,
+  cacheWidth: cacheWidth,
+  errorBuilder: errorBuilder,
+);

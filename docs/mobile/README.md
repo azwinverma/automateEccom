@@ -9,6 +9,12 @@ The package name, bundle ID and application ID keep the legacy names on purpose 
 creates a new app in the stores and breaks installs. Rename only before the first store submission.
 Toolchain: Flutter 3.29.3 / Dart 3.7.2.
 
+## Run against the local stack
+Start `scripts/dev.sh`, then `scripts/mobile.sh` (Android phone over USB via `adb reverse`, or Chrome on
+port 5310). The script passes `API_BASE_URL=http://localhost:8090` and `WEB_BASE_URL=http://localhost:3010`.
+On web, picked photos live in memory for the session (no app file system); a reload drops unfinished uploads.
+iOS: unlock the phone, enable Developer Mode and connect by cable, then `scripts/mobile.sh <device-id>`.
+
 ## Run
 
 ```bash

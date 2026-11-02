@@ -29,7 +29,7 @@ HANDLER_MODULES = (
     app.domains.studio.service,
 )
 
-WEB_BASE_URL_DEFAULT = "http://localhost:3000"
+WEB_BASE_URL_DEFAULT = "http://localhost:3010"
 
 
 def _web_base() -> str:

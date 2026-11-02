@@ -32,27 +32,46 @@ Repository, package and service identifiers keep the legacy `commerce-os` / `com
 
 ## Run locally
 
-**Everything in Docker** (Postgres, Redis, MinIO, migrations, API, worker, beat):
+**One command (recommended).** Needs PostgreSQL and Redis running (e.g. `brew services start postgresql@14 redis`), `uv` and `pnpm`:
+```bash
+cp apps/backend/.env.example apps/backend/.env   # first time only; set ports/DB (see below)
+pnpm install                                     # first time only
+scripts/dev.sh            # API + worker + web, hot reload      (or: scripts/dev.sh --prod)
+```
+It checks Postgres/Redis, refuses busy ports (and says which process holds them), migrates the database,
+seeds the plans, then runs:
+
+| What | URL |
+|---|---|
+| Website (public) | http://localhost:3010 |
+| Sign up / sign in | http://localhost:3010/register · /login |
+| Seller app | http://localhost:3010/home |
+| API docs | http://localhost:8090/api/v1/docs |
+| Dev emails (verification, invites) | `.data/mailbox/` |
+
+Ports default to API 8090 and web 3010 (`API_PORT` / `WEB_PORT` to change). Keep these in step:
+- `COS_PUBLIC_API_BASE_URL` in `apps/backend/.env` points at the API port.
+- `COS_CORS_ORIGINS` lists the web origin first (it is also used for links in emails).
+- `apps/web/.env.local` sets `BACKEND_URL`.
+
+**Mobile app** (in a second terminal, with `scripts/dev.sh` running):
+```bash
+scripts/mobile.sh           # USB Android phone if connected (adb reverse), otherwise Chrome
+scripts/mobile.sh android   # Android phone: enable USB debugging and accept the prompt on the phone
+scripts/mobile.sh chrome    # Flutter web on http://localhost:5310
+```
+
+**Admin (platform staff):** register on the website, then `scripts/make-admin.sh you@example.com`. Then turn on
+two-step sign-in (Settings → Security) and sign in again; admin endpoints require an MFA-verified session.
+
+**AI:** without `COS_ANTHROPIC_API_KEY` (or OpenAI/Gemini) the sandbox provider produces placeholder drafts
+marked `[sandbox]`, so the flows work end to end without a key.
+
+**Everything in Docker** instead (Postgres, Redis, MinIO, migrations, API, worker, beat):
 ```bash
 docker compose up --build          # API → http://localhost:8000
 docker compose --profile web up    # + web → http://localhost:3000
-# Ports in use? PG_PORT=55432 REDIS_PORT=56379 API_PORT=58000 docker compose up
 ```
-
-**Backend on the host** (needs Postgres and Redis running):
-```bash
-cd apps/backend
-cp .env.example .env               # edit COS_DATABASE_URL
-uv sync
-uv run alembic upgrade head
-uv run python -m app.cli seed-plans
-uv run uvicorn app.main:app --reload
-uv run celery -A app.worker.celery_app:celery worker -B -Q default,outbox   # dev: worker + beat
-```
-Dev emails (verification, invites) are written to `.data/mailbox/`.
-
-**Web:** `pnpm install && pnpm tokens && BACKEND_URL=http://localhost:8000 pnpm web:dev` (port 3010)
-**Mobile:** `cd apps/mobile && flutter run --dart-define=API_BASE_URL=http://localhost:8000`
 
 ## Quality gates
 ```bash
