@@ -35,7 +35,7 @@ lifecycle, and real UI fragments sit at the folds.
 | A | 4 | 5 | 5 | 4 | 5 | The lifecycle is the story; the ribbon carries the reader; sections differ in shape |
 | B | 4 | 1 | 2 | 4 | 3 | The bento grid is the current generic SaaS formula; it fails the anti-generic test |
 
-**Status:** not built (no marketing site in repo; BRD-014). OG/share image built from direction A.
+**Status:** built (A) at `/` in apps/web (ADR-034). Folds: hero + illustrative morning view, problem, the 10-stage lifecycle drawn on the ribbon (available stages filled), Control Center, product modules, intelligence, positioning, controlled autonomy, audience, plans (no prices), CTA. Real seller photography and a "proof" section wait for real data.
 
 ---
 

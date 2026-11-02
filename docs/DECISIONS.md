@@ -208,7 +208,7 @@ brand brief specifies #2563EB, #14B8A6 and #0F172A.
   fails contrast for any text use.
 - **The boards are reference only.** Their ™ marks wait for trademark filing (GAP-BRAND-TRADEMARK).
 
-## ADR-030: Logo built as code-generated geometry; navy app icon
+## ADR-030: Logo built as code-generated geometry; navy app icon (logo part superseded by ADR-032)
 The concept boards are raster images and cannot be used as production assets.
 - **Decision:** redraw the mark and wordmark as geometry (`packages/design-system/brand/geometry.mjs`).
   - **Mark:** a ribbon N in three overlapping strokes with fold shading.
@@ -233,3 +233,50 @@ status, flow, scrim), emitted as `--color-*` CSS variables, TS and Dart `AppColo
   brand blue (`text-brand` on `surface-brand-tint`).
 - **Enforcement:** the web brand guard test fails on hex colours outside an allowlist, on indigo, and
   on the pre-Nivaro name in UI copy.
+
+## ADR-032: The logo is the owner's artwork (supersedes the logo part of ADR-030)
+The owner asked for the concept-board artwork itself to be the logo everywhere.
+- **Decision:** `assets/brand/scripts/extract_logo.py` cuts the mark and the wordmark out of the
+  reference board.
+  - It unmixes each pixel against the sampled background (colour-to-alpha), so edges stay clean on
+    light and navy.
+  - The ™ is removed until the trademark is filed.
+  - The outputs in `assets/brand/logo/source/` are the masters. `render.mjs` composes every lockup,
+    app icon, favicon (incl. `.ico`), PWA/apple icon and OG image from them.
+- **Where it is used:**
+  - **Web:** the mark as an image; the wordmark as a CSS mask filled with `--color-brand-ink`, so one
+    asset serves light and dark.
+  - **Flutter:** `Image.asset`, with the wordmark tinted by theme.
+- **Geometry kept for motifs only.** The geometry-drawn mark and wordmark are removed;
+  `geometry.mjs` now holds only the ribbon motifs (trail, loop, empty state).
+- **Limits:**
+  - The colour mark master is 384×263 px. That is enough for UI and app icons (scaled up about 1.7×
+    for 1024 px icons), but print and large-format use need a vector master (GAP-BRAND-LOGO-VECTOR).
+  - The monochrome marks come from the board's small monochrome panel (114 px). Use them only small.
+
+## ADR-033: Light theme by default; dark is opt-in
+- **Decision:** light for everyone by default, regardless of OS setting.
+- **How:**
+  - Web: `data-theme` is set on `<html>` on the server from the `cos_theme` cookie (light | dark |
+    system), so the page never flashes the wrong theme.
+  - Generated tokens apply dark under `[data-theme="dark"]`, or under `[data-theme="system"]` with a
+    dark OS.
+  - Web switches: the user menu (app) and a three-way switch (Light · Dark · Device) on the website
+    and sign-in.
+  - Flutter: `ThemeController` defaults to `ThemeMode.light`; Settings → Theme offers Light, Dark or
+    Same as phone (stored on the device).
+- **Dark mode also overrides the `*-soft` status colours,** so badges and alerts need no
+  per-component dark CSS.
+
+## ADR-034: Public website lives in the web app at "/"
+- **Decision:** the website is a public route (`/`) of `apps/web`, not a separate site.
+- **Why:** it shares tokens, brand components, i18n (en/ne), the theme switch and the auth entry
+  points (`/register`, `/login`); signed-in visitors see "Open Nivaro". The middleware treats `/` as
+  public; the app stays under `/home` and the section routes.
+- **Honesty rules, enforced by `features/site/site.test.tsx`:**
+  - Every capability carries its real build status (Available now / In development).
+  - The Control Center and intelligence examples are labelled illustrative.
+  - No prices until GTM decides (GAP-SPEC-21), and no testimonials, customer logos or invented
+    adoption numbers.
+  - Product imagery is a flat illustration, labelled as a stand-in for real seller photography.
+- **Content source:** the partner brief PDF, plus specs 01/21/25/26.

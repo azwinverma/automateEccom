@@ -94,13 +94,13 @@ are done. The items below remain.
 
 | ID | Sev | Gap | Next step |
 |---|---|---|---|
-| GAP-BRAND-LOGO-REVIEW | Med | The mark and wordmark are an engineering redraw of the raster concept boards (ADR-030). Curves and optical balance have not had a designer's review. | Designer pass on `geometry.mjs` before trademark filing; re-run `render.mjs`. |
+| GAP-BRAND-LOGO-VECTOR | Med | The logo masters are cut from the raster concept board (ADR-032): colour mark 384 px, mono marks 114 px. That is fine for UI and app icons, but there is no vector master for print, signage or large-format use. | Designer exports the original vector; drop it into `logo/source` and re-run `render.mjs`. |
 | GAP-BRAND-TRADEMARK | Med | "Nivaro" trademark search and filing not done. The ™ from the boards is deliberately omitted. | Legal. |
 | GAP-BRAND-CHARACTERS | Med | The character cast and spot illustrations are **not created**. Briefs only (`assets/brand/characters`, `illustrations`). No placeholders ship. | Commission an illustrator (BRD-009/010). |
 | GAP-BRAND-MOTION | Low | Only the ribbon trace and token motion exist. Sync pulse, order-step settle, milestone animation and Lottie exports for marketing are pending. | BRD-011, with the Order Journey / Channel Sync work. |
 | GAP-BRAND-BANNERS | Low | Only the default OG/social image exists. The campaign, onboarding, AI Video, Autopilot, upgrade and milestone banner set is not built. | BRD-007. |
 | GAP-BRAND-ICONS | Low | No Android adaptive icon (foreground/background layers); legacy square mipmaps only. The in-house line icon set is not exported for Flutter, which still uses Material icons. | BRD-012. |
-| GAP-MARKETING-SITE | Med | There is no marketing website in the repo. Direction A is chosen (docs/design/LAYOUT_DIRECTIONS.md). | BRD-014 after GTM pricing (GAP-SPEC-21). |
+| GAP-MARKETING-SITE | Low | The website is built at `/` (ADR-034). Still missing: real seller photography or product screenshots (a flat illustration stands in, labelled), legal pages (privacy, terms), sitemap/robots, analytics with consent, pricing (GAP-SPEC-21), and a proof section once real customers consent. | BRD-014 follow-ups. |
 | GAP-CONSOLE-UI | Med | Nivaro Console (admin UI) does not exist; only the admin API. Brand header spec'd (26 §15, 20). | Build with ADM work. |
 | GAP-EMAIL-DOMAIN | Low | The sender address domain is undecided (`no-reply@nivaro.invalid` placeholder in config). There is no HTML email template. | Owner: domain + DNS (SPF/DKIM/DMARC). |
 | GAP-BRAND-LEGACY-DOCS | Low | `docs/Autonomous_Commerce_OS_Business_Partner_Brief.pdf` predates the brand. Technical identifiers keep `commerce-os` (intentional, ADR-028). | Regenerate the partner brief as Nivaro. |

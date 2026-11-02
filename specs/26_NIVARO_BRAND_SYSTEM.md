@@ -58,27 +58,29 @@ One continuous ribbon draws an **N**:
 Each stem folds over the diagonal, so the mark reads as one loop that keeps going. It means flow,
 continuity, automation, connected commerce, the learning loop and forward motion.
 
-**Geometry is code, not a drawing.** The single source is `packages/design-system/brand/geometry.mjs`:
-- **Mark:** a 64-unit box with a 12-unit ribbon and round caps. The diagonal runs from (24,16) to
-  (40,48), the left stem from (14,50) to (24,16), and the right stem from (40,48) to (50,14).
-- **Colour:** the ribbon runs Nivaro Blue → Teal. A navy fold shade sits at each end of the diagonal.
-- **Wordmark:** `nivaro` built from stroked geometric letters with a 6.4-unit stroke and an x-height
-  of 23. It needs no font file and renders identically everywhere.
+**The logo is the owner-approved artwork** from the concept boards (ADR-032). Nobody redraws it.
+- **Masters.** `assets/brand/logo/source/` is extracted by `assets/brand/scripts/extract_logo.py`:
+  - `nivaro-mark.png`: the colour N-loop, 384×263, transparent, clean on light and navy
+  - `nivaro-wordmark-ink.png` / `-white.png`: `nivaro`, 724×201, ™ removed until filed
+  - `nivaro-mark-ink.png` / `-white.png`: single-colour marks; small sizes only (114 px source)
+- **Regenerating.** `assets/brand/scripts/render.mjs` composes every lockup, icon and favicon from
+  the masters.
+- **Vector master.** A vector master for print and large format is pending (GAP-BRAND-LOGO-VECTOR).
+  Until it exists, do not scale the colour mark beyond ~2× its master size.
 
-`assets/brand/scripts/render.mjs` regenerates every SVG and PNG from that geometry.
-
-### Variants (`assets/brand/logo/`)
+### Variants (`assets/brand/`)
 | File | Use |
 |---|---|
-| `primary/nivaro-lockup.svg` | Default: colour mark + ink wordmark on light |
-| `primary/nivaro-mark.svg` | Mark alone (favicon, avatar, small spaces) |
-| `dark/nivaro-lockup-on-navy.svg` | Colour mark + white wordmark on Deep Navy |
-| `dark/nivaro-lockup-white.svg`, `dark/nivaro-mark-white.svg` | Single-colour white on photos or dark |
-| `monochrome/nivaro-*-ink.svg` | Single-colour ink (print, fax, embossing, partner co-branding) |
-| `light/nivaro-mark-blue.svg` | Single-colour blue, for one-colour print on light |
+| `logo/primary/nivaro-lockup.png` | Colour mark + ink wordmark on light |
+| `logo/dark/nivaro-lockup-on-navy.png`, `-white-wordmark.png` | Colour mark + white wordmark on Deep Navy / dark |
+| `logo/source/nivaro-mark.png` | Mark alone (favicon, avatar, small spaces) |
+| `logo/source/nivaro-mark-{ink,white}.png` | Single colour, small sizes |
+| `app-icons/nivaro-app-icon-{navy,light,maskable}-1024.png` | App icons (navy primary) |
+| `favicon/favicon-{16,32,48}.png`, web `favicon.ico`, `icon.png` | Browser icons |
 
-In the single-colour mark the fold is kept by two short gaps where the stems cross the diagonal. The
-mark is never a solid "N".
+In product code, use the components rather than files:
+- web `NivaroMark` / `NivaroLogo` (the wordmark is a CSS mask in `--color-brand-ink`)
+- Flutter `NivaroMark` / `NivaroLogo` (wordmark tinted by theme)
 
 ### Wordmark rules
 - Always lowercase `nivaro` in the logo. Do not retype it in a font.
@@ -90,7 +92,7 @@ mark is never a solid "N".
 
 ### Clear space and minimum size
 - **Clear space:** at least the ribbon width × 2 (= 3/8 of the mark height) on every side.
-- **Minimum mark size:** 16px on screen (favicon) and 6mm in print.
+- **Minimum mark size:** 16px on screen (favicon) and 6mm in print (print needs the vector master).
 - **Minimum lockup height:** 20px on screen and 8mm in print.
 - **Below 24px:** use the mark alone. Below 20px, the wordmark loses its counters.
 
@@ -264,7 +266,7 @@ Motion explains state change: flow, continuity, completion, progress.
 ## 14. Surfaces: brand application matrix
 | Surface | Visual energy | What is allowed |
 |---|---|---|
-| Marketing website | High | Full ribbon compositions, accents, characters, banners, motion |
+| Marketing website (`/`, built) | High | Full ribbon compositions, accents, characters, banners, motion |
 | Social media | High | Same as marketing; one accent per post |
 | Onboarding / sign-in | Medium–High | Navy brand panel, commerce loop, one underline accent |
 | Flutter home | Medium | Mark in header, Autopilot strip, milestone moments |
@@ -296,13 +298,16 @@ Motion explains state change: flow, continuity, completion, progress.
 - **Social.** Lockup top-left or bottom-left; one ribbon composition; one accent; real product photos.
 
 ## 16. Dark and light mode
-- Semantic tokens carry both modes.
-- In dark mode:
+- **Light is the default everywhere (ADR-033).**
+  - Web: dark is opt-in via the theme switch (Light · Dark · Device), stored in the `cos_theme`
+    cookie and applied on the server so there is no flash.
+  - Flutter: Settings → Theme (Light / Dark / Same as phone).
+- **Semantic tokens carry both modes.** In dark mode:
   - Ribbon gradient: lighter blue (#60A5FA) → lighter teal (#2DD4BF).
   - Canvas: #0B1220. Raised surface: #111A2E.
   - The wordmark follows `brand.ink`, which is white in dark mode.
-- The colour mark is used unchanged on Deep Navy and dark canvases. It already reads, so there is no
-  "dark logo" recolour.
+  - Navy bands become the raised dark surface.
+- **The colour mark is used unchanged on Deep Navy and dark canvases.**
 
 ## 17. Accessibility
 - **Contrast:** body text ≥4.5:1 and large text ≥3:1, in both modes.
@@ -337,14 +342,16 @@ A "no" on any point means revise it before merging.
 ## 20. Asset architecture
 ```text
 assets/brand/
-  logo/{primary,monochrome,dark,light}/   SVG (+ PNG previews) — generated
+  logo/source/                            owner artwork masters (extract_logo.py)
+  logo/{primary,dark}/                    lockups — generated
   app-icons/                              navy / light / maskable sources + 1024 PNGs — generated
   favicon/                                SVG + 32px PNG — generated
   graphics/                               n-trail, commerce-loop, hand accents — generated
   banners/                                og-default (svg/png); campaign banners (BRD-007)
   characters/  illustrations/  motion/    briefs only until real assets exist (no placeholders)
   reference/                              owner-supplied concept boards (not for production use)
-  scripts/render.mjs                      regenerates everything above + web/Flutter icons
+  scripts/extract_logo.py                 reference board → logo masters
+  scripts/render.mjs                      masters + motifs → lockups, icons, OG, web/Flutter copies
 ```
 - **Feature code** never copies brand files. Web uses `components/brand/*`; Flutter uses
   `design/widgets/nivaro_brand.dart`.

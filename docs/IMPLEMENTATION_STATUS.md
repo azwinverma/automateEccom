@@ -50,7 +50,10 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
 - Customer-facing naming: web, mobile, email, OpenAPI, TOTP issuer, WooCommerce webhook label, specs,
   README.
 - Tokens v1.0 with a light/dark semantic layer; indigo retired.
-- Logo system (mark, wordmark, lockups in colour/white/ink/blue) generated from one geometry source.
+- Logo: the owner's artwork, extracted from the concept board (ADR-032). Lockups, icons, favicon and
+  OG are generated from it, and web and Flutter render it in light and dark.
+- Light theme by default with an opt-in dark theme (web and Flutter, ADR-033).
+- Public website at `/` with sign-up and sign-in entry points (ADR-034).
 - Icons: favicon, PWA, apple, Android, iOS.
 - OG image.
 - Brand primitives in web and Flutter.
@@ -60,12 +63,12 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
 - Brand spec (26), product UI spec (18 v3), layout directions for 7 surfaces.
 
 **Remaining (not complete, see KNOWN_GAPS "Nivaro brand migration"):**
-- Designer review of the redrawn logo; trademark.
+- Vector logo master; trademark.
 - Character cast and illustrations: none exist, and no placeholders are used.
 - Motion assets beyond the ribbon trace.
 - Campaign banners.
 - Android adaptive icon; Flutter export of the icon set.
-- Marketing site; Nivaro Console UI.
+- Website follow-ups: photography, legal pages, pricing. Nivaro Console UI.
 - Email domain and HTML template.
 - Partner brief PDF regeneration.
 
@@ -415,8 +418,8 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | NET-005 | priors for cold start (courier, creative) with clear "network-based" labelling | P10 | NOT_STARTED | — | — | — |  |
 | NET-006 | privacy tests (no cross-tenant leakage, threshold enforcement) | P10 | NOT_STARTED | — | — | — |  |
 | BRD-001 | Nivaro brand migration audit | BRD | IMPLEMENTED | — | ADR-028; "Nivaro brand migration" section above; before/after screenshots reviewed | Brand guard test (no legacy name in UI copy) | Legacy technical identifiers kept by design |
-| BRD-002 | logo asset integration | BRD | IMPLEMENTED | BRD-006 | packages/design-system/brand/geometry.mjs; assets/brand/scripts/render.mjs; web components/brand; Flutter nivaro_brand.dart | Flutter widget test; visual check in shell, sign-in, mobile | Engineering redraw; designer review pending (GAP-BRAND-LOGO-REVIEW) |
-| BRD-003 | web metadata | BRD | IMPLEMENTED | BRD-002 | app/layout.tsx (title, OG, Twitter, apple web app), app/manifest.ts, icon.svg, apple-icon.png, opengraph-image.png | Manifest + icon served 200 on the dev server (manual) | `NEXT_PUBLIC_SITE_URL` needed for absolute OG URLs in prod |
+| BRD-002 | logo asset integration | BRD | TESTED | BRD-006 | Owner artwork extracted (extract_logo.py) → render.mjs; web NivaroMark/NivaroLogo (mask wordmark); Flutter Image.asset logo | Flutter widget test (light+dark); visual check web light/dark | Raster masters; vector master pending (GAP-BRAND-LOGO-VECTOR) |
+| BRD-003 | web metadata + theme | BRD | IMPLEMENTED | BRD-002 | app/layout.tsx (title, OG, Twitter, theme from cookie), app/manifest.ts, favicon.ico, icon.png, apple-icon.png, opengraph-image.png; light default (ADR-033) | Manifest + icon served 200 on the dev server (manual) | `NEXT_PUBLIC_SITE_URL` needed for absolute OG URLs in prod |
 | BRD-004 | Flutter branding | BRD | TESTED | BRD-002 | Display name, launcher icons (Android + iOS), NivaroMark/NivaroLogo, automation colour → brand blue | flutter analyze; nivaro_brand_test (2) + full suite | Never run on a device (GAP-MOBILE-TOOLCHAIN) |
 | BRD-005 | Nivaro Console branding | BRD | NOT_STARTED | ADM | specs/26 §15, specs/20, layout direction A | — | Console UI does not exist (GAP-CONSOLE-UI) |
 | BRD-006 | design-token migration | BRD | TESTED | — | design-tokens.json v1.0 semantic layer; generator emits light/dark CSS, TS, Dart AppColorsLight/Dark | Brand guard (no hex/indigo); all CSS vars resolve (checked) | Legacy aliases kept |
@@ -427,8 +430,8 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-011 | motion system | BRD | IN_PROGRESS | BRD-006 | Motion tokens incl. flow; reduced-motion zeroing; ribbon trace (`NTrail animate`) | — | Sync pulse, step settle, milestone pending (GAP-BRAND-MOTION) |
 | BRD-012 | app icon / favicon | BRD | IMPLEMENTED | BRD-002 | Generated favicon, apple, PWA (incl. maskable), Android mipmaps, iOS AppIcon | Visual check | Adaptive Android icon + Flutter icon set pending (GAP-BRAND-ICONS) |
 | BRD-013 | dark/light logo variants | BRD | IMPLEMENTED | BRD-002 | assets/brand/logo/{primary,dark,light,monochrome} | Visual check | |
-| BRD-014 | marketing-site art direction | BRD | IN_PROGRESS | GTM | Direction A chosen (docs/design/LAYOUT_DIRECTIONS.md §1) | — | No marketing site in repo (GAP-MARKETING-SITE) |
+| BRD-014 | marketing-site art direction + build | BRD | TESTED | GTM | Public site at `/` (features/site): en/ne, light default + theme switch, ribbon lifecycle, illustrative fragments, hand accents, scroll reveal/trace/count-up (reduced-motion safe) | site.test.tsx (5); e2e/site.spec.ts (desktop + 360px); visual review light/dark/ne/mobile | No prices/photos/legal pages yet (GAP-MARKETING-SITE) |
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 5, IMPLEMENTED 29, IN_PROGRESS 13, NOT_STARTED 206, TESTED 80. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 5, IMPLEMENTED 28, IN_PROGRESS 12, NOT_STARTED 206, TESTED 82. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
