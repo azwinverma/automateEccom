@@ -1,0 +1,17 @@
+{
+  "id": "kurta-maroon-dhaka",
+  "photos": [
+    "placeholder_kurta.jpg"
+  ],
+  "locale": "ne",
+  "notes": "cotton kurta, dhaka border",
+  "expect": {
+    "category_contains": [
+      "kurta"
+    ],
+    "attributes": {
+      "material": "cotton"
+    },
+    "sizes_known": false
+  }
+}

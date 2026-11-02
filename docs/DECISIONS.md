@@ -118,3 +118,9 @@ FastAPI 0.118+ runs `yield` dependency teardown after the response is sent by de
 - **Fix:** every `get_db` dependency declares `scope="function"`, used uniformly so that tenant binding and the endpoint share one session.
 - **Guard:** a structural test walks every route's dependency tree and fails on any other scope.
 - **Lesson:** this regression arrived with a security-driven dependency upgrade (ADR-014). Upgrades must run the full E2E suite against a real stack, not only unit tests.
+
+## ADR-022: Migrations that add NOT NULL columns ship with a server default
+Adding a NOT NULL column without a server default fails on a populated table. The brand-voice migration hit this locally, against 56 merchants. Rules:
+- New NOT NULL columns get a `server_default`, mirrored in the model so `alembic check` stays clean.
+- Every migration is round-tripped (upgrade → downgrade → upgrade) against a database with data before merge, not only an empty one.
+- Changes to existing CHECK constraints are not detected by autogenerate and are written by hand, using `op.f()` for the full constraint name (see 0007).

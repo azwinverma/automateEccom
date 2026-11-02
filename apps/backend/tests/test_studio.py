@@ -85,7 +85,7 @@ def test_photos_to_draft_to_product_with_grounded_attributes(client, seller):
     assert job["draft"]["hashtags"] == ["kurta", "dhaka", "nepalifashion"]  # normalised
     assert job["needs_review"] is True  # model asked the seller for price + sizes
     assert job["issues"] == []
-    assert job["ai"]["provider"] == "sandbox" and job["ai"]["prompt_version"] == 1
+    assert job["ai"]["provider"] == "sandbox" and job["ai"]["prompt_version"] == 2
     with session_scope() as db:
         ex = db.scalar(select(AIExecution).where(AIExecution.status == "succeeded"))
         assert ex.task == "PRODUCT_EXTRACTION" and ex.prompt_name == "studio.product_extraction"
@@ -204,3 +204,46 @@ def test_grounding_unit():
     v = grounding.check({"c": "रू 1,500 मा पाउनुहोस्! निःशुल्क डेलिभरी"})
     assert {x.kind for x in v} == {"price", "delivery"}
     assert grounding.check({"c": "Soft cotton, straight fit, message us for sizes"}) == []
+
+
+def test_brand_voice_and_no_unrendered_placeholders_reach_the_model(client, seller, monkeypatch):
+    seen = {}
+    original = SandboxAdapter.generate_structured
+
+    def capture(self, model, req, **kw):
+        seen["text"] = req.messages[-1].text
+        return original(self, model, req, **kw)
+
+    monkeypatch.setattr(SandboxAdapter, "generate_structured", capture)
+    SandboxAdapter.override_data["sandbox-text"] = DRAFT
+    r = client.patch(
+        "/api/v1/merchant",
+        headers=seller.h(),
+        json={
+            "brand_tone": "premium",
+            "brand_emoji": "none",
+            "brand_avoid_words": ["cheap", "sasto"],
+            "brand_sample_caption": "Handwoven in Bhaktapur. Message us to reserve yours.",
+        },
+    )
+    assert r.status_code == 200 and r.json()["brand_tone"] == "premium"
+    _run(client, seller, [upload(client, seller, phone_photo())["id"]], notes="cotton")
+    text = seen["text"]
+    assert "polished and understated" in text and "no emoji" in text and "cheap, sasto" in text
+    assert "Handwoven in Bhaktapur" in text and "$" not in text  # every template variable was filled
+    audit = client.get("/api/v1/audit-logs?action=merchants.merchant_updated", headers=seller.h()).json()[
+        "items"
+    ]
+    assert audit and audit[0]["changes"]["brand_tone"] == ["friendly", "premium"]
+
+
+def test_eval_prompt_has_no_unrendered_placeholders():
+    from pathlib import Path
+
+    from app.domains.ai.evals.runner import EVALS_DIR, _request
+
+    path = next(Path(EVALS_DIR / "product_extraction").glob("*.json"))
+    import json
+
+    req = _request(path, json.loads(path.read_text()))
+    assert "$" not in req.messages[-1].text

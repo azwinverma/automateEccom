@@ -32,7 +32,7 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-AI-PROVIDER-VERIFY | Med | OpenAI and Gemini adapters follow documented REST shapes but were never called live. Model IDs and pricing are unverified and pricing is omitted, so their cost is recorded as unknown. The Claude adapter is unit-tested with a mocked SDK client but has not made a live call. | Provide keys for staging; run a live contract test per provider; fill pricing. |
 | GAP-AI-MEDIA | Med | Image and video providers are sandbox-only. | Choose providers (fidelity requirements in brief §5–6). |
 | GAP-AI-ROUTING-DB | Low | Routing policy is file-based; no admin override or cost/latency-aware ordering yet. | ADM-009 + use health scores in ordering. |
-| GAP-AI-EVALS | Med | No eval harness (AIG-015) or prompt registry service. | Phase 1, alongside the first real prompts. |
+| GAP-AI-EVALS | Med | The eval harness exists, but its cases use synthetic placeholder photos. | Collect consented real seller photos per category, plus a live provider key, and set the CI quality threshold. |
 | GAP-AI-BUDGET | Low | No seller AI spend budget separate from plan quotas. | Decide whether quotas suffice. |
 
 ## Product / UX
@@ -58,7 +58,6 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-WOO-LIVE | Med | The WooCommerce adapter is contract-tested only. Per-store webhook registration (`POST /webhooks` with a per-connection secret) and per-connection webhook verification are not built yet. | Test against a real store; add webhook registration and routing by connection. |
 | GAP-IMPORT-QUEUE | Low | The CSV import runs inside the outbox handler, which blocks that dispatcher for up to ~5,000 rows. | Move to a Celery task on its own queue, as Studio does. |
 | GAP-CLAMAV-COMPOSE | Med | ClamAV is not in docker compose. Dev uses the no-op scanner (assets show `scan_status: skipped`); production refuses to start without clamd. | Add a `clamav` service under a compose profile and a staging deployment. |
-| GAP-BRAND-VOICE | Low | No per-merchant brand voice profile (CNT-001) feeds the prompts yet. | Add a merchant settings field + prompt variable. |
 | GAP-CHN-RECON | Med | No periodic reconciliation against providers (CHN-012), so drift made directly on a platform isn't detected. | Implement once a real adapter exists. |
 | GAP-CATALOG-TAXONOMY | Low | Categories are per-merchant; there is no shared Nepal-relevant base taxonomy or marketplace category mapping. | Seed a base taxonomy; map it per channel when real adapters land. |
 

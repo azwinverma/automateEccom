@@ -6,7 +6,7 @@ from app.domains.studio.schema import EXTRACTION_SCHEMA
 PRODUCT_EXTRACTION = register(
     Prompt(
         name="studio.product_extraction",
-        version=1,
+        version=2,
         schema=EXTRACTION_SCHEMA,
         system="""You prepare product listings for small online sellers in Nepal who sell on Instagram, Facebook and TikTok.
 
@@ -23,7 +23,9 @@ Rules:
 - captions: platform-appropriate and different from each other — Instagram warm with line breaks, Facebook clearer and a little longer, TikTok short and punchy. Invite customers to message the shop; do not promise anything the rules above forbid.
 - hashtags: lowercase, no '#', mix of English and romanised Nepali where natural, max 15.
 - confidence: your overall confidence that the listing is accurate.""",
-        user="""Seller notes (may be empty): $notes
+        user="""Brand voice: $brand_voice
+
+Seller notes (may be empty): $notes
 
 Preferred customer language: $locale
 

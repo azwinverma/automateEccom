@@ -26,3 +26,4 @@ apps/mobile/.flutter-plugins*
 .DS_Store
 # Local data
 .data/
+apps/backend/evals/reports/

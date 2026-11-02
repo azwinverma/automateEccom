@@ -49,6 +49,10 @@ class MerchantOut(BaseModel):
     default_locale: str
     status: str
     automation_mode: str
+    brand_tone: str
+    brand_emoji: str
+    brand_avoid_words: list[str]
+    brand_sample_caption: str | None
     created_at: datetime
 
     @staticmethod
@@ -63,6 +67,10 @@ class MerchantOut(BaseModel):
             default_locale=m.default_locale,
             status=m.status,
             automation_mode=m.automation_mode,
+            brand_tone=m.brand_tone,
+            brand_emoji=m.brand_emoji,
+            brand_avoid_words=m.brand_avoid_words,
+            brand_sample_caption=m.brand_sample_caption,
             created_at=m.created_at,
         )
 
@@ -112,6 +120,10 @@ class MerchantPatch(BaseModel):
     timezone: str | None = None
     default_locale: Literal["en", "ne"] | None = None
     automation_mode: Literal["assisted", "smart", "autopilot"] | None = None
+    brand_tone: Literal["friendly", "premium", "playful", "minimal"] | None = None
+    brand_emoji: Literal["none", "light", "lots"] | None = None
+    brand_avoid_words: list[str] | None = Field(default=None, max_length=30)
+    brand_sample_caption: str | None = Field(default=None, max_length=600)
 
     @field_validator("timezone")
     @classmethod

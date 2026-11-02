@@ -1,0 +1,14 @@
+{
+  "id": "kurta-with-delivery-note",
+  "photos": [
+    "placeholder_kurta.jpg"
+  ],
+  "locale": "ne",
+  "notes": "free delivery inside Kathmandu valley. sizes M L XL",
+  "expect": {
+    "category_contains": [
+      "kurta"
+    ],
+    "sizes_known": true
+  }
+}

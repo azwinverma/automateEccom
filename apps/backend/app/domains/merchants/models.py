@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import CheckConstraint, ForeignKey, Index, String, UniqueConstraint, text
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base, IdMixin, TenantScoped, TimestampMixin
@@ -17,6 +18,8 @@ class Merchant(IdMixin, TimestampMixin, Base):
         CheckConstraint("status in ('active','suspended','closed')", name="status"),
         CheckConstraint("default_locale in ('en','ne')", name="default_locale"),
         CheckConstraint("char_length(currency) = 3", name="currency"),
+        CheckConstraint("brand_tone in ('friendly','premium','playful','minimal')", name="brand_tone"),
+        CheckConstraint("brand_emoji in ('none','light','lots')", name="brand_emoji"),
     )
 
     name: Mapped[str] = mapped_column(String(160), nullable=False)
@@ -27,6 +30,17 @@ class Merchant(IdMixin, TimestampMixin, Base):
     default_locale: Mapped[str] = mapped_column(String(5), default="ne", nullable=False)
     status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
     automation_mode: Mapped[str] = mapped_column(String(16), default="assisted", nullable=False)
+    # Brand voice (CNT-001): fed to copy-generation prompts.
+    brand_tone: Mapped[str] = mapped_column(
+        String(16), default="friendly", server_default="friendly", nullable=False
+    )
+    brand_emoji: Mapped[str] = mapped_column(
+        String(8), default="light", server_default="light", nullable=False
+    )
+    brand_avoid_words: Mapped[list[str]] = mapped_column(
+        ARRAY(String(40)), default=list, server_default="{}", nullable=False
+    )
+    brand_sample_caption: Mapped[str | None] = mapped_column(String(600))
 
 
 class Store(IdMixin, TimestampMixin, TenantScoped, Base):

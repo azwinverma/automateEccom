@@ -168,12 +168,17 @@ def run_job(job_id: uuid.UUID) -> StudioJob | None:
             return job
         job.status, job.attempts = "running", job.attempts + 1
         merchant_id, locale, notes = job.merchant_id, job.locale, job.seller_notes or ""
+        brand_voice = describe_brand_voice(db, merchant_id)
         images = _images(db, job)
         prompt = get_prompt(db, PROMPT, "en")
     request = AIRequest(
         system=prompt.system,
         messages=(
-            Message("user", prompt.render_user(notes=notes or "(none)", locale=locale), tuple(images)),
+            Message(
+                "user",
+                prompt.render_user(notes=notes or "(none)", locale=locale, brand_voice=brand_voice),
+                tuple(images),
+            ),
         ),
         json_schema=prompt.schema,
         max_tokens=6000,
@@ -248,6 +253,30 @@ def run_job(job_id: uuid.UUID) -> StudioJob | None:
             metadata={"confidence": res.confidence, "issues": len(issues), "fallback": res.fallback_used},
         )
         return job
+
+
+def describe_brand_voice(db: Session, merchant_id: uuid.UUID) -> str:
+    """Plain-language brand voice for the prompt: style guidance only, never facts or claims."""
+    from app.domains.merchants.models import Merchant
+
+    m = db.get(Merchant, merchant_id)
+    if m is None:
+        return "warm and friendly; at most one or two emoji"
+    tone = {
+        "friendly": "warm and friendly",
+        "premium": "polished and understated",
+        "playful": "playful and upbeat",
+        "minimal": "short and plain",
+    }[m.brand_tone]
+    emoji = {"none": "no emoji", "light": "at most one or two emoji", "lots": "emoji are welcome"}[
+        m.brand_emoji
+    ]
+    parts = [tone, emoji]
+    if m.brand_avoid_words:
+        parts.append("never use these words: " + ", ".join(m.brand_avoid_words[:30]))
+    if m.brand_sample_caption:
+        parts.append(f'match the style (not the content) of this sample: "{m.brand_sample_caption[:600]}"')
+    return "; ".join(parts)
 
 
 def requeue_stale(db: Session, older_than: timedelta = timedelta(minutes=10)) -> int:

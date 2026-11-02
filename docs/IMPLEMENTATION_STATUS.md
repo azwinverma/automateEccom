@@ -13,7 +13,7 @@ _Last updated: 2026-11-02 — Phase 0 complete (open: CI run, staging target); P
 
 | Area | Result (2026-11-02) |
 |---|---|
-| Backend | ruff + mypy clean · 138 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 6 migrations, upgrade/downgrade/check clean |
+| Backend | ruff + mypy clean · 144 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 8 migrations, upgrade/downgrade/check clean |
 | Web | typecheck, lint, 95 component tests, 20 api-client tests, production build; Playwright E2E (2 specs × desktop + 360px) passing against the **real** backend |
 | Mobile | `flutter analyze` clean · 51 tests · not yet built for a device or run against the real backend |
 | Containers | backend image built; compose stack booted (migrate → api → worker/beat) and outbox email dispatch verified |
@@ -102,7 +102,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | AIG-012 | prompt registry | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/prompts.py | test_studio | Versioned built-in prompts with DB override; version recorded per execution |
 | AIG-013 | schema validation | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/gateway.py | test_ai_gateway::test_schema_violation…, test_low_confidence… | JSON-schema validation, confidence → needs_review |
 | AIG-014 | cost ledger | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/models.py, gateway.py | test_ai_gateway::test_structured_success… | Per-attempt ledger: provider/model/tokens/cost/latency/credits/plan/prompt/trace |
-| AIG-015 | eval harness | P0 | NOT_STARTED | AIG-012 | — | — | Eval harness needs real prompts (Phase 1) |
+| AIG-015 | eval harness | P0 | IMPLEMENTED | AIG-012 | apps/backend/app/domains/ai/evals/, apps/backend/evals/ | test_evals | Deterministic scorers + gates (schema, grounding), Nepali-script check, invented-size check; CLI writes JSON reports and refuses to call a sandbox run a quality result. **Needs real consented seller photos + a live key to measure quality** |
 | CAT-001 | Product | P1 | TESTED | IAM-006 | apps/backend/app/domains/catalog/ | test_catalog | Product with i18n fields, SEO, tags, optimistic lock (version) |
 | CAT-002 | Variant | P1 | TESTED | CAT-001 | apps/backend/app/domains/catalog/models.py, service.py | test_catalog | Variants ≤100, unique option combination, dims/weight |
 | CAT-003 | options | P1 | TESTED | CAT-002 | apps/backend/app/domains/catalog/service.py | test_catalog | ≤3 options, values case-insensitive, relational links |
@@ -124,7 +124,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | MED-009 | video job state | P1 | TESTED | MED-008 | apps/backend/app/domains/media/models.py (VideoJob), video.py | test_reels | queued→generating→post_processing→ready/failed/cancelled; premium provider path uses same states (provider not chosen) |
 | MED-010 | media metering | P1 | IMPLEMENTED | BIL-006 | apps/backend/app/domains/media/service.py | test_media::test_upload_request_validation… | storage_mb gauge; image/video generation metering awaits MED-006/008 |
 | MED-011 | lifecycle cleanup | P1 | IMPLEMENTED | MED-001 | apps/backend/app/domains/media/service.py, worker/tasks.py | — | Abandoned uploads purged after 24h; deleted assets' objects removed |
-| CNT-001 | brand voice | P1 | NOT_STARTED | CNT-002 | — | — | Brand voice profile per merchant (prompt input) not built |
+| CNT-001 | brand voice | P1 | TESTED | CNT-002 | apps/backend/app/domains/merchants/, studio/service.py | test_studio::test_brand_voice… | Tone/emoji/avoid-words/sample caption on merchant (audited), injected into prompt v2 as style-only guidance |
 | CNT-002 | titles | P1 | TESTED | AIG-001 | apps/backend/app/domains/studio/ | test_studio | Titles en/ne via Product Studio extraction |
 | CNT-003 | descriptions | P1 | TESTED | CNT-002 | apps/backend/app/domains/studio/ | test_studio | Descriptions + bullets en/ne |
 | CNT-004 | SEO | P1 | TESTED | CNT-002 | apps/backend/app/domains/studio/ | test_studio | SEO title/description with length limits |

@@ -6,6 +6,7 @@ import re
 import unicodedata
 import uuid
 from datetime import timedelta
+from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -118,7 +119,7 @@ def create_merchant(
     return merchant
 
 
-def update_merchant(db: Session, ctx: TenantContext, **fields: str | None) -> Merchant:
+def update_merchant(db: Session, ctx: TenantContext, **fields: Any) -> Merchant:
     m = db.get(Merchant, ctx.merchant_id)
     assert m is not None
     before = {k: getattr(m, k) for k in fields}
