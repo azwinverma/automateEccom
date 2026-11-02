@@ -1,0 +1,13 @@
+{
+  "name": "@commerce-os/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens": "./dist/tokens.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build-tokens.mjs"
+  }
+}

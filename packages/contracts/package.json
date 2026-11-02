@@ -1,0 +1,7 @@
+{
+  "name": "@commerce-os/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-platform contracts: event catalog, entitlement definitions, AI routing policy.",
+  "files": ["*.json"]
+}

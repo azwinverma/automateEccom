@@ -1,0 +1,70 @@
+[project]
+name = "commerce-os-backend"
+version = "0.1.0"
+description = "AI Commerce OS — modular monolith API + workers"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi>=0.115.12",
+  "uvicorn[standard]>=0.34.2",
+  "pydantic[email]>=2.11.4",
+  "pydantic-settings>=2.9.1",
+  "sqlalchemy>=2.0.40",
+  "psycopg[binary]>=3.2.7",
+  "alembic>=1.15.2",
+  "redis>=5.2.1",
+  "celery>=5.5.2",
+  "argon2-cffi>=23.1.0",
+  "pyjwt>=2.10.1",
+  "pyotp>=2.9.0",
+  "structlog>=25.3.0",
+  "prometheus-client>=0.21.1",
+  "opentelemetry-api>=1.32.1",
+  "opentelemetry-sdk>=1.32.1",
+  "opentelemetry-exporter-otlp-proto-http>=1.32.1",
+  "httpx>=0.28.1",
+  "cryptography>=44.0.3",
+  "jsonschema>=4.23.0",
+  "anthropic>=1,<2",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3.5",
+  "pytest-cov>=6.1.1",
+  "ruff>=0.11.8",
+  "mypy>=1.15.0",
+  "respx>=0.22.0",
+  "pip-audit>=2.9.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "N", "SIM", "RUF", "DTZ", "T20"]
+ignore = ["S101", "B008", "RUF012", "S105", "S106", "N818"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "DTZ", "SIM117", "B017", "N817"]
+"migrations/**" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = ["integration: needs postgres+redis"]
+filterwarnings = ["error::DeprecationWarning:app.*"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true

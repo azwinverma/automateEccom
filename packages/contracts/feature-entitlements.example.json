@@ -1,0 +1,858 @@
+{
+  "$description": "Plan/feature/limit definitions loaded into the database by `python -m app.cli seed-plans`. The database is the runtime source of truth; admins edit plans there (creating a new PlanVersion) without redeploying.",
+  "$provisional": "Only the premium video limits (Growth 20/mo max 4/day, Pro 60/10, Business 180/30) come from specs/08. All other limits are PROVISIONAL engineering defaults pending specs/21_GTM_PRICING_PACKAGING.md, which is not in the repository. Prices are intentionally null (not configured) \u2014 see docs/KNOWN_GAPS.md GAP-SPEC-21.",
+  "version": "0.1.0",
+  "features": [
+    {
+      "code": "catalog.products",
+      "name": "Universal catalog"
+    },
+    {
+      "code": "ai.product_studio",
+      "name": "AI Product Studio"
+    },
+    {
+      "code": "ai.text_generation",
+      "name": "AI copy generation"
+    },
+    {
+      "code": "ai.image_generation",
+      "name": "AI image generation & editing"
+    },
+    {
+      "code": "video.auto_reels",
+      "name": "Auto Reels from seller media"
+    },
+    {
+      "code": "video.premium",
+      "name": "Premium generative AI video"
+    },
+    {
+      "code": "inbox.unified",
+      "name": "Unified inbox"
+    },
+    {
+      "code": "inbox.ai_replies",
+      "name": "AI suggested and automatic replies"
+    },
+    {
+      "code": "ai.sales_agent",
+      "name": "AI Sales Agent"
+    },
+    {
+      "code": "orders.chat_to_order",
+      "name": "Conversation to order"
+    },
+    {
+      "code": "automation.workflows",
+      "name": "Automation workflows"
+    },
+    {
+      "code": "automation.autopilot",
+      "name": "Autopilot mode"
+    },
+    {
+      "code": "analytics.profit",
+      "name": "Profit intelligence & product P&L"
+    },
+    {
+      "code": "ai.store_manager",
+      "name": "AI Store Manager"
+    },
+    {
+      "code": "procurement",
+      "name": "Suppliers & purchase orders"
+    },
+    {
+      "code": "stores.multiple",
+      "name": "Multiple stores/brands"
+    },
+    {
+      "code": "inventory.multi_location",
+      "name": "Multiple warehouses/locations"
+    },
+    {
+      "code": "api.access",
+      "name": "Public API & API keys"
+    },
+    {
+      "code": "ai.byok",
+      "name": "Bring your own AI provider key"
+    },
+    {
+      "code": "security.sso",
+      "name": "Enterprise SSO"
+    },
+    {
+      "code": "roles.custom",
+      "name": "Custom roles"
+    },
+    {
+      "code": "audit.export",
+      "name": "Audit log export"
+    }
+  ],
+  "resources": [
+    {
+      "code": "products",
+      "name": "Active products",
+      "unit": "product",
+      "kind": "gauge",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "orders",
+      "name": "Orders",
+      "unit": "order",
+      "kind": "consumable",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "channels",
+      "name": "Connected channels",
+      "unit": "channel",
+      "kind": "gauge",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "team_members",
+      "name": "Team members (incl. pending invites)",
+      "unit": "member",
+      "kind": "gauge",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "stores",
+      "name": "Stores/brands",
+      "unit": "store",
+      "kind": "gauge",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "ai_text_generations",
+      "name": "AI text generations",
+      "unit": "generation",
+      "kind": "consumable",
+      "credits_per_unit": 1
+    },
+    {
+      "code": "ai_inbox_replies",
+      "name": "AI inbox replies",
+      "unit": "reply",
+      "kind": "consumable",
+      "credits_per_unit": 1
+    },
+    {
+      "code": "ai_images",
+      "name": "AI images",
+      "unit": "image",
+      "kind": "consumable",
+      "credits_per_unit": 4
+    },
+    {
+      "code": "auto_reels",
+      "name": "Auto Reels",
+      "unit": "reel",
+      "kind": "consumable",
+      "credits_per_unit": 10
+    },
+    {
+      "code": "premium_video_clips",
+      "name": "Premium AI video clips",
+      "unit": "clip",
+      "kind": "consumable",
+      "credits_per_unit": 60
+    },
+    {
+      "code": "storage_mb",
+      "name": "Media storage",
+      "unit": "MB",
+      "kind": "gauge",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "automation_runs",
+      "name": "Automation runs",
+      "unit": "run",
+      "kind": "consumable",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "automation_workflows",
+      "name": "Active automation workflows",
+      "unit": "workflow",
+      "kind": "gauge",
+      "credits_per_unit": 0
+    },
+    {
+      "code": "api_requests",
+      "name": "API requests",
+      "unit": "request",
+      "kind": "consumable",
+      "credits_per_unit": 0
+    }
+  ],
+  "plans": [
+    {
+      "code": "starter",
+      "name": "Starter",
+      "tagline_key": "plan.starter.tagline",
+      "sort_order": 10,
+      "is_public": true,
+      "is_default_for_signup": true,
+      "version": {
+        "currency": "NPR",
+        "price_monthly_minor": null,
+        "price_annual_minor": null,
+        "trial_days": 14,
+        "features": {
+          "catalog.products": true,
+          "ai.product_studio": true,
+          "ai.text_generation": true,
+          "ai.image_generation": true,
+          "video.auto_reels": true,
+          "video.premium": false,
+          "inbox.unified": false,
+          "inbox.ai_replies": false,
+          "ai.sales_agent": false,
+          "orders.chat_to_order": false,
+          "automation.workflows": false,
+          "automation.autopilot": false,
+          "analytics.profit": false,
+          "ai.store_manager": false,
+          "procurement": false,
+          "stores.multiple": false,
+          "inventory.multi_location": false,
+          "api.access": false,
+          "ai.byok": false,
+          "security.sso": false,
+          "roles.custom": false,
+          "audit.export": false
+        },
+        "limits": [
+          {
+            "resource": "products",
+            "period": "lifetime",
+            "limit": 100,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "orders",
+            "period": "month",
+            "limit": 300,
+            "overage_policy": "overage"
+          },
+          {
+            "resource": "channels",
+            "period": "lifetime",
+            "limit": 2,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "team_members",
+            "period": "lifetime",
+            "limit": 2,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "stores",
+            "period": "lifetime",
+            "limit": 1,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "ai_text_generations",
+            "period": "month",
+            "limit": 300,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_inbox_replies",
+            "period": "month",
+            "limit": 0,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_images",
+            "period": "month",
+            "limit": 30,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "auto_reels",
+            "period": "month",
+            "limit": 10,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "month",
+            "limit": 0,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "day",
+            "limit": 0,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "storage_mb",
+            "period": "lifetime",
+            "limit": 2048,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_runs",
+            "period": "month",
+            "limit": 0,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_workflows",
+            "period": "lifetime",
+            "limit": 0,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "api_requests",
+            "period": "month",
+            "limit": 0,
+            "overage_policy": "block"
+          }
+        ]
+      }
+    },
+    {
+      "code": "growth",
+      "name": "Growth",
+      "tagline_key": "plan.growth.tagline",
+      "sort_order": 20,
+      "is_public": true,
+      "is_default_for_signup": false,
+      "version": {
+        "currency": "NPR",
+        "price_monthly_minor": null,
+        "price_annual_minor": null,
+        "trial_days": 0,
+        "features": {
+          "catalog.products": true,
+          "ai.product_studio": true,
+          "ai.text_generation": true,
+          "ai.image_generation": true,
+          "video.auto_reels": true,
+          "video.premium": true,
+          "inbox.unified": true,
+          "inbox.ai_replies": true,
+          "ai.sales_agent": true,
+          "orders.chat_to_order": true,
+          "automation.workflows": true,
+          "automation.autopilot": false,
+          "analytics.profit": false,
+          "ai.store_manager": false,
+          "procurement": false,
+          "stores.multiple": false,
+          "inventory.multi_location": false,
+          "api.access": false,
+          "ai.byok": false,
+          "security.sso": false,
+          "roles.custom": false,
+          "audit.export": false
+        },
+        "limits": [
+          {
+            "resource": "products",
+            "period": "lifetime",
+            "limit": 1000,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "orders",
+            "period": "month",
+            "limit": 2000,
+            "overage_policy": "overage"
+          },
+          {
+            "resource": "channels",
+            "period": "lifetime",
+            "limit": 4,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "team_members",
+            "period": "lifetime",
+            "limit": 5,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "stores",
+            "period": "lifetime",
+            "limit": 1,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "ai_text_generations",
+            "period": "month",
+            "limit": 1500,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_inbox_replies",
+            "period": "month",
+            "limit": 2000,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_images",
+            "period": "month",
+            "limit": 150,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "auto_reels",
+            "period": "month",
+            "limit": 40,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "month",
+            "limit": 20,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "day",
+            "limit": 4,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "storage_mb",
+            "period": "lifetime",
+            "limit": 10240,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_runs",
+            "period": "month",
+            "limit": 2000,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_workflows",
+            "period": "lifetime",
+            "limit": 5,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "api_requests",
+            "period": "month",
+            "limit": 0,
+            "overage_policy": "block"
+          }
+        ]
+      }
+    },
+    {
+      "code": "pro",
+      "name": "Pro",
+      "tagline_key": "plan.pro.tagline",
+      "sort_order": 30,
+      "is_public": true,
+      "is_default_for_signup": false,
+      "version": {
+        "currency": "NPR",
+        "price_monthly_minor": null,
+        "price_annual_minor": null,
+        "trial_days": 0,
+        "features": {
+          "catalog.products": true,
+          "ai.product_studio": true,
+          "ai.text_generation": true,
+          "ai.image_generation": true,
+          "video.auto_reels": true,
+          "video.premium": true,
+          "inbox.unified": true,
+          "inbox.ai_replies": true,
+          "ai.sales_agent": true,
+          "orders.chat_to_order": true,
+          "automation.workflows": true,
+          "automation.autopilot": true,
+          "analytics.profit": true,
+          "ai.store_manager": true,
+          "procurement": true,
+          "stores.multiple": false,
+          "inventory.multi_location": false,
+          "api.access": false,
+          "ai.byok": false,
+          "security.sso": false,
+          "roles.custom": false,
+          "audit.export": false
+        },
+        "limits": [
+          {
+            "resource": "products",
+            "period": "lifetime",
+            "limit": 5000,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "orders",
+            "period": "month",
+            "limit": 10000,
+            "overage_policy": "overage"
+          },
+          {
+            "resource": "channels",
+            "period": "lifetime",
+            "limit": 8,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "team_members",
+            "period": "lifetime",
+            "limit": 10,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "stores",
+            "period": "lifetime",
+            "limit": 2,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "ai_text_generations",
+            "period": "month",
+            "limit": 5000,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_inbox_replies",
+            "period": "month",
+            "limit": 10000,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_images",
+            "period": "month",
+            "limit": 500,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "auto_reels",
+            "period": "month",
+            "limit": 120,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "month",
+            "limit": 60,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "day",
+            "limit": 10,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "storage_mb",
+            "period": "lifetime",
+            "limit": 51200,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_runs",
+            "period": "month",
+            "limit": 20000,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_workflows",
+            "period": "lifetime",
+            "limit": 25,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "api_requests",
+            "period": "month",
+            "limit": 0,
+            "overage_policy": "block"
+          }
+        ]
+      }
+    },
+    {
+      "code": "business",
+      "name": "Business",
+      "tagline_key": "plan.business.tagline",
+      "sort_order": 40,
+      "is_public": true,
+      "is_default_for_signup": false,
+      "version": {
+        "currency": "NPR",
+        "price_monthly_minor": null,
+        "price_annual_minor": null,
+        "trial_days": 0,
+        "features": {
+          "catalog.products": true,
+          "ai.product_studio": true,
+          "ai.text_generation": true,
+          "ai.image_generation": true,
+          "video.auto_reels": true,
+          "video.premium": true,
+          "inbox.unified": true,
+          "inbox.ai_replies": true,
+          "ai.sales_agent": true,
+          "orders.chat_to_order": true,
+          "automation.workflows": true,
+          "automation.autopilot": true,
+          "analytics.profit": true,
+          "ai.store_manager": true,
+          "procurement": true,
+          "stores.multiple": true,
+          "inventory.multi_location": true,
+          "api.access": true,
+          "ai.byok": true,
+          "security.sso": false,
+          "roles.custom": true,
+          "audit.export": true
+        },
+        "limits": [
+          {
+            "resource": "products",
+            "period": "lifetime",
+            "limit": 20000,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "orders",
+            "period": "month",
+            "limit": 50000,
+            "overage_policy": "overage"
+          },
+          {
+            "resource": "channels",
+            "period": "lifetime",
+            "limit": 20,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "team_members",
+            "period": "lifetime",
+            "limit": 30,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "stores",
+            "period": "lifetime",
+            "limit": 5,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "ai_text_generations",
+            "period": "month",
+            "limit": 20000,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_inbox_replies",
+            "period": "month",
+            "limit": 40000,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_images",
+            "period": "month",
+            "limit": 2000,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "auto_reels",
+            "period": "month",
+            "limit": 400,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "month",
+            "limit": 180,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "day",
+            "limit": 30,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "storage_mb",
+            "period": "lifetime",
+            "limit": 204800,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_runs",
+            "period": "month",
+            "limit": 100000,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_workflows",
+            "period": "lifetime",
+            "limit": 100,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "api_requests",
+            "period": "month",
+            "limit": 200000,
+            "overage_policy": "block"
+          }
+        ]
+      }
+    },
+    {
+      "code": "enterprise",
+      "name": "Enterprise",
+      "tagline_key": "plan.enterprise.tagline",
+      "sort_order": 50,
+      "is_public": false,
+      "is_default_for_signup": false,
+      "version": {
+        "currency": "NPR",
+        "price_monthly_minor": null,
+        "price_annual_minor": null,
+        "trial_days": 0,
+        "features": {
+          "catalog.products": true,
+          "ai.product_studio": true,
+          "ai.text_generation": true,
+          "ai.image_generation": true,
+          "video.auto_reels": true,
+          "video.premium": true,
+          "inbox.unified": true,
+          "inbox.ai_replies": true,
+          "ai.sales_agent": true,
+          "orders.chat_to_order": true,
+          "automation.workflows": true,
+          "automation.autopilot": true,
+          "analytics.profit": true,
+          "ai.store_manager": true,
+          "procurement": true,
+          "stores.multiple": true,
+          "inventory.multi_location": true,
+          "api.access": true,
+          "ai.byok": true,
+          "security.sso": true,
+          "roles.custom": true,
+          "audit.export": true
+        },
+        "limits": [
+          {
+            "resource": "products",
+            "period": "lifetime",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "orders",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "channels",
+            "period": "lifetime",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "team_members",
+            "period": "lifetime",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "stores",
+            "period": "lifetime",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "ai_text_generations",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_inbox_replies",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "ai_images",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "auto_reels",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "credits"
+          },
+          {
+            "resource": "premium_video_clips",
+            "period": "day",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "storage_mb",
+            "period": "lifetime",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_runs",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "automation_workflows",
+            "period": "lifetime",
+            "limit": null,
+            "overage_policy": "block"
+          },
+          {
+            "resource": "api_requests",
+            "period": "month",
+            "limit": null,
+            "overage_policy": "block"
+          }
+        ]
+      }
+    }
+  ],
+  "addons": [
+    {
+      "code": "video_credits_pack_100",
+      "name": "100 AI credits",
+      "resource": null,
+      "feature": null,
+      "quantity": 100,
+      "price_minor": null,
+      "kind": "credits"
+    }
+  ]
+}

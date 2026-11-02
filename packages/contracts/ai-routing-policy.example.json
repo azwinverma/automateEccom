@@ -1,0 +1,319 @@
+{
+  "$description": "Default AI routing policy loaded by the AI Gateway (COS_AI_ROUTING_POLICY_PATH). Candidates are tried in order after filtering by capability, provider configuration, circuit-breaker state, BYOK preference and data policy. Admin routing overrides in the database take precedence (ADM-009, not yet built).",
+  "$unverified": "OpenAI and Gemini model IDs and their pricing are NOT verified against live provider docs; they are listed so routing order is explicit. Their pricing is omitted, so executions on them record cost as unknown (cost_usd_micros = null) until pricing is configured. See docs/KNOWN_GAPS.md GAP-AI-PROVIDER-VERIFY.",
+  "version": "0.1.0",
+  "circuit_breaker": {
+    "failure_threshold": 5,
+    "window_s": 60,
+    "open_s": 30
+  },
+  "retry": {
+    "base_delay_s": 0.5,
+    "max_delay_s": 8
+  },
+  "tasks": {
+    "PRODUCT_DESCRIPTION": {
+      "capability": "structured",
+      "feature": "ai.text_generation",
+      "usage_resource": "ai_text_generations",
+      "timeout_s": 60,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-opus-5-5",
+          "effort": "medium"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-pro"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ],
+      "min_confidence": 0.7
+    },
+    "PRODUCT_EXTRACTION": {
+      "capability": "vision_structured",
+      "feature": "ai.product_studio",
+      "usage_resource": "ai_text_generations",
+      "timeout_s": 90,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-opus-5-5",
+          "effort": "medium"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-pro"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ],
+      "min_confidence": 0.75
+    },
+    "SOCIAL_CAPTION": {
+      "capability": "structured",
+      "feature": "ai.text_generation",
+      "usage_resource": "ai_text_generations",
+      "timeout_s": 45,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-opus-5-5",
+          "effort": "low"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-pro"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ]
+    },
+    "TRANSLATION": {
+      "capability": "text",
+      "feature": "ai.text_generation",
+      "usage_resource": "ai_text_generations",
+      "timeout_s": 45,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-opus-5-5",
+          "effort": "low"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-pro"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ]
+    },
+    "INTENT_CLASSIFICATION": {
+      "capability": "structured",
+      "feature": "inbox.unified",
+      "usage_resource": null,
+      "timeout_s": 15,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "effort": "low"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-flash"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5-mini"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ],
+      "min_confidence": 0.8
+    },
+    "CUSTOMER_REPLY": {
+      "capability": "structured",
+      "feature": "inbox.ai_replies",
+      "usage_resource": "ai_inbox_replies",
+      "timeout_s": 30,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "effort": "medium"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-pro"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ],
+      "min_confidence": 0.8
+    },
+    "SUMMARIZATION": {
+      "capability": "text",
+      "feature": null,
+      "usage_resource": null,
+      "timeout_s": 30,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "effort": "low"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-flash"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5-mini"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ]
+    },
+    "STORE_MANAGER": {
+      "capability": "structured",
+      "feature": "ai.store_manager",
+      "usage_resource": "ai_text_generations",
+      "timeout_s": 120,
+      "max_attempts_per_candidate": 1,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-opus-5-5",
+          "effort": "high"
+        },
+        {
+          "provider": "openai",
+          "model": "gpt-5"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-pro"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ]
+    },
+    "IMAGE_GENERATION": {
+      "capability": "image_generation",
+      "feature": "ai.image_generation",
+      "usage_resource": "ai_images",
+      "timeout_s": 120,
+      "max_attempts_per_candidate": 1,
+      "candidates": [
+        {
+          "provider": "sandbox_media",
+          "model": "sandbox-image"
+        }
+      ]
+    },
+    "VIDEO_GENERATION": {
+      "capability": "video_generation",
+      "feature": "video.premium",
+      "usage_resource": "premium_video_clips",
+      "timeout_s": 30,
+      "max_attempts_per_candidate": 1,
+      "candidates": [
+        {
+          "provider": "sandbox_media",
+          "model": "sandbox-video"
+        }
+      ]
+    },
+    "EMBEDDING": {
+      "capability": "embedding",
+      "feature": null,
+      "usage_resource": null,
+      "timeout_s": 15,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "openai",
+          "model": "text-embedding-3-small"
+        },
+        {
+          "provider": "gemini",
+          "model": "text-embedding-004"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-embed"
+        }
+      ]
+    },
+    "MODERATION": {
+      "capability": "moderation",
+      "feature": null,
+      "usage_resource": null,
+      "timeout_s": 10,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "openai",
+          "model": "omni-moderation-latest"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-moderation"
+        }
+      ]
+    }
+  },
+  "pricing": {
+    "anthropic:claude-opus-5-5": {
+      "input_usd_per_mtok": 4.0,
+      "output_usd_per_mtok": 20.0,
+      "source": "Anthropic list price (claude-api reference cached 2026-10-06)"
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "input_usd_per_mtok": 2.0,
+      "output_usd_per_mtok": 10.0,
+      "source": "Anthropic list price (claude-api reference cached 2026-10-06)"
+    },
+    "anthropic:claude-haiku-5-5": {
+      "input_usd_per_mtok": 0.1,
+      "output_usd_per_mtok": 0.5,
+      "source": "Anthropic list price, prompts <=100K tokens (claude-api reference cached 2026-10-06)"
+    },
+    "sandbox:sandbox-text": {
+      "input_usd_per_mtok": 0,
+      "output_usd_per_mtok": 0,
+      "source": "sandbox"
+    }
+  },
+  "providers": {
+    "anthropic": {
+      "server_side_refusal_fallback": true
+    }
+  }
+}

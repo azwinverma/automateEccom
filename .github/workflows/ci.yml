@@ -1,0 +1,108 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.6-alpine
+        env: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres, POSTGRES_DB: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-retries 10
+      redis:
+        image: redis:7.2.7-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-retries 10
+    defaults: { run: { working-directory: apps/backend } }
+    env:
+      COS_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/commerce_os_test
+      COS_REDIS_URL: redis://localhost:6379/15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with: { version: "0.10.9" }
+      - run: uv sync --frozen -p 3.12
+      - name: Lint
+        run: uv run ruff check app tests migrations && uv run ruff format --check app tests migrations
+      - name: Type check
+        run: uv run mypy app
+      - name: Migrations match models
+        run: |
+          createdb -h localhost -U postgres commerce_os_check
+          COS_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/commerce_os_check uv run alembic upgrade head
+          COS_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/commerce_os_check uv run alembic check
+          COS_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/commerce_os_check uv run alembic downgrade base
+        env: { PGPASSWORD: postgres }
+      - name: Tests (unit + integration + tenancy + permissions)
+        run: uv run pytest --cov=app --cov-report=term-missing:skip-covered --cov-fail-under=80
+      - name: Dependency vulnerability scan
+        run: |
+          uv export --frozen --no-hashes --no-emit-project > /tmp/requirements.txt
+          uv run pip-audit --strict --progress-spinner off -r /tmp/requirements.txt
+
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.34.5 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tokens && git diff --exit-code -- packages/design-system/dist apps/mobile/lib/design/tokens.g.dart
+      - run: pnpm -r lint
+      - run: pnpm -r typecheck
+      - run: pnpm -r test
+      - run: pnpm --filter @commerce-os/web build
+      - run: pnpm audit --prod --audit-level high
+
+  mobile:
+    runs-on: ubuntu-24.04
+    defaults: { run: { working-directory: apps/mobile } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "3.29.3", channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter analyze
+      - run: flutter test
+
+  security:
+    runs-on: ubuntu-24.04
+    permissions: { contents: read, security-events: write }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Secret scanning
+        uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+      - name: SAST (Semgrep)
+        run: pipx run semgrep==1.119.0 scan --config p/python --config p/typescript --config p/secrets --error --metrics=off
+      - name: Filesystem + IaC scan (Trivy)
+        uses: aquasecurity/trivy-action@0.30.0
+        with: { scan-type: fs, severity: "CRITICAL,HIGH", exit-code: "1", ignore-unfixed: true }
+
+  images:
+    runs-on: ubuntu-24.04
+    needs: [backend, web]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build --build-context contracts=packages/contracts -t commerce-os-api:ci apps/backend
+      - name: Build web image
+        run: docker build -f apps/web/Dockerfile -t commerce-os-web:ci .
+      - name: Container scan (Trivy)
+        uses: aquasecurity/trivy-action@0.30.0
+        with: { image-ref: "commerce-os-api:ci", severity: "CRITICAL,HIGH", exit-code: "1", ignore-unfixed: true }

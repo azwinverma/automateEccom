@@ -1,0 +1,297 @@
+{
+  "$description": "Catalog of durable domain events published via the transactional outbox. The backend refuses to publish undeclared events and validates payloads against payload_schema. Payloads carry IDs, never secrets or full PII.",
+  "version": "0.1.0",
+  "events": [
+    {
+      "type": "platform.ping",
+      "version": 1,
+      "description": "Diagnostic event used by health checks and outbox tests.",
+      "aggregate": "platform",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "note"
+        ]
+      }
+    },
+    {
+      "type": "accounts.user_registered",
+      "version": 1,
+      "description": "A user account was created.",
+      "aggregate": "accounts",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locale": {
+            "enum": [
+              "en",
+              "ne"
+            ]
+          }
+        },
+        "required": [
+          "user_id",
+          "locale"
+        ]
+      }
+    },
+    {
+      "type": "accounts.email_verification_requested",
+      "version": 1,
+      "description": "User asked for an email verification link; handler issues a token and sends it.",
+      "aggregate": "accounts",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "user_id"
+        ]
+      }
+    },
+    {
+      "type": "accounts.refresh_token_reuse_detected",
+      "version": 1,
+      "description": "A rotated refresh token was replayed; the session family was revoked (possible token theft).",
+      "aggregate": "accounts",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "user_id",
+          "session_id"
+        ]
+      }
+    },
+    {
+      "type": "accounts.mfa_enabled",
+      "version": 1,
+      "description": "TOTP MFA enabled for a user.",
+      "aggregate": "accounts",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "user_id"
+        ]
+      }
+    },
+    {
+      "type": "merchants.merchant_created",
+      "version": 1,
+      "description": "A merchant (tenant) was created with an owner membership and default store.",
+      "aggregate": "merchants",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "owner_user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "merchant_id",
+          "owner_user_id"
+        ]
+      }
+    },
+    {
+      "type": "merchants.invitation_created",
+      "version": 1,
+      "description": "A team invitation was created; handler emails the invite link.",
+      "aggregate": "merchants",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "invitation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "invitation_id",
+          "role"
+        ]
+      }
+    },
+    {
+      "type": "merchants.member_role_changed",
+      "version": 1,
+      "description": "A member's role changed.",
+      "aggregate": "merchants",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "old_role": {
+            "type": "string"
+          },
+          "new_role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "membership_id",
+          "old_role",
+          "new_role"
+        ]
+      }
+    },
+    {
+      "type": "merchants.member_removed",
+      "version": 1,
+      "description": "A member was removed from a merchant; their sessions keep working for other merchants only.",
+      "aggregate": "merchants",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "membership_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "membership_id",
+          "user_id"
+        ]
+      }
+    },
+    {
+      "type": "billing.subscription_started",
+      "version": 1,
+      "description": "A subscription (trial or paid) started.",
+      "aggregate": "billing",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id",
+          "plan_code",
+          "status"
+        ]
+      }
+    },
+    {
+      "type": "billing.usage_threshold_reached",
+      "version": 1,
+      "description": "Usage for a metered resource crossed 70/85/100% of its limit in the current period.",
+      "aggregate": "billing",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resource": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "threshold": {
+            "enum": [
+              70,
+              85,
+              100
+            ]
+          },
+          "used": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "resource",
+          "period",
+          "threshold",
+          "used",
+          "limit"
+        ]
+      }
+    },
+    {
+      "type": "ai.provider_circuit_opened",
+      "version": 1,
+      "description": "Circuit breaker opened for an AI provider/model after repeated failures.",
+      "aggregate": "ai",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "model"
+        ]
+      }
+    }
+  ]
+}

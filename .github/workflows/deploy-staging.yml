@@ -1,0 +1,40 @@
+# Staging CD skeleton (FND-008). Builds and pushes signed images to GHCR on main.
+# The deploy step is intentionally gated: the hosting target is not decided yet (docs/KNOWN_GAPS.md GAP-INFRA-TARGET).
+name: Deploy staging
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - name: Build & push api
+        run: |
+          IMG=ghcr.io/${{ github.repository }}/api:${{ github.sha }}
+          docker build --build-context contracts=packages/contracts -t "$IMG" apps/backend
+          docker push "$IMG"
+      - name: Build & push web
+        run: |
+          IMG=ghcr.io/${{ github.repository }}/web:${{ github.sha }}
+          docker build -f apps/web/Dockerfile -t "$IMG" .
+          docker push "$IMG"
+      - name: Deploy
+        if: ${{ vars.STAGING_DEPLOY_ENABLED == 'true' }}
+        run: |
+          echo "Deploy target not configured. Order of operations once it is (see infra/staging/README.md):"
+          echo "1) run migrations job (alembic upgrade head) 2) roll API 3) roll workers 4) smoke /readyz"
+          exit 1

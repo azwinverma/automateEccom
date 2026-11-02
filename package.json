@@ -1,0 +1,13 @@
+{
+  "name": "commerce-os",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "engines": { "node": ">=20.11" },
+  "scripts": {
+    "tokens": "pnpm --filter @commerce-os/design-system build",
+    "web:dev": "pnpm --filter @commerce-os/web dev",
+    "web:test": "pnpm --filter @commerce-os/web test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
