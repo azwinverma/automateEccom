@@ -32,6 +32,19 @@ _Last updated: 2026-11-02. Phase 0 complete (open: CI run, staging target). Phas
 
 Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 206 + api-client 25 tests and E2E 8/8 (4 specs × desktop/360px) against the real backend with worker; mobile all tests pass plus one live end-to-end run. The mobile app has never run on a device (GAP-MOBILE-TOOLCHAIN).
 
+## Where development stands (2026-11-02)
+- **Phase 0:** engineering complete. Exit is blocked externally: CI needs a git remote (FND-007) and
+  staging needs a hosting decision (FND-008).
+- **Phase 1:** all unblocked feature work is done, including the CNT-012 pull-forward. Exit is blocked
+  externally:
+  - publishing to a **real** channel needs a live WooCommerce store, or Meta/TikTok/Shopify app approval
+  - live AI quality needs a provider key
+  - image AI (MED-005…007) needs a provider decision
+
+  Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
+  FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
+- **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
 ## Phase 0 exit criteria
 
 | Criterion | State |
@@ -271,15 +284,15 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-001 | design tokens | P0 | TESTED | — | packages/design-system/ | CI diff check of generated outputs | JSON → CSS vars, TS, Dart |
 | UX-002 | web library | P0 | TESTED | UX-001 | apps/web/src/components | 95 vitest tests; E2E vs real backend | No 3rd-party visual library; Radix for behaviour only |
 | UX-003 | Flutter theme | P0 | TESTED | UX-001 | apps/mobile/lib/design | flutter test (51) | Theme from generated tokens; bundled Inter + Noto Sans Devanagari |
-| UX-004 | Product Brain | P1 | NOT_STARTED | — | — | — |  |
-| UX-005 | Channel Sync Rail | P1 | NOT_STARTED | — | — | — |  |
+| UX-004 | Product Brain | P6 | NOT_STARTED | — | — | — | Product Brain card: needs PBR (Phase 6) |
+| UX-005 | Channel Sync Rail | P1 | IMPLEMENTED | — | — | — | Web product listings panel = per-channel sync state (status, error, polling); not yet a standalone reusable rail component |
 | UX-006 | Autopilot Strip | P1 | IMPLEMENTED | UX-002 | apps/web/src/components/commerce, apps/mobile/lib/features/home | widget/component tests | Autopilot Status Strip (no data source until AUT) |
 | UX-007 | Exception Inbox | P1 | TESTED | UX-002 | apps/backend/app/domains/exceptions/, apps/web, apps/mobile | test_exceptions | Live Exception Inbox (web Home + mobile Home) from GET /exceptions; actions routed; E2E vs real backend |
-| UX-008 | Order Journey | P1 | NOT_STARTED | — | — | — |  |
-| UX-009 | AI Timeline | P1 | NOT_STARTED | — | — | — |  |
-| UX-010 | Profit Card | P1 | NOT_STARTED | — | — | — |  |
+| UX-008 | Order Journey | P2 | NOT_STARTED | — | — | — | Order Journey: needs orders (Phase 2/3) |
+| UX-009 | AI Timeline | P5 | NOT_STARTED | — | — | — | AI Action Timeline: needs AutomationActionLog (Phase 5) |
+| UX-010 | Profit Card | P6 | NOT_STARTED | — | — | — | Profit Card: needs true-profit model (Phase 6) |
 | UX-011 | Video Credit Meter | P1 | TESTED | BIL-006 | apps/web …/settings/plan, apps/mobile …/settings | component tests | Video Credit Meter + plan-aware usage (not-in-plan, overage policy, gauges); verified against real backend |
-| UX-012 | Inventory Risk | P1 | NOT_STARTED | — | — | — |  |
+| UX-012 | Inventory Risk | P6 | NOT_STARTED | — | — | — | Inventory Risk Meter: needs stockout risk (Phase 6) |
 | UX-013 | real states | P1 | IN_PROGRESS | — | apps/web, apps/mobile | component tests | Loading/empty/error/offline/permission states for Phase 0 screens |
 | UX-014 | accessibility | P1 | IN_PROGRESS | — | apps/web, apps/mobile | — | Keyboard, focus, labels, 48dp; no full screen-reader audit yet |
 | UX-015 | bilingual review | P1 | IN_PROGRESS | — | apps/web/src/i18n, apps/mobile/lib/core/l10n/arb | key-parity tests | en/ne complete for Phase 0; Nepali not yet reviewed by a native copy editor |
