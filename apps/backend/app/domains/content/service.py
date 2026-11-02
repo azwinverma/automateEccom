@@ -139,6 +139,10 @@ def create_post(
     source: str = "seller",
     studio_job_id: uuid.UUID | None = None,
     issues: list[dict[str, Any]] | None = None,
+    video_job_id: uuid.UUID | None = None,
+    hook_type: str | None = None,
+    human_presence: bool | None = None,
+    background: str | None = None,
 ) -> ContentPost:
     c = _connection(db, ctx, connection_id)
     limit = adapter_for(c).max_caption_chars
@@ -149,6 +153,9 @@ def create_post(
         raise ValidationFailed(
             f"Caption is longer than {limit} characters", code="caption_too_long", details={"max": limit}
         )
+    video = _ready_video(db, ctx, video_job_id) if video_job_id else None
+    if video is not None and video.output_asset_id and video.output_asset_id not in asset_ids:
+        asset_ids = [video.output_asset_id, *asset_ids]
     if kind in ("story", "reel") and not asset_ids:
         raise ValidationFailed("Stories and reels need a photo or video", code="media_required")
     _check_assets(db, ctx, asset_ids)
@@ -166,7 +173,10 @@ def create_post(
         studio_job_id=studio_job_id,
         issues=issues or [],
         created_by_user_id=ctx.actor.id,
+        video_job_id=video.id if video else None,
     )
+    _apply_declared(p, hook_type, human_presence, background)
+    apply_creative_attributes(db, p, video)
     db.add(p)
     db.flush()
     _audit(db, ctx, p, "post_created", source=source, connection=str(c.id))
@@ -193,6 +203,17 @@ def update_post(
             [t.lstrip("#").strip().lower() for t in fields["hashtags"] if t.strip()][:30],
             True,
         )
+    declared = {k: fields[k] for k in ("hook_type", "human_presence", "background") if k in fields}
+    if declared:
+        _apply_declared(
+            p,
+            declared.get("hook_type"),
+            declared.get("human_presence"),
+            declared.get("background"),
+            clear_missing=False,
+        )
+    if edited or declared:
+        apply_creative_attributes(db, p)
     if edited and p.source != "seller":
         # Seller edited AI copy: re-check claims; seller-confirmed text clears previous AI issues.
         p.issues = []
@@ -293,6 +314,7 @@ def schedule(db: Session, ctx: TenantContext, post_id: uuid.UUID, when: datetime
         raise Conflict("Reconnect this channel before scheduling", code="reconnect_required")
     _move(p, "scheduled")
     p.scheduled_at = p.next_attempt_at = when
+    apply_creative_attributes(db, p)  # posting window = merchant-local hour of the slot
     p.attempts, p.last_error_code = 0, None
     _audit(db, ctx, p, "scheduled", at=when.isoformat())
     return p
@@ -359,6 +381,8 @@ def _publish_one(db: Session, p: ContentPost) -> str:
             return "retrying"
         return _fail(db, p, e.code, actor)
     p.status, p.external_id, p.published_at, p.last_error_code = "published", ext, utcnow(), None
+    if p.scheduled_at is None:
+        apply_creative_attributes(db, p)  # published immediately: window = actual publish hour
     p.next_attempt_at = None
     audit.record(
         db,
@@ -416,4 +440,92 @@ def post_view(p: ContentPost) -> dict[str, Any]:
         "rejection_note": p.rejection_note,
         "version": p.version,
         "created_at": p.created_at,
+        "creative": creative_view(p),
+    }
+
+
+# ----------------------------------------------------------------------------- creative attributes (CNT-012)
+def _ready_video(db: Session, ctx: TenantContext, video_job_id: uuid.UUID) -> Any:
+    from app.domains.media.models import VideoJob
+
+    v = db.get(VideoJob, video_job_id)
+    if v is None or v.merchant_id != ctx.merchant_id:
+        raise NotFound("Video not found", code="video_not_found")
+    if v.status != "ready":
+        raise Conflict("This video isn't ready yet", code="video_not_ready", details={"status": v.status})
+    return v
+
+
+def _apply_declared(
+    p: ContentPost,
+    hook_type: str | None,
+    human_presence: bool | None,
+    background: str | None,
+    clear_missing: bool = True,
+) -> None:
+    from app.domains.content import creative
+
+    if hook_type is not None:
+        if hook_type not in creative.HOOK_TYPES:
+            raise ValidationFailed(
+                "Unknown hook type", code="invalid_hook_type", details={"allowed": creative.HOOK_TYPES}
+            )
+        p.hook_type = hook_type
+    if background is not None:
+        if background not in creative.BACKGROUNDS:
+            raise ValidationFailed(
+                "Unknown background", code="invalid_background", details={"allowed": creative.BACKGROUNDS}
+            )
+        p.background = background
+    if human_presence is not None or clear_missing:
+        p.human_presence = human_presence
+
+
+def apply_creative_attributes(db: Session, p: ContentPost, video: Any = None) -> None:
+    """Recompute derived creative attributes. Seller-declared values are kept; video-derived values
+    fill hook/background only when the seller hasn't declared them."""
+    from app.domains.content import creative
+
+    p.language_mix = creative.language_mix(p.caption)
+    p.caption_bucket = creative.caption_bucket(p.caption)
+    p.cta_type = creative.cta_type(p.caption)
+    tz = db.get(Merchant, p.merchant_id).timezone  # type: ignore[union-attr]
+    p.posting_hour = creative.posting_window(p.scheduled_at or p.published_at, tz)
+    if video is None and p.video_job_id is not None:
+        from app.domains.media.models import VideoJob
+
+        video = db.get(VideoJob, p.video_job_id)
+    if video is not None:
+        attrs = creative.from_video_job(video.duration_s, video.show_price, video.template)
+        p.duration_s, p.price_shown, p.price_timing_s = (
+            attrs.duration_s,
+            attrs.price_shown,
+            attrs.price_timing_s,
+        )
+        p.template_id = attrs.template_id
+        if p.hook_type in (None, "unknown"):  # None = not yet flushed (column default not applied)
+            p.hook_type = attrs.hook_type
+        if p.background is None:
+            p.background = attrs.background
+    if p.hook_type is None:
+        p.hook_type = "unknown"
+    p.creative_attrs_version = creative.ATTRS_VERSION
+
+
+def creative_view(p: ContentPost) -> dict[str, Any]:
+    return {
+        "version": p.creative_attrs_version,
+        "format": p.kind,
+        "duration_s": p.duration_s,
+        "hook_type": p.hook_type,
+        "price_shown": p.price_shown,
+        "price_timing_s": p.price_timing_s,
+        "language_mix": p.language_mix,
+        "caption_bucket": p.caption_bucket,
+        "cta_type": p.cta_type,
+        "human_presence": p.human_presence,
+        "background": p.background,
+        "template_id": p.template_id,
+        "posting_hour": p.posting_hour,
+        "video_job_id": p.video_job_id,
     }

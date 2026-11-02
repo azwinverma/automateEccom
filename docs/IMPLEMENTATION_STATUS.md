@@ -13,7 +13,7 @@ _Last updated: 2026-11-02. Phase 0 complete (open: CI run, staging target). Phas
 
 | Area | Result (2026-11-02) |
 |---|---|
-| Backend | ruff + mypy clean · 151 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 9 migrations, upgrade/downgrade/check clean |
+| Backend | ruff + mypy clean · 151 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 10 migrations, upgrade/downgrade/check clean |
 | Web | typecheck, lint, 95 component tests, 20 api-client tests, production build; Playwright E2E (2 specs × desktop + 360px) passing against the **real** backend |
 | Mobile | `flutter analyze` clean · 51 tests · not yet built for a device or run against the real backend |
 | Containers | backend image built; compose stack booted (migrate → api → worker/beat) and outbox email dispatch verified |
@@ -30,7 +30,7 @@ _Last updated: 2026-11-02. Phase 0 complete (open: CI run, staging target). Phas
 | Channels (CHN-003/004/009/010/011/013) | TESTED framework + sandbox; **WooCommerce IMPLEMENTED** (contract-tested incl. per-store webhooks); Meta/TikTok/Shopify BLOCKED on platform approval | Channels settings (OAuth + WooCommerce keys) TESTED + E2E | Publish + reconnect hand-off |
 | Exception Inbox | TESTED (derived from live state) | Live on Home TESTED | Live on Home: TESTED |
 
-Totals (2026-11-02): backend 151 tests (87% coverage, 9 migrations); web 206 + api-client 25 tests and E2E 8/8 (4 specs × desktop/360px) against the real backend with worker; mobile all tests pass plus one live end-to-end run. The mobile app has never run on a device (GAP-MOBILE-TOOLCHAIN).
+Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 206 + api-client 25 tests and E2E 8/8 (4 specs × desktop/360px) against the real backend with worker; mobile all tests pass plus one live end-to-end run. The mobile app has never run on a device (GAP-MOBILE-TOOLCHAIN).
 
 ## Phase 0 exit criteria
 
@@ -136,7 +136,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CNT-009 | approval | P1 | TESTED | CNT-008 | apps/backend/app/domains/content/service.py | test_content | Approval policy by automation mode + grounding issues |
 | CNT-010 | scheduler | P1 | TESTED | CNT-009 | apps/backend/app/domains/content/service.py, worker/ | test_content | 30s beat scheduler, idempotent provider call |
 | CNT-011 | retry | P1 | TESTED | CNT-010 | apps/backend/app/domains/content/service.py | test_content::test_transient_failures… | Backoff retry → failed + exception event; reconnect handling |
-| CNT-012 | creative attributes on posts and video jobs (hook, duration, price timing, language mix, CTA, caption length, background, template, posting window) [Phase 1, pull-forward] | P1 | NOT_STARTED | CNT-008 | — | — | Pull-forward (Phase 1): creative attributes on posts/videos for the Creative Genome — **next task** |
+| CNT-012 | creative attributes on posts and video jobs (hook, duration, price timing, language mix, CTA, caption length, background, template, posting window) [Phase 1, pull-forward] | P1 | TESTED | CNT-008, MED-008 | apps/backend/app/domains/content/creative.py, service.py, migration 0010 | test_creative_attributes | Derived (language mix, CTA, caption bucket, local posting hour, Auto Reel duration/price timing/template) + seller-declared (hook, human presence, background) with CHECK vocabularies; existing posts backfilled. Web/mobile don't yet expose the declared fields (optional) |
 | CNT-013 | content metrics ingestion interface on adapters (fetch_content_metrics) [Phase 7] | P7 | NOT_STARTED | — | — | — |  |
 | CNT-014 | inquiry/order attribution to content (explicit ref → window heuristic; method recorded) [Phase 7] | P7 | NOT_STARTED | — | — | — |  |
 | CHN-001 | adapter interface | P1 | TESTED | — | apps/backend/app/domains/integrations/base.py, registry.py | test_platform::test_registry… | Channel/Payment/Courier/Notification interfaces |

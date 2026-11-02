@@ -17,6 +17,8 @@ from app.domains.content.models import ContentPost
 
 router = APIRouter(prefix="/content", tags=["content"])
 Kind = Literal["post", "story", "reel"]
+Hook = Literal["price_first", "product_closeup", "problem_solution", "social_proof", "offer", "unknown"]
+Background = Literal["white", "lifestyle", "blurred_photo", "other"]
 
 
 class PostIn(BaseModel):
@@ -27,12 +29,21 @@ class PostIn(BaseModel):
     kind: Kind = "post"
     product_id: uuid.UUID | None = None
     campaign: str | None = Field(default=None, max_length=80)
+    video_job_id: uuid.UUID | None = Field(
+        default=None, description="Ready Auto Reel/video job; its output is attached"
+    )
+    hook_type: Hook | None = None
+    human_presence: bool | None = None
+    background: Background | None = None
 
 
 class PostPatch(BaseModel):
     version: int | None = None
     caption: str | None = Field(default=None, min_length=1, max_length=5000)
     hashtags: list[str] | None = Field(default=None, max_length=30)
+    hook_type: Hook | None = None
+    human_presence: bool | None = None
+    background: Background | None = None
 
 
 class FromStudioIn(BaseModel):
