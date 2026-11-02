@@ -467,6 +467,25 @@
           "quality_flags"
         ]
       }
+    },
+    {
+      "type": "studio.job_queued",
+      "version": 1,
+      "description": "An AI Product Studio draft was requested; the handler enqueues the worker task.",
+      "aggregate": "studio",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "job_id"
+        ]
+      }
     }
   ]
 }

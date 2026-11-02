@@ -19,11 +19,18 @@ celery.conf.update(
     task_soft_time_limit=840,
     broker_connection_retry_on_startup=True,
     task_default_queue="default",
-    task_routes={"app.worker.tasks.dispatch_outbox": {"queue": "outbox"}},
+    task_routes={
+        "app.worker.tasks.dispatch_outbox": {"queue": "outbox"},
+        "app.worker.tasks.run_studio_job": {"queue": "ai"},
+    },
     beat_schedule={
         "dispatch-outbox": {"task": "app.worker.tasks.dispatch_outbox", "schedule": 2.0},
         "release-expired-usage": {"task": "app.worker.tasks.release_expired_usage", "schedule": 60.0},
         "cleanup-media-uploads": {"task": "app.worker.tasks.cleanup_media_uploads", "schedule": 3600.0},
+        "requeue-stale-studio-jobs": {
+            "task": "app.worker.tasks.requeue_stale_studio_jobs",
+            "schedule": 300.0,
+        },
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
     },
 )

@@ -50,6 +50,15 @@ def _ensure_database(url: str) -> None:
 
 
 @pytest.fixture(scope="session", autouse=True)
+def _celery_eager() -> None:
+    """Run Celery tasks inline so outbox → task → AI gateway flows are testable without a broker."""
+    from app.worker.celery_app import celery
+
+    celery.conf.task_always_eager = True
+    celery.conf.task_eager_propagates = True
+
+
+@pytest.fixture(scope="session", autouse=True)
 def _database() -> Iterator[None]:
     url = get_settings().database_url
     _ensure_database(url)

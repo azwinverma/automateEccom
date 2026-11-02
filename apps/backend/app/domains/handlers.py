@@ -7,7 +7,8 @@ import uuid
 from sqlalchemy.orm import Session
 
 import app.domains.catalog.imports
-import app.domains.media.service  # noqa: F401  (registers media.uploaded handler)
+import app.domains.media.service
+import app.domains.studio.service  # noqa: F401  (registers studio.job_queued handler)
 from app.core.config import get_settings
 from app.core.crypto import SealedSecret
 from app.domains.accounts.models import User

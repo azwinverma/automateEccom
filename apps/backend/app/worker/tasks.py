@@ -38,6 +38,23 @@ def cleanup_media_uploads() -> int:
         return cleanup_expired_uploads(db)
 
 
+@celery.task(name="app.worker.tasks.run_studio_job", ignore_result=True, acks_late=True)
+def run_studio_job(job_id: str) -> None:
+    import uuid
+
+    from app.domains.studio.service import run_job
+
+    run_job(uuid.UUID(job_id))
+
+
+@celery.task(name="app.worker.tasks.requeue_stale_studio_jobs", ignore_result=True)
+def requeue_stale_studio_jobs() -> int:
+    from app.domains.studio.service import requeue_stale
+
+    with session_scope() as db:
+        return requeue_stale(db)
+
+
 @celery.task(name="app.worker.tasks.purge_idempotency", ignore_result=True)
 def purge_idempotency() -> int:
     with session_scope() as db:

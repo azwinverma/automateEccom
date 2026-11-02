@@ -60,7 +60,7 @@ services:
   worker:
     build: { context: ./apps/backend, additional_contexts: { contracts: ./packages/contracts } }
     environment: *backend-env
-    command: ["celery", "-A", "app.worker.celery_app:celery", "worker", "-Q", "default,outbox", "--concurrency", "4", "--loglevel", "INFO"]
+    command: ["celery", "-A", "app.worker.celery_app:celery", "worker", "-Q", "default,outbox,ai", "--concurrency", "4", "--loglevel", "INFO"]
     depends_on:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
