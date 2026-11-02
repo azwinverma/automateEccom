@@ -25,6 +25,7 @@ dependencies = [
   "cryptography>=44.0.3",
   "jsonschema>=4.23.0",
   "anthropic>=1,<2",
+  "python-multipart>=0.0.20",
 ]
 
 [dependency-groups]
@@ -53,7 +54,7 @@ select = ["E", "F", "I", "B", "UP", "S", "N", "SIM", "RUF", "DTZ", "T20"]
 ignore = ["S101", "B008", "RUF012", "S105", "S106", "N818"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S", "DTZ", "SIM117", "B017", "N817"]
+"tests/**" = ["S", "DTZ", "SIM117", "B017", "N817", "E501"]
 "migrations/**" = ["E501"]
 
 [tool.pytest.ini_options]

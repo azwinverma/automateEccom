@@ -141,7 +141,8 @@ def test_usage_summary_reports_real_gauges_and_included_flag(client, seller):
     by = {x["resource"]: x for x in r["limits"]}
     assert by["team_members"]["used"] == 1 and by["team_members"]["limit"] == 2
     assert by["stores"]["used"] == 1
-    assert by["products"]["used"] is None  # catalog not built yet: "not counted", never a fake 0
+    assert by["products"]["used"] == 0  # counted by the catalog domain
+    assert by["channels"]["used"] is None  # channels domain not built yet: "not counted", never a fake 0
     assert by["ai_inbox_replies"]["included"] is False and by["ai_text_generations"]["included"] is True
     client.post(
         "/api/v1/invitations", headers=seller.h(), json={"email": "packer@example.com", "role": "staff"}

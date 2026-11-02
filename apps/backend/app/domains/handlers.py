@@ -6,6 +6,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+import app.domains.catalog.imports  # noqa: F401  (registers catalog.import_queued handler)
 from app.core.config import get_settings
 from app.core.crypto import SealedSecret
 from app.domains.accounts.models import User

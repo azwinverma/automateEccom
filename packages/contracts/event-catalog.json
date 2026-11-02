@@ -292,6 +292,136 @@
           "model"
         ]
       }
+    },
+    {
+      "type": "catalog.product_created",
+      "version": 1,
+      "description": "A product was created (any source: app, import, AI studio).",
+      "aggregate": "catalog",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "product_id"
+        ]
+      }
+    },
+    {
+      "type": "catalog.product_updated",
+      "version": 1,
+      "description": "Product fields changed; consumers re-sync listings for the listed fields.",
+      "aggregate": "catalog",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "product_id",
+          "fields"
+        ]
+      }
+    },
+    {
+      "type": "catalog.product_status_changed",
+      "version": 1,
+      "description": "Product lifecycle changed (draft/active/archived).",
+      "aggregate": "catalog",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "from": {
+            "enum": [
+              "draft",
+              "active",
+              "archived"
+            ]
+          },
+          "to": {
+            "enum": [
+              "draft",
+              "active",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "product_id",
+          "from",
+          "to"
+        ]
+      }
+    },
+    {
+      "type": "catalog.variant_updated",
+      "version": 1,
+      "description": "A variant's price/SKU/barcode/dimensions/status changed.",
+      "aggregate": "catalog",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "variant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "product_id",
+          "variant_id",
+          "fields"
+        ]
+      }
+    },
+    {
+      "type": "catalog.import_queued",
+      "version": 1,
+      "description": "A CSV import was uploaded; the handler processes it.",
+      "aggregate": "catalog",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "import_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "import_id"
+        ]
+      }
     }
   ]
 }
