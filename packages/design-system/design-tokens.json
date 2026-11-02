@@ -1,110 +1,269 @@
 {
   "$schema": "./design-tokens.schema.json",
   "$description": "Source of truth for colour, type, spacing, radius, elevation and motion. Derived from specs/18_BRAND_DESIGN_SYSTEM.md. Generated outputs: web CSS variables (packages/design-system/dist/tokens.css), TS constants (dist/tokens.ts), Flutter (apps/mobile/lib/design/tokens.g.dart). Run `pnpm --filter @commerce-os/design-system build`.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "color": {
     "brand": {
-      "blue": { "value": "#2563EB", "note": "Primary action" },
-      "blueSoft": { "value": "#DBEAFE" },
-      "indigo": { "value": "#4F46E5", "note": "Automation / AI surfaces, used sparingly" },
-      "indigoSoft": { "value": "#E0E7FF" },
-      "teal": { "value": "#14B8A6", "note": "Growth, sync healthy" },
-      "tealSoft": { "value": "#CCFBF1" },
-      "coral": { "value": "#FF6B6B", "note": "Joy accent: celebrations, new-order moments. Never for errors." },
-      "coralSoft": { "value": "#FFE4E1" },
-      "sun": { "value": "#FBBF24", "note": "Highlight accent: credits, attention-but-not-danger" },
-      "sunSoft": { "value": "#FEF3C7" }
+      "blue": {
+        "value": "#2563EB",
+        "note": "Primary action"
+      },
+      "blueSoft": {
+        "value": "#DBEAFE"
+      },
+      "indigo": {
+        "value": "#4F46E5",
+        "note": "Automation / AI surfaces, used sparingly"
+      },
+      "indigoSoft": {
+        "value": "#E0E7FF"
+      },
+      "teal": {
+        "value": "#14B8A6",
+        "note": "Growth, sync healthy"
+      },
+      "tealSoft": {
+        "value": "#CCFBF1"
+      },
+      "coral": {
+        "value": "#FF6B6B",
+        "note": "Joy accent: celebrations, new-order moments. Never for errors."
+      },
+      "coralSoft": {
+        "value": "#FFE4E1"
+      },
+      "sun": {
+        "value": "#FBBF24",
+        "note": "Highlight accent: credits, attention-but-not-danger"
+      },
+      "sunSoft": {
+        "value": "#FEF3C7"
+      }
     },
     "neutral": {
-      "ink": { "value": "#0F172A" },
-      "slate": { "value": "#475569" },
-      "slateMuted": { "value": "#64748B" },
-      "line": { "value": "#E2E8F0" },
-      "lineStrong": { "value": "#CBD5E1" },
-      "cloud": { "value": "#F8FAFC" },
-      "paper": { "value": "#F1F5F9" },
-      "white": { "value": "#FFFFFF" }
+      "ink": {
+        "value": "#0F172A"
+      },
+      "slate": {
+        "value": "#475569"
+      },
+      "slateMuted": {
+        "value": "#64748B"
+      },
+      "line": {
+        "value": "#E2E8F0"
+      },
+      "lineStrong": {
+        "value": "#CBD5E1"
+      },
+      "cloud": {
+        "value": "#F8FAFC"
+      },
+      "paper": {
+        "value": "#F1F5F9"
+      },
+      "white": {
+        "value": "#FFFFFF"
+      }
     },
     "semantic": {
-      "success": { "value": "#15803D", "soft": "#DCFCE7", "note": "Distinct from brand teal" },
-      "warning": { "value": "#B45309", "soft": "#FEF3C7" },
-      "danger": { "value": "#B91C1C", "soft": "#FEE2E2", "note": "Distinct from brand coral" },
-      "info": { "value": "#1D4ED8", "soft": "#DBEAFE" }
+      "success": {
+        "value": "#15803D",
+        "soft": "#DCFCE7",
+        "note": "Distinct from brand teal"
+      },
+      "warning": {
+        "value": "#B45309",
+        "soft": "#FEF3C7"
+      },
+      "danger": {
+        "value": "#B91C1C",
+        "soft": "#FEE2E2",
+        "note": "Distinct from brand coral"
+      },
+      "info": {
+        "value": "#1D4ED8",
+        "soft": "#DBEAFE"
+      }
     },
     "dark": {
-      "surface": { "value": "#0B1220" },
-      "surfaceRaised": { "value": "#111A2E" },
-      "line": { "value": "#1E293B" },
-      "text": { "value": "#E2E8F0" },
-      "textMuted": { "value": "#94A3B8" },
-      "brandBlue": { "value": "#60A5FA" },
-      "success": { "value": "#4ADE80" },
-      "warning": { "value": "#FBBF24" },
-      "danger": { "value": "#F87171" },
-      "info": { "value": "#93C5FD" }
+      "surface": {
+        "value": "#0B1220"
+      },
+      "surfaceRaised": {
+        "value": "#111A2E"
+      },
+      "line": {
+        "value": "#1E293B"
+      },
+      "text": {
+        "value": "#E2E8F0"
+      },
+      "textMuted": {
+        "value": "#94A3B8"
+      },
+      "brandBlue": {
+        "value": "#60A5FA"
+      },
+      "success": {
+        "value": "#4ADE80"
+      },
+      "warning": {
+        "value": "#FBBF24"
+      },
+      "danger": {
+        "value": "#F87171"
+      },
+      "info": {
+        "value": "#93C5FD"
+      }
     }
   },
   "font": {
     "family": {
-      "latin": { "value": "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" },
-      "devanagari": { "value": "'Noto Sans Devanagari', Inter, ui-sans-serif, sans-serif" },
-      "mono": { "value": "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" }
+      "latin": {
+        "value": "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
+      },
+      "devanagari": {
+        "value": "'Noto Sans Devanagari', Inter, ui-sans-serif, sans-serif"
+      },
+      "mono": {
+        "value": "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace"
+      }
     },
     "size": {
-      "xs": { "value": 12 },
-      "sm": { "value": 13 },
-      "base": { "value": 14 },
-      "md": { "value": 16 },
-      "lg": { "value": 18 },
-      "xl": { "value": 22 },
-      "2xl": { "value": 28 },
-      "3xl": { "value": 36 }
+      "xs": {
+        "value": 12
+      },
+      "sm": {
+        "value": 13
+      },
+      "base": {
+        "value": 14
+      },
+      "md": {
+        "value": 16
+      },
+      "lg": {
+        "value": 18
+      },
+      "xl": {
+        "value": 22
+      },
+      "2xl": {
+        "value": 28
+      },
+      "3xl": {
+        "value": 36
+      }
     },
     "lineHeight": {
-      "tight": { "value": 1.2 },
-      "normal": { "value": 1.5 },
-      "devanagari": { "value": 1.7, "note": "Devanagari needs extra leading for matras" }
+      "tight": {
+        "value": 1.2
+      },
+      "normal": {
+        "value": 1.5
+      },
+      "devanagari": {
+        "value": 1.7,
+        "note": "Devanagari needs extra leading for matras"
+      }
     },
     "weight": {
-      "regular": { "value": 400 },
-      "medium": { "value": 500 },
-      "semibold": { "value": 600 },
-      "bold": { "value": 700 }
+      "regular": {
+        "value": 400
+      },
+      "medium": {
+        "value": 500
+      },
+      "semibold": {
+        "value": 600
+      },
+      "bold": {
+        "value": 700
+      }
     }
   },
   "space": {
-    "0": { "value": 0 },
-    "1": { "value": 4 },
-    "2": { "value": 8 },
-    "3": { "value": 12 },
-    "4": { "value": 16 },
-    "5": { "value": 20 },
-    "6": { "value": 24 },
-    "8": { "value": 32 },
-    "10": { "value": 40 },
-    "12": { "value": 48 },
-    "16": { "value": 64 }
+    "0": {
+      "value": 0
+    },
+    "1": {
+      "value": 4
+    },
+    "2": {
+      "value": 8
+    },
+    "3": {
+      "value": 12
+    },
+    "4": {
+      "value": 16
+    },
+    "5": {
+      "value": 20
+    },
+    "6": {
+      "value": 24
+    },
+    "8": {
+      "value": 32
+    },
+    "10": {
+      "value": 40
+    },
+    "12": {
+      "value": 48
+    },
+    "16": {
+      "value": 64
+    }
   },
   "radius": {
-    "sm": { "value": 4 },
-    "md": { "value": 6 },
-    "lg": { "value": 10 },
-    "full": { "value": 9999, "note": "Only for avatars, status dots. Not for buttons (anti-generic rule)." }
+    "sm": {
+      "value": 4
+    },
+    "md": {
+      "value": 6
+    },
+    "lg": {
+      "value": 10
+    },
+    "full": {
+      "value": 9999,
+      "note": "Only for avatars, status dots. Not for buttons (anti-generic rule)."
+    }
   },
   "elevation": {
-    "none": { "value": "none" },
-    "raised": { "value": "0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04)" },
-    "overlay": { "value": "0 12px 32px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08)" }
+    "none": {
+      "value": "none"
+    },
+    "raised": {
+      "value": "0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04)"
+    },
+    "overlay": {
+      "value": "0 12px 32px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08)"
+    }
   },
   "motion": {
     "duration": {
-      "fast": { "value": 150 },
-      "standard": { "value": 220 },
-      "large": { "value": 320 }
+      "fast": {
+        "value": 150
+      },
+      "standard": {
+        "value": 220
+      },
+      "large": {
+        "value": 320
+      }
     },
     "easing": {
-      "standard": { "value": "cubic-bezier(0.2, 0, 0, 1)" },
-      "exit": { "value": "cubic-bezier(0.3, 0, 1, 1)" }
+      "standard": {
+        "value": "cubic-bezier(0.2, 0, 0, 1)"
+      },
+      "exit": {
+        "value": "cubic-bezier(0.3, 0, 1, 1)"
+      }
     }
   },
   "status": {
@@ -115,5 +274,11 @@
     "failed": "color.semantic.danger",
     "pending": "color.neutral.slateMuted",
     "celebrate": "color.brand.coral"
+  },
+  "risk": {
+    "$description": "Decision/COD risk levels (specs/18). Medium is a warning hue, never danger red.",
+    "low": "color.brand.teal",
+    "medium": "color.semantic.warning",
+    "higher": "color.semantic.danger"
   }
 }

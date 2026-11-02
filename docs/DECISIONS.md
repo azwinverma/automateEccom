@@ -80,7 +80,7 @@ Typed `en`/`ne` dictionaries instead of next-intl, so a missing Nepali key is a 
 ## ADR-014 — Dependency versions: lower bounds in manifests, exact pins in lockfiles
 The initial exact pins in `pyproject.toml` were stale, and `pip-audit` found known CVEs, including in PyJWT. Manifests now declare minimums; `uv.lock` / `pnpm-lock.yaml` pin exact versions. CI audits the lockfile. Upgrades are deliberate PRs that run the full gate.
 
-## ADR-015 — Resolving missing / conflicting specs
+## ADR-015 — Resolving missing / conflicting specs (superseded in part by ADR-026)
 21 of the 30 referenced spec files are not in the repository (see KNOWN_GAPS). Where they are missing:
 - Derive from the 9 present docs and the build brief.
 - Prefer security and data integrity.
@@ -124,3 +124,48 @@ Adding a NOT NULL column without a server default fails on a populated table. Th
 - New NOT NULL columns get a `server_default`, mirrored in the model so `alembic check` stays clean.
 - Every migration is round-tripped (upgrade → downgrade → upgrade) against a database with data before merge, not only an empty one.
 - Changes to existing CHECK constraints are not detected by autogenerate and are written by hand, using `op.f()` for the full constraint name (see 0007).
+
+## ADR-023: Autonomous Commerce OS architecture (Commerce Core / Intelligence Core / Digital Store Twin)
+The product is repositioned as an Autonomous Commerce OS (specs/25, 01, 03).
+- **Decision:** two cores inside the modular monolith. Commerce Core (authoritative, transactional)
+  and Intelligence Core (derived, explainable, recomputable). The Digital Store Twin is a **derived
+  read model**, never a second source of truth.
+- **Rules:** intelligence never supplies commercial facts at execution time; every recommendation
+  carries structured evidence; LLMs may only phrase explanations, validated against evidence.
+- **Consequences:**
+  - intelligence tables are additive and carry method_version/as_of
+  - automation enforces max-staleness per action
+  - a new `intelligence` worker queue arrives in Phase 6
+
+## ADR-024: Event naming for new intelligence events
+The strategy brief names events in PascalCase (`ProductPerformanceUpdated`…). The implemented catalog
+uses `<domain>.<past_tense_snake_case>` (e.g. `catalog.product_created`), and the backend validates
+against it.
+- **Decision:** keep one convention. New events are declared as `productbrain.performance_updated`
+  etc., with `maps_to` holding the brief's name and `status: planned` until their phase ships.
+
+## ADR-025: Roadmap renumbering (Phases 0–10) and pull-forward instrumentation
+`specs/22` (authored 2026-11-02) supersedes the provisional phase grouping (old P2 included
+inventory/payments; old P5 analytics/procurement).
+- **Decision:** Phases 0–10 as in the strategy update. Intelligence starts at Phase 6, gated on ≥90
+  days of operational data for pilot merchants.
+- **Pull-forward:** data that intelligence needs is instrumented in the operational phases as
+  required work:
+  - CNT-012 creative attributes (Phase 1)
+  - ORD-012 structured addresses (Phase 2)
+  - AUT-018 action/outcome log (from Phase 2)
+  - RET-012 controlled return reasons (Phase 4)
+
+## ADR-026: Specification set authored by engineering
+21 of the 30 referenced specs were never supplied. On 2026-11-02 they were authored from the existing
+specs, the build briefs, the strategy update and the implemented system.
+- 04–06, 09–17, 19–22 and 25 are marked "authored; owner review required".
+- Business decisions are left explicitly TBD rather than invented (prices, most limits, brand
+  adoption, legal positions).
+
+## ADR-027: COD Intelligence fairness constraints
+COD risk is a per-order, explainable assessment with merchant override and dispute (specs/12, 15).
+- **Prohibited:** name-derived features, protected-attribute inference, cross-merchant person-level
+  lists.
+- **Process:** a static prohibited-feature check is part of CI for CODI. Calibration and regional
+  disparity reports are required before enabling auto-actions on MEDIUM/HIGHER.

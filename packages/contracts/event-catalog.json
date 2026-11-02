@@ -1,6 +1,6 @@
 {
   "$description": "Catalog of durable domain events published via the transactional outbox. The backend refuses to publish undeclared events and validates payloads against payload_schema. Payloads carry IDs, never secrets or full PII.",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "events": [
     {
       "type": "platform.ping",
@@ -639,6 +639,365 @@
           "job_id"
         ]
       }
+    },
+    {
+      "type": "productbrain.performance_updated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "ProductPerformanceUpdated",
+      "description": "Product Brain profile materially changed (demand, margin, return rate beyond thresholds).",
+      "aggregate": "productbrain",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "changed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "product_id",
+          "changed"
+        ]
+      }
+    },
+    {
+      "type": "creative.performance_updated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "CreativePerformanceUpdated",
+      "description": "New performance metrics recorded for a content item.",
+      "aggregate": "creative",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "post_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "period_start": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "post_id",
+          "period_start"
+        ]
+      }
+    },
+    {
+      "type": "creative.genome_updated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "CreativeGenomeUpdated",
+      "description": "Creative Genome profile recomputed with changed preferences.",
+      "aggregate": "creative",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "genome_version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "genome_version"
+        ]
+      }
+    },
+    {
+      "type": "autopilot.score_calculated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "AutopilotScoreCalculated",
+      "description": "Daily Autopilot Score snapshot computed.",
+      "aggregate": "autopilot",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "overall": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "date",
+          "overall"
+        ]
+      }
+    },
+    {
+      "type": "recommendations.created",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "RecommendationCreated",
+      "description": "A recommendation with evidence was created.",
+      "aggregate": "recommendations",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "risk_class": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recommendation_id",
+          "type",
+          "risk_class"
+        ]
+      }
+    },
+    {
+      "type": "recommendations.accepted",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "RecommendationAccepted",
+      "description": "A recommendation was accepted (by user or policy).",
+      "aggregate": "recommendations",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actor_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recommendation_id",
+          "actor_type"
+        ]
+      }
+    },
+    {
+      "type": "recommendations.rejected",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "RecommendationRejected",
+      "description": "A recommendation was rejected with a reason.",
+      "aggregate": "recommendations",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "recommendation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "recommendation_id",
+          "reason"
+        ]
+      }
+    },
+    {
+      "type": "inventory.stockout_risk_detected",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "StockoutRiskDetected",
+      "description": "Days of cover fell below lead time + safety days.",
+      "aggregate": "inventory",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "variant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "days_of_cover": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "product_id",
+          "variant_id",
+          "days_of_cover"
+        ]
+      }
+    },
+    {
+      "type": "courier.performance_updated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "CourierPerformanceUpdated",
+      "description": "Courier route metrics recomputed.",
+      "aggregate": "courier",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "courier": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "courier",
+          "route"
+        ]
+      }
+    },
+    {
+      "type": "cod.risk_assessed",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "CODRiskAssessed",
+      "description": "COD delivery-risk assessment created for an order.",
+      "aggregate": "cod",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "level": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGHER"
+            ]
+          }
+        },
+        "required": [
+          "order_id",
+          "level"
+        ]
+      }
+    },
+    {
+      "type": "returns.pattern_detected",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "ReturnPatternDetected",
+      "description": "A return pattern (ReturnInsight) was detected.",
+      "aggregate": "returns",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "insight_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "insight_id",
+          "product_id"
+        ]
+      }
+    },
+    {
+      "type": "supplier.performance_updated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "SupplierPerformanceUpdated",
+      "description": "Supplier economics recomputed.",
+      "aggregate": "supplier",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "supplier_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "supplier_id"
+        ]
+      }
+    },
+    {
+      "type": "twin.updated",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "StoreTwinUpdated",
+      "description": "A Store Twin section changed materially.",
+      "aggregate": "twin",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "section": {
+            "type": "string"
+          },
+          "source_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "section",
+          "source_version"
+        ]
+      }
+    },
+    {
+      "type": "simulation.completed",
+      "version": 1,
+      "status": "planned",
+      "maps_to": "SimulationCompleted",
+      "description": "A what-if simulation finished.",
+      "aggregate": "simulation",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "simulation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "simulation_id",
+          "status"
+        ]
+      }
     }
-  ]
+  ],
+  "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."
 }

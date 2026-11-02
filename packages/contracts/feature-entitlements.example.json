@@ -1,7 +1,7 @@
 {
   "$description": "Plan/feature/limit definitions loaded into the database by `python -m app.cli seed-plans`. The database is the runtime source of truth; admins edit plans there (creating a new PlanVersion) without redeploying.",
-  "$provisional": "Only the premium video limits (Growth 20/mo max 4/day, Pro 60/10, Business 180/30) come from specs/08. All other limits are PROVISIONAL engineering defaults pending specs/21_GTM_PRICING_PACKAGING.md, which is not in the repository. Prices are intentionally null (not configured) \u2014 see docs/KNOWN_GAPS.md GAP-SPEC-21.",
-  "version": "0.1.0",
+  "$provisional": "Only the premium video limits (Growth 20/mo max 4/day, Pro 60/10, Business 180/30) come from specs/08. All other limits are PROVISIONAL engineering defaults pending specs/21_GTM_PRICING_PACKAGING.md, which is not in the repository. Prices are intentionally null (not configured) — see docs/KNOWN_GAPS.md GAP-SPEC-21. Intelligence feature tiers (2026-11-02) are indicative per specs/08 and not yet built (roadmap Phases 6-10); network.insights is off for all plans pending legal review.",
+  "version": "0.2.0",
   "features": [
     {
       "code": "catalog.products",
@@ -90,6 +90,50 @@
     {
       "code": "audit.export",
       "name": "Audit log export"
+    },
+    {
+      "code": "autopilot.score",
+      "name": "Autopilot Score"
+    },
+    {
+      "code": "autopilot.improvements",
+      "name": "Autopilot coverage improvements"
+    },
+    {
+      "code": "intelligence.product_brain",
+      "name": "Product Brain"
+    },
+    {
+      "code": "intelligence.profit",
+      "name": "Profit-aware recommendations"
+    },
+    {
+      "code": "intelligence.returns",
+      "name": "Return Intelligence"
+    },
+    {
+      "code": "intelligence.courier",
+      "name": "Courier Brain (smart selection)"
+    },
+    {
+      "code": "intelligence.cod",
+      "name": "COD Intelligence"
+    },
+    {
+      "code": "intelligence.creative_genome",
+      "name": "Creative Genome"
+    },
+    {
+      "code": "intelligence.supplier",
+      "name": "Supplier Intelligence"
+    },
+    {
+      "code": "intelligence.simulation",
+      "name": "What-if simulation"
+    },
+    {
+      "code": "network.insights",
+      "name": "Network Intelligence"
     }
   ],
   "resources": [
@@ -227,7 +271,18 @@
           "ai.byok": false,
           "security.sso": false,
           "roles.custom": false,
-          "audit.export": false
+          "audit.export": false,
+          "autopilot.score": true,
+          "autopilot.improvements": false,
+          "intelligence.product_brain": false,
+          "intelligence.profit": false,
+          "intelligence.returns": false,
+          "intelligence.courier": false,
+          "intelligence.cod": false,
+          "intelligence.creative_genome": false,
+          "intelligence.supplier": false,
+          "intelligence.simulation": false,
+          "network.insights": false
         },
         "limits": [
           {
@@ -357,7 +412,18 @@
           "ai.byok": false,
           "security.sso": false,
           "roles.custom": false,
-          "audit.export": false
+          "audit.export": false,
+          "autopilot.score": true,
+          "autopilot.improvements": true,
+          "intelligence.product_brain": true,
+          "intelligence.profit": false,
+          "intelligence.returns": false,
+          "intelligence.courier": false,
+          "intelligence.cod": false,
+          "intelligence.creative_genome": false,
+          "intelligence.supplier": false,
+          "intelligence.simulation": false,
+          "network.insights": false
         },
         "limits": [
           {
@@ -487,7 +553,18 @@
           "ai.byok": false,
           "security.sso": false,
           "roles.custom": false,
-          "audit.export": false
+          "audit.export": false,
+          "autopilot.score": true,
+          "autopilot.improvements": true,
+          "intelligence.product_brain": true,
+          "intelligence.profit": true,
+          "intelligence.returns": true,
+          "intelligence.courier": true,
+          "intelligence.cod": true,
+          "intelligence.creative_genome": true,
+          "intelligence.supplier": false,
+          "intelligence.simulation": false,
+          "network.insights": false
         },
         "limits": [
           {
@@ -617,7 +694,18 @@
           "ai.byok": true,
           "security.sso": false,
           "roles.custom": true,
-          "audit.export": true
+          "audit.export": true,
+          "autopilot.score": true,
+          "autopilot.improvements": true,
+          "intelligence.product_brain": true,
+          "intelligence.profit": true,
+          "intelligence.returns": true,
+          "intelligence.courier": true,
+          "intelligence.cod": true,
+          "intelligence.creative_genome": true,
+          "intelligence.supplier": true,
+          "intelligence.simulation": true,
+          "network.insights": false
         },
         "limits": [
           {
@@ -747,7 +835,18 @@
           "ai.byok": true,
           "security.sso": true,
           "roles.custom": true,
-          "audit.export": true
+          "audit.export": true,
+          "autopilot.score": true,
+          "autopilot.improvements": true,
+          "intelligence.product_brain": true,
+          "intelligence.profit": true,
+          "intelligence.returns": true,
+          "intelligence.courier": true,
+          "intelligence.cod": true,
+          "intelligence.creative_genome": true,
+          "intelligence.supplier": true,
+          "intelligence.simulation": true,
+          "network.insights": false
         },
         "limits": [
           {

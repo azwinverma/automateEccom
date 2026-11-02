@@ -6,9 +6,9 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 ## Missing source specifications
 | ID | Gap | Impact | Needed |
 |---|---|---|---|
-| GAP-SPEC-MISSING | 21 of 30 referenced files are absent: 04, 05, 06, 09–17, 19–22 and all 4 JSON files (`design-tokens.json`, `feature-entitlements.example.json`, `event-catalog.json`, `ai-routing-policy.example.json`). | The 4 JSON files were **created** from the present docs (in `packages/`). Everything else was derived from specs 00/01/02/03/07/08/18/23/24 plus the build brief. | Add the missing files; I will reconcile and log any conflicts in DECISIONS.md. |
+| GAP-SPEC-MISSING | Partly resolved | The 21 missing specs were **authored by engineering** on 2026-11-02 (ADR-026) from existing specs, briefs and the implementation. They need **owner review**, and the originals, if they exist, should be reconciled against them. | Owner review of 04–06, 09–17, 19–22, 25. |
 | GAP-SPEC-21 | No GTM/pricing doc. | Plan prices are `NULL`. All limits except premium video (spec 08) are **provisional**. | Pricing and limits per plan. |
-| GAP-SPEC-22 | No phased roadmap. | Phase grouping in IMPLEMENTATION_STATUS is provisional. | Roadmap. |
+| ~~GAP-SPEC-22~~ | Resolved | Roadmap authored (Phases 0–10) per the strategy update. | — |
 | GAP-SPEC-15 | No security/compliance doc. | Followed the brief's security list. No data-retention periods or Nepal privacy requirements are defined. | Retention rules, legal basis, data residency. |
 
 ## Infrastructure & operations
@@ -79,6 +79,15 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-DEV-SIGNED-HOST | Low | Signed URLs use one `COS_PUBLIC_API_BASE_URL`, so a single dev backend can't serve both the Android emulator (10.0.2.2) and the iOS simulator (localhost). | Not an issue in staging/prod (one public host). |
 | GAP-EXCEPTION-DISMISS | Low | No server-side dismiss/snooze for exceptions; the `dismiss` action is local to the device. | Add a dismissals table keyed by exception id. |
 | GAP-AUTOPILOT-METRIC | Low | There is no "handled automatically" count for the Autopilot strip. | Derive from the audit log (`actor_type in (ai, automation)`) when automations land. |
+
+## Autonomous Commerce OS (strategy update 2026-11-02)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-INTEL-NOT-BUILT | Info | Product Brain, Commerce Memory, Autopilot Score, Recommendations, COD/Courier/Return/Supplier Intelligence, Creative Genome, Digital Store Twin, Simulation and Network Intelligence are **specified only** (Phases 6–10, NOT_STARTED). They are gated on operational data from Phases 2–5. | Follow the roadmap. |
+| GAP-INSTRUMENTATION | High | Later intelligence depends on data captured now: creative attributes (CNT-012, Phase 1), structured addresses (ORD-012), action/outcome log (AUT-018), controlled return reasons (RET-012). Content posts today lack creative attributes. | CNT-012 is the next Phase 1 task. |
+| GAP-BRAND-DECISION | Med | "Nivaro" brand assets (name, tagline, palette #185CFF/#00D7B2/#0B1B3D) are in the repo root, not adopted. Tokens still follow spec 18's palette. | Owner decision. |
+| GAP-NETWORK-LEGAL | High (Phase 10 gate) | Network Intelligence needs a privacy impact assessment and legal review (Nepal Individual Privacy Act 2075, cross-border). | Before NET work. |
+| GAP-ENTITLEMENT-RESEED | Low | The entitlements contract gained intelligence feature codes. Re-seeding creates new plan versions; existing subscribers stay on old versions (grandfathered) until migrated. | Decide the migration policy when Phase 6 features ship. |
 
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).

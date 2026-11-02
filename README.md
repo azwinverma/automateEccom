@@ -1,6 +1,11 @@
-# Commerce OS
+# Commerce OS: Autonomous Commerce OS
 
-The operating system for online and social-commerce sellers in Nepal: from product photo to delivered order.
+**From product photo to delivered order — automatically.**
+**Your store runs itself. You handle exceptions.**
+
+An autonomous operating system for online and social-commerce sellers (initial market: Nepal). It runs the
+commerce loop (catalog → content → conversations → orders → delivery → returns) and learns from outcomes to make
+the merchant more profitable. Positioning: `specs/25_COMPETITIVE_POSITIONING_AND_USP.md`; roadmap: `specs/22`.
 Product and engineering specs are in [`specs/`](specs/). Start with `specs/00_CLAUDE_START_HERE.md`.
 
 **Status:** Phase 0 (platform foundation). See [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md),

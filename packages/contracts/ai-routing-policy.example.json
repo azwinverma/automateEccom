@@ -287,6 +287,29 @@
           "model": "sandbox-moderation"
         }
       ]
+    },
+    "INSIGHT_NARRATIVE": {
+      "capability": "structured",
+      "feature": null,
+      "usage_resource": "ai_text_generations",
+      "timeout_s": 30,
+      "max_attempts_per_candidate": 2,
+      "candidates": [
+        {
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "effort": "low"
+        },
+        {
+          "provider": "gemini",
+          "model": "gemini-2.5-flash"
+        },
+        {
+          "provider": "sandbox",
+          "model": "sandbox-text"
+        }
+      ],
+      "_note": "Phrases an already-computed explanation; output validated to introduce no numbers absent from evidence (specs/07)."
     }
   },
   "pricing": {
