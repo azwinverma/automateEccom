@@ -1,0 +1,46 @@
+/**
+ * How a provider connects. The providers endpoint doesn't expose the adapter's `auth_kind`
+ * yet (reported as an API gap), so API-key providers are listed by code here.
+ */
+export const KEY_PROVIDERS: ReadonlySet<string> = new Set(["woocommerce"]);
+
+export type ConnectFlow = "oauth" | "keys";
+
+export function connectFlow(providerCode: string): ConnectFlow {
+  return KEY_PROVIDERS.has(providerCode) ? "keys" : "oauth";
+}
+
+export interface KeysForm {
+  store_url: string;
+  consumer_key: string;
+  consumer_secret: string;
+}
+
+export type KeysFieldError = "required" | "https_required" | "invalid_url" | "too_short";
+
+/** Mirrors backend checks (https store URL, 10–200 char keys); the server re-validates. */
+export function validateKeys(form: KeysForm): Partial<Record<keyof KeysForm, KeysFieldError>> {
+  const e: Partial<Record<keyof KeysForm, KeysFieldError>> = {};
+  const url = form.store_url.trim();
+  if (!url) e.store_url = "required";
+  else {
+    try {
+      const u = new URL(url);
+      if (u.protocol !== "https:") e.store_url = "https_required";
+      else if (!u.hostname.includes(".")) e.store_url = "invalid_url";
+    } catch {
+      e.store_url = url.startsWith("http://") ? "https_required" : "invalid_url";
+    }
+  }
+  for (const k of ["consumer_key", "consumer_secret"] as const) {
+    const v = form[k].trim();
+    if (!v) e[k] = "required";
+    else if (v.length < 10) e[k] = "too_short";
+  }
+  return e;
+}
+
+/** Normalise the store URL the way sellers paste it ("https://shop.np/" → "https://shop.np"). */
+export function normalizeStoreUrl(url: string): string {
+  return url.trim().replace(/\/+$/, "");
+}

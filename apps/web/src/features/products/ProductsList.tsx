@@ -113,6 +113,12 @@ export function ProductsList() {
           <div className={styles.headerActions}>
             <Button onClick={() => setCategoriesOpen(true)}>{t("products.categories")}</Button>
             {canWrite ? <Button onClick={() => setImportOpen(true)}>{t("products.importCsv")}</Button> : null}
+            {canWrite && can("ai.use") ? (
+              <ButtonLink href="/products/studio">
+                <Icon name="automation" />
+                {t("studio.entry")}
+              </ButtonLink>
+            ) : null}
             {canWrite ? (
               <ButtonLink href="/products/new" variant="primary">
                 <Icon name="plus" />

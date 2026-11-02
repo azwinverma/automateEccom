@@ -5,19 +5,21 @@ import { AutopilotStatusStrip } from "@/components/commerce/AutopilotStatusStrip
 import { ExceptionInbox } from "@/components/commerce/ExceptionInbox";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import { InlineAlert, PageHeader, SectionHeader } from "@/components/ui/misc";
+import { InlineAlert, PageHeader, RequestId, SectionHeader } from "@/components/ui/misc";
 import { errorMessage } from "@/i18n/errors";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAction } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { AUTOMATION_PHASE } from "@/lib/sections";
 import styles from "./home.module.css";
+import { useExceptions } from "./useExceptions";
 
 export function HomeView() {
   const { t } = useI18n();
   const { me, membership, api } = useAuth();
   const verify = useAction();
   const [sent, setSent] = useState(false);
+  const exceptions = useExceptions();
   if (!me) return null;
   const firstName = me.user.full_name.split(/\s+/)[0] || me.user.full_name;
 
@@ -36,10 +38,24 @@ export function HomeView() {
         subtitle={t("home.subtitle", { business: membership?.merchant.name ?? "" })}
       />
 
-      {/* Phase 0: no automation engine or exception feed exists yet, so counts are real zeros. */}
-      <AutopilotStatusStrip mode="assisted" automatedCount={0} needsAttentionCount={0} lockedUntilPhase={AUTOMATION_PHASE} />
+      {/* No automation engine yet: "handled automatically" is a real zero. Needs-you comes from GET /exceptions. */}
+      <AutopilotStatusStrip mode="assisted" automatedCount={0} needsAttentionCount={exceptions.total} lockedUntilPhase={AUTOMATION_PHASE} />
 
-      <ExceptionInbox state="ready" items={[]} />
+      {exceptions.commandError ? (
+        <div style={{ marginTop: "var(--space-4)" }}>
+          <InlineAlert tone="danger">
+            {exceptions.commandError.message}
+            <RequestId id={exceptions.commandError.requestId} />
+          </InlineAlert>
+        </div>
+      ) : null}
+      {exceptions.query.state.status === "loading" ? (
+        <ExceptionInbox state="loading" />
+      ) : exceptions.query.state.status === "error" ? (
+        <ExceptionInbox state="error" error={exceptions.query.state.error} onRetry={exceptions.query.reload} />
+      ) : (
+        <ExceptionInbox state="ready" items={exceptions.items} renderAction={exceptions.renderAction} />
+      )}
 
       <SectionHeader title={t("home.setupTitle")} />
       {verify.error ? <InlineAlert tone="danger">{errorMessage(t, verify.error)}</InlineAlert> : null}

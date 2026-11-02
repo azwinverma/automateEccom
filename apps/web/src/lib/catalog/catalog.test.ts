@@ -241,3 +241,13 @@ describe("CSV helpers", () => {
       .toBe("Row,Handle,Code,Message\r\n4,kurta,invalid_row,price: 'x' is not a number\r\n");
   });
 });
+
+describe("category move targets", () => {
+  it("excludes the category and its own subtree", async () => {
+    const { validParents } = await import("@/features/products/CategoriesDrawer");
+    const c = (id: string, path: string) => ({ id, name: id, name_ne: null, parent_id: null, path, depth: path.split("/").length - 1 });
+    const all = [c("cl", "clothing"), c("wo", "clothing/women"), c("ku", "clothing/women/kurta"), c("cl2", "clothing-sale"), c("ac", "accessories")];
+    expect(validParents(all, all[1]!).map((x) => x.id)).toEqual(["cl", "cl2", "ac"]);
+    expect(validParents(all, all[0]!).map((x) => x.id)).toEqual(["cl2", "ac"]);
+  });
+});

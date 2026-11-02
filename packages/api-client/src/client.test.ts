@@ -279,3 +279,13 @@ describe("signed uploads", () => {
     await expect(putToSignedUrl(t, new Blob([]), (async () => { throw new TypeError("cors"); }) as unknown as typeof fetch)).rejects.toMatchObject({ code: "upload_failed", status: 0 });
   });
 });
+
+describe("catalog version locks", () => {
+  it("sends version in the variant PATCH body and as a DELETE query param", async () => {
+    const { api, fetchMock } = setup(() => new Response(null, { status: 204 }), { getMerchantId: () => "m1" });
+    await api.catalog.updateVariant("p1", "v1", { price_minor: 125000 }, 7);
+    await api.catalog.archiveVariant("p1", "v1", 8);
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toEqual({ price_minor: 125000, version: 7 });
+    expect(fetchMock.mock.calls[1]![0]).toBe("http://api.test/api/v1/catalog/products/p1/variants/v1?version=8");
+  });
+});

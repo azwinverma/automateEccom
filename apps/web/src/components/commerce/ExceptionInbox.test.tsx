@@ -11,7 +11,7 @@ const now = new Date().toISOString();
 const items: ExceptionItem[] = EXCEPTION_TYPES.map((type, i) => ({
   id: `e${i}`,
   type,
-  severity: i % 3 === 0 ? "high" : i % 3 === 1 ? "medium" : "low",
+  severity: i % 3 === 0 ? "urgent" : i % 3 === 1 ? "high" : "normal",
   summary: `summary ${type}`,
   occurredAt: now,
 }));
@@ -58,7 +58,7 @@ describe("ExceptionInbox", () => {
     expect(within(rows[0]!).getByText(en.exceptions.severityHigh)).toBeInTheDocument();
     expect(screen.getByText("10 open")).toBeInTheDocument();
     await userEvent.click(within(rows[0]!).getByRole("button"));
-    expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ severity: "high" }));
+    expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ severity: "urgent" }));
   });
 
   it("formats amounts as NPR", () => {

@@ -29,9 +29,12 @@ import {
 import { parseProblems } from "@/lib/catalog/status";
 import { useUnsavedChangesGuard } from "@/lib/navigationGuard";
 import { parseLimitOptions } from "@/lib/usage";
+import { AddVariantDrawer } from "./AddVariantDrawer";
 import { AttributesSection } from "./AttributesSection";
 import { CategoriesDrawer, categoryOptionLabel } from "./CategoriesDrawer";
 import { ChipInput } from "./ChipInput";
+import { CollectionsPicker } from "./CollectionsPicker";
+import { ListingsPanel } from "./ListingsPanel";
 import { PublishChecklist, StatusControl } from "./StatusControl";
 import { VariantGrid } from "./VariantGrid";
 import styles from "./products.module.css";
@@ -115,8 +118,8 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
   const [statusPending, setStatusPending] = useState<ProductStatus | null>(null);
   const [confirmArchive, setConfirmArchive] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [addVariantOpen, setAddVariantOpen] = useState(false);
   const categories = useApiQuery((a) => a.catalog.categories());
-  const collections = useApiQuery((a) => (mode === "edit" ? a.catalog.collections() : Promise.resolve({ items: [] })));
   const { keyFor, reset: resetKey } = useIdempotencyKey();
 
   const dirty = !sameForm(base, form);
@@ -223,29 +226,30 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
       const { patches, archives } = diffVariants(base, form);
       const rowErrors: Record<string, string> = {};
       let failure: unknown = null;
+      const isConflict = (e: unknown) => isApiError(e) && e.code === "version_conflict";
+      // Every variant write carries the latest product version; a conflict stops the run.
       for (const p of patches) {
         try {
-          latest = await api.catalog.updateVariant(current.id, p.id, p.body);
+          latest = await api.catalog.updateVariant(current.id, p.id, p.body, latest.version);
         } catch (e) {
           failure = e;
+          if (isConflict(e)) break;
           const field = isApiError(e) ? VARIANT_ERROR_FIELD[e.code] : undefined;
           if (field) rowErrors[`variants.${p.key}.${field}`] = errorMessage(t, e);
         }
       }
-      for (const a of archives) {
-        try {
-          await api.catalog.archiveVariant(current.id, a.id);
-        } catch (e) {
-          failure = e;
+      if (!isConflict(failure)) {
+        for (const a of archives) {
+          try {
+            await api.catalog.archiveVariant(current.id, a.id, latest.version);
+            latest = await api.catalog.product(current.id); // DELETE returns 204: re-read the new version
+          } catch (e) {
+            failure = e;
+            if (isConflict(e)) break;
+          }
         }
       }
-      if (archives.length) {
-        try {
-          latest = await api.catalog.product(current.id);
-        } catch {
-          /* keep the last detail we have */
-        }
-      }
+      if (isConflict(failure)) setConflict(true);
 
       const saved = formFromDetail(latest);
       setServer(latest);
@@ -258,7 +262,7 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
         setFormState((f) => reconcile(f, saved));
         setPartial(true);
         setServerFieldErrors(rowErrors);
-        if (!Object.keys(rowErrors).length) setBannerError(failure);
+        if (!Object.keys(rowErrors).length && !isConflict(failure)) setBannerError(failure);
         focusFirstInvalid();
       }
     } finally {
@@ -312,11 +316,8 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
     { id: "organization", label: t("products.editor.organization") },
     { id: "shipping", label: t("products.editor.shipping") },
     { id: "attributes", label: t("products.editor.attributes") },
+    ...(server ? [{ id: "channels", label: t("listings.title") }] : []),
   ];
-  const memberOf =
-    collections.state.status === "success" && server
-      ? collections.state.data.items.filter((c) => server.collection_ids.includes(c.id))
-      : [];
 
   return (
     <>
@@ -442,6 +443,15 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
 
           <Section id="variants" title={t("products.editor.variants")} hint={mode === "create" ? t("products.editor.optionsHint") : undefined}>
             <VariantGrid mode={mode} form={form} setForm={setForm} errorText={errorText} readOnly={readOnly} />
+            {server && canWrite ? (
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-3)", paddingTop: "var(--space-3)" }}>
+                <Button size="sm" onClick={() => setAddVariantOpen(true)} disabled={dirty}>
+                  <Icon name="plus" />
+                  {t("products.editor.addVariant")}
+                </Button>
+                {dirty ? <span className={styles.statusHint} style={{ width: "auto", textAlign: "left" }}>{t("products.editor.addVariantSaveFirst")}</span> : null}
+              </div>
+            ) : null}
           </Section>
 
           <Section id="organization" title={t("products.editor.organization")}>
@@ -471,26 +481,13 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
                 error={errorText("tags")}
                 max={30}
               />
-              {mode === "edit" ? (
-                <div>
-                  <span className={styles.fieldLabel}>{t("products.editor.collections")}</span>
-                  {memberOf.length ? (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1)" }}>
-                      {memberOf.map((c) => (
-                        <span key={c.id} className={styles.chip} style={{ paddingRight: "var(--space-2)" }}>
-                          {c.title}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={styles.sectionHint} style={{ marginBottom: 0 }}>
-                      {t("products.editor.collectionsNone")}
-                    </p>
-                  )}
-                  <p className={styles.sectionHint} style={{ marginTop: "var(--space-1)" }}>
-                    {t("products.editor.collectionsReadOnly")}
-                  </p>
-                </div>
+              {server ? (
+                <CollectionsPicker
+                  productId={server.id}
+                  memberOf={server.collection_ids}
+                  canWrite={canWrite}
+                  onChange={(ids) => setServer((sv) => (sv ? { ...sv, collection_ids: ids } : sv))}
+                />
               ) : null}
             </div>
           </Section>
@@ -521,8 +518,25 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
               <p className={styles.sectionHint}>{t("products.editor.attributesCreate")}</p>
             )}
           </Section>
+          {server ? (
+            <Section id="channels" title={t("listings.title")} hint={t("listings.hint")}>
+              <ListingsPanel product={server} canPublish={canPublish} />
+            </Section>
+          ) : null}
         </fieldset>
       </div>
+      {server ? (
+        <AddVariantDrawer
+          open={addVariantOpen}
+          onOpenChange={setAddVariantOpen}
+          product={server}
+          onAdded={(d) => {
+            adopt(d);
+            setAddVariantOpen(false);
+            toast(t("products.editor.variantAdded"));
+          }}
+        />
+      ) : null}
 
       <ConfirmDialog
         open={confirmArchive}

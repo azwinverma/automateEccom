@@ -1,6 +1,7 @@
 "use client";
 
 import type { Money } from "@commerce-os/api-client";
+import type { ReactNode } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { Button } from "../ui/Button";
 import { Skeleton } from "../ui/misc";
@@ -21,32 +22,45 @@ export const EXCEPTION_TYPES = [
 ] as const;
 
 export type ExceptionType = (typeof EXCEPTION_TYPES)[number];
-export type ExceptionSeverity = "high" | "medium" | "low";
+/** Matches `GET /exceptions` severities. */
+export type ExceptionSeverity = "urgent" | "high" | "normal";
 
 export interface ExceptionItem {
   id: string;
-  type: ExceptionType;
+  /** Known types get a label; unknown future types fall back to a generic one. */
+  type: ExceptionType | (string & {});
   severity: ExceptionSeverity;
   /** Server-provided, already-localized one-line summary (e.g. order + customer). */
   summary: string;
   /** Order number, product SKU, channel name… */
   reference?: string;
   amount?: Money;
-  occurredAt: string;
+  occurredAt: string | null;
 }
 
 export type ExceptionInboxProps =
   | { state: "loading" }
   | { state: "error"; error: unknown; onRetry?: () => void }
-  | { state: "ready"; items: ExceptionItem[]; onAction?: (item: ExceptionItem) => void };
+  | {
+      state: "ready";
+      items: ExceptionItem[];
+      onAction?: (item: ExceptionItem) => void;
+      /** Custom control per item (link or command); defaults to a button calling onAction. */
+      renderAction?: (item: ExceptionItem) => ReactNode;
+    };
 
 const SEVERITY_CLASS: Record<ExceptionSeverity, string | undefined> = {
-  high: styles.sevHigh,
-  medium: styles.sevMedium,
-  low: undefined,
+  urgent: styles.sevHigh,
+  high: styles.sevMedium,
+  normal: undefined,
 };
 
-const SEVERITY_ORDER: Record<ExceptionSeverity, number> = { high: 0, medium: 1, low: 2 };
+const SEVERITY_ORDER: Record<ExceptionSeverity, number> = { urgent: 0, high: 1, normal: 2 };
+const SEVERITY_LABEL = {
+  urgent: "exceptions.severityHigh",
+  high: "exceptions.severityMedium",
+  normal: "exceptions.severityLow",
+} as const;
 
 export function ExceptionInbox(props: ExceptionInboxProps) {
   const { t, number, money, relative, dateTime } = useI18n();
@@ -82,28 +96,36 @@ export function ExceptionInbox(props: ExceptionInboxProps) {
       {props.state === "ready" && props.items.length > 0 ? (
         <ul className={styles.inboxList}>
           {[...props.items]
-            .sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || b.occurredAt.localeCompare(a.occurredAt))
+            .sort(
+              (a, b) =>
+                (SEVERITY_ORDER[a.severity] ?? 3) - (SEVERITY_ORDER[b.severity] ?? 3) ||
+                (b.occurredAt ?? "").localeCompare(a.occurredAt ?? ""),
+            )
             .map((item) => (
               <li key={item.id} className={[styles.inboxItem, SEVERITY_CLASS[item.severity]].filter(Boolean).join(" ")} data-type={item.type}>
                 <div>
                   <div className={styles.itemType}>
-                    <span>{t(`exceptions.type.${item.type}`)}</span>
-                    <span className={styles.itemSeverity}>
-                      {t(item.severity === "high" ? "exceptions.severityHigh" : item.severity === "medium" ? "exceptions.severityMedium" : "exceptions.severityLow")}
-                    </span>
+                    <span>{t.dynamic(`exceptions.type.${item.type}`) ?? t("exceptions.summary.generic")}</span>
+                    <span className={styles.itemSeverity}>{t(SEVERITY_LABEL[item.severity] ?? "exceptions.severityLow")}</span>
                   </div>
                   <p className={styles.itemSummary}>{item.summary}</p>
                   <div className={styles.itemMeta}>
                     {item.reference ? <span className="mono">{item.reference}</span> : null}
                     {item.amount ? <span className="tabular">{money(item.amount.amount_minor, item.amount.currency)}</span> : null}
-                    <time dateTime={item.occurredAt} title={dateTime(item.occurredAt)}>
-                      {relative(item.occurredAt)}
-                    </time>
+                    {item.occurredAt ? (
+                      <time dateTime={item.occurredAt} title={dateTime(item.occurredAt)}>
+                        {relative(item.occurredAt)}
+                      </time>
+                    ) : null}
                   </div>
                 </div>
-                <Button size="sm" onClick={() => props.onAction?.(item)}>
-                  {t(`exceptions.action.${item.type}`)}
-                </Button>
+                {props.renderAction ? (
+                  props.renderAction(item)
+                ) : (
+                  <Button size="sm" onClick={() => props.onAction?.(item)}>
+                    {t.dynamic(`exceptions.action.${item.type}`) ?? t("exceptions.actionLabel.review_post")}
+                  </Button>
+                )}
               </li>
             ))}
         </ul>

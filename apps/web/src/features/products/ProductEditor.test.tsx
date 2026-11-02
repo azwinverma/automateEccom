@@ -1,4 +1,4 @@
-import { ApiError, type ProductDetail } from "@commerce-os/api-client";
+import { ApiError, type Category, type Collection, type ProductDetail } from "@commerce-os/api-client";
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -51,8 +51,8 @@ function detail(over: Partial<ProductDetail> = {}): ProductDetail {
 }
 
 const catalog = {
-  categories: vi.fn(async () => ({ items: [] })),
-  collections: vi.fn(async () => ({ items: [] })),
+  categories: vi.fn(async () => ({ items: [] as Category[] })),
+  collections: vi.fn(async () => ({ items: [] as Collection[] })),
   product: vi.fn(),
   createProduct: vi.fn(),
   updateProduct: vi.fn(),
@@ -61,10 +61,18 @@ const catalog = {
   setStatus: vi.fn(),
   confirmAttributes: vi.fn(),
   setAttributes: vi.fn(),
+  listings: vi.fn(async () => ({ items: [] })),
+  publish: vi.fn(),
+  unpublish: vi.fn(),
+  addVariant: vi.fn(),
+  addToCollection: vi.fn(async () => undefined),
+  removeFromCollection: vi.fn(async () => undefined),
+  createCollection: vi.fn(),
 };
+const channels = { list: vi.fn(async () => ({ items: [] })) };
 let permissions = new Set(["catalog.read", "catalog.write", "catalog.publish"]);
 // Stable references: useApiQuery refetches when `api` identity changes.
-const api = { catalog };
+const api = { catalog, channels };
 const can = (p: string) => permissions.has(p);
 
 vi.mock("@/lib/auth/AuthProvider", () => ({
@@ -75,6 +83,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   catalog.categories.mockResolvedValue({ items: [] });
   catalog.collections.mockResolvedValue({ items: [] });
+  catalog.listings.mockResolvedValue({ items: [] });
+  channels.list.mockResolvedValue({ items: [] });
   permissions = new Set(["catalog.read", "catalog.write", "catalog.publish"]);
 });
 
@@ -138,8 +148,34 @@ describe("ProductEditor (edit)", () => {
     await user.clear(price);
     await user.type(price, "1,299.99");
     await user.click(screen.getByRole("button", { name: ed.save }));
-    await waitFor(() => expect(catalog.updateVariant).toHaveBeenCalledWith("p1", "v-M", { price_minor: 129999 }));
+    await waitFor(() => expect(catalog.updateVariant).toHaveBeenCalledWith("p1", "v-M", { price_minor: 129999 }, 3));
     expect(catalog.updateProduct).toHaveBeenCalledWith("p1", 3, {});
+  });
+
+  it("stops and shows the conflict banner when a variant write hits a newer version", async () => {
+    const user = userEvent.setup();
+    catalog.updateProduct.mockResolvedValueOnce(detail({ version: 3 }));
+    catalog.updateVariant.mockRejectedValueOnce(new ApiError({ status: 409, code: "version_conflict", message: "", details: { current_version: 5 } }));
+    renderWithI18n(<EditorForm initial={detail()} />);
+    await user.clear(screen.getByLabelText(`${ed.colPrice} · M`));
+    await user.type(screen.getByLabelText(`${ed.colPrice} · M`), "1300");
+    await user.clear(screen.getByLabelText(`${ed.colPrice} · L`));
+    await user.type(screen.getByLabelText(`${ed.colPrice} · L`), "1400");
+    await user.click(screen.getByRole("button", { name: ed.save }));
+    expect(await screen.findByText(ed.conflictTitle)).toBeInTheDocument();
+    expect(catalog.updateVariant).toHaveBeenCalledTimes(1); // stopped at the conflict
+    expect(screen.getByLabelText(`${ed.colPrice} · L`)).toHaveValue("1400");
+  });
+
+  it("adds and removes collection membership immediately", async () => {
+    const user = userEvent.setup();
+    catalog.collections.mockResolvedValue({ items: [{ id: "col1", title: "Dashain sale", handle: "dashain-sale", description: null }] });
+    renderWithI18n(<EditorForm initial={detail()} />);
+    const box = await screen.findByRole("checkbox", { name: "Dashain sale" });
+    await user.click(box);
+    await waitFor(() => expect(catalog.addToCollection).toHaveBeenCalledWith("col1", "p1"));
+    await user.click(screen.getByRole("checkbox", { name: "Dashain sale" }));
+    await waitFor(() => expect(catalog.removeFromCollection).toHaveBeenCalledWith("col1", "p1"));
   });
 
   it("shows variant errors in the right cell and keeps unsaved edits after a partial save", async () => {

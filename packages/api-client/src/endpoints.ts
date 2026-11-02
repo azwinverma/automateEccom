@@ -150,16 +150,18 @@ export function createApi(client: ApiClient) {
           body: { status, version },
           tenant: true,
         }),
-      updateVariant: (id: string, variantId: string, body: VariantPatchInput) =>
+      /** Pass the product `version` you last read; `409 version_conflict` if it moved on. */
+      updateVariant: (id: string, variantId: string, body: VariantPatchInput, version?: number) =>
         client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/variants/${encodeURIComponent(variantId)}`, {
           method: "PATCH",
-          body,
+          body: version === undefined ? body : { ...body, version },
           tenant: true,
         }),
-      archiveVariant: (id: string, variantId: string) =>
+      archiveVariant: (id: string, variantId: string, version?: number) =>
         client.request<void>(`/catalog/products/${encodeURIComponent(id)}/variants/${encodeURIComponent(variantId)}`, {
           method: "DELETE",
           tenant: true,
+          query: { version },
         }),
       setAttributes: (id: string, items: Pick<ProductAttribute, "key" | "value" | "locale">[]) =>
         client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/attributes`, {
@@ -176,7 +178,28 @@ export function createApi(client: ApiClient) {
       categories: () => client.request<{ items: Category[] }>("/catalog/categories", { tenant: true }),
       createCategory: (body: { name: string; name_ne?: string; parent_id?: string | null }) =>
         client.request<Category>("/catalog/categories", { method: "POST", body, tenant: true }),
+      updateCategory: (id: string, body: { name?: string; name_ne?: string | null; move?: boolean; parent_id?: string | null }) =>
+        client.request<Category>(`/catalog/categories/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      deleteCategory: (id: string) =>
+        client.request<void>(`/catalog/categories/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
       collections: () => client.request<{ items: Collection[] }>("/catalog/collections", { tenant: true }),
+      createCollection: (body: { title: string; description?: string | null }) =>
+        client.request<Collection>("/catalog/collections", { method: "POST", body, tenant: true }),
+      collectionProducts: (collectionId: string) =>
+        client.request<{ items: { product_id: string; title: string; status: ProductStatus; position: number }[] }>(
+          `/catalog/collections/${encodeURIComponent(collectionId)}/products`,
+          { tenant: true },
+        ),
+      addToCollection: (collectionId: string, productId: string) =>
+        client.request<void>(`/catalog/collections/${encodeURIComponent(collectionId)}/products/${encodeURIComponent(productId)}`, {
+          method: "PUT",
+          tenant: true,
+        }),
+      removeFromCollection: (collectionId: string, productId: string) =>
+        client.request<void>(`/catalog/collections/${encodeURIComponent(collectionId)}/products/${encodeURIComponent(productId)}`, {
+          method: "DELETE",
+          tenant: true,
+        }),
       uploadImport: (file: File | Blob, fileName = "import.csv") => {
         const form = new FormData();
         form.append("file", file, fileName);
@@ -241,6 +264,9 @@ export function createApi(client: ApiClient) {
       list: () => client.request<{ items: ChannelConnection[] }>("/channels", { tenant: true }),
       connect: (body: { provider: string; redirect_uri: string; reconnect_connection_id?: string | null }) =>
         client.request<{ authorize_url: string }>("/channels/connect", { method: "POST", body, tenant: true }),
+      /** API-key channels (WooCommerce). Re-entering keys for the same store URL reconnects it. */
+      connectWithKeys: (body: { provider: string; store_url: string; consumer_key: string; consumer_secret: string }) =>
+        client.request<ChannelConnection>("/channels/connect-with-keys", { method: "POST", body, tenant: true }),
       callback: (body: { provider: string; state: string; code: string }) =>
         client.request<ChannelConnection>("/channels/oauth/callback", { method: "POST", body, tenant: true }),
       health: (id: string) =>

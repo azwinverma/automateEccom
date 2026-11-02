@@ -5,16 +5,16 @@ const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString(
 
 /** Development fixtures only — realistic Nepal social-commerce situations. Never imported by app routes. */
 export const EXCEPTION_FIXTURES: ExceptionItem[] = [
-  { id: "x1", type: "payment_mismatch", severity: "high", summary: "Sita Gurung sent Rs 2,450 on eSewa; order total is Rs 2,650.", reference: "KTM-1042", amount: { amount_minor: 20000, currency: "NPR" }, occurredAt: minutesAgo(12) },
-  { id: "x2", type: "low_confidence_ai", severity: "medium", summary: "Reply draft to “size chart pathaunus na” is 54% confident.", reference: "Instagram DM", occurredAt: minutesAgo(25) },
-  { id: "x3", type: "refund_above_threshold", severity: "high", summary: "Refund for damaged pashmina shawl exceeds your Rs 3,000 auto-approve limit.", reference: "PKR-0311", amount: { amount_minor: 480000, currency: "NPR" }, occurredAt: minutesAgo(40) },
-  { id: "x4", type: "courier_failed", severity: "high", summary: "Pathao rider couldn't reach the customer in Lalitpur — 2nd attempt failed.", reference: "KTM-1029", occurredAt: minutesAgo(65) },
-  { id: "x5", type: "channel_expired", severity: "medium", summary: "Facebook Page token expired; new comments aren't being read.", reference: "Thamel Threads FB", occurredAt: minutesAgo(130) },
-  { id: "x6", type: "inventory_mismatch", severity: "medium", summary: "Dhaka topi (red, M): 3 in stock here, 0 counted on the shelf.", reference: "SKU DT-RED-M", occurredAt: minutesAgo(180) },
-  { id: "x7", type: "publish_failed", severity: "low", summary: "TikTok rejected the reel: video longer than allowed for this account.", reference: "Reel · Dashain sale", occurredAt: minutesAgo(240) },
-  { id: "x8", type: "ambiguous_variant", severity: "medium", summary: "Customer asked for “kalo wala, XL” — two black kurtas have XL.", reference: "Messenger", occurredAt: minutesAgo(300) },
-  { id: "x9", type: "customer_escalation", severity: "high", summary: "Ramesh K. asked to talk to the owner about a late delivery.", reference: "Instagram DM", occurredAt: minutesAgo(360) },
-  { id: "x10", type: "provider_failure", severity: "low", summary: "Image generation provider is degraded; product photos are queued.", occurredAt: minutesAgo(420) },
+  { id: "x1", type: "payment_mismatch", severity: "urgent", summary: "Sita Gurung sent Rs 2,450 on eSewa; order total is Rs 2,650.", reference: "KTM-1042", amount: { amount_minor: 20000, currency: "NPR" }, occurredAt: minutesAgo(12) },
+  { id: "x2", type: "low_confidence_ai", severity: "high", summary: "Reply draft to “size chart pathaunus na” is 54% confident.", reference: "Instagram DM", occurredAt: minutesAgo(25) },
+  { id: "x3", type: "refund_above_threshold", severity: "urgent", summary: "Refund for damaged pashmina shawl exceeds your Rs 3,000 auto-approve limit.", reference: "PKR-0311", amount: { amount_minor: 480000, currency: "NPR" }, occurredAt: minutesAgo(40) },
+  { id: "x4", type: "courier_failed", severity: "urgent", summary: "Pathao rider couldn't reach the customer in Lalitpur — 2nd attempt failed.", reference: "KTM-1029", occurredAt: minutesAgo(65) },
+  { id: "x5", type: "channel_expired", severity: "high", summary: "Facebook Page token expired; new comments aren't being read.", reference: "Thamel Threads FB", occurredAt: minutesAgo(130) },
+  { id: "x6", type: "inventory_mismatch", severity: "high", summary: "Dhaka topi (red, M): 3 in stock here, 0 counted on the shelf.", reference: "SKU DT-RED-M", occurredAt: minutesAgo(180) },
+  { id: "x7", type: "publish_failed", severity: "normal", summary: "TikTok rejected the reel: video longer than allowed for this account.", reference: "Reel · Dashain sale", occurredAt: minutesAgo(240) },
+  { id: "x8", type: "ambiguous_variant", severity: "high", summary: "Customer asked for “kalo wala, XL” — two black kurtas have XL.", reference: "Messenger", occurredAt: minutesAgo(300) },
+  { id: "x9", type: "customer_escalation", severity: "urgent", summary: "Ramesh K. asked to talk to the owner about a late delivery.", reference: "Instagram DM", occurredAt: minutesAgo(360) },
+  { id: "x10", type: "provider_failure", severity: "normal", summary: "Image generation provider is degraded; product photos are queued.", occurredAt: minutesAgo(420) },
 ];
 
 const limit = (resource: string, used: number | null, lim: number | null, extra: Partial<UsageLimit> = {}): UsageLimit => ({

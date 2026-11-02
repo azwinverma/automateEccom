@@ -157,13 +157,41 @@ without `catalog.publish`.
 `lib/navigationGuard.ts` blocks leaving the page with unsaved changes in three ways: `beforeunload`, a capture-phase
 click handler on same-origin links, and `confirmLeave()`, which the command palette calls.
 
-### Catalog API gaps (reported to the backend team)
-- **Options and variants are fixed after create.** There is no endpoint to add an option, value or variant to an
-  existing product. The editor shows existing variants, which can be edited or archived, and explains the limit.
-- **Variant PATCH has no `version`.** The editor works around this by sending an empty product PATCH with `version`
-  first.
-- **Collection membership can't be edited safely.** `PUT /collections/{id}/products` replaces the whole list, and no
-  endpoint lists a collection's products. Collections are therefore shown read-only.
-- **Categories are create-only.** There is no rename, move or delete.
-- **Import row errors with `code: invalid_row` carry English text** (e.g. `price: 'abc' is not a number`) and no
-  structured field, so they can't be localized. Known catalog codes are localized.
+### Catalog API gaps (closed in 2725646 and wired here)
+- Variant PATCH and DELETE now carry `version`. During Save, each write uses the latest version; after a DELETE
+  (204) the editor re-reads the product. A conflict stops the run and shows the conflict banner.
+- "Add variant" (`POST …/variants`) is in the editor. It is disabled while there are unsaved edits, because it needs
+  the current version.
+- Collections can be edited: each tick is an idempotent PUT or DELETE, and you can create a collection and add the
+  product in one step.
+- Categories can be renamed, moved and deleted from the drawer. Moving under the category's own subtree is prevented
+  on the client, and `category_cycle` is still mapped.
+- Still open: import rows with `code: invalid_row` carry English-only messages.
+
+## Phase 1 flows
+
+| Area | Where | Notes |
+|---|---|---|
+| Exception Inbox | Home | `GET /exceptions`. `lib/exceptions.ts` routes each `action` to a link or an in-place command (retry publish, retry draft, remove blocked file). |
+| AI Product Studio | Products → Create from photos (`/products/studio`) | `lib/media/upload.ts` runs the upload state machine: signed upload → PUT with **no** auth headers → complete → poll the asset. The review screen leaves prices blank for the seller, marks attributes below 75% as "Please check", lists `issues`, and turns `needs_seller_input` into a checklist that blocks Save. |
+| Channels | Settings → Channels, `/channels/callback` | OAuth state lives in sessionStorage (`lib/channels/oauth.ts`). The callback only exchanges a code whose `state` matches, within 15 minutes, once. It then removes `code` from the URL. WooCommerce connects with keys (`lib/channels/connect.ts`). |
+| Listings | Product editor → Channels | Polls `GET …/listings` while anything is pending or publishing. Listing needs an active product and the `product_listing` capability. |
+| Content calendar | Content (`/content`) | Week and month views in the merchant's time zone (`lib/content/calendar.ts`, Asia/Kathmandu UTC+5:45, weeks start on Sunday). The post drawer offers only the workflow actions allowed for the post's status (`lib/content/actions.ts`). |
+| Auto Reels | Content → Reels | Polls the video job. Signed video URLs are refetched when playback fails. The form says the price shown comes from the catalog. |
+
+Signed media URLs point to the API host, e.g. `/_dev/objects/...` in development. They are not same-origin, so the
+browser needs two things:
+- The API's `COS_CORS_ORIGINS` must include the web origin.
+- `COS_PUBLIC_API_BASE_URL` must be reachable from the browser.
+
+Both are verified by `e2e/studio-channels-real-backend.spec.ts`.
+
+### Phase 1 API gaps (reported)
+- **No endpoint for the `dismiss` exception action.** For blocked (malware) uploads the UI offers "Remove file"
+  (`DELETE /media/{id}`), which genuinely clears the item. Other dismiss cases have no control.
+- **No way to fetch unscheduled posts or a single post.** `GET /content/posts` has no `unscheduled` filter and no
+  `GET /content/posts/{id}`. The calendar loads the unfiltered list (capped at 500) to show drafts and to open
+  `?post=` links. Merchants with more than 500 posts will miss some.
+- **The providers endpoint doesn't say how each channel connects.** `GET /channels/providers` doesn't expose
+  `auth_kind`, so `woocommerce` is treated as an API-key provider by its code.
+- **Content posts don't include the channel name.** The UI joins them with `GET /channels`.

@@ -4,7 +4,7 @@ import { isApiError, type Category } from "@commerce-os/api-client";
 import { useState, type FormEvent } from "react";
 import { EmptyState, QueryError, TableSkeleton } from "@/components/states/States";
 import { Button } from "@/components/ui/Button";
-import { Drawer } from "@/components/ui/Drawer";
+import { ConfirmDialog, Drawer } from "@/components/ui/Drawer";
 import { SelectField, TextField } from "@/components/ui/Field";
 import { InlineAlert, RequestId, SectionHeader, useToast } from "@/components/ui/misc";
 import { errorMessage } from "@/i18n/errors";
@@ -23,6 +23,73 @@ export function categoryOptionLabel(c: Category, locale: AppLocale): string {
   return `${"— ".repeat(c.depth)}${categoryName(c, locale)}`;
 }
 
+/** A category can't move under itself or its own subtree (paths are slug paths). */
+export function validParents(all: Category[], moving: Category): Category[] {
+  return all.filter((c) => c.id !== moving.id && c.path !== moving.path && !c.path.startsWith(`${moving.path}/`));
+}
+
+function CategoryEditor({
+  category,
+  all,
+  onSaved,
+  onCancel,
+}: {
+  category: Category;
+  all: Category[];
+  onSaved: (c: Category) => void;
+  onCancel: () => void;
+}) {
+  const { t, locale } = useI18n();
+  const { api } = useAuth();
+  const [name, setName] = useState(category.name);
+  const [nameNe, setNameNe] = useState(category.name_ne ?? "");
+  const [parent, setParent] = useState(category.parent_id ?? "");
+  const action = useAction();
+
+  const save = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const moved = (parent || null) !== (category.parent_id ?? null);
+    const c = await action.run(() =>
+      api.catalog.updateCategory(category.id, {
+        name: name.trim(),
+        name_ne: nameNe.trim() || null,
+        ...(moved ? { move: true, parent_id: parent || null } : {}),
+      }),
+    );
+    if (c) onSaved(c);
+  };
+
+  return (
+    <form className={styles.fields} onSubmit={save} noValidate style={{ padding: "var(--space-3) 0", marginTop: 0 }} aria-label={t("products.categoriesDrawer.editTitle", { name: category.name })}>
+      {action.error ? (
+        <InlineAlert tone="danger">
+          {errorMessage(t, action.error)}
+          <RequestId id={isApiError(action.error) ? action.error.requestId : null} />
+        </InlineAlert>
+      ) : null}
+      <TextField label={t("products.categoriesDrawer.name")} value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+      <TextField label={t("products.categoriesDrawer.nameNe")} optionalLabel={t("common.optional")} value={nameNe} onChange={(e) => setNameNe(e.target.value)} lang="ne" />
+      <SelectField label={t("products.categoriesDrawer.move")} value={parent} onChange={(e) => setParent(e.target.value)}>
+        <option value="">{t("products.categoriesDrawer.topLevel")}</option>
+        {validParents(all, category).map((c) => (
+          <option key={c.id} value={c.id}>
+            {categoryOptionLabel(c, locale)}
+          </option>
+        ))}
+      </SelectField>
+      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <Button type="submit" variant="primary" size="sm" loading={action.pending}>
+          {t("products.categoriesDrawer.save")}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onCancel}>
+          {t("common.cancel")}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function CategoriesBody({ onCreated }: { onCreated?: (c: Category) => void }) {
   const { t, locale } = useI18n();
   const { api, can } = useAuth();
@@ -33,6 +100,9 @@ function CategoriesBody({ onCreated }: { onCreated?: (c: Category) => void }) {
   const [parent, setParent] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const action = useAction();
+  const remove = useAction();
+  const [editing, setEditing] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<Category | null>(null);
   const canWrite = can("catalog.write");
 
   const submit = async (e: FormEvent) => {
@@ -64,13 +134,46 @@ function CategoriesBody({ onCreated }: { onCreated?: (c: Category) => void }) {
         <EmptyState title={t("products.categoriesDrawer.empty")} />
       ) : (
         <ul className={styles.tree} aria-label={t("products.categoriesDrawer.tree")}>
-          {categories.state.data.items.map((c) => (
-            <li key={c.id} style={{ paddingLeft: c.depth * 16 }}>
-              {c.depth > 0 ? <span className={styles.treeIndent} aria-hidden="true" /> : null}
-              <span>{c.name}</span>
-              {c.name_ne ? <span className={styles.treeNe} lang="ne">{c.name_ne}</span> : null}
-            </li>
-          ))}
+          {categories.state.data.items.map((c, _i, all) =>
+            editing === c.id ? (
+              <li key={c.id} style={{ display: "block", paddingLeft: c.depth * 16 }}>
+                <CategoryEditor
+                  category={c}
+                  all={all}
+                  onCancel={() => setEditing(null)}
+                  onSaved={() => {
+                    setEditing(null);
+                    toast(t("products.categoriesDrawer.updated"));
+                    categories.reload(); // a move rewrites the whole subtree's paths
+                  }}
+                />
+              </li>
+            ) : (
+              <li key={c.id} style={{ paddingLeft: c.depth * 16 }}>
+                {c.depth > 0 ? <span className={styles.treeIndent} aria-hidden="true" /> : null}
+                <span>{c.name}</span>
+                {c.name_ne ? <span className={styles.treeNe} lang="ne">{c.name_ne}</span> : null}
+                {canWrite ? (
+                  <span style={{ marginLeft: "auto", display: "flex", gap: 2 }}>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(c.id)} aria-label={`${t("products.categoriesDrawer.rename")}: ${c.name}`}>
+                      {t("products.categoriesDrawer.rename")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        remove.clear();
+                        setDeleting(c);
+                      }}
+                      aria-label={`${t("products.categoriesDrawer.delete")}: ${c.name}`}
+                    >
+                      {t("products.categoriesDrawer.delete")}
+                    </Button>
+                  </span>
+                ) : null}
+              </li>
+            ),
+          )}
         </ul>
       )}
 
@@ -110,6 +213,34 @@ function CategoriesBody({ onCreated }: { onCreated?: (c: Category) => void }) {
       ) : (
         <p className={styles.sectionHint}>{t("products.categoriesDrawer.readOnly")}</p>
       )}
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(o) => !o && setDeleting(null)}
+        title={t("products.categoriesDrawer.deleteTitle", { name: deleting?.name ?? "" })}
+        body={t("products.categoriesDrawer.deleteBody")}
+        confirmLabel={t("products.categoriesDrawer.delete")}
+        pending={remove.pending}
+        destructive
+        onConfirm={async () => {
+          if (!deleting) return;
+          const ok = await remove.run(async () => {
+            await api.catalog.deleteCategory(deleting.id);
+            return true;
+          });
+          if (ok) {
+            categories.setData((d) => ({ items: d.items.filter((x) => x.id !== deleting.id) }));
+            setDeleting(null);
+            toast(t("products.categoriesDrawer.deleted"));
+          }
+        }}
+      >
+        {remove.error ? (
+          <InlineAlert tone="danger">
+            {errorMessage(t, remove.error)}
+            <RequestId id={isApiError(remove.error) ? remove.error.requestId : null} />
+          </InlineAlert>
+        ) : null}
+      </ConfirmDialog>
     </>
   );
 }
