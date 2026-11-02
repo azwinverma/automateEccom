@@ -8,8 +8,11 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import secrets
+import threading
 import uuid
-from datetime import UTC, datetime
+from collections import deque
+from datetime import UTC, datetime, timedelta
 from typing import Any, ClassVar
 
 import structlog
@@ -20,9 +23,11 @@ from app.domains.integrations.base import (
     ChannelCapability,
     CourierAdapter,
     CourierCapability,
+    IntegrationError,
     Money,
     NormalizedWebhook,
     NotificationAdapter,
+    OAuthTokens,
     PaymentAdapter,
     PaymentCapability,
     PaymentIntentResult,
@@ -60,7 +65,30 @@ class _HmacWebhookMixin:
         ]
 
 
+class _ScriptedFailures:
+    """Test hook: queue IntegrationErrors to be raised by the next sandbox calls."""
+
+    def __init__(self) -> None:
+        self._q: deque[IntegrationError] = deque()
+        self._lock = threading.Lock()
+
+    def push(self, err: IntegrationError, times: int = 1) -> None:
+        with self._lock:
+            self._q.extend([err] * times)
+
+    def pop(self) -> IntegrationError | None:
+        with self._lock:
+            return self._q.popleft() if self._q else None
+
+    def clear(self) -> None:
+        with self._lock:
+            self._q.clear()
+
+
 class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
+    """A fake social/marketplace channel with real OAuth semantics (consent, expiring access tokens,
+    refresh, revocation) so every connection/publish path can be exercised without a live platform."""
+
     code = "sandbox_channel"
     display_name = "Sandbox channel"
     is_sandbox = True
@@ -73,21 +101,94 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
             ChannelCapability.ORDERS,
         }
     )
+    SCOPES: ClassVar[list[str]] = ["catalog.write", "content.publish", "messages.read"]
+    TOKEN_TTL: ClassVar[timedelta] = timedelta(hours=1)
+    failures: ClassVar[_ScriptedFailures] = _ScriptedFailures()
+    revoked_refresh_tokens: ClassVar[set[str]] = set()
+    published: ClassVar[dict[str, dict[str, Any]]] = {}
 
-    def publish_listing(self, listing: dict[str, Any], idempotency_key: str) -> str:
-        return "sbx-listing-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
+    def _fail(self) -> None:
+        err = self.failures.pop()
+        if err is not None:
+            raise err
+
+    def _tokens(self, account: str) -> OAuthTokens:
+        return OAuthTokens(
+            access_token=f"sbx-at-{secrets.token_hex(8)}",
+            refresh_token=f"sbx-rt-{secrets.token_hex(8)}",
+            expires_at=datetime.now(UTC) + self.TOKEN_TTL,
+            scopes=list(self.SCOPES),
+            external_account_id=account,
+        )
+
+    def authorize_url(self, state: str, redirect_uri: str) -> str:
+        from urllib.parse import urlencode
+
+        from app.core.config import get_settings
+
+        base = get_settings().public_api_base_url.rstrip("/")
+        query = urlencode({"state": state, "redirect_uri": redirect_uri})
+        return f"{base}/_dev/channels/sandbox/authorize?{query}"
+
+    def exchange_code(self, code: str, redirect_uri: str) -> OAuthTokens:
+        self._fail()
+        if not code.startswith("sbx-code-"):
+            raise IntegrationError("oauth_code_invalid", "sandbox")
+        return self._tokens(f"sbx-acct-{code.removeprefix('sbx-code-')[:12]}")
+
+    def refresh_tokens(self, refresh_token: str) -> OAuthTokens:
+        self._fail()
+        if refresh_token in self.revoked_refresh_tokens:
+            raise IntegrationError("invalid_grant", "refresh token revoked", auth=True)
+        return self._tokens(self.config.get("external_account_id", "sbx-acct"))
+
+    def health_check(self) -> bool:
+        self._fail()
+        return self._credentials.get("access_token", "").startswith("sbx-at-")
+
+    def publish_listing(
+        self, listing: dict[str, Any], idempotency_key: str, external_id: str | None = None
+    ) -> str:
+        self._require(ChannelCapability.PRODUCT_LISTING)
+        self._fail()
+        ext = (
+            external_id
+            or "sbx-listing-" + hashlib.sha256(idempotency_key.split(":v")[0].encode()).hexdigest()[:10]
+        )
+        self.published[ext] = listing
+        return ext
+
+    def unpublish_listing(self, external_id: str, idempotency_key: str) -> None:
+        self._fail()
+        self.published.pop(external_id, None)
 
     def update_inventory(self, external_sku: str, available: int, idempotency_key: str) -> None:
-        return None
+        self._fail()
 
     def publish_content(self, content: dict[str, Any], idempotency_key: str) -> str:
+        self._require(ChannelCapability.CONTENT_PUBLISH)
+        self._fail()
         return "sbx-post-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
 
     def send_message(self, conversation_external_id: str, text: str, idempotency_key: str) -> str:
+        self._fail()
         return "sbx-msg-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
 
     def fetch_orders(self, since: datetime) -> list[dict[str, Any]]:
         return []
+
+    def parse_webhook(self, headers: dict[str, str], body: bytes) -> list[NormalizedWebhook]:
+        doc = json.loads(body)
+        return [
+            NormalizedWebhook(
+                provider=self.code,
+                external_event_id=str(doc["id"]),
+                event_type=str(doc["type"]),
+                occurred_at=None,
+                payload=doc.get("data", {}),
+                external_account_id=doc.get("account_id"),
+            )
+        ]
 
 
 class SandboxPaymentAdapter(_HmacWebhookMixin, PaymentAdapter):

@@ -6,9 +6,11 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+# Side-effect imports: each module registers its outbox handlers at import time.
 import app.domains.catalog.imports
+import app.domains.channels.service
 import app.domains.media.service
-import app.domains.studio.service  # noqa: F401  (registers studio.job_queued handler)
+import app.domains.studio.service  # noqa: F401
 from app.core.config import get_settings
 from app.core.crypto import SealedSecret
 from app.domains.accounts.models import User

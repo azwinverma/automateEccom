@@ -55,6 +55,17 @@ def requeue_stale_studio_jobs() -> int:
         return requeue_stale(db)
 
 
+@celery.task(name="app.worker.tasks.refresh_channel_tokens", ignore_result=True)
+def refresh_channel_tokens() -> dict[str, int]:
+    from app.domains.channels.service import refresh_due_tokens
+
+    with session_scope() as db:
+        stats = refresh_due_tokens(db)
+    if any(stats.values()):
+        log.info("channel_tokens_refreshed", **stats)
+    return stats
+
+
 @celery.task(name="app.worker.tasks.purge_idempotency", ignore_result=True)
 def purge_idempotency() -> int:
     with session_scope() as db:

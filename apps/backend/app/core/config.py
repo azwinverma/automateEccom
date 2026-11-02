@@ -73,6 +73,12 @@ class Settings(BaseSettings):
     clamd_port: int = 3310
     public_api_base_url: str = "http://localhost:8000"
 
+    # Channels: per-provider webhook signing secrets (app-level, from the secret manager in prod)
+    channel_webhook_secrets: dict[str, SecretStr] = Field(
+        default_factory=lambda: {"sandbox_channel": SecretStr("dev-sandbox-webhook-secret")}
+    )
+    webhook_max_bytes: int = 1024 * 1024
+
     # AI provider platform keys (server-side only; never sent to clients or logged)
     anthropic_api_key: SecretStr | None = None
     openai_api_key: SecretStr | None = None

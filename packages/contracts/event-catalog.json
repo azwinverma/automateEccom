@@ -486,6 +486,117 @@
           "job_id"
         ]
       }
+    },
+    {
+      "type": "channels.connected",
+      "version": 1,
+      "description": "A sales channel was connected or reconnected.",
+      "aggregate": "channels",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "connection_id",
+          "provider"
+        ]
+      }
+    },
+    {
+      "type": "channels.connection_expired",
+      "version": 1,
+      "description": "Channel credentials stopped working; the seller must reconnect. Automations using it should pause.",
+      "aggregate": "channels",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "connection_id",
+          "provider",
+          "error_code"
+        ]
+      }
+    },
+    {
+      "type": "webhooks.received",
+      "version": 1,
+      "description": "A verified, de-duplicated provider webhook was recorded; the handler routes it.",
+      "aggregate": "webhooks",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "webhook_event_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "webhook_event_id"
+        ]
+      }
+    },
+    {
+      "type": "listings.sync_requested",
+      "version": 1,
+      "description": "A channel listing must be reconciled with the product (publish/update/unpublish).",
+      "aggregate": "listings",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "listing_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "listing_id"
+        ]
+      }
+    },
+    {
+      "type": "listings.sync_failed",
+      "version": 1,
+      "description": "A listing could not be synced after retries; surfaces in the Exception Inbox.",
+      "aggregate": "listings",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "listing_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "listing_id",
+          "error_code"
+        ]
+      }
     }
   ]
 }

@@ -31,6 +31,7 @@ celery.conf.update(
             "task": "app.worker.tasks.requeue_stale_studio_jobs",
             "schedule": 300.0,
         },
+        "refresh-channel-tokens": {"task": "app.worker.tasks.refresh_channel_tokens", "schedule": 300.0},
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
     },
 )

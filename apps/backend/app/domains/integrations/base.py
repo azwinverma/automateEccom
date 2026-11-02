@@ -50,10 +50,14 @@ class CourierCapability(StrEnum):
 
 
 class IntegrationError(Exception):
-    def __init__(self, code: str, message: str = "", *, retryable: bool = False) -> None:
+    """``auth`` = credentials rejected (token expired/revoked): the connection needs the seller to
+    reconnect. ``retryable`` = transient (timeouts, 429, 5xx)."""
+
+    def __init__(self, code: str, message: str = "", *, retryable: bool = False, auth: bool = False) -> None:
         super().__init__(f"{code}: {message}"[:500])
         self.code = code
         self.retryable = retryable
+        self.auth = auth
 
 
 class CapabilityNotSupported(IntegrationError):
@@ -85,6 +89,7 @@ class NormalizedWebhook:
     event_type: str
     occurred_at: datetime | None
     payload: dict[str, Any]
+    external_account_id: str | None = None  # routes the event to a merchant's connection
 
 
 class Adapter(ABC):
@@ -136,7 +141,18 @@ class ChannelAdapter(Adapter):
     def refresh_tokens(self, refresh_token: str) -> OAuthTokens:
         raise IntegrationError("not_implemented", "oauth refresh")
 
-    def publish_listing(self, listing: dict[str, Any], idempotency_key: str) -> str:
+    def health_check(self) -> bool:
+        """Cheap authenticated call proving the stored token still works."""
+        raise IntegrationError("not_implemented", "health check")
+
+    def publish_listing(
+        self, listing: dict[str, Any], idempotency_key: str, external_id: str | None = None
+    ) -> str:
+        """Create or update the listing; returns the provider's listing id."""
+        self._require(ChannelCapability.PRODUCT_LISTING)
+        raise NotImplementedError
+
+    def unpublish_listing(self, external_id: str, idempotency_key: str) -> None:
         self._require(ChannelCapability.PRODUCT_LISTING)
         raise NotImplementedError
 

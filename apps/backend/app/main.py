@@ -43,6 +43,10 @@ def create_app() -> FastAPI:
     from app.domains.audit.router import router as audit
     from app.domains.billing.router import router as billing
     from app.domains.catalog.router import router as catalog
+    from app.domains.channels.router import admin_router as webhooks_admin
+    from app.domains.channels.router import dev_router as channels_dev
+    from app.domains.channels.router import listings_router, webhooks_router
+    from app.domains.channels.router import router as channels
     from app.domains.media.router import dev_router as media_dev
     from app.domains.media.router import router as media
     from app.domains.merchants.router import router as merchants
@@ -52,7 +56,23 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router)
     app.include_router(media_dev)
-    for r in (accounts, merchants, billing, catalog, media, studio, audit, platform, ai, admin):
+    app.include_router(channels_dev)
+    app.include_router(webhooks_router)  # public: signature-verified, no user auth
+    for r in (
+        accounts,
+        merchants,
+        billing,
+        catalog,
+        listings_router,
+        media,
+        studio,
+        channels,
+        audit,
+        platform,
+        ai,
+        admin,
+        webhooks_admin,
+    ):
         app.include_router(r, prefix=API_PREFIX)
     return app
 
