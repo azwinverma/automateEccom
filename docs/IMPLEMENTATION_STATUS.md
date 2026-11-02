@@ -14,7 +14,7 @@ _Last updated: 2026-11-02 — Phase 0 foundation._
 | Area | Result (2026-11-02) |
 |---|---|
 | Backend | ruff + mypy clean · 65 tests passed (real Postgres 14 + Redis 7) · 84% line coverage · pip-audit: no known vulns · alembic upgrade/downgrade/check clean |
-| Web | typecheck, lint, 77 component tests, 20 api-client tests, production build; Playwright E2E 8/8 against the **real** backend (desktop + 360px) |
+| Web | typecheck, lint, 95 component tests, 20 api-client tests, production build; Playwright E2E (2 specs × desktop + 360px) passing against the **real** backend |
 | Mobile | `flutter analyze` clean · 51 tests · not yet built for a device or run against the real backend |
 | Containers | backend image built; compose stack booted (migrate → api → worker/beat) and outbox email dispatch verified |
 | CI | workflow written, not yet executed on GitHub (repo has no remote) |
@@ -31,7 +31,7 @@ _Last updated: 2026-11-02 — Phase 0 foundation._
 | Logging, metrics, tracing, health | Met; dashboards/alerts not yet |
 | CI baseline | Written; **not yet run on GitHub** |
 | Staging deployment | **Not met** — hosting target undecided (GAP-INFRA-TARGET) |
-| Design tokens + web/Flutter design systems | Met (tested); Plan & usage UX fixes in progress |
+| Design tokens + web/Flutter design systems | Met (tested) |
 
 Phase 1 can start in parallel with closing the two open items above, which need decisions from you rather than engineering work.
 
@@ -245,7 +245,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | ADM-010 | refund review | P0+ | NOT_STARTED | — | — | — |  |
 | ADM-011 | feature flags | P0+ | IMPLEMENTED | FND-011 | apps/backend/app/domains/admin/router.py | test_platform::test_feature_flags… | Upsert flags (audited) |
 | UX-001 | design tokens | P0 | TESTED | — | packages/design-system/ | CI diff check of generated outputs | JSON → CSS vars, TS, Dart |
-| UX-002 | web library | P0 | TESTED | UX-001 | apps/web/src/components | 77 vitest tests; E2E vs real backend | No 3rd-party visual library; Radix for behaviour only |
+| UX-002 | web library | P0 | TESTED | UX-001 | apps/web/src/components | 95 vitest tests; E2E vs real backend | No 3rd-party visual library; Radix for behaviour only |
 | UX-003 | Flutter theme | P0 | TESTED | UX-001 | apps/mobile/lib/design | flutter test (51) | Theme from generated tokens; bundled Inter + Noto Sans Devanagari |
 | UX-004 | Product Brain | P0 | NOT_STARTED | — | — | — |  |
 | UX-005 | Channel Sync Rail | P0 | NOT_STARTED | — | — | — |  |
@@ -254,7 +254,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-008 | Order Journey | P0 | NOT_STARTED | — | — | — |  |
 | UX-009 | AI Timeline | P0 | NOT_STARTED | — | — | — |  |
 | UX-010 | Profit Card | P0 | NOT_STARTED | — | — | — |  |
-| UX-011 | Video Credit Meter | P0 | IN_PROGRESS | BIL-006 | apps/web …/settings/plan, apps/mobile …/settings | component tests | Video Credit Meter; plan-page UX fixes in progress (see KNOWN_GAPS GAP-UX-PLAN) |
+| UX-011 | Video Credit Meter | P0 | TESTED | BIL-006 | apps/web …/settings/plan, apps/mobile …/settings | component tests | Video Credit Meter + plan-aware usage (not-in-plan, overage policy, gauges); verified against real backend |
 | UX-012 | Inventory Risk | P0 | NOT_STARTED | — | — | — |  |
 | UX-013 | real states | P0 | IN_PROGRESS | — | apps/web, apps/mobile | component tests | Loading/empty/error/offline/permission states for Phase 0 screens |
 | UX-014 | accessibility | P0 | IN_PROGRESS | — | apps/web, apps/mobile | — | Keyboard, focus, labels, 48dp; no full screen-reader audit yet |

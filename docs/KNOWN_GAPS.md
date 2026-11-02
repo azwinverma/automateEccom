@@ -38,7 +38,7 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 ## Product / UX
 | ID | Sev | Gap | Next step |
 |---|---|---|---|
-| GAP-UX-PLAN | Med | Review against the real backend found Plan & usage defects: not-in-plan resources shown as red "Limit reached" with Buy credits; Buy credits shown for non-credit policies; "Renews" on lifetime limits; gauges shown as 0; code-derived feature labels. **Backend half fixed** (real gauge counts, `included` flag). Web fixes in progress. | Web workstream (in flight). |
+| GAP-UX-GAUGE-TONE | Low | Plan & usage was fixed and verified against the real backend (not-in-plan, overage policies, gauges, localized labels). Remaining nit: a gauge at 100% (e.g. "Stores 1 of 1" on a single-store plan) shows danger red + Upgrade; full use of capacity isn't a risk and should be neutral. | Use neutral tone for gauges at limit; reserve danger for consumables that block work. |
 | GAP-ADMIN-UI | Med | Admin console is API only. | Separate Next.js app on its own origin. |
 | GAP-MOBILE-DEVICE | Med | The Flutter app has not been built for a device or run against the real backend; no MFA setup screens on mobile. | `flutter build` + device smoke test; integration test against compose. |
 | GAP-NE-COPY | Med | Nepali copy was written without a native copy editor's review (spec 19 missing). | Native-speaker review pass. |
