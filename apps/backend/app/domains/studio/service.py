@@ -307,7 +307,11 @@ def apply_job(
     accepted_attribute_keys: list[str],
     category_path: list[str] | None,
 ) -> uuid.UUID:
-    job = _get(db, ctx, job_id)
+    # Row lock: two concurrent applies (double tap, retry after a lost response) serialise here, and the
+    # second sees status 'applied' and returns the same product instead of creating a duplicate.
+    job = db.scalar(select(StudioJob).where(StudioJob.id == job_id).with_for_update())
+    if job is None or job.merchant_id != ctx.merchant_id:
+        raise NotFound()
     if job.status == "applied" and job.product_id:
         return job.product_id  # idempotent
     if job.status != "ready" or not job.result:

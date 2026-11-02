@@ -70,6 +70,16 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-IMPORT-I18N | Low | CSV row errors with `invalid_row` carry English text only (e.g. "price: 'abc' is not a number"). | Structured `{field, reason}` codes per row. |
 | ~~Add variant after create~~ | Resolved | `POST /catalog/products/{id}/variants` (version-locked, adds new option values). | — |
 
+## Mobile (2026-11-02)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-MOBILE-TOOLCHAIN | Med | The Flutter 3.29.3 iOS simulator build fails with the installed Xcode 27 (`debug_unpack_ios` misreads the architectures), and no Android emulator is installed. The app has passed unit/widget tests and a live end-to-end run against the real backend, but has **never run on a device**. | Upgrade Flutter (and Dart ≥3.9, which unlocks newer plugin versions), or install an Android emulator; then device smoke test. |
+| GAP-MOBILE-BG-UPLOAD | Low | Uploads survive app backgrounding but not OS termination; they resume on next launch. | Platform background transfer (URLSession / WorkManager). |
+| GAP-MOBILE-RECONNECT | Low | Channel reconnect hands off to the web (link) rather than an in-app OAuth flow. | In-app browser with deep-link callback. |
+| GAP-DEV-SIGNED-HOST | Low | Signed URLs use one `COS_PUBLIC_API_BASE_URL`, so a single dev backend can't serve both the Android emulator (10.0.2.2) and the iOS simulator (localhost). | Not an issue in staging/prod (one public host). |
+| GAP-EXCEPTION-DISMISS | Low | No server-side dismiss/snooze for exceptions; the `dismiss` action is local to the device. | Add a dismissals table keyed by exception id. |
+| GAP-AUTOPILOT-METRIC | Low | There is no "handled automatically" count for the Autopilot strip. | Derive from the audit log (`actor_type in (ai, automation)`) when automations land. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.

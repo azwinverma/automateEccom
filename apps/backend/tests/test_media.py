@@ -274,3 +274,12 @@ def test_clamd_protocol_clean_and_infected():
     res = ClamdScanner("127.0.0.1", _fake_clamd(b"stream: Eicar-Test-Signature FOUND\0")).scan(b"X5O!P%@AP")
     assert res.status == "infected" and res.signature == "Eicar-Test-Signature"
     assert ClamdScanner("127.0.0.1", 1, timeout_s=0.5).scan(b"x").status == "error"
+
+
+def test_upload_slot_creation_is_idempotent(client, seller):
+    body = {"file_name": "a.jpg", "content_type": "image/jpeg", "size_bytes": 1000}
+    h = seller.h(**{"Idempotency-Key": "upload-slot-0001"})
+    r1 = client.post(f"{API}/media/uploads", headers=h, json=body)
+    r2 = client.post(f"{API}/media/uploads", headers=h, json=body)
+    assert r1.status_code == r2.status_code == 201
+    assert r1.json()["asset_id"] == r2.json()["asset_id"] and r2.headers["Idempotent-Replayed"] == "true"

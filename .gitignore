@@ -27,3 +27,6 @@ apps/mobile/.flutter-plugins*
 # Local data
 .data/
 apps/backend/evals/reports/
+
+# Celery beat runtime state
+celerybeat-schedule*

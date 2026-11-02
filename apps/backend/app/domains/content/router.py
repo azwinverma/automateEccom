@@ -71,6 +71,15 @@ def calendar(
     return {"items": [service.post_view(p) for p in db.scalars(stmt.limit(500))]}
 
 
+@router.get("/posts/{post_id}")
+def get_post(
+    post_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("content.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    return service.post_view(service._get(db, ctx, post_id))
+
+
 @router.post("/posts", status_code=201)
 def create(
     body: PostIn,

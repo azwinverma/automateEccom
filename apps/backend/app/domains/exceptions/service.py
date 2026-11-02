@@ -103,6 +103,7 @@ def open_exceptions(db: Session, merchant_id: uuid.UUID, limit: int = 200) -> li
                 p.updated_at,
                 "reconnect" if p.last_error_code == "reconnect_required" else "reschedule",
                 kind=p.kind,
+                connection_id=str(p.connection_id),
                 error_code=p.last_error_code,
             )
         )
@@ -121,6 +122,7 @@ def open_exceptions(db: Session, merchant_id: uuid.UUID, limit: int = 200) -> li
                 p.updated_at,
                 "review_post",
                 issues=len(p.issues),
+                connection_id=str(p.connection_id),
             )
         )
 

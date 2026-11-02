@@ -247,3 +247,34 @@ def test_eval_prompt_has_no_unrendered_placeholders():
 
     req = _request(path, json.loads(path.read_text()))
     assert "$" not in req.messages[-1].text
+
+
+def test_concurrent_apply_creates_exactly_one_product(client, seller):
+    import threading
+
+    from fastapi.testclient import TestClient
+    from sqlalchemy import func, select
+
+    from app.domains.catalog.models import Product
+    from app.main import create_app
+
+    SandboxAdapter.override_data["sandbox-text"] = DRAFT
+    job = _run(client, seller, [upload(client, seller, phone_photo())["id"]])
+    results: list[int] = []
+
+    def go() -> None:
+        with TestClient(create_app(), raise_server_exceptions=False) as c:
+            results.append(
+                c.post(
+                    f"/api/v1/studio/jobs/{job['id']}/apply", headers=seller.h(), json=_apply_body()
+                ).status_code
+            )
+
+    threads = [threading.Thread(target=go) for _ in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert results.count(201) == 4  # all callers get the same product back
+    with session_scope() as db:
+        assert db.scalar(select(func.count()).select_from(Product)) == 1

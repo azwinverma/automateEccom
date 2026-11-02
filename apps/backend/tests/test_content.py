@@ -185,3 +185,17 @@ def test_content_is_tenant_scoped(client):
     assert client.post(f"{API}/posts/{p['id']}/submit", headers=b.h()).status_code == 404
     r = client.post(f"{API}/posts", headers=b.h(), json={"connection_id": ca["id"], "caption": "x"})
     assert r.status_code == 404 and r.json()["error"]["code"] == "connection_not_found"
+
+
+def test_get_single_post_and_exception_links_connection(client, seller):
+    c = connect(client, seller)
+    p = _post(client, seller, c["id"])
+    got = client.get(f"{API}/posts/{p['id']}", headers=seller.h())
+    assert got.status_code == 200 and got.json()["id"] == p["id"]
+    _act(client, seller, p["id"], "submit")
+    _act(client, seller, p["id"], "schedule")
+    SandboxChannelAdapter.failures.push(IntegrationError("token_revoked", auth=True))
+    _tick()
+    items = client.get("/api/v1/exceptions", headers=seller.h()).json()["items"]
+    post_item = next(i for i in items if i["resource"]["type"] == "content_post")
+    assert post_item["action"] == "reconnect" and post_item["details"]["connection_id"] == c["id"]

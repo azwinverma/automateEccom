@@ -34,11 +34,26 @@ def create_upload(
     body: UploadIn,
     ctx: TenantContext = Depends(require("media.write")),
     db: Session = Depends(get_db, scope="function"),
-) -> dict[str, Any]:
-    a, upload = service.create_upload(
-        db, ctx, body.file_name, body.content_type, body.size_bytes, body.purpose
+    idem: str | None = Header(default=None, alias="Idempotency-Key"),
+) -> Any:
+    """Idempotent with Idempotency-Key: a retried create after a lost response returns the same slot
+    (with a fresh signed URL in the stored response's lifetime) instead of leaking a new one."""
+
+    def _do() -> dict[str, Any]:
+        a, upload = service.create_upload(
+            db, ctx, body.file_name, body.content_type, body.size_bytes, body.purpose
+        )
+        return {"asset_id": a.id, "upload": upload}
+
+    return run_idempotent(
+        db,
+        key=idem,
+        owner=f"merchant:{ctx.merchant_id}",
+        scope="media.uploads.create",
+        body=body.model_dump(mode="json"),
+        status_code=201,
+        fn=_do,
     )
-    return {"asset_id": a.id, "upload": upload}
 
 
 @router.post("/{asset_id}/complete", status_code=202)

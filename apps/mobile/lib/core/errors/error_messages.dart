@@ -9,6 +9,7 @@ String localizedErrorMessage(AppLocalizations l, ApiError error) {
       return l.errValidation;
     case 'not_authenticated':
     case 'token_expired':
+    case 'invalid_token':
       return l.errNotAuthenticated;
     case 'invalid_credentials':
       return l.errInvalidCredentials;

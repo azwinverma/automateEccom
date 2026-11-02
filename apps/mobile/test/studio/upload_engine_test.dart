@@ -264,7 +264,7 @@ void main() {
     expect(e.items.single.phase, UploadPhase.ready);
   });
 
-  test('at most 2 uploads run concurrently', () async {
+  test('several photos all reach ready', () async {
     final e = engine()..add([_item('a'), _item('b'), _item('c')]);
     await e.idle();
     expect(e.items.every((i) => i.phase == UploadPhase.ready), isTrue);
