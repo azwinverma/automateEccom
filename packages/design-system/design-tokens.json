@@ -1,40 +1,41 @@
 {
   "$schema": "./design-tokens.schema.json",
-  "$description": "Source of truth for colour, type, spacing, radius, elevation and motion. Derived from specs/18_BRAND_DESIGN_SYSTEM.md. Generated outputs: web CSS variables (packages/design-system/dist/tokens.css), TS constants (dist/tokens.ts), Flutter (apps/mobile/lib/design/tokens.g.dart). Run `pnpm --filter @commerce-os/design-system build`.",
-  "version": "0.2.0",
+  "$description": "Nivaro design tokens: the single source for colour, type, spacing, radius, elevation and motion. Rules: specs/26_NIVARO_BRAND_SYSTEM.md and specs/18_BRAND_DESIGN_SYSTEM.md. Three tiers: primitives (color.brand/neutral/semantic), the semantic layer (semantic.light/dark → what components use), and component aliases. Generated: packages/design-system/dist/tokens.css, dist/tokens.ts, apps/mobile/lib/design/tokens.g.dart. Run `pnpm tokens`. Components must use semantic tokens, never primitives or hex.",
+  "version": "1.0.0",
   "color": {
     "brand": {
       "blue": {
         "value": "#2563EB",
-        "note": "Primary action"
+        "note": "Nivaro Blue. Primary action, the start of the loop."
       },
       "blueSoft": {
         "value": "#DBEAFE"
       },
-      "indigo": {
-        "value": "#4F46E5",
-        "note": "Automation / AI surfaces, used sparingly"
-      },
-      "indigoSoft": {
-        "value": "#E0E7FF"
+      "blueStrong": {
+        "value": "#1D4ED8",
+        "note": "Hover/pressed for blue actions; blue text on tinted surfaces."
       },
       "teal": {
         "value": "#14B8A6",
-        "note": "Growth, sync healthy"
+        "note": "Nivaro Teal. Healthy, synced, completed loop. Fill only on light surfaces (3:1 fails for text)."
       },
       "tealSoft": {
         "value": "#CCFBF1"
       },
+      "tealStrong": {
+        "value": "#0F766E",
+        "note": "Teal used as text or icon on light surfaces (≥4.5:1 on white)."
+      },
       "coral": {
         "value": "#FF6B6B",
-        "note": "Joy accent: celebrations, new-order moments. Never for errors."
+        "note": "Joy Coral. Celebrations, new-order and milestone moments. Never errors."
       },
       "coralSoft": {
         "value": "#FFE4E1"
       },
       "sun": {
         "value": "#FBBF24",
-        "note": "Highlight accent: credits, attention-but-not-danger"
+        "note": "Sun Yellow. Credits, highlights. Never text on light."
       },
       "sunSoft": {
         "value": "#FEF3C7"
@@ -42,25 +43,36 @@
     },
     "neutral": {
       "ink": {
-        "value": "#0F172A"
+        "value": "#0F172A",
+        "note": "Deep Navy / Ink"
       },
       "slate": {
-        "value": "#475569"
+        "value": "#334155",
+        "note": "Slate 700: secondary text"
       },
       "slateMuted": {
-        "value": "#64748B"
+        "value": "#64748B",
+        "note": "Slate 500: muted text, ≥4.5:1 on white"
       },
-      "line": {
-        "value": "#E2E8F0"
+      "slate400": {
+        "value": "#94A3B8",
+        "note": "Dark-mode secondary text only"
       },
       "lineStrong": {
-        "value": "#CBD5E1"
+        "value": "#CBD5E1",
+        "note": "Slate 300"
       },
-      "cloud": {
-        "value": "#F8FAFC"
+      "line": {
+        "value": "#E2E8F0",
+        "note": "Slate 200"
       },
       "paper": {
-        "value": "#F1F5F9"
+        "value": "#F1F5F9",
+        "note": "Slate 100"
+      },
+      "cloud": {
+        "value": "#F8FAFC",
+        "note": "Cloud"
       },
       "white": {
         "value": "#FFFFFF"
@@ -93,8 +105,14 @@
       "surfaceRaised": {
         "value": "#111A2E"
       },
+      "surfaceHover": {
+        "value": "#16213A"
+      },
       "line": {
         "value": "#1E293B"
+      },
+      "lineStrong": {
+        "value": "#334155"
       },
       "text": {
         "value": "#E2E8F0"
@@ -104,6 +122,12 @@
       },
       "brandBlue": {
         "value": "#60A5FA"
+      },
+      "brandBlueHover": {
+        "value": "#93C5FD"
+      },
+      "brandTeal": {
+        "value": "#2DD4BF"
       },
       "success": {
         "value": "#4ADE80"
@@ -117,6 +141,80 @@
       "info": {
         "value": "#93C5FD"
       }
+    }
+  },
+  "semantic": {
+    "$description": "What components use. Values are primitive references (dot paths) or literal colours. Each key becomes --color-<key with dots → dashes>.",
+    "light": {
+      "brand.primary": "color.brand.blue",
+      "brand.secondary": "color.brand.teal",
+      "brand.accent": "color.brand.coral",
+      "brand.ink": "color.neutral.ink",
+      "text.primary": "color.neutral.ink",
+      "text.secondary": "color.neutral.slate",
+      "text.muted": "color.neutral.slateMuted",
+      "text.inverse": "color.neutral.white",
+      "text.brand": "color.brand.blueStrong",
+      "text.positive": "color.brand.tealStrong",
+      "surface.canvas": "color.neutral.cloud",
+      "surface.raised": "color.neutral.white",
+      "surface.sunken": "color.neutral.paper",
+      "surface.hover": "color.neutral.paper",
+      "surface.inverse": "color.neutral.ink",
+      "surface.brandTint": "color.brand.blueSoft",
+      "border.default": "color.neutral.line",
+      "border.strong": "color.neutral.lineStrong",
+      "action.primary": "color.brand.blue",
+      "action.primaryHover": "color.brand.blueStrong",
+      "action.primaryText": "color.neutral.white",
+      "focus.ring": "color.brand.blue",
+      "status.success": "color.semantic.success",
+      "status.successSoft": "color.semantic.success.soft",
+      "status.warning": "color.semantic.warning",
+      "status.warningSoft": "color.semantic.warning.soft",
+      "status.danger": "color.semantic.danger",
+      "status.dangerSoft": "color.semantic.danger.soft",
+      "status.info": "color.semantic.info",
+      "status.infoSoft": "color.semantic.info.soft",
+      "status.attentionFill": "color.brand.sun",
+      "flow.start": "color.brand.blue",
+      "flow.end": "color.brand.teal",
+      "scrim": "rgba(15, 23, 42, 0.4)"
+    },
+    "dark": {
+      "brand.primary": "color.dark.brandBlue",
+      "brand.secondary": "color.dark.brandTeal",
+      "brand.ink": "color.neutral.white",
+      "text.primary": "color.dark.text",
+      "text.secondary": "color.dark.textMuted",
+      "text.muted": "color.dark.textMuted",
+      "text.inverse": "color.dark.surface",
+      "text.brand": "color.dark.brandBlueHover",
+      "text.positive": "color.dark.brandTeal",
+      "surface.canvas": "color.dark.surface",
+      "surface.raised": "color.dark.surfaceRaised",
+      "surface.sunken": "color.dark.surface",
+      "surface.hover": "color.dark.surfaceHover",
+      "surface.inverse": "color.dark.surfaceRaised",
+      "surface.brandTint": "#16264A",
+      "border.default": "color.dark.line",
+      "border.strong": "color.dark.lineStrong",
+      "action.primary": "color.dark.brandBlue",
+      "action.primaryHover": "color.dark.brandBlueHover",
+      "action.primaryText": "color.dark.surface",
+      "focus.ring": "color.dark.brandBlue",
+      "status.success": "color.dark.success",
+      "status.successSoft": "#0F2A1C",
+      "status.warning": "color.dark.warning",
+      "status.warningSoft": "#2A1E0A",
+      "status.danger": "color.dark.danger",
+      "status.dangerSoft": "#2A1215",
+      "status.info": "color.dark.info",
+      "status.infoSoft": "#16264A",
+      "status.attentionFill": "color.dark.warning",
+      "flow.start": "color.dark.brandBlue",
+      "flow.end": "color.dark.brandTeal",
+      "scrim": "rgba(0, 0, 0, 0.6)"
     }
   },
   "font": {
@@ -155,6 +253,10 @@
       },
       "3xl": {
         "value": 36
+      },
+      "display": {
+        "value": 52,
+        "note": "Marketing hero and milestone moments only"
       }
     },
     "lineHeight": {
@@ -171,16 +273,24 @@
     },
     "weight": {
       "regular": {
-        "value": 400
+        "value": 400,
+        "note": "Body"
       },
       "medium": {
-        "value": 500
+        "value": 500,
+        "note": "Labels"
       },
       "semibold": {
-        "value": 600
+        "value": 600,
+        "note": "Cards, navigation"
       },
       "bold": {
-        "value": 700
+        "value": 700,
+        "note": "Headings"
+      },
+      "extrabold": {
+        "value": 800,
+        "note": "Hero/emphasis only"
       }
     }
   },
@@ -229,9 +339,17 @@
     "lg": {
       "value": 10
     },
+    "control": {
+      "value": 6,
+      "note": "Buttons, inputs, selects"
+    },
+    "card": {
+      "value": 10,
+      "note": "Panels that are genuinely separate objects; most content sits on rules, not cards"
+    },
     "full": {
       "value": 9999,
-      "note": "Only for avatars, status dots. Not for buttons (anti-generic rule)."
+      "note": "Only avatars, status dots and meter tracks. Never buttons or tabs."
     }
   },
   "elevation": {
@@ -248,13 +366,20 @@
   "motion": {
     "duration": {
       "fast": {
-        "value": 150
+        "value": 150,
+        "note": "Micro-interactions (120–180ms)"
       },
       "standard": {
-        "value": 220
+        "value": 220,
+        "note": "Standard transitions (180–260ms)"
       },
       "large": {
-        "value": 320
+        "value": 320,
+        "note": "Larger transitions, drawers, milestone reveals (250–400ms)"
+      },
+      "flow": {
+        "value": 1600,
+        "note": "One pass of the sync/flow trace. Only while work is actually in progress; never idle loops."
       }
     },
     "easing": {
@@ -263,22 +388,26 @@
       },
       "exit": {
         "value": "cubic-bezier(0.3, 0, 1, 1)"
+      },
+      "flow": {
+        "value": "cubic-bezier(0.45, 0, 0.25, 1)",
+        "note": "Ribbon/trace movement"
       }
     }
   },
   "status": {
-    "$description": "Semantic mapping for lifecycle states used by signature components (Channel Sync Rail, Order Journey, Autopilot Strip). Values reference color tokens.",
-    "healthy": "color.brand.teal",
-    "automated": "color.brand.indigo",
-    "needsAttention": "color.semantic.warning",
-    "failed": "color.semantic.danger",
-    "pending": "color.neutral.slateMuted",
-    "celebrate": "color.brand.coral"
+    "$description": "Lifecycle states used by signature components (Channel Sync Rail, Order Journey, Autopilot strip). Values reference semantic tokens.",
+    "healthy": "flow.end",
+    "automated": "brand.primary",
+    "needsAttention": "status.attentionFill",
+    "failed": "status.danger",
+    "pending": "text.muted",
+    "celebrate": "brand.accent"
   },
   "risk": {
     "$description": "Decision/COD risk levels (specs/18). Medium is a warning hue, never danger red.",
-    "low": "color.brand.teal",
-    "medium": "color.semantic.warning",
-    "higher": "color.semantic.danger"
+    "low": "flow.end",
+    "medium": "status.warning",
+    "higher": "status.danger"
   }
 }

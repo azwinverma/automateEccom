@@ -1,11 +1,15 @@
 {
   "name": "@commerce-os/design-system",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "exports": {
     "./tokens.css": "./dist/tokens.css",
-    "./tokens": "./dist/tokens.ts"
+    "./tokens": "./dist/tokens.ts",
+    "./brand/geometry": {
+      "types": "./brand/geometry.d.ts",
+      "default": "./brand/geometry.mjs"
+    }
   },
   "scripts": {
     "build": "node scripts/build-tokens.mjs"

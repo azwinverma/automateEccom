@@ -3,21 +3,22 @@ export const tokens = {
   "colors": {
     "brand-blue": "#2563EB",
     "brand-blue-soft": "#DBEAFE",
-    "brand-indigo": "#4F46E5",
-    "brand-indigo-soft": "#E0E7FF",
+    "brand-blue-strong": "#1D4ED8",
     "brand-teal": "#14B8A6",
     "brand-teal-soft": "#CCFBF1",
+    "brand-teal-strong": "#0F766E",
     "brand-coral": "#FF6B6B",
     "brand-coral-soft": "#FFE4E1",
     "brand-sun": "#FBBF24",
     "brand-sun-soft": "#FEF3C7",
     "neutral-ink": "#0F172A",
-    "neutral-slate": "#475569",
+    "neutral-slate": "#334155",
     "neutral-slate-muted": "#64748B",
-    "neutral-line": "#E2E8F0",
+    "neutral-slate400": "#94A3B8",
     "neutral-line-strong": "#CBD5E1",
-    "neutral-cloud": "#F8FAFC",
+    "neutral-line": "#E2E8F0",
     "neutral-paper": "#F1F5F9",
+    "neutral-cloud": "#F8FAFC",
     "neutral-white": "#FFFFFF",
     "semantic-success": "#15803D",
     "semantic-success-soft": "#DCFCE7",
@@ -31,14 +32,91 @@ export const tokens = {
   "dark": {
     "surface": "#0B1220",
     "surface-raised": "#111A2E",
+    "surface-hover": "#16213A",
     "line": "#1E293B",
+    "line-strong": "#334155",
     "text": "#E2E8F0",
     "text-muted": "#94A3B8",
     "brand-blue": "#60A5FA",
+    "brand-blue-hover": "#93C5FD",
+    "brand-teal": "#2DD4BF",
     "success": "#4ADE80",
     "warning": "#FBBF24",
     "danger": "#F87171",
     "info": "#93C5FD"
+  },
+  "semantic": {
+    "light": {
+      "brand-primary": "#2563EB",
+      "brand-secondary": "#14B8A6",
+      "brand-accent": "#FF6B6B",
+      "brand-ink": "#0F172A",
+      "text-primary": "#0F172A",
+      "text-secondary": "#334155",
+      "text-muted": "#64748B",
+      "text-inverse": "#FFFFFF",
+      "text-brand": "#1D4ED8",
+      "text-positive": "#0F766E",
+      "surface-canvas": "#F8FAFC",
+      "surface-raised": "#FFFFFF",
+      "surface-sunken": "#F1F5F9",
+      "surface-hover": "#F1F5F9",
+      "surface-inverse": "#0F172A",
+      "surface-brand-tint": "#DBEAFE",
+      "border-default": "#E2E8F0",
+      "border-strong": "#CBD5E1",
+      "action-primary": "#2563EB",
+      "action-primary-hover": "#1D4ED8",
+      "action-primary-text": "#FFFFFF",
+      "focus-ring": "#2563EB",
+      "status-success": "#15803D",
+      "status-success-soft": "#DCFCE7",
+      "status-warning": "#B45309",
+      "status-warning-soft": "#FEF3C7",
+      "status-danger": "#B91C1C",
+      "status-danger-soft": "#FEE2E2",
+      "status-info": "#1D4ED8",
+      "status-info-soft": "#DBEAFE",
+      "status-attention-fill": "#FBBF24",
+      "flow-start": "#2563EB",
+      "flow-end": "#14B8A6",
+      "scrim": "rgba(15, 23, 42, 0.4)"
+    },
+    "dark": {
+      "brand-primary": "#60A5FA",
+      "brand-secondary": "#2DD4BF",
+      "brand-ink": "#FFFFFF",
+      "text-primary": "#E2E8F0",
+      "text-secondary": "#94A3B8",
+      "text-muted": "#94A3B8",
+      "text-inverse": "#0B1220",
+      "text-brand": "#93C5FD",
+      "text-positive": "#2DD4BF",
+      "surface-canvas": "#0B1220",
+      "surface-raised": "#111A2E",
+      "surface-sunken": "#0B1220",
+      "surface-hover": "#16213A",
+      "surface-inverse": "#111A2E",
+      "surface-brand-tint": "#16264A",
+      "border-default": "#1E293B",
+      "border-strong": "#334155",
+      "action-primary": "#60A5FA",
+      "action-primary-hover": "#93C5FD",
+      "action-primary-text": "#0B1220",
+      "focus-ring": "#60A5FA",
+      "status-success": "#4ADE80",
+      "status-success-soft": "#0F2A1C",
+      "status-warning": "#FBBF24",
+      "status-warning-soft": "#2A1E0A",
+      "status-danger": "#F87171",
+      "status-danger-soft": "#2A1215",
+      "status-info": "#93C5FD",
+      "status-info-soft": "#16264A",
+      "status-attention-fill": "#FBBF24",
+      "flow-start": "#60A5FA",
+      "flow-end": "#2DD4BF",
+      "scrim": "rgba(0, 0, 0, 0.6)"
+    }
   },
   "space": {
     "0": 0,
@@ -57,6 +135,8 @@ export const tokens = {
     "sm": 4,
     "md": 6,
     "lg": 10,
+    "control": 6,
+    "card": 10,
     "full": 9999
   },
   "fontSize": {
@@ -67,13 +147,15 @@ export const tokens = {
     "lg": 18,
     "xl": 22,
     "2xl": 28,
-    "3xl": 36
+    "3xl": 36,
+    "display": 52
   },
   "weight": {
     "regular": 400,
     "medium": 500,
     "semibold": 600,
-    "bold": 700
+    "bold": 700,
+    "extrabold": 800
   },
   "lineHeight": {
     "tight": 1.2,
@@ -88,11 +170,13 @@ export const tokens = {
   "duration": {
     "fast": 150,
     "standard": 220,
-    "large": 320
+    "large": 320,
+    "flow": 1600
   },
   "easing": {
     "standard": "cubic-bezier(0.2, 0, 0, 1)",
-    "exit": "cubic-bezier(0.3, 0, 1, 1)"
+    "exit": "cubic-bezier(0.3, 0, 1, 1)",
+    "flow": "cubic-bezier(0.45, 0, 0.25, 1)"
   },
   "elevation": {
     "none": "none",
@@ -100,13 +184,13 @@ export const tokens = {
     "overlay": "0 12px 32px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08)"
   },
   "status": {
-    "$description": "Semantic mapping for lifecycle states used by signature components (Channel Sync Rail, Order Journey, Autopilot Strip). Values reference color tokens.",
-    "healthy": "color.brand.teal",
-    "automated": "color.brand.indigo",
-    "needsAttention": "color.semantic.warning",
-    "failed": "color.semantic.danger",
-    "pending": "color.neutral.slateMuted",
-    "celebrate": "color.brand.coral"
+    "$description": "Lifecycle states used by signature components (Channel Sync Rail, Order Journey, Autopilot strip). Values reference semantic tokens.",
+    "healthy": "flow.end",
+    "automated": "brand.primary",
+    "needsAttention": "status.attentionFill",
+    "failed": "status.danger",
+    "pending": "text.muted",
+    "celebrate": "brand.accent"
   }
 } as const;
 export type ColorToken = keyof typeof tokens.colors;
