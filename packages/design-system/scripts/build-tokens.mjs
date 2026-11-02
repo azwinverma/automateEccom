@@ -5,7 +5,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FLOW, MARK, WORDMARK } from "../brand/geometry.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -74,6 +73,11 @@ const darkPrimitiveOverrides = {
   "semantic-warning": dark.warning,
   "semantic-danger": dark.danger,
   "semantic-info": dark.info,
+  "semantic-success-soft": semDark["status-success-soft"],
+  "semantic-warning-soft": semDark["status-warning-soft"],
+  "semantic-danger-soft": semDark["status-danger-soft"],
+  "semantic-info-soft": semDark["status-info-soft"],
+  "brand-blue-soft": semDark["surface-brand-tint"],
 };
 
 // ---------- CSS ----------
@@ -98,7 +102,9 @@ const darkBody = [
   ...Object.entries(darkPrimitiveOverrides).map(([k, v]) => `--color-${k}: ${v};`),
   "color-scheme: dark;",
 ];
-css.push("@media (prefers-color-scheme: dark) {", '  :root:not([data-theme="light"]) {', ...darkBody.map((l) => `    ${l}`), "  }", "}");
+// Light is the default (no attribute, or data-theme="light"). Dark is opt-in: data-theme="dark", or
+// data-theme="system" which follows the OS (specs/26 §16).
+css.push("@media (prefers-color-scheme: dark) {", '  :root[data-theme="system"] {', ...darkBody.map((l) => `    ${l}`), "  }", "}");
 css.push(':root[data-theme="dark"] {', ...darkBody.map((l) => `  ${l}`), "}");
 css.push(
   ":lang(ne) { font-family: var(--font-family-devanagari); line-height: var(--line-height-devanagari); }",
@@ -147,36 +153,4 @@ writeFileSync(resolve(root, "dist/tokens.ts"), ts);
 const dartOut = resolve(repo, "apps/mobile/lib/design/tokens.g.dart");
 mkdirSync(dirname(dartOut), { recursive: true });
 writeFileSync(dartOut, dart.join("\n"));
-// ---------- Dart brand geometry (mark + wordmark primitives for CustomPainter) ----------
-const seg = (n, g) => `  static const ${n} = [${g.x1}, ${g.y1}, ${g.x2}, ${g.y2}];`;
-const geo = [
-  `// ${header} (brand geometry from packages/design-system/brand/geometry.mjs)`,
-  "// ignore_for_file: constant_identifier_names",
-  "import 'package:flutter/painting.dart';",
-  "",
-  "/// N-loop mark in a 64×64 box. Segments are [x1, y1, x2, y2]; ribbon width 12, round caps.",
-  "abstract final class NivaroMarkGeometry {",
-  "  static const box = 64.0;",
-  "  static const ribbon = 12.0;",
-  seg("diagonal", MARK.diagonal),
-  seg("left", MARK.left),
-  seg("right", MARK.right),
-  `  static const flowStart = ${hex(FLOW.start)};`,
-  `  static const flowMid1 = ${hex(FLOW.mid1)};`,
-  `  static const flowMid2 = ${hex(FLOW.mid2)};`,
-  `  static const flowEnd = ${hex(FLOW.end)};`,
-  `  static const fold = ${hex(FLOW.fold)};`,
-  "}",
-  "",
-  "/// Wordmark \"nivaro\" (viewBox 150×46, stroke 6.4). Circles are [cx, cy, r].",
-  "abstract final class NivaroWordmarkGeometry {",
-  "  static const width = 150.0;",
-  "  static const height = 46.0;",
-  `  static const stroke = ${WORDMARK.stroke};`,
-  `  static const circles = [${WORDMARK.circles.map((c) => `[${c.cx}, ${c.cy}, ${c.r}]`).join(", ")}];`,
-  `  static const dot = [${WORDMARK.dot.cx}, ${WORDMARK.dot.cy}, ${WORDMARK.dot.r}];`,
-  "}",
-  "",
-];
-writeFileSync(resolve(repo, "apps/mobile/lib/design/brand_geometry.g.dart"), geo.join("\n"));
 console.log("tokens: wrote dist/tokens.css, dist/tokens.ts, apps/mobile/lib/design/tokens.g.dart");

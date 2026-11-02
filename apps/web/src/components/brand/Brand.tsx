@@ -2,12 +2,12 @@
  * Nivaro brand primitives. Geometry comes from @commerce-os/design-system/brand/geometry (the same source
  * that renders assets/brand/**), colours from semantic tokens. Rules: specs/26_NIVARO_BRAND_SYSTEM.md.
  *
- * - NivaroMark / NivaroLogo: the N-loop and the lockup. Never recolour, stretch or add effects.
+ * - NivaroMark / NivaroLogo: the approved logo artwork (public/brand). Never recolour, stretch or add effects.
  * - NTrail: the ribbon motif. Decorative only (aria-hidden). Expressive surfaces only (26 §29 matrix).
  * - CommerceLoop: Create → Sell → Fulfill → Learn, the trail with labelled stages.
  * - HandUnderline: the one hand-drawn accent allowed in product UI (onboarding, milestones).
  */
-import { FLOW, MARK, WORDMARK, trailSegments, type Seg } from "@commerce-os/design-system/brand/geometry";
+import { FLOW, trailSegments, type Seg } from "@commerce-os/design-system/brand/geometry";
 import { useId, type CSSProperties, type ReactNode } from "react";
 import styles from "./brand.module.css";
 
@@ -24,101 +24,41 @@ function FoldGradient({ id, s, a = 0.34, b = 0.22 }: { id: string; s: Seg; a?: n
   );
 }
 
-function MarkPaths({ tone }: { tone: "color" | "mono" }) {
-  const id = useId().replace(/:/g, "");
-  const r = { strokeWidth: 12, strokeLinecap: "round" as const, fill: "none" };
-  if (tone === "mono") {
-    return (
-      <>
-        <defs>
-          <mask id={`${id}m`} maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
-            <rect width="64" height="64" fill="#fff" />
-            <path d={MARK.monoFolds} stroke="#000" strokeWidth={2.2} strokeLinecap="round" />
-          </mask>
-        </defs>
-        <g stroke="currentColor" {...r}>
-          <path d={ln(MARK.diagonal)} mask={`url(#${id}m)`} />
-          <path d={ln(MARK.left)} />
-          <path d={ln(MARK.right)} />
-        </g>
-      </>
-    );
-  }
-  const grad = (n: string, s: Seg, a: string, b: string) => (
-    <linearGradient id={`${id}${n}`} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} gradientUnits="userSpaceOnUse">
-      <stop offset="0" stopColor={a} />
-      <stop offset="1" stopColor={b} />
-    </linearGradient>
-  );
-  return (
-    <>
-      <defs>
-        {grad("a", MARK.left, FLOW.start, FLOW.mid1)}
-        {grad("b", MARK.diagonal, FLOW.mid1, FLOW.mid2)}
-        {grad("c", MARK.right, FLOW.mid2, FLOW.end)}
-        <FoldGradient id={`${id}f`} s={MARK.diagonal} />
-      </defs>
-      <path d={ln(MARK.diagonal)} stroke={`url(#${id}b)`} {...r} />
-      <path d={ln(MARK.diagonal)} stroke={`url(#${id}f)`} {...r} />
-      <path d={ln(MARK.left)} stroke={`url(#${id}a)`} {...r} />
-      <path d={ln(MARK.right)} stroke={`url(#${id}c)`} {...r} />
-    </>
-  );
-}
+/** Logo artwork (owner-approved concept, ADR-032), served from /public/brand; regenerate with render.mjs. */
+export const MARK_SRC = "/brand/nivaro-mark.png";
+const MARK_RATIO = 384 / 263;
+const WORD_RATIO = 724 / 201;
 
-/** The N-loop. `title` makes it a labelled image; omit it when a visible name sits next to it. */
-export function NivaroMark({ size = 24, tone = "color", title }: { size?: number; tone?: "color" | "mono"; title?: string }) {
+/** The N-loop mark. `size` is the height in px. `title` makes it a labelled image. */
+export function NivaroMark({ size = 24, title }: { size?: number; title?: string }) {
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element -- tiny static brand asset; next/image adds nothing here
+    <img
       className={styles.mark}
-      width={size}
+      src={MARK_SRC}
+      width={Math.round(size * MARK_RATIO)}
       height={size}
-      viewBox={MARK.viewBox}
-      role={title ? "img" : undefined}
-      aria-label={title}
+      alt={title ?? ""}
       aria-hidden={title ? undefined : true}
-    >
-      <MarkPaths tone={tone} />
-    </svg>
+      decoding="async"
+    />
   );
 }
 
+/** Wordmark: the artwork's alpha used as a mask filled with currentColor, so it follows light/dark. */
 function Wordmark({ height }: { height: number }) {
-  return (
-    <svg className={styles.wordmark} height={height} width={(height * 150) / 46} viewBox={WORDMARK.viewBox} aria-hidden="true">
-      <g stroke="currentColor" fill="none" strokeWidth={WORDMARK.stroke} strokeLinecap="round" strokeLinejoin="round">
-        {WORDMARK.paths.map((d) => (
-          <path key={d} d={d} />
-        ))}
-        {WORDMARK.circles.map((c) => (
-          <circle key={c.cx} cx={c.cx} cy={c.cy} r={c.r} />
-        ))}
-      </g>
-      <circle cx={WORDMARK.dot.cx} cy={WORDMARK.dot.cy} r={WORDMARK.dot.r} fill="currentColor" />
-    </svg>
-  );
+  return <span className={styles.wordmark} style={{ height, width: height * WORD_RATIO }} aria-hidden="true" />;
 }
 
 /**
- * Mark + wordmark. The wordmark takes `currentColor` (ink on light, white on navy) so it follows the
- * surface; the mark keeps the brand gradient unless `tone="mono"`. `product` adds a module name
- * (e.g. Console) in the UI type, never in the wordmark geometry.
+ * Mark + wordmark. The wordmark follows `--color-brand-ink` (ink on light, white on dark/navy).
+ * `product` adds a module name (e.g. Console) in UI type, never baked into the logo artwork.
  */
-export function NivaroLogo({
-  height = 24,
-  tone = "color",
-  product,
-  label = "Nivaro",
-}: {
-  height?: number;
-  tone?: "color" | "mono";
-  product?: string;
-  label?: string;
-}) {
+export function NivaroLogo({ height = 24, product, label = "Nivaro" }: { height?: number; product?: string; label?: string }) {
   return (
-    <span className={styles.logo} role="img" aria-label={product ? `${label} ${product}` : label}>
-      <NivaroMark size={height} tone={tone} />
-      <Wordmark height={height * 0.72} />
+    <span className={styles.logo} style={{ gap: Math.round(height * 0.3) }} role="img" aria-label={product ? `${label} ${product}` : label}>
+      <NivaroMark size={height} />
+      <Wordmark height={height * 0.6} />
       {product ? <span className={styles.product}>{product}</span> : null}
     </span>
   );
@@ -221,6 +161,42 @@ export function HandUnderline({ children }: { children: ReactNode }) {
       {children}
       <svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
         <path d="M3 13.6C42 6.4 118 3.6 195.4 8.2c2.4.2 2.6 3.2.2 3.5C131 9.2 63 11 5.2 17.4c-2.8.3-4.6-3.1-2.2-3.8Z" />
+      </svg>
+    </span>
+  );
+}
+
+/** Hand-drawn arrow (ink). Points right by default; one per composition. Marketing/onboarding only. */
+export function HandArrow({ className }: { className?: string }) {
+  return (
+    <svg className={[styles.handArrow, className ?? ""].join(" ")} viewBox="0 0 120 80" aria-hidden="true">
+      <g fill="none" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+        <path className={styles.handDraw} pathLength={1} d="M6 70C20 34 52 14 98 18" />
+        <path className={styles.handDraw} pathLength={1} d="M84 6 100 18 86 31" />
+      </g>
+    </svg>
+  );
+}
+
+/** Hand-drawn coral ring around a word (celebration / emphasis). Marketing and milestones only. */
+export function HandRing({ children }: { children: ReactNode }) {
+  return (
+    <span className={styles.ring}>
+      {children}
+      <svg viewBox="0 0 220 90" preserveAspectRatio="none" aria-hidden="true">
+        <path className={styles.handDraw} pathLength={1} d="M128 8C70 2 10 18 8 46c-2 30 82 40 140 32 46-6 70-26 58-46C196 14 160 6 116 9" />
+      </svg>
+    </span>
+  );
+}
+
+/** Hand-drawn strike-through ("not this"). Marketing only. */
+export function HandStrike({ children }: { children: ReactNode }) {
+  return (
+    <span className={styles.strike}>
+      {children}
+      <svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
+        <path className={styles.handDraw} pathLength={1} d="M2 12C50 9 120 7 198 6" />
       </svg>
     </span>
   );

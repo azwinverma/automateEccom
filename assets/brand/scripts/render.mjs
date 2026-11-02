@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Regenerates every Nivaro brand file from packages/design-system/brand/geometry.mjs.
+// Regenerates every Nivaro brand file. Logo/icons/OG come from the owner-approved artwork in
+// assets/brand/logo/source (extract_logo.py); motifs come from packages/design-system/brand/geometry.mjs.
 //   node assets/brand/scripts/render.mjs
 // Writes: assets/brand/** (SVG + PNG), web icons (apps/web/src/app, apps/web/public), Flutter launcher
 // icons (Android mipmaps, iOS AppIcon). Rasterises with the system Chrome via Playwright (web devDependency).
@@ -8,7 +9,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FLOW, MARK, WORDMARK, trailSegments } from "../../../packages/design-system/brand/geometry.mjs";
+import { FLOW, trailSegments } from "../../../packages/design-system/brand/geometry.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../..");
@@ -31,50 +32,16 @@ const out = (p, s) => {
 };
 const line = (s, extra = "") => `<path d="M${s.x1} ${s.y1} L${s.x2} ${s.y2}" ${extra}/>`;
 
-// ---------------------------------------------------------------- mark
-function markInner(id = "nv", { mono = null } = {}) {
-  const r = `stroke-width="12" stroke-linecap="round"`;
-  if (mono) {
-    return `<defs><mask id="${id}-m" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><path d="${MARK.monoFolds}" stroke="#000" stroke-width="2.2" stroke-linecap="round"/></mask></defs>
-<g stroke="${mono}" ${r}>${line(MARK.diagonal, `mask="url(#${id}-m)"`)}${line(MARK.left)}${line(MARK.right)}</g>`;
-  }
-  const g = (n, s, a, b) =>
-    `<linearGradient id="${id}-${n}" x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
-  const d = MARK.diagonal;
-  return `<defs>${g("a", MARK.left, FLOW.start, FLOW.mid1)}${g("b", d, FLOW.mid1, FLOW.mid2)}${g("c", MARK.right, FLOW.mid2, FLOW.end)}<linearGradient id="${id}-f" x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" gradientUnits="userSpaceOnUse"><stop offset="0.08" stop-color="${FLOW.fold}" stop-opacity="0.34"/><stop offset="0.34" stop-color="${FLOW.fold}" stop-opacity="0"/><stop offset="0.66" stop-color="${FLOW.fold}" stop-opacity="0"/><stop offset="0.92" stop-color="${FLOW.fold}" stop-opacity="0.22"/></linearGradient></defs>
-${line(d, `stroke="url(#${id}-b)" ${r}`)}${line(d, `stroke="url(#${id}-f)" ${r}`)}${line(MARK.left, `stroke="url(#${id}-a)" ${r}`)}${line(MARK.right, `stroke="url(#${id}-c)" ${r}`)}`;
-}
-const wordInner = (color) =>
-  `<g stroke="${color}" fill="none" stroke-width="${WORDMARK.stroke}" stroke-linecap="round" stroke-linejoin="round">${WORDMARK.paths.map((p) => `<path d="${p}"/>`).join("")}${WORDMARK.circles.map((c) => `<circle cx="${c.cx}" cy="${c.cy}" r="${c.r}"/>`).join("")}</g><circle cx="${WORDMARK.dot.cx}" cy="${WORDMARK.dot.cy}" r="${WORDMARK.dot.r}" fill="${color}"/>`;
+// ---------------------------------------------------------------- logo sources (owner-approved artwork, ADR-032)
+// Extracted from the concept board by extract_logo.py. Every logo/icon/OG output is composed from these.
+const SRC = resolve(brand, "logo/source");
+const dataUrl = (f) => `data:image/png;base64,${readFileSync(resolve(SRC, f)).toString("base64")}`;
+const MARK_PNG = dataUrl("nivaro-mark.png");
+const WORD_INK = dataUrl("nivaro-wordmark-ink.png");
+const WORD_WHITE = dataUrl("nivaro-wordmark-white.png");
 const svg = (vb, inner, label = "Nivaro") =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" role="img" aria-label="${label}">\n${inner}\n</svg>\n`;
-const lockup = (mark, word) => svg("0 0 228 64", `${mark}<g transform="translate(70 9)">${wordInner(word)}</g>`);
-
-const files = {
-  "logo/primary/nivaro-mark.svg": svg(MARK.viewBox, markInner()),
-  "logo/primary/nivaro-wordmark.svg": svg(WORDMARK.viewBox, wordInner(C.navy), "nivaro"),
-  "logo/primary/nivaro-lockup.svg": lockup(markInner(), C.navy),
-  "logo/light/nivaro-lockup.svg": lockup(markInner(), C.navy),
-  "logo/light/nivaro-mark-blue.svg": svg(MARK.viewBox, markInner("nv", { mono: C.blue })),
-  "logo/dark/nivaro-lockup-on-navy.svg": lockup(markInner(), C.white),
-  "logo/dark/nivaro-lockup-white.svg": lockup(markInner("nv", { mono: C.white }), C.white),
-  "logo/dark/nivaro-mark-white.svg": svg(MARK.viewBox, markInner("nv", { mono: C.white })),
-  "logo/dark/nivaro-wordmark-white.svg": svg(WORDMARK.viewBox, wordInner(C.white), "nivaro"),
-  "logo/monochrome/nivaro-mark-ink.svg": svg(MARK.viewBox, markInner("nv", { mono: C.navy })),
-  "logo/monochrome/nivaro-lockup-ink.svg": lockup(markInner("nv", { mono: C.navy }), C.navy),
-  "logo/monochrome/nivaro-wordmark-ink.svg": svg(WORDMARK.viewBox, wordInner(C.navy), "nivaro"),
-};
-
-// ---------------------------------------------------------------- app icons (square, full-bleed; OS applies the mask)
-const appIcon = (bg, scale = 0.62) => {
-  const s = (1024 * scale) / 64;
-  const o = (1024 - 64 * s) / 2;
-  return svg("0 0 1024 1024", `<rect width="1024" height="1024" fill="${bg}"/><g transform="translate(${o} ${o}) scale(${s})">${markInner("ai")}</g>`);
-};
-files["app-icons/nivaro-app-icon-navy.svg"] = appIcon(C.navy);
-files["app-icons/nivaro-app-icon-light.svg"] = appIcon(C.white);
-files["app-icons/nivaro-app-icon-maskable.svg"] = appIcon(C.navy, 0.5); // keeps the mark inside the 80% safe zone
-files["favicon/nivaro-favicon.svg"] = svg(MARK.viewBox, markInner("fv"));
+const files = {};
 
 // ---------------------------------------------------------------- motifs
 function trail({ count, height, x = 0, y = 0, id = "tr", fade = true }) {
@@ -137,19 +104,7 @@ files["graphics/accent-tick.svg"] = svg(
 );
 
 // ---------------------------------------------------------------- OG / social banner (1200×630)
-{
-  const { svg: tr } = trail({ count: 5, height: 250, x: 640, y: 380, id: "og" });
-  const ul = `<g transform="translate(186 386) scale(1.62 1.1)"><path fill="${C.teal}" d="M3 13.6C42 6.4 118 3.6 195.4 8.2c2.4.2 2.6 3.2.2 3.5C131 9.2 63 11 5.2 17.4c-2.8.3-4.6-3.1-2.2-3.8Z"/></g>`;
-  files["banners/og-default.svg"] = svg(
-    "0 0 1200 630",
-    `<rect width="1200" height="630" fill="${C.navy}"/>${tr}<g transform="translate(80 80) scale(0.9)">${markInner("ogm")}<g transform="translate(70 9)">${wordInner(C.white)}</g></g>` +
-      `<text x="80" y="290" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="76" letter-spacing="-1.5" fill="${C.white}">Your store,</text>` +
-      `<text x="80" y="374" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="76" letter-spacing="-1.5" fill="${C.white}">on autopilot.</text>${ul}` +
-      `<text x="80" y="470" font-family="Inter, system-ui, sans-serif" font-weight="500" font-size="28" fill="${C.slate300}">From product photo to delivered order.</text>` +
-      `<text x="80" y="560" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="20" letter-spacing="2" fill="${C.teal}">AUTONOMOUS COMMERCE OS</text>`,
-    "Nivaro — Your store, on autopilot.",
-  );
-}
+const { svg: OG_TRAIL } = trail({ count: 5, height: 250, x: 640, y: 380, id: "og" });
 
 for (const [p, s] of Object.entries(files)) out(`assets/brand/${p}`, s);
 
@@ -158,37 +113,63 @@ const req = createRequire(resolve(repo, "apps/web/package.json"));
 const { chromium } = req("@playwright/test");
 const browser = await chromium.launch({ channel: "chrome" });
 const page = await browser.newPage();
-async function png(src, dest, w, h = w, { bg = "transparent", fonts = false } = {}) {
-  const body = readFileSync(resolve(brand, src), "utf8").replace("<svg ", `<svg width="${w}" height="${h}" `);
+async function html(body, dest, w, h, { bg = "transparent", fonts = false } = {}) {
   await page.setViewportSize({ width: w, height: h });
   const head = fonts
-    ? `<link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=block" rel="stylesheet">`
+    ? `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=block" rel="stylesheet">`
     : "";
-  await page.setContent(`<html><head>${head}</head><body style="margin:0;background:${bg}">${body}</body></html>`, { waitUntil: "networkidle" });
+  await page.setContent(
+    `<html><head>${head}<style>*{box-sizing:border-box}body{margin:0;width:${w}px;height:${h}px;background:${bg};font-family:Inter,system-ui,sans-serif}img{display:block}</style></head><body>${body}</body></html>`,
+    { waitUntil: "networkidle" },
+  );
   if (fonts) await page.evaluate(() => document.fonts.ready);
   const f = resolve(repo, dest);
   mkdirSync(dirname(f), { recursive: true });
   await page.screenshot({ path: f, omitBackground: bg === "transparent", clip: { x: 0, y: 0, width: w, height: h } });
 }
-// Brand PNGs
-await png("logo/primary/nivaro-mark.svg", "assets/brand/logo/primary/nivaro-mark-512.png", 512);
-await png("logo/primary/nivaro-lockup.svg", "assets/brand/logo/primary/nivaro-lockup-912.png", 912, 256);
-await png("logo/dark/nivaro-lockup-on-navy.svg", "assets/brand/logo/dark/nivaro-lockup-on-navy-912.png", 912, 256, { bg: C.navy });
-await png("app-icons/nivaro-app-icon-navy.svg", "assets/brand/app-icons/nivaro-app-icon-navy-1024.png", 1024);
-await png("app-icons/nivaro-app-icon-light.svg", "assets/brand/app-icons/nivaro-app-icon-light-1024.png", 1024);
-await png("banners/og-default.svg", "assets/brand/banners/og-default.png", 1200, 630, { fonts: true });
-// Web: Next.js file-based metadata icons + PWA manifest icons + OG image
-out("apps/web/src/app/icon.svg", files["favicon/nivaro-favicon.svg"]);
-await png("favicon/nivaro-favicon.svg", "assets/brand/favicon/favicon-32.png", 32);
-await png("app-icons/nivaro-app-icon-navy.svg", "apps/web/src/app/apple-icon.png", 180);
-await png("app-icons/nivaro-app-icon-navy.svg", "apps/web/public/icons/icon-192.png", 192);
-await png("app-icons/nivaro-app-icon-navy.svg", "apps/web/public/icons/icon-512.png", 512);
-await png("app-icons/nivaro-app-icon-maskable.svg", "apps/web/public/icons/icon-maskable-512.png", 512);
-await png("banners/og-default.svg", "apps/web/src/app/opengraph-image.png", 1200, 630, { fonts: true });
+const center = (inner) => `<div style="width:100%;height:100%;display:grid;place-items:center">${inner}</div>`;
+// Mark is 384×263 (wider than tall): sized by width so the ribbon fills the optical centre.
+async function appIcon(dest, px, { bg = C.navy, pct = 66 } = {}) {
+  await html(center(`<img src="${MARK_PNG}" style="width:${pct}%">`), dest, px, px, { bg });
+}
+const lockup = (word, height) =>
+  `<div style="display:flex;align-items:center;gap:${height * 0.22}px;padding:${height * 0.18}px"><img src="${MARK_PNG}" style="height:${height}px"><img src="${word}" style="height:${height * 0.62}px;margin-top:${height * 0.06}px"></div>`;
+
+// Brand files
+await html(lockup(WORD_INK, 160), "assets/brand/logo/primary/nivaro-lockup.png", 820, 220);
+await html(lockup(WORD_WHITE, 160), "assets/brand/logo/dark/nivaro-lockup-white-wordmark.png", 820, 220);
+await html(lockup(WORD_WHITE, 160), "assets/brand/logo/dark/nivaro-lockup-on-navy.png", 820, 220, { bg: C.navy });
+await appIcon("assets/brand/app-icons/nivaro-app-icon-navy-1024.png", 1024);
+await appIcon("assets/brand/app-icons/nivaro-app-icon-light-1024.png", 1024, { bg: C.white });
+await appIcon("assets/brand/app-icons/nivaro-app-icon-maskable-1024.png", 1024, { pct: 54 });
+const ogBody = `<div style="position:relative;width:1200px;height:630px;background:${C.navy};overflow:hidden">
+  <svg style="position:absolute;inset:0" width="1200" height="630" viewBox="0 0 1200 630">${OG_TRAIL}</svg>
+  <div style="position:absolute;left:80px;top:70px">${lockup(WORD_WHITE, 64).replace(/padding:[^"]*"/, "padding:0\"")}</div>
+  <div style="position:absolute;left:80px;top:205px;color:#fff;font-weight:800;font-size:76px;letter-spacing:-1.5px;line-height:1.08">Your store,<br>on <span style="position:relative">autopilot<svg style="position:absolute;left:-2%;bottom:-14px;width:104%;height:22px" viewBox="0 0 200 20" preserveAspectRatio="none"><path fill="${C.teal}" d="M3 13.6C42 6.4 118 3.6 195.4 8.2c2.4.2 2.6 3.2.2 3.5C131 9.2 63 11 5.2 17.4c-2.8.3-4.6-3.1-2.2-3.8Z"/></svg></span>.</div>
+  <div style="position:absolute;left:80px;top:440px;color:${C.slate300};font-weight:500;font-size:28px">From product photo to delivered order.</div>
+  <div style="position:absolute;left:80px;top:532px;color:${C.teal};font-weight:600;font-size:20px;letter-spacing:2px">AUTONOMOUS COMMERCE OS</div>
+</div>`;
+await html(ogBody, "assets/brand/banners/og-default.png", 1200, 630, { fonts: true });
+await html(ogBody, "apps/web/src/app/opengraph-image.png", 1200, 630, { fonts: true });
+// Web: favicon (transparent), apple + PWA icons
+for (const px of [16, 32, 48]) await html(center(`<img src="${MARK_PNG}" style="width:100%">`), `assets/brand/favicon/favicon-${px}.png`, px, px);
+await html(center(`<img src="${MARK_PNG}" style="width:100%">`), "apps/web/src/app/icon.png", 64, 64);
+// favicon.ico (16/32/48) for legacy browsers and crawlers
+const { execFileSync } = await import("node:child_process");
+execFileSync("magick", [16, 32, 48].map((px) => resolve(brand, `favicon/favicon-${px}.png`)).concat(resolve(repo, "apps/web/src/app/favicon.ico")));
+await appIcon("apps/web/src/app/apple-icon.png", 180);
+await appIcon("apps/web/public/icons/icon-192.png", 192);
+await appIcon("apps/web/public/icons/icon-512.png", 512);
+await appIcon("apps/web/public/icons/icon-maskable-512.png", 512, { pct: 54 });
+// Web: logo sources served to the app (mark + both wordmark colours)
+for (const f of ["nivaro-mark.png", "nivaro-wordmark-ink.png", "nivaro-wordmark-white.png"])
+  writeFileSync(resolve(repo, "apps/web/public/brand", f), readFileSync(resolve(SRC, f)));
+// Flutter: bundled logo sources
+for (const f of ["nivaro-mark.png", "nivaro-wordmark-ink.png", "nivaro-mark-white.png"])
+  writeFileSync(resolve(repo, "apps/mobile/assets/brand", f), readFileSync(resolve(SRC, f)));
 // Flutter Android launcher (legacy square icons; adaptive icon is a known gap)
 const android = { mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxxhdpi: 192 };
-for (const [d, s] of Object.entries(android))
-  await png("app-icons/nivaro-app-icon-navy.svg", `apps/mobile/android/app/src/main/res/mipmap-${d}/ic_launcher.png`, s);
+for (const [d, px] of Object.entries(android)) await appIcon(`apps/mobile/android/app/src/main/res/mipmap-${d}/ic_launcher.png`, px);
 // Flutter iOS AppIcon set (opaque, square; iOS applies the corner mask)
 const iosDir = "apps/mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset";
 const ios = JSON.parse(readFileSync(resolve(repo, iosDir, "Contents.json"), "utf8")).images;
@@ -196,8 +177,7 @@ const done = new Set();
 for (const im of ios) {
   if (done.has(im.filename)) continue;
   done.add(im.filename);
-  const px = Math.round(parseFloat(im.size) * parseInt(im.scale));
-  await png("app-icons/nivaro-app-icon-navy.svg", `${iosDir}/${im.filename}`, px, px, { bg: C.navy });
+  await appIcon(`${iosDir}/${im.filename}`, Math.round(parseFloat(im.size) * parseInt(im.scale)));
 }
 await browser.close();
-console.log(`brand: wrote ${Object.keys(files).length} SVGs and raster icons`);
+console.log(`brand: wrote ${Object.keys(files).length} SVG motifs and all logo/icon rasters`);

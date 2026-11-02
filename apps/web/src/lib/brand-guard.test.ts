@@ -10,6 +10,8 @@ const ALLOW: Record<string, string> = {
   // QR codes must be pure black-on-white to scan reliably; values passed to the QR library.
   "features/settings/SecurityView.tsx": "QR colours",
   "features/settings/settings.module.css": "QR quiet zone must be white in both themes",
+  // Flat product illustration (a maroon kurta): garment colours, not UI colours.
+  "features/site/SitePage.tsx": "product illustration",
   // Video letterbox is true black regardless of theme.
   "features/content/ReelsView.tsx": "video letterbox",
 };

@@ -5,15 +5,7 @@ export interface Seg {
   x2: number;
   y2: number;
 }
-export declare const MARK: { viewBox: string; diagonal: Seg; left: Seg; right: Seg; monoFolds: string };
 export declare const FLOW: { start: string; mid1: string; mid2: string; end: string; fold: string };
-export declare const WORDMARK: {
-  viewBox: string;
-  stroke: number;
-  paths: string[];
-  circles: { cx: number; cy: number; r: number }[];
-  dot: { cx: number; cy: number; r: number };
-};
 export interface TrailSeg extends Seg {
   kind: "rise" | "cross";
 }
