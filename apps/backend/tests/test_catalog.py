@@ -395,3 +395,78 @@ def test_add_variant_after_create_with_new_option_value_and_lock(client, seller)
     )
     assert bad.json()["error"]["code"] == "variant_options_mismatch"
     assert bad.json()["error"]["details"]["missing"] == ["Size"]
+
+
+def test_category_rename_move_subtree_cycle_and_delete_guards(client, seller):
+    cat = lambda body: client.post(f"{API}/categories", headers=seller.h(), json=body).json()  # noqa: E731
+    women = cat({"name": "Women"})
+    kurta = cat({"name": "Kurta", "parent_id": women["id"]})
+    festive = cat({"name": "Festive", "parent_id": kurta["id"]})
+    clothing = cat({"name": "Clothing"})
+    r = client.patch(
+        f"{API}/categories/{women['id']}",
+        headers=seller.h(),
+        json={"move": True, "parent_id": clothing["id"]},
+    )
+    assert r.json()["path"] == "clothing/women"
+    paths = {c["id"]: c["path"] for c in client.get(f"{API}/categories", headers=seller.h()).json()["items"]}
+    assert paths[festive["id"]] == "clothing/women/kurta/festive"  # whole subtree rewritten
+    cyc = client.patch(
+        f"{API}/categories/{women['id']}", headers=seller.h(), json={"move": True, "parent_id": festive["id"]}
+    )
+    assert cyc.json()["error"]["code"] == "category_cycle"
+    ren = client.patch(
+        f"{API}/categories/{kurta['id']}", headers=seller.h(), json={"name": "Kurtas", "name_ne": "कुर्ता"}
+    )
+    assert ren.json()["path"] == "clothing/women/kurtas"
+    _create(client, seller, {**KURTA, "category_id": festive["id"]})
+    assert (
+        client.delete(f"{API}/categories/{kurta['id']}", headers=seller.h()).json()["error"]["code"]
+        == "category_has_children"
+    )
+    assert (
+        client.delete(f"{API}/categories/{festive['id']}", headers=seller.h()).json()["error"]["code"]
+        == "category_in_use"
+    )
+    assert client.delete(f"{API}/categories/{clothing['id']}", headers=seller.h()).status_code == 409
+
+
+def test_collection_members_add_remove_idempotent(client, seller):
+    p = _create(client, seller).json()
+    col = client.post(f"{API}/collections", headers=seller.h(), json={"title": "Tihar Picks"}).json()
+    for _ in range(2):
+        assert (
+            client.put(f"{API}/collections/{col['id']}/products/{p['id']}", headers=seller.h()).status_code
+            == 204
+        )
+    items = client.get(f"{API}/collections/{col['id']}/products", headers=seller.h()).json()["items"]
+    assert [i["product_id"] for i in items] == [p["id"]]
+    for _ in range(2):
+        assert (
+            client.delete(f"{API}/collections/{col['id']}/products/{p['id']}", headers=seller.h()).status_code
+            == 204
+        )
+    assert client.get(f"{API}/collections/{col['id']}/products", headers=seller.h()).json()["items"] == []
+    other = onboard(client, shop="Patan Crafts")
+    assert client.get(f"{API}/collections/{col['id']}/products", headers=other.h()).status_code == 404
+
+
+def test_variant_edits_honour_product_version(client, seller):
+    p = _create(client, seller).json()
+    vid = p["variants"][0]["id"]
+    ok = client.patch(
+        f"{API}/products/{p['id']}/variants/{vid}",
+        headers=seller.h(),
+        json={"version": p["version"], "price_minor": 250000},
+    )
+    assert ok.status_code == 200
+    stale = client.patch(
+        f"{API}/products/{p['id']}/variants/{vid}",
+        headers=seller.h(),
+        json={"version": p["version"], "price_minor": 260000},
+    )
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "version_conflict"
+    stale_del = client.delete(
+        f"{API}/products/{p['id']}/variants/{vid}?version={p['version']}", headers=seller.h()
+    )
+    assert stale_del.status_code == 409

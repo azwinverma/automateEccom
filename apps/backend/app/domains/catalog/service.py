@@ -523,9 +523,15 @@ VARIANT_FIELDS = (
 
 
 def update_variant(
-    db: Session, ctx: TenantContext, product_id: uuid.UUID, variant_id: uuid.UUID, fields: dict[str, Any]
+    db: Session,
+    ctx: TenantContext,
+    product_id: uuid.UUID,
+    variant_id: uuid.UUID,
+    fields: dict[str, Any],
+    expected_version: int | None = None,
 ) -> Variant:
     p = _get_product(db, ctx, product_id)
+    _check_version(p, expected_version)
     v = db.get(Variant, variant_id)
     if v is None or v.product_id != p.id:
         raise NotFound()
@@ -669,8 +675,15 @@ def add_variant(
     return v
 
 
-def archive_variant(db: Session, ctx: TenantContext, product_id: uuid.UUID, variant_id: uuid.UUID) -> None:
+def archive_variant(
+    db: Session,
+    ctx: TenantContext,
+    product_id: uuid.UUID,
+    variant_id: uuid.UUID,
+    expected_version: int | None = None,
+) -> None:
     p = _get_product(db, ctx, product_id)
+    _check_version(p, expected_version)
     v = db.get(Variant, variant_id)
     if v is None or v.product_id != p.id:
         raise NotFound()
@@ -1094,3 +1107,161 @@ def product_detail(db: Session, ctx: TenantContext, product_id: uuid.UUID) -> di
         "media": media,
         "needs_review": any(not a.confirmed for a in attrs),
     }
+
+
+# ----------------------------------------------------------------------------- category & collections mgmt
+def update_category(
+    db: Session,
+    ctx: TenantContext,
+    category_id: uuid.UUID,
+    name: str | None,
+    name_ne: str | None,
+    parent_id: uuid.UUID | None,
+    move: bool,
+) -> Category:
+    """Rename and/or move. Moving rewrites the materialised path of the whole subtree; cycles refused."""
+    c = db.get(Category, category_id)
+    if c is None or c.merchant_id != ctx.merchant_id:
+        raise NotFound()
+    old_path = c.path
+    new_slug = rules.handleize(name) if name else c.slug
+    if move:
+        new_parent = db.get(Category, parent_id) if parent_id else None
+        if parent_id and (new_parent is None or new_parent.merchant_id != ctx.merchant_id):
+            raise NotFound("Parent category not found", code="category_not_found")
+    else:
+        new_parent = db.get(Category, c.parent_id) if c.parent_id else None
+    if new_parent is not None and (new_parent.id == c.id or new_parent.path.startswith(old_path + "/")):
+        raise ValidationFailed("A category can't be moved inside itself", code="category_cycle")
+    new_path = f"{new_parent.path}/{new_slug}" if new_parent else new_slug
+    depth_delta = ((new_parent.depth + 1) if new_parent else 0) - c.depth
+    subtree = db.scalars(
+        select(Category).where(
+            Category.merchant_id == ctx.merchant_id, Category.path.startswith(old_path + "/")
+        )
+    ).all()
+    if any(d.depth + depth_delta > 5 for d in subtree) or ((new_parent.depth + 1) if new_parent else 0) > 5:
+        raise ValidationFailed("Categories can be at most 6 levels deep", code="category_too_deep")
+    if new_path != old_path and db.scalar(
+        select(Category.id).where(Category.merchant_id == ctx.merchant_id, Category.path == new_path)
+    ):
+        raise Conflict("A category with this name already exists here", code="category_exists")
+    before = {"name": c.name, "name_ne": c.name_ne, "path": c.path}
+    if name:
+        c.name, c.slug = name.strip(), new_slug
+    if name_ne is not None:
+        c.name_ne = name_ne.strip() or None
+    if move:
+        c.parent_id = new_parent.id if new_parent else None
+    c.path, c.depth = new_path, c.depth + depth_delta
+    for d in subtree:
+        d.path = new_path + d.path[len(old_path) :]
+        d.depth += depth_delta
+    db.flush()
+    changes = audit.diff(before, {"name": c.name, "name_ne": c.name_ne, "path": c.path})
+    if changes:
+        audit.record(
+            db,
+            action="catalog.category_updated",
+            resource_type="category",
+            resource_id=c.id,
+            actor=ctx.actor,
+            merchant_id=ctx.merchant_id,
+            meta=ctx.meta,
+            changes=changes,
+            metadata={"subtree_updated": len(subtree)},
+        )
+    return c
+
+
+def delete_category(db: Session, ctx: TenantContext, category_id: uuid.UUID) -> None:
+    c = db.get(Category, category_id)
+    if c is None or c.merchant_id != ctx.merchant_id:
+        raise NotFound()
+    if db.scalar(select(func.count()).select_from(Category).where(Category.parent_id == c.id)):
+        raise Conflict("Move or delete the sub-categories first", code="category_has_children")
+    in_use = db.scalar(select(func.count()).select_from(Product).where(Product.category_id == c.id)) or 0
+    if in_use:
+        raise Conflict(
+            "Products still use this category", code="category_in_use", details={"products": in_use}
+        )
+    db.delete(c)
+    audit.record(
+        db,
+        action="catalog.category_deleted",
+        resource_type="category",
+        resource_id=c.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"path": c.path},
+    )
+
+
+def collection_products(db: Session, ctx: TenantContext, collection_id: uuid.UUID) -> list[dict[str, Any]]:
+    c = db.get(Collection, collection_id)
+    if c is None or c.merchant_id != ctx.merchant_id:
+        raise NotFound()
+    rows = db.execute(
+        select(Product.id, Product.title, Product.status, CollectionProduct.position)
+        .join(CollectionProduct, CollectionProduct.product_id == Product.id)
+        .where(CollectionProduct.collection_id == c.id)
+        .order_by(CollectionProduct.position)
+    ).all()
+    return [{"product_id": r[0], "title": r[1], "status": r[2], "position": r[3]} for r in rows]
+
+
+def add_to_collection(
+    db: Session, ctx: TenantContext, collection_id: uuid.UUID, product_id: uuid.UUID
+) -> None:
+    c = db.get(Collection, collection_id)
+    p = db.get(Product, product_id)
+    if c is None or c.merchant_id != ctx.merchant_id or p is None or p.merchant_id != ctx.merchant_id:
+        raise NotFound()
+    if db.get(CollectionProduct, (c.id, p.id)) is not None:
+        return  # idempotent
+    pos = db.scalar(
+        select(func.coalesce(func.max(CollectionProduct.position), -1)).where(
+            CollectionProduct.collection_id == c.id
+        )
+    )
+    db.add(
+        CollectionProduct(
+            merchant_id=ctx.merchant_id,
+            collection_id=c.id,
+            product_id=p.id,
+            position=(pos if pos is not None else -1) + 1,
+        )
+    )
+    audit.record(
+        db,
+        action="catalog.collection_product_added",
+        resource_type="collection",
+        resource_id=c.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"product_id": str(p.id)},
+    )
+
+
+def remove_from_collection(
+    db: Session, ctx: TenantContext, collection_id: uuid.UUID, product_id: uuid.UUID
+) -> None:
+    c = db.get(Collection, collection_id)
+    if c is None or c.merchant_id != ctx.merchant_id:
+        raise NotFound()
+    row = db.get(CollectionProduct, (c.id, product_id))
+    if row is None:
+        return  # idempotent
+    db.delete(row)
+    audit.record(
+        db,
+        action="catalog.collection_product_removed",
+        resource_type="collection",
+        resource_id=c.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"product_id": str(product_id)},
+    )

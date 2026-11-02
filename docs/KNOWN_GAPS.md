@@ -64,9 +64,9 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 ## Catalog API gaps reported by the web client (2026-11-02)
 | ID | Sev | Gap | Next step |
 |---|---|---|---|
-| GAP-CAT-VARIANT-LOCK | Low | Variant PATCH/archive don't take a version. The web client sends a version-checked product PATCH first; adding a variant is locked. | Accept `version` on variant writes. |
-| GAP-CAT-COLLECTIONS | Low | No endpoint lists a collection's members, and PUT replaces the whole list, so the web client shows collections read-only. | `GET /collections/{id}/products` plus add/remove endpoints. |
-| GAP-CAT-CATEGORIES | Low | Categories are create-only: no rename, move or delete. | Rename + move (rewrite descendant paths) + delete-if-empty. |
+| ~~GAP-CAT-VARIANT-LOCK~~ | Resolved | Fixed 2026-11-02 (see test_catalog). | — |
+| ~~GAP-CAT-COLLECTIONS~~ | Resolved | Fixed 2026-11-02 (see test_catalog). | — |
+| ~~GAP-CAT-CATEGORIES~~ | Resolved | Fixed 2026-11-02 (see test_catalog). | — |
 | GAP-IMPORT-I18N | Low | CSV row errors with `invalid_row` carry English text only (e.g. "price: 'abc' is not a number"). | Structured `{field, reason}` codes per row. |
 | ~~Add variant after create~~ | Resolved | `POST /catalog/products/{id}/variants` (version-locked, adds new option values). | — |
 

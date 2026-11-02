@@ -77,6 +77,7 @@ class StatusIn(BaseModel):
 
 
 class VariantPatch(BaseModel):
+    version: int | None = Field(default=None, description="Optimistic lock: product version you last read")
     price_minor: int | None = Minor
     compare_at_minor: int | None = Minor
     cost_minor: int | None = Minor
@@ -263,7 +264,14 @@ def patch_variant(
     ctx: TenantContext = Depends(require("catalog.write")),
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
-    service.update_variant(db, ctx, product_id, variant_id, body.model_dump(exclude_unset=True))
+    service.update_variant(
+        db,
+        ctx,
+        product_id,
+        variant_id,
+        body.model_dump(exclude_unset=True, exclude={"version"}),
+        body.version,
+    )
     return service.product_detail(db, ctx, product_id)
 
 
@@ -271,10 +279,11 @@ def patch_variant(
 def archive_variant(
     product_id: uuid.UUID,
     variant_id: uuid.UUID,
+    version: int | None = Query(None),
     ctx: TenantContext = Depends(require("catalog.write")),
     db: Session = Depends(get_db, scope="function"),
 ) -> Response:
-    service.archive_variant(db, ctx, product_id, variant_id)
+    service.archive_variant(db, ctx, product_id, variant_id, version)
     return Response(status_code=204)
 
 
@@ -437,3 +446,69 @@ def list_imports(
 ) -> dict:
     rows = db.scalars(select(ImportJob).order_by(ImportJob.created_at.desc()).limit(50))
     return {"items": [{k: v for k, v in _job(j).items() if k != "errors"} for j in rows]}
+
+
+class CategoryPatch(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    name_ne: str | None = Field(default=None, max_length=120)
+    parent_id: uuid.UUID | None = None
+    move: bool = Field(default=False, description="true to change parent (parent_id null = make top-level)")
+
+
+@router.patch("/categories/{category_id}")
+def update_category(
+    category_id: uuid.UUID,
+    body: CategoryPatch,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    c = service.update_category(db, ctx, category_id, body.name, body.name_ne, body.parent_id, body.move)
+    return {
+        "id": c.id,
+        "name": c.name,
+        "name_ne": c.name_ne,
+        "parent_id": c.parent_id,
+        "path": c.path,
+        "depth": c.depth,
+    }
+
+
+@router.delete("/categories/{category_id}", status_code=204)
+def delete_category(
+    category_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
+) -> Response:
+    service.delete_category(db, ctx, category_id)
+    return Response(status_code=204)
+
+
+@router.get("/collections/{collection_id}/products")
+def collection_products(
+    collection_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    return {"items": service.collection_products(db, ctx, collection_id)}
+
+
+@router.put("/collections/{collection_id}/products/{product_id}", status_code=204)
+def add_to_collection(
+    collection_id: uuid.UUID,
+    product_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
+) -> Response:
+    service.add_to_collection(db, ctx, collection_id, product_id)
+    return Response(status_code=204)
+
+
+@router.delete("/collections/{collection_id}/products/{product_id}", status_code=204)
+def remove_from_collection(
+    collection_id: uuid.UUID,
+    product_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
+) -> Response:
+    service.remove_from_collection(db, ctx, collection_id, product_id)
+    return Response(status_code=204)
