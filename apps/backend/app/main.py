@@ -48,6 +48,7 @@ def create_app() -> FastAPI:
     from app.domains.channels.router import listings_router, webhooks_router
     from app.domains.channels.router import router as channels
     from app.domains.content.router import router as content
+    from app.domains.exceptions.router import router as exceptions
     from app.domains.media.router import dev_router as media_dev
     from app.domains.media.router import router as media
     from app.domains.merchants.router import router as merchants
@@ -69,6 +70,7 @@ def create_app() -> FastAPI:
         studio,
         channels,
         content,
+        exceptions,
         audit,
         platform,
         ai,
