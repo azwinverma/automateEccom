@@ -218,6 +218,35 @@ class WooCommerceAdapter(ChannelAdapter):
         )
 
     # ------------------------------------------------------------------ webhooks
+    TOPICS: ClassVar[tuple[str, ...]] = ("order.created", "order.updated", "product.deleted")
+
+    def register_webhooks(self, delivery_url: str, secret: str) -> list[str]:
+        """Create one webhook per topic; returns the store's webhook ids (stored for later cleanup)."""
+        ids = []
+        for topic in self.TOPICS:
+            hook = self._call(
+                "POST",
+                "/webhooks",
+                "webhook_register",
+                json={
+                    "name": f"Commerce OS: {topic}",
+                    "topic": topic,
+                    "delivery_url": delivery_url,
+                    "secret": secret,
+                    "status": "active",
+                },
+            )
+            ids.append(str(hook["id"]))
+        return ids
+
+    def delete_webhooks(self, ids: list[str]) -> None:
+        for wid in ids:
+            try:
+                self._call("DELETE", f"/webhooks/{wid}", "webhook_delete", params={"force": "true"})
+            except IntegrationError as e:
+                if e.code != "not_found":
+                    raise
+
     def verify_webhook(self, headers: dict[str, str], body: bytes) -> bool:
         secret = self._credentials.get("webhook_secret", "")
         sig = {k.lower(): v for k, v in headers.items()}.get("x-wc-webhook-signature", "")

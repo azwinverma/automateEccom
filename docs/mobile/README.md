@@ -73,3 +73,70 @@ Home renders them as explicit "not counted yet" / empty states. Quick actions op
 and Devanagari digits (intl `ne`). Money: `रू १,२५०` / `Rs 1,250` (South Asian grouping, paisa only
 when non-zero). Language choice: Settings → App language (persisted in SharedPreferences; best-effort
 `PATCH /me {locale}`).
+
+---
+
+## Phase 1: Capture → AI draft → review → create → publish
+
+Quick actions **Add product** and **Capture product** open `/studio/capture`. **Generate content** opens
+`/studio/drafts`. **Create Reel**, **Orders** and **Messages** still lead to honest "coming soon" screens.
+
+| Step | Route | API |
+|---|---|---|
+| Photos (camera/gallery, ≤ 6) | `/studio/capture` | `POST /media/uploads` → signed `PUT` (exact headers, **no** auth/tenant headers, bare Dio) → `POST /media/{id}/complete` → poll `GET /media/{id}` |
+| AI draft | `/studio/jobs/:id` | `POST /studio/jobs` (Idempotency-Key reused while the payload is unchanged) → poll 2s×1.5 up to a 10s cap → `POST …/retry` on `failed` |
+| Review | same route, once `ready` | `POST /studio/jobs/{id}/apply`, then `PUT /catalog/products/{id}/attributes` for values the seller edited |
+| Go live / publish | `/products/:id?job=` | `POST …/attributes/confirm`, `POST …/status {active, version}`, `GET /channels`, `POST …/publish`, poll `GET …/listings` |
+| Posts | `/posts?ids=` and `/posts/:id` | `POST /content/posts/from-studio`, `PATCH /content/posts/{id}`, `…/submit`, `…/approve`, `…/schedule` |
+| Home exceptions | `/home` | `GET /exceptions`; the server's `action` field decides where a tap goes (`features/exceptions/data/exception_routing.dart`) |
+
+### Uploads on weak internet
+- `UploadEngine` (pure Dart) is the per-photo state machine: `queued → uploading → completing → processing → ready | rejected`.
+  Side states: `waitingRetry` (the network gave out) and `failed` (quota, too large, unsupported format).
+- **Concurrency:** at most 2 uploads at a time.
+- **Network failures:** retried with backoff of 1s, 2s, 4s, 8s (30s cap, or the server's `Retry-After`). After that the photo pauses, and it resumes when the device comes back online or the seller taps retry. It resumes from the last durable step, so the PUT is redone without creating a new upload slot.
+- **Server-side recovery:** `409 upload_missing` re-PUTs the bytes. An expired URL or `upload_expired` starts a fresh slot. An asset still `pending_upload` after a restart gets `complete` called again.
+- **Clock skew:** a ticket issued during the current run is trusted even if the device clock says it has expired. The server's signature check is the real authority, and its rejection goes through the same bounded backoff.
+- **Never losing the selection:** picked files are copied to app support storage, and the queue (asset ids, signed tickets, phase) is saved to SharedPreferences for each merchant. On Android, `retrieveLostData()` recovers a photo taken just before the OS killed the activity.
+- **Not real background execution:** uploads keep running while the app is in the background but alive. If the OS kills the app, they resume on the next launch.
+- **Size and limits:** the picker downscales to 2400px at JPEG quality 85. The 20 MB cap is also checked on the device.
+
+### Honesty / AI rules in the UI
+- Prices and variants are always typed by the seller. `parseRupeesToPaisa` converts exactly (string arithmetic, no doubles) and accepts `1,250.50`, `रू १,२५०`, and Devanagari digits.
+- AI attributes below 75% confidence are marked with the indigo automation token and a "Please check" label. Saving is blocked until each one is accepted or edited.
+- Grounding issues (claims about price, discount, stock, delivery, warranty or authenticity, `not_a_product_photo`, `too_long`) are shown as plain warnings.
+- While the AI works, the screen shows an indeterminate bar (hidden when animations are reduced), never a made-up percentage.
+- The Autopilot strip shows the real `automation_mode` from `GET /merchant` and a needs-you count taken from exceptions. There is no metric yet for automated actions, so that count is hidden rather than invented.
+
+### Running against the real backend
+```bash
+# backend (from apps/backend): signed upload URLs must use the host the device can reach
+COS_PUBLIC_API_BASE_URL=http://localhost:8095 uv run uvicorn app.main:app --port 8095
+COS_PUBLIC_API_BASE_URL=http://localhost:8095 uv run celery -A app.worker.celery_app worker -B \
+  -Q default,outbox,ai,media --pool=solo     # prefork crashes on macOS (fast_trace_task unpack error)
+
+# app-level end-to-end contract check (real HTTP, app's own API classes + UploadEngine)
+cd apps/mobile
+flutter test test/live --dart-define=LIVE_API=http://localhost:8095 --dart-define=LIVE_PHOTO=/abs/photo.jpg
+```
+`test/live` is skipped unless `LIVE_API` is set, so `flutter test` stays offline. The test connects the dev
+`sandbox_channel` through its consent screen, but only as test setup: in the product, OAuth is handled by the web app.
+In the app, "Reconnect" shows a sheet with a copyable link to `WEB_BASE_URL/settings/channels?reconnect=<id>`
+(`--dart-define=WEB_BASE_URL=…`).
+
+### API gaps found (not worked around silently)
+1. **No `GET /content/posts/{id}`.** The posts screen fetches the calendar list (`GET /content/posts`, which caps at 500) and filters by id. This won't scale.
+2. **No way to dismiss an exception.** Items with `action: dismiss` (malware-rejected media) are hidden on this device only (`exceptions.dismissed` in prefs). They will come back on another device.
+3. **`POST /studio/jobs/{id}/apply` takes no `Idempotency-Key`.** A retry after a dropped response is safe, because the server returns the product for an already-applied job. Two requests at the same moment are not covered: both could see `ready` and create two products.
+4. **`POST /media/uploads` is not idempotent.** If the response to a create call is lost and the app retries, an orphan `pending_upload` asset is left behind (the backend deletes it after 24 h).
+5. **Exceptions for a `content_post` with `action: reconnect` have no `connection_id` in `details`.** The app can only point to the general channels page.
+6. **Signed upload/derivative URLs take their host from `COS_PUBLIC_API_BASE_URL`.** One backend can't serve both the Android emulator (`10.0.2.2`) and the iOS simulator (`localhost`) at once. The app uses the URL exactly as given.
+7. **Studio job `error_code` values aren't documented.** The app maps `ai_unavailable`, `provider_unavailable` and `stalled` to "service busy" and everything else to a general failure message.
+8. **No API to add a variant.** The `active_variant_required` problem can't be fixed from mobile, so the app says to use the web dashboard.
+9. **No metric for actions taken automatically** (see the Autopilot strip above).
+
+### Toolchain note
+`flutter build ios --simulator` does not work with Flutter 3.29.3 and Xcode 27. After raising the deployment target to 15.0
+(Xcode 27's minimum, now set in the Podfile, Runner and AppFrameworkInfo), the build stops at `debug_unpack_ios`:
+"Flutter.framework does not contain architectures arm64 x86_64". `lipo -archs` shows the binary does contain
+`x86_64 arm64`, so Flutter's own check is misreading Xcode 27's output. A newer Flutter is needed. No Android emulator is installed.

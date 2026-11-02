@@ -44,6 +44,12 @@ class ChannelConnection(IdMixin, TimestampMixin, TenantScoped, Base):
     consecutive_failures: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     connected_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     disconnected_at: Mapped[datetime | None]
+    # Per-connection webhook signing secret (stores like WooCommerce sign each webhook with its own secret).
+    webhook_secret_sealed: Mapped[str | None] = mapped_column(String(1024))
+    webhook_ids: Mapped[list[str]] = mapped_column(
+        ARRAY(String(40)), default=list, server_default="{}", nullable=False
+    )
+    webhooks_registered_at: Mapped[datetime | None]
 
 
 class OAuthState(IdMixin, TenantScoped, Base):

@@ -184,3 +184,70 @@ def test_webhook_signature_and_parsing():
     assert not a.verify_webhook({**headers, "X-WC-Webhook-Signature": "AAAA"}, body)
     ev = a.parse_webhook(headers, body)[0]
     assert (ev.event_type, ev.external_event_id, ev.external_account_id) == ("order.created", "4:77", STORE)
+
+
+@respx.mock
+def test_per_store_webhooks_registered_verified_and_cleaned_up(client, seller):
+    _mock_store()
+    hooks = respx.post(f"{WC}/webhooks").mock(
+        side_effect=[httpx.Response(201, json={"id": i}) for i in (11, 12, 13)]
+    )
+    c = _connect(client, seller)
+    _dispatch()  # channels.connected → register webhooks
+    assert hooks.call_count == 3
+    sent = [json.loads(call.request.content) for call in hooks.calls]
+    assert {s["topic"] for s in sent} == {"order.created", "order.updated", "product.deleted"}
+    assert all(s["delivery_url"].endswith(f"/webhooks/woocommerce/{c['id']}") for s in sent)
+    secret = sent[0]["secret"]
+    assert all(s["secret"] == secret for s in sent) and len(secret) >= 32
+
+    # Publish a product so a listing exists, then the store deletes it.
+    p = client.post(
+        f"{API}/catalog/products",
+        headers=seller.h(),
+        json={"title": "Singing Bowl", "variants": [{"price_minor": 350000, "sku": "BOWL-7"}]},
+    ).json()
+    client.post(f"{API}/catalog/products/{p['id']}/status", headers=seller.h(), json={"status": "active"})
+    _dispatch()
+    respx.post(f"{WC}/products").mock(return_value=httpx.Response(201, json={"id": 777}))
+    client.post(
+        f"{API}/catalog/products/{p['id']}/publish", headers=seller.h(), json={"connection_ids": [c["id"]]}
+    )
+    _dispatch()
+    assert listing(client, seller, p["id"])["external_id"] == "777"
+
+    body = json.dumps({"id": 777}).encode()
+    good = base64.b64encode(hmac.new(secret.encode(), body, hashlib.sha256).digest()).decode()
+    hdrs = {
+        "X-WC-Webhook-Topic": "product.deleted",
+        "X-WC-Webhook-ID": "13",
+        "X-WC-Webhook-Delivery-ID": "5001",
+        "X-WC-Webhook-Source": STORE + "/",
+        "Content-Type": "application/json",
+    }
+    url = f"/webhooks/woocommerce/{c['id']}"
+    assert (
+        client.post(url, content=body, headers={**hdrs, "X-WC-Webhook-Signature": "bad"}).status_code == 401
+    )
+    import uuid as _uuid
+
+    assert (
+        client.post(
+            f"/webhooks/woocommerce/{_uuid.uuid4()}",
+            content=body,
+            headers={**hdrs, "X-WC-Webhook-Signature": good},
+        ).status_code
+        == 404
+    )
+    ok = client.post(url, content=body, headers={**hdrs, "X-WC-Webhook-Signature": good})
+    assert ok.json() == {"received": True, "accepted": 1, "duplicates": 0}
+    assert client.post(
+        url, content=b'{"webhook_id": 13}', headers={"Content-Type": "application/json"}
+    ).json()["ping"]
+    _dispatch()
+    lst = listing(client, seller, p["id"])
+    assert lst["status"] == "unpublished" and lst["last_error_code"] == "deleted_on_channel"
+
+    deleted = respx.delete(url__regex=rf"{WC}/webhooks/\d+").mock(return_value=httpx.Response(200, json={}))
+    assert client.delete(f"{API}/channels/{c['id']}", headers=seller.h()).status_code == 204
+    assert deleted.call_count == 3

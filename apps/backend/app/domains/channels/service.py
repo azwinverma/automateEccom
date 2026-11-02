@@ -332,10 +332,47 @@ def urlparse_host(url: str) -> str:
     return urlparse(url).netloc
 
 
+def connection_webhook_secret(db: Session, connection_id: uuid.UUID) -> tuple[ChannelConnection, str] | None:
+    c = db.scalar(
+        select(ChannelConnection)
+        .where(ChannelConnection.id == connection_id)
+        .execution_options(skip_tenant_filter=True)
+    )
+    if c is None or c.status == "disconnected" or not c.webhook_secret_sealed:
+        return None
+    return c, SealedSecret(c.webhook_secret_sealed).open(_aad(c, "webhook"))
+
+
+@handler("channels.connected", name="channels.register_webhooks")
+def _register_webhooks(db: Session, ev: OutboxEvent) -> None:
+    """Register per-connection webhooks for stores that support it. Failures raise → outbox retries."""
+    from app.core.config import get_settings
+
+    c = db.get(ChannelConnection, uuid.UUID(ev.payload["connection_id"]))
+    if (
+        c is None
+        or c.status != "connected"
+        or c.provider not in API_KEY_PROVIDERS
+        or c.webhooks_registered_at
+    ):
+        return
+    adapter = adapter_for(c)
+    secret = new_opaque_token()
+    url = f"{get_settings().public_api_base_url.rstrip('/')}/webhooks/{c.provider}/{c.id}"
+    c.webhook_ids = adapter.register_webhooks(url, secret)  # type: ignore[attr-defined]
+    c.webhook_secret_sealed = SealedSecret.seal(secret, _aad(c, "webhook")).blob
+    c.webhooks_registered_at = utcnow()
+
+
 def disconnect(db: Session, ctx: TenantContext, connection_id: uuid.UUID) -> None:
     c = _get(db, ctx, connection_id)
     c.status, c.disconnected_at = "disconnected", utcnow()
-    c.access_token_sealed = c.refresh_token_sealed = None  # crypto-shred
+    if c.webhook_ids and c.provider in API_KEY_PROVIDERS:
+        try:
+            adapter_for(c).delete_webhooks(c.webhook_ids)  # type: ignore[attr-defined]
+        except IntegrationError as e:  # best effort: the store may be gone; keys are revoked anyway
+            log.warning("webhook_cleanup_failed", connection_id=str(c.id), error_code=e.code)
+    c.access_token_sealed = c.refresh_token_sealed = c.webhook_secret_sealed = None  # crypto-shred
     audit.record(
         db,
         action="channels.disconnected",
@@ -437,7 +474,12 @@ def webhook_handler(event_type: str) -> Callable[[WebhookHandler], WebhookHandle
 
 
 def ingest_webhook(
-    db: Session, provider: str, headers: dict[str, str], body: bytes, webhook_secret: str
+    db: Session,
+    provider: str,
+    headers: dict[str, str],
+    body: bytes,
+    webhook_secret: str,
+    connection: ChannelConnection | None = None,
 ) -> dict[str, int]:
     """Called by the public webhook endpoint. Returns counts; raises on bad signature."""
     try:
@@ -453,8 +495,8 @@ def ingest_webhook(
         raise ValidationFailed("Malformed webhook", code="webhook_malformed") from e
     stats = {"accepted": 0, "duplicates": 0}
     for ev in events:
-        conn = None
-        if ev.external_account_id:
+        conn = connection
+        if conn is None and ev.external_account_id:
             conn = db.scalar(
                 select(ChannelConnection)
                 .where(
@@ -800,3 +842,16 @@ def listing_view(listing: ChannelListing, c: ChannelConnection | None = None) ->
         "last_synced_at": listing.last_synced_at,
         "published_product_version": listing.published_product_version,
     }
+
+
+@webhook_handler("product.deleted")
+def _product_deleted_on_channel(db: Session, ev: WebhookEvent) -> None:
+    """Seller deleted the product directly in their store: reflect it so we don't think it's live."""
+    ext = str(ev.payload.get("id", ""))
+    for listing in db.scalars(
+        select(ChannelListing).where(
+            ChannelListing.connection_id == ev.connection_id, ChannelListing.external_id == ext
+        )
+    ):
+        listing.status, listing.external_id, listing.desired_state = "unpublished", None, "unpublished"
+        listing.last_error_code = "deleted_on_channel"

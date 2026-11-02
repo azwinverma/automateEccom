@@ -197,6 +197,50 @@ async def receive_webhook(provider: str, request: Request) -> JSONResponse:
     return JSONResponse({"received": True, **stats})
 
 
+@webhooks_router.post("/webhooks/{provider}/{connection_id}")
+async def receive_connection_webhook(
+    provider: str, connection_id: uuid.UUID, request: Request
+) -> JSONResponse:
+    """Per-connection webhooks (e.g. WooCommerce): verified with that connection's own secret."""
+    s = get_settings()
+    body = await request.body()
+    if len(body) > s.webhook_max_bytes:
+        raise ValidationFailed("Payload too large", code="payload_too_large")
+    from starlette.concurrency import run_in_threadpool
+
+    def _ingest() -> dict[str, int] | None:
+        from app.core.db import session_scope
+
+        with session_scope() as db:
+            found = service.connection_webhook_secret(db, connection_id)
+            if found is None or found[0].provider != provider:
+                return None
+            conn, secret = found
+            return service.ingest_webhook(db, provider, dict(request.headers), body, secret, connection=conn)
+
+    if request.headers.get("x-wc-webhook-topic") is None and b"webhook_id" in body:
+        return JSONResponse({"received": True, "ping": True})  # WooCommerce delivery-URL ping on creation
+    try:
+        stats = await run_in_threadpool(_ingest)
+    except Exception as e:
+        if getattr(e, "code", None) == "webhook_signature_invalid":
+            return JSONResponse(
+                {
+                    "error": {
+                        "code": "webhook_signature_invalid",
+                        "message": "Invalid signature",
+                        "details": {},
+                        "request_id": request.state.request_id,
+                    }
+                },
+                status_code=401,
+            )
+        raise
+    if stats is None:
+        raise NotFound()
+    return JSONResponse({"received": True, **stats})
+
+
 # ----------------------------------------------------------------------------- admin webhook explorer
 @admin_router.get("")
 def list_webhooks(
