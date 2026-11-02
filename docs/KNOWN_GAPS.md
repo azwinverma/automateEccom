@@ -85,9 +85,26 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 |---|---|---|---|
 | GAP-INTEL-NOT-BUILT | Info | Product Brain, Commerce Memory, Autopilot Score, Recommendations, COD/Courier/Return/Supplier Intelligence, Creative Genome, Digital Store Twin, Simulation and Network Intelligence are **specified only** (Phases 6–10, NOT_STARTED). They are gated on operational data from Phases 2–5. | Follow the roadmap. |
 | GAP-INSTRUMENTATION | Med | Creative attributes (CNT-012) are **done** and backfilled. Still to instrument in their phases: structured addresses (ORD-012, Phase 2), action/outcome log (AUT-018, from Phase 2), controlled return reasons (RET-012, Phase 4). Web and mobile post editors don't yet let sellers declare hook, human presence or background (optional fields). | Build with each phase; add the declared fields to the post drawers. |
-| GAP-BRAND-DECISION | Med | "Nivaro" brand assets (name, tagline, palette #185CFF/#00D7B2/#0B1B3D) are in the repo root, not adopted. Tokens still follow spec 18's palette. | Owner decision. |
 | GAP-NETWORK-LEGAL | High (Phase 10 gate) | Network Intelligence needs a privacy impact assessment and legal review (Nepal Individual Privacy Act 2075, cross-border). | Before NET work. |
 | GAP-ENTITLEMENT-RESEED | Low | The entitlements contract gained intelligence feature codes. Re-seeding creates new plan versions; existing subscribers stay on old versions (grandfathered) until migrated. | Decide the migration policy when Phase 6 features ship. |
+
+## Nivaro brand migration (2026-11-02)
+**The brand migration is incomplete.** Customer-facing naming, tokens, logo, icons and the core motifs
+are done. The items below remain.
+
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-BRAND-LOGO-REVIEW | Med | The mark and wordmark are an engineering redraw of the raster concept boards (ADR-030). Curves and optical balance have not had a designer's review. | Designer pass on `geometry.mjs` before trademark filing; re-run `render.mjs`. |
+| GAP-BRAND-TRADEMARK | Med | "Nivaro" trademark search and filing not done. The ™ from the boards is deliberately omitted. | Legal. |
+| GAP-BRAND-CHARACTERS | Med | The character cast and spot illustrations are **not created**. Briefs only (`assets/brand/characters`, `illustrations`). No placeholders ship. | Commission an illustrator (BRD-009/010). |
+| GAP-BRAND-MOTION | Low | Only the ribbon trace and token motion exist. Sync pulse, order-step settle, milestone animation and Lottie exports for marketing are pending. | BRD-011, with the Order Journey / Channel Sync work. |
+| GAP-BRAND-BANNERS | Low | Only the default OG/social image exists. The campaign, onboarding, AI Video, Autopilot, upgrade and milestone banner set is not built. | BRD-007. |
+| GAP-BRAND-ICONS | Low | No Android adaptive icon (foreground/background layers); legacy square mipmaps only. The in-house line icon set is not exported for Flutter, which still uses Material icons. | BRD-012. |
+| GAP-MARKETING-SITE | Med | There is no marketing website in the repo. Direction A is chosen (docs/design/LAYOUT_DIRECTIONS.md). | BRD-014 after GTM pricing (GAP-SPEC-21). |
+| GAP-CONSOLE-UI | Med | Nivaro Console (admin UI) does not exist; only the admin API. Brand header spec'd (26 §15, 20). | Build with ADM work. |
+| GAP-EMAIL-DOMAIN | Low | The sender address domain is undecided (`no-reply@nivaro.invalid` placeholder in config). There is no HTML email template. | Owner: domain + DNS (SPF/DKIM/DMARC). |
+| GAP-BRAND-LEGACY-DOCS | Low | `docs/Autonomous_Commerce_OS_Business_Partner_Brief.pdf` predates the brand. Technical identifiers keep `commerce-os` (intentional, ADR-028). | Regenerate the partner brief as Nivaro. |
+| GAP-NE-TAGLINE | Low | The Nepali tagline "तपाईंको पसल, अटोपाइलटमा।" and module copy need native-speaker review (with GAP-NE-COPY). | Native review. |
 
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).

@@ -1,6 +1,6 @@
 # Definition of Done
 
-> v2 (2026-11-02): adds intelligence requirements.
+> v3 (2026-11-02): adds intelligence requirements (v2) and Nivaro brand criteria (v3).
 
 A feature is production ready only when the relevant items below are satisfied.
 
@@ -44,6 +44,23 @@ prompt version; eval coverage.
 ## Frontend
 responsive; keyboard accessible; screen-reader basics; tokenized styling; loading/degraded states;
 stale-data indicators for derived data; no generic AI-template shortcuts.
+
+## Brand (Nivaro, specs/26)
+A feature is **not** done if:
+- it uses old product naming ("Commerce OS", "AI Commerce OS") in customer-facing text, or internal
+  phase/backlog jargon in seller copy
+- hard-coded colours or legacy (indigo) tokens remain; components must use semantic tokens (brand
+  guard test passes)
+- generic AI visuals are introduced (sparkles, glow, blobs, purple gradients, robot/assistant bubbles)
+- unsupported iconography appears (anything outside the in-house line set; sparkle-as-AI)
+- illustrations or graphics are inconsistent with the ribbon motif system or the illustration guide
+- animation ignores the motion rules (durations, no idle loops, reduced motion)
+- app, web and admin use inconsistent logos (only the generated assets / brand components)
+- the screen fails responsive (360px) or accessibility rules (contrast, focus, labels)
+- the screen exceeds its surface's visual-energy level (26 §14), e.g. accents on payments or admin
+- the page looks like a generic AI-generated SaaS template, or could belong unchanged to an
+  unrelated CRM, fintech or project tool
+- a custom visual has not passed the brand QA list (26 §18)
 
 ## Tests
 unit; integration (real Postgres/Redis); permissions; tenant isolation; contract; E2E against the real

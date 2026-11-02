@@ -7,6 +7,13 @@
 English and Nepali from day one. No hard-coded UI strings. Typed dictionaries (web) and ARB files
 (mobile) with key-parity tests.
 
+## Product name
+Customer-facing text always says **Nivaro** (wordmark `nivaro`; `NIVARO` only in legal/formal). The
+category "Autonomous Commerce OS" appears in titles and marketing, not in UI labels. Module names
+(Nivaro Studio, Nivaro Inbox, …) only where they help navigation (26 §1). Never show internal phase or
+backlog codes ("P2", "Phase 3") to sellers; say "Soon". Transactional email: sender "Nivaro", signed
+"— Nivaro". Nepali tagline: "तपाईंको पसल, अटोपाइलटमा।" (native review pending, GAP-NE-COPY).
+
 ## Voice
 Plain, warm, specific and short, like a capable shop manager. Lead with outcomes, not technology:
 "27 orders handled overnight", never "AI-powered". Nepali is written naturally for a Kathmandu seller,

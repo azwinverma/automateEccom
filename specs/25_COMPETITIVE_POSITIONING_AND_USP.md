@@ -2,6 +2,9 @@
 
 > Status: v1 (2026-11-02). Authored from the product strategy update; owner review required.
 
+## Brand
+**Nivaro**: *Your store, on autopilot.* (26_NIVARO_BRAND_SYSTEM.md)
+
 ## Category
 **Autonomous Commerce OS**
 

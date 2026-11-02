@@ -2,6 +2,13 @@
 
 > v2 (2026-11-02): repositioned as an Autonomous Commerce OS (see 25_COMPETITIVE_POSITIONING_AND_USP.md).
 
+> v3 (2026-11-02): the product is named **Nivaro** (26_NIVARO_BRAND_SYSTEM.md).
+
+## Product
+**Nivaro**: *Your store, on autopilot.*
+Nivaro helps online sellers create, publish, sell, fulfill, support and optimize commerce from one place.
+Create once. Sell everywhere. Let Nivaro handle the routine work.
+
 ## Category
 **Autonomous Commerce OS**
 

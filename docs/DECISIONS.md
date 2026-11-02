@@ -169,3 +169,67 @@ COD risk is a per-order, explainable assessment with merchant override and dispu
   lists.
 - **Process:** a static prohibited-feature check is part of CI for CODI. Calibration and regional
   disparity reports are required before enabling auto-actions on MEDIUM/HIGHER.
+
+## ADR-028: Nivaro brand migration and safe rename plan
+The owner adopted **Nivaro** (category Autonomous Commerce OS, tagline "Your store, on autopilot.").
+- **Decision:** rename everything customer-facing; keep technical identifiers that would break
+  integrations, data, tokens or installs.
+- **Renamed (customer-facing):**
+  - web titles/description/OG/Twitter/PWA manifest
+  - favicon, apple icon and PWA icons
+  - logo in the app shell and sign-in
+  - i18n copy (en/ne), email subjects/sign-off, email sender display name (`COS_EMAIL_FROM_NAME`)
+  - OpenAPI title "Nivaro API"
+  - TOTP issuer "Nivaro" (new enrolments only; existing authenticator entries keep their old label, the
+    secret is unaffected)
+  - WooCommerce webhook display name (webhooks are tracked by id, not name)
+  - Flutter display name (iOS `CFBundleDisplayName`, Android `android:label`), launcher icons, app
+    title; README and specs
+- **Kept, documented as legacy:**
+
+  | Identifier | Why it stays |
+  |---|---|
+  | npm scope `@commerce-os/*` | imports in every package |
+  | Dart package `commerce_os_seller`, bundle/application ID `np.commerceos.commerce_os_seller` | a new ID is a new store app; rename only before first store submission |
+  | `COS_` env prefix and `cos_` cookies | deployed config and live sessions |
+  | `jwt_issuer = "commerce-os"` | issued tokens would fail validation |
+  | DB names `commerce_os*`, bucket `commerce-os-private`, service name `commerce-os-api` | data, IAM and telemetry continuity |
+  | Docker image/compose names, CI job names | infra continuity |
+  | `docs/Autonomous_Commerce_OS_Business_Partner_Brief.pdf` | binary partner brief; needs regeneration (GAP-BRAND-LEGACY-DOCS) |
+
+- **Future rename:** possible behind a migration plan (dual-issuer JWT window, env alias, DB rename at
+  a maintenance window). Not scheduled.
+
+## ADR-029: Brand palette authority
+The concept boards (`assets/brand/reference/`) show Blue #185CFF, Teal #00D7B2 and Navy #0B1B3D. The
+brand brief specifies #2563EB, #14B8A6 and #0F172A.
+- **Decision:** the brief wins. These values were already the token primitives, so no screen changes
+  colour. They also have known contrast behaviour; the board values are more saturated and #00D7B2
+  fails contrast for any text use.
+- **The boards are reference only.** Their ™ marks wait for trademark filing (GAP-BRAND-TRADEMARK).
+
+## ADR-030: Logo built as code-generated geometry; navy app icon
+The concept boards are raster images and cannot be used as production assets.
+- **Decision:** redraw the mark and wordmark as geometry (`packages/design-system/brand/geometry.mjs`).
+  - **Mark:** a ribbon N in three overlapping strokes with fold shading.
+  - **Wordmark:** stroked geometric lowercase letters, so there is no font dependency or licence issue.
+  - `assets/brand/scripts/render.mjs` generates every SVG and PNG (logo variants, motifs, favicon,
+    PWA/apple icons, OG image, Android mipmaps, iOS AppIcon set) from it.
+  - Web (`components/brand`) and Flutter (`nivaro_brand.dart`, from generated `brand_geometry.g.dart`)
+    draw from the same geometry.
+- **Primary app icon:** the colour mark on Deep Navy. It is the more ownable on home screens, and a
+  light variant is kept.
+- **Status:** this is an engineering redraw of the approved concept. A designer review of curves and
+  optical balance is recommended before trademark filing (BRD-002 note).
+
+## ADR-031: Semantic token layer; indigo retired
+Tokens v1.0 add `semantic.light` and `semantic.dark` (brand, text, surface, border, action, focus,
+status, flow, scrim), emitted as `--color-*` CSS variables, TS and Dart `AppColorsLight/Dark`.
+- **Dark mode** is now generated, both for the media query and for `[data-theme="dark"]`. The
+  hand-written dark overrides in `globals.css` are removed.
+- **Legacy aliases** (`--surface-page`, `--text-secondary`, …) point at the semantic layer, so existing
+  components keep working while new code uses `--color-*`.
+- **Indigo (#4F46E5) is not in the Nivaro palette and is removed.** Automation and AI markers use
+  brand blue (`text-brand` on `surface-brand-tint`).
+- **Enforcement:** the web brand guard test fails on hex colours outside an allowlist, on indigo, and
+  on the pre-Nivaro name in UI copy.

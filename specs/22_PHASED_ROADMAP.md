@@ -4,6 +4,9 @@
 > **Gating rule:** intelligence phases start only when the operational phases they depend on produce
 > trustworthy data. Exit criteria must be met (24 Definition of Done) before a phase is closed.
 
+**Brand (BRD, cross-phase):** Nivaro brand work runs alongside the current phase and never blocks it
+(26, ADR-028). Each phase's new surfaces must meet the brand DoD (24).
+
 | Phase | Name | Scope (backlog groups) | Data it produces for later phases |
 |---|---|---|---|
 | 0 | Foundation | FND, IAM, BIL, AIG (gateway), CHN-001/002, PAY-001, FUL-001, UX-001…003 | identity, audit (actor types), usage |

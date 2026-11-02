@@ -1,6 +1,8 @@
 # Claude Start Here
 
-You are implementing a production-grade, multi-tenant **Autonomous Commerce OS**.
+You are implementing **Nivaro**, a production-grade, multi-tenant **Autonomous Commerce OS**.
+Tagline: **Your store, on autopilot.** Brand rules: 26_NIVARO_BRAND_SYSTEM.md (customer-facing name is
+always Nivaro; technical identifiers keep `commerce-os`/`commerce_os`, ADR-028).
 Promise: **From product photo to delivered order — automatically.**
 USP: **Your store runs itself. You handle exceptions.** (25_COMPETITIVE_POSITIONING_AND_USP.md)
 

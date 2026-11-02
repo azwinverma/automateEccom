@@ -1,6 +1,12 @@
-# Seller app (Flutter) — Phase 0 foundation
+# Nivaro seller app (Flutter)
+
+Display name **Nivaro** (iOS `CFBundleDisplayName`, Android `android:label`). Launcher icons are generated
+by `assets/brand/scripts/render.mjs`; the mark is drawn natively by `lib/design/widgets/nivaro_brand.dart`
+from generated geometry (`lib/design/brand_geometry.g.dart`).
 
 Location: `apps/mobile` · package `commerce_os_seller` · org `np.commerceos` · iOS + Android.
+The package name, bundle ID and application ID keep the legacy names on purpose (ADR-028): changing them
+creates a new app in the stores and breaks installs. Rename only before the first store submission.
 Toolchain: Flutter 3.29.3 / Dart 3.7.2.
 
 ## Run

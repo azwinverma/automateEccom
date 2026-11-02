@@ -3,6 +3,12 @@
 > v1 (2026-11-02). The original 20 was never provided. Authored from the build brief and the
 > implementation; owner review required.
 
+## Name and look
+The internal console is **Nivaro Console**. Very-low visual energy (26 §14): Deep Navy top bar with
+the white Nivaro lockup + "Console" suffix and an environment badge, blue accents, neutral surfaces,
+dense tables, right-hand detail drawer, no hand-drawn accents or characters. Layout: direction A in
+docs/design/LAYOUT_DIRECTIONS.md §7. UI not built yet (GAP-CONSOLE-UI); the admin API exists.
+
 ## Access
 Staff only, with an MFA-verified session (implemented). Every staff action is audited. Secret values
 are never shown.

@@ -383,3 +383,21 @@ NET-003 opt-out/opt-in controls (contribute vs consume)
 NET-004 aggregates: category demand trends, regional demand, price bands, return trends, courier route success, seasonality
 NET-005 priors for cold start (courier, creative) with clear "network-based" labelling
 NET-006 privacy tests (no cross-tenant leakage, threshold enforcement)
+
+## BRD Branding: Nivaro (cross-phase; runs alongside the current product phase, never blocks it)
+BRD-001 Nivaro brand migration audit (legacy names, hard-coded colours, metadata, icons; safe rename plan)
+BRD-002 logo asset integration (geometry source, generated SVG/PNG, web + Flutter brand components)
+BRD-003 web metadata (titles, description, OpenGraph/Twitter, PWA manifest, favicon, theme colour)
+BRD-004 Flutter branding (display name, launcher icons, native mark, theme automation colour)
+BRD-005 Nivaro Console branding (navy header, Console lockup) — with the Console UI
+BRD-006 design-token migration (semantic layer light/dark, indigo removed, generated CSS/TS/Dart)
+BRD-007 banner system (grammar + variants: launch, onboarding, feature, seasonal, AI Video, Autopilot, upgrade, milestone)
+BRD-008 graphic motif library (N-trail, commerce loop, outlined trail, hand accents; sync stream, order route)
+BRD-009 character system (illustrated cast per specs/26 §11; commissioned, no placeholders)
+BRD-010 illustration guide (specs/26 §11) + spot illustrations
+BRD-011 motion system (tokens, ribbon trace, sync pulse, order-step settle, milestone; reduced motion)
+BRD-012 app icon / favicon (navy primary, light alt, maskable, Android adaptive icon, in-house icon set for Flutter)
+BRD-013 dark/light logo variants (colour, white, ink, blue)
+BRD-014 marketing-site art direction (direction A "The loop", docs/design/LAYOUT_DIRECTIONS.md) + build
+BRD-015 UX copy migration (product name, tagline, phase jargon removed, email sender/sign-off, Nepali parity)
+BRD-016 visual QA (brand guard test: no hex/indigo/legacy name; screenshot review per surface; brand QA list)

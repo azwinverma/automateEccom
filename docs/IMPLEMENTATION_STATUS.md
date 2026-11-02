@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-02. Phase 0 complete (open: CI run, staging target). Phase 1 backend + mobile built; web Studio/Channels/Content/Reels screens in progress._
+_Last updated: 2026-11-02 (Nivaro brand migration added)._ _Previously: Phase 0 complete (open: CI run, staging target). Phase 1 backend + mobile built; web Studio/Channels/Content/Reels screens in progress._
 
 ## Summary
 
@@ -30,7 +30,7 @@ _Last updated: 2026-11-02. Phase 0 complete (open: CI run, staging target). Phas
 | Channels (CHN-003/004/009/010/011/013) | TESTED framework + sandbox; **WooCommerce IMPLEMENTED** (contract-tested incl. per-store webhooks); Meta/TikTok/Shopify BLOCKED on platform approval | Channels settings (OAuth + WooCommerce keys) TESTED + E2E | Publish + reconnect hand-off |
 | Exception Inbox | TESTED (derived from live state) | Live on Home TESTED | Live on Home: TESTED |
 
-Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 206 + api-client 25 tests and E2E 8/8 (4 specs × desktop/360px) against the real backend with worker; mobile all tests pass plus one live end-to-end run. The mobile app has never run on a device (GAP-MOBILE-TOOLCHAIN).
+Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + api-client 25 tests and E2E 8/8 (4 specs × desktop/360px) against the real backend with worker; mobile all tests pass plus one live end-to-end run. The mobile app has never run on a device (GAP-MOBILE-TOOLCHAIN).
 
 ## Where development stands (2026-11-02)
 - **Phase 0:** engineering complete. Exit is blocked externally: CI needs a git remote (FND-007) and
@@ -44,6 +44,38 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 206 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Nivaro brand migration (2026-11-02): INCOMPLETE
+**Done:**
+- Customer-facing naming: web, mobile, email, OpenAPI, TOTP issuer, WooCommerce webhook label, specs,
+  README.
+- Tokens v1.0 with a light/dark semantic layer; indigo retired.
+- Logo system (mark, wordmark, lockups in colour/white/ink/blue) generated from one geometry source.
+- Icons: favicon, PWA, apple, Android, iOS.
+- OG image.
+- Brand primitives in web and Flutter.
+- Sign-in brand panel, logo in nav, active ribbon, outlined-trail empty states, Studio drop target,
+  neutral at-capacity meter.
+- Brand guard test.
+- Brand spec (26), product UI spec (18 v3), layout directions for 7 surfaces.
+
+**Remaining (not complete, see KNOWN_GAPS "Nivaro brand migration"):**
+- Designer review of the redrawn logo; trademark.
+- Character cast and illustrations: none exist, and no placeholders are used.
+- Motion assets beyond the ribbon trace.
+- Campaign banners.
+- Android adaptive icon; Flutter export of the icon set.
+- Marketing site; Nivaro Console UI.
+- Email domain and HTML template.
+- Partner brief PDF regeneration.
+
+**Legacy references remaining (intentional, ADR-028):**
+- `@commerce-os/*` npm scope
+- Dart package / bundle ID `np.commerceos.commerce_os_seller`
+- `COS_` env and `cos_` cookies
+- `jwt_issuer`
+- DB, bucket and service names
+- Docker and CI names
 
 ## Phase 0 exit criteria
 
@@ -382,5 +414,21 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | NET-004 | aggregates: category demand trends, regional demand, price bands, return trends, courier route success, seasonality | P10 | NOT_STARTED | — | — | — |  |
 | NET-005 | priors for cold start (courier, creative) with clear "network-based" labelling | P10 | NOT_STARTED | — | — | — |  |
 | NET-006 | privacy tests (no cross-tenant leakage, threshold enforcement) | P10 | NOT_STARTED | — | — | — |  |
+| BRD-001 | Nivaro brand migration audit | BRD | IMPLEMENTED | — | ADR-028; "Nivaro brand migration" section above; before/after screenshots reviewed | Brand guard test (no legacy name in UI copy) | Legacy technical identifiers kept by design |
+| BRD-002 | logo asset integration | BRD | IMPLEMENTED | BRD-006 | packages/design-system/brand/geometry.mjs; assets/brand/scripts/render.mjs; web components/brand; Flutter nivaro_brand.dart | Flutter widget test; visual check in shell, sign-in, mobile | Engineering redraw; designer review pending (GAP-BRAND-LOGO-REVIEW) |
+| BRD-003 | web metadata | BRD | IMPLEMENTED | BRD-002 | app/layout.tsx (title, OG, Twitter, apple web app), app/manifest.ts, icon.svg, apple-icon.png, opengraph-image.png | Manifest + icon served 200 on the dev server (manual) | `NEXT_PUBLIC_SITE_URL` needed for absolute OG URLs in prod |
+| BRD-004 | Flutter branding | BRD | TESTED | BRD-002 | Display name, launcher icons (Android + iOS), NivaroMark/NivaroLogo, automation colour → brand blue | flutter analyze; nivaro_brand_test (2) + full suite | Never run on a device (GAP-MOBILE-TOOLCHAIN) |
+| BRD-005 | Nivaro Console branding | BRD | NOT_STARTED | ADM | specs/26 §15, specs/20, layout direction A | — | Console UI does not exist (GAP-CONSOLE-UI) |
+| BRD-006 | design-token migration | BRD | TESTED | — | design-tokens.json v1.0 semantic layer; generator emits light/dark CSS, TS, Dart AppColorsLight/Dark | Brand guard (no hex/indigo); all CSS vars resolve (checked) | Legacy aliases kept |
+| BRD-007 | banner system | BRD | IN_PROGRESS | BRD-008 | Grammar + variants in specs/26 §10; og-default; sign-in panel | — | Campaign set pending (GAP-BRAND-BANNERS) |
+| BRD-008 | graphic motif library | BRD | IN_PROGRESS | BRD-002 | N-trail, commerce loop, outlined-trail empty state, active ribbon, 4 hand accents | Visual review | Sync stream + order route motifs pending |
+| BRD-009 | character system | BRD | BLOCKED | — | Brief in assets/brand/characters | — | Needs an illustrator; no placeholders (GAP-BRAND-CHARACTERS) |
+| BRD-010 | illustration guide | BRD | IMPLEMENTED | — | specs/26 §11 | — | Spot illustrations pending with BRD-009 |
+| BRD-011 | motion system | BRD | IN_PROGRESS | BRD-006 | Motion tokens incl. flow; reduced-motion zeroing; ribbon trace (`NTrail animate`) | — | Sync pulse, step settle, milestone pending (GAP-BRAND-MOTION) |
+| BRD-012 | app icon / favicon | BRD | IMPLEMENTED | BRD-002 | Generated favicon, apple, PWA (incl. maskable), Android mipmaps, iOS AppIcon | Visual check | Adaptive Android icon + Flutter icon set pending (GAP-BRAND-ICONS) |
+| BRD-013 | dark/light logo variants | BRD | IMPLEMENTED | BRD-002 | assets/brand/logo/{primary,dark,light,monochrome} | Visual check | |
+| BRD-014 | marketing-site art direction | BRD | IN_PROGRESS | GTM | Direction A chosen (docs/design/LAYOUT_DIRECTIONS.md §1) | — | No marketing site in repo (GAP-MARKETING-SITE) |
+| BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
+| BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 4, IMPLEMENTED 23, IN_PROGRESS 9, NOT_STARTED 207, TESTED 74. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 5, IMPLEMENTED 29, IN_PROGRESS 13, NOT_STARTED 206, TESTED 80. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).

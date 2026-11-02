@@ -1,6 +1,6 @@
 # Web app (Phase 0 foundation)
 
-`apps/web` (`@commerce-os/web`) is a Next.js 15 App Router app (React 19, strict TypeScript, CSS Modules on top of
+`apps/web` (`@commerce-os/web`) is the **Nivaro** seller web app: a Next.js 15 App Router app (React 19, strict TypeScript, CSS Modules on top of
 `@commerce-os/design-system/tokens.css`). It talks to the FastAPI backend through `packages/api-client`
 (`@commerce-os/api-client`).
 
