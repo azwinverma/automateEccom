@@ -13,6 +13,7 @@ version so provider retries never create duplicate listings.
 
 from __future__ import annotations
 
+import json
 import uuid
 from collections.abc import Callable
 from datetime import timedelta
@@ -45,6 +46,7 @@ OAUTH_STATE_TTL = timedelta(minutes=10)
 REFRESH_AHEAD = timedelta(minutes=10)
 MAX_PUBLISH_ATTEMPTS = 6
 MAX_WEBHOOK_ATTEMPTS = 8
+API_KEY_PROVIDERS = frozenset({"woocommerce"})
 
 
 @register_gauge("channels")
@@ -75,11 +77,15 @@ def _store_tokens(c: ChannelConnection, t: OAuthTokens) -> None:
 
 def adapter_for(c: ChannelConnection) -> ChannelAdapter:
     creds: dict[str, str] = {}
+    config: dict[str, Any] = {"external_account_id": c.external_account_id}
     if c.access_token_sealed:
-        creds["access_token"] = SealedSecret(c.access_token_sealed).open(_aad(c, "access"))
-    return registry.channel(
-        c.provider, credentials=creds, config={"external_account_id": c.external_account_id}
-    )
+        secret = SealedSecret(c.access_token_sealed).open(_aad(c, "access"))
+        if c.provider in API_KEY_PROVIDERS:
+            creds.update(json.loads(secret))
+            config["store_url"] = c.external_account_id
+        else:
+            creds["access_token"] = secret
+    return registry.channel(c.provider, credentials=creds, config=config)
 
 
 def _get(db: Session, ctx: TenantContext, connection_id: uuid.UUID) -> ChannelConnection:
@@ -231,6 +237,99 @@ def complete_connect(
     ):
         _queue_publish(db, listing)
     return c
+
+
+def connect_with_keys(
+    db: Session, ctx: TenantContext, provider: str, store_url: str, consumer_key: str, consumer_secret: str
+) -> ChannelConnection:
+    """API-key channels (WooCommerce). Keys are verified with a live call before anything is stored,
+    and a store whose currency differs from the merchant's is refused (prices would be wrong)."""
+    from app.domains.integrations.woocommerce import validate_store_url
+
+    if provider not in API_KEY_PROVIDERS:
+        raise ValidationFailed(
+            "This channel connects with sign-in, not API keys", code="wrong_connect_method"
+        )
+    try:
+        url = validate_store_url(store_url)
+    except IntegrationError as e:
+        raise ValidationFailed(str(e).split(": ", 1)[-1], code="invalid_store_url") from e
+    existing = db.scalar(
+        select(ChannelConnection).where(
+            ChannelConnection.merchant_id == ctx.merchant_id,
+            ChannelConnection.provider == provider,
+            ChannelConnection.external_account_id == url,
+            ChannelConnection.status != "disconnected",
+        )
+    )
+    if existing is None:
+        entitlements.check_gauge(db, ctx.merchant_id, "channels")
+    creds = {"consumer_key": consumer_key.strip(), "consumer_secret": consumer_secret.strip()}
+    adapter = registry.channel(provider, credentials=creds, config={"store_url": url})
+    try:
+        adapter.health_check()
+        currency = adapter.store_currency()  # type: ignore[attr-defined]
+    except IntegrationError as e:
+        INTEGRATION_CALLS.labels(provider, "connect_keys", e.code).inc()
+        code = "invalid_api_keys" if e.auth else "store_unreachable"
+        raise ValidationFailed(
+            "We couldn't connect with those details", code=code, details={"provider_code": e.code}
+        ) from e
+    from app.domains.merchants.models import Merchant
+
+    merchant = db.get(Merchant, ctx.merchant_id)
+    if currency and merchant and currency.upper() != merchant.currency:
+        raise Conflict(
+            f"Your store uses {currency}, but this business uses {merchant.currency}",
+            code="currency_mismatch",
+            details={"store_currency": currency, "merchant_currency": merchant.currency},
+        )
+    c = existing or ChannelConnection(
+        id=uuid7(),
+        merchant_id=ctx.merchant_id,
+        provider=provider,
+        display_name=f"WooCommerce ({urlparse_host(url)})",
+        external_account_id=url,
+        connected_by_user_id=ctx.actor.id,
+    )
+    if existing is None:
+        db.add(c)
+    c.status, c.last_error_code, c.consecutive_failures, c.last_healthy_at = "connected", None, 0, utcnow()
+    c.capabilities = sorted(cap.value for cap in adapter.capabilities)
+    c.access_token_sealed = SealedSecret.seal(json.dumps(creds), _aad(c, "access")).blob
+    c.refresh_token_sealed, c.token_expires_at = None, None  # API keys don't expire
+    db.flush()
+    audit.record(
+        db,
+        action="channels.connected" if existing is None else "channels.reconnected",
+        resource_type="channel_connection",
+        resource_id=c.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"provider": provider, "store": url, "key_last4": consumer_key.strip()[-4:]},
+    )
+    outbox.publish(
+        db,
+        event_type="channels.connected",
+        aggregate_type="channel_connection",
+        aggregate_id=c.id,
+        merchant_id=ctx.merchant_id,
+        payload={"connection_id": str(c.id), "provider": provider},
+    )
+    for listing in db.scalars(
+        select(ChannelListing).where(
+            ChannelListing.connection_id == c.id, ChannelListing.status.in_(("failed", "out_of_sync"))
+        )
+    ):
+        _queue_publish(db, listing)
+    return c
+
+
+def urlparse_host(url: str) -> str:
+    from urllib.parse import urlparse
+
+    return urlparse(url).netloc
 
 
 def disconnect(db: Session, ctx: TenantContext, connection_id: uuid.UUID) -> None:
@@ -582,7 +681,27 @@ def _listing_payload(db: Session, listing: ChannelListing) -> dict[str, Any]:
             if v["status"] == "active"
         ],
         "images": [m["asset_id"] for m in d["media"]],
+        "image_urls": _image_urls(db, [m["asset_id"] for m in d["media"]]),
     }
+
+
+def _image_urls(db: Session, asset_ids: list[uuid.UUID]) -> list[str]:
+    """Signed (1h) white-background images: marketplaces download them once at publish time."""
+    from app.domains.integrations.storage import get_storage
+    from app.domains.media.models import MediaDerivative
+    from app.domains.media.service import _absolute
+
+    storage = get_storage()
+    out = []
+    for aid in asset_ids:
+        d = db.scalar(
+            select(MediaDerivative).where(
+                MediaDerivative.asset_id == aid, MediaDerivative.kind == "square_white"
+            )
+        )
+        if d is not None:
+            out.append(_absolute(storage.signed_get_url(d.key, ttl_s=3600)))
+    return out
 
 
 def sync_listing(db: Session, listing_id: uuid.UUID) -> ChannelListing | None:

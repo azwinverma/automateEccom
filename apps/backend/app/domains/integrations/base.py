@@ -134,6 +134,7 @@ class OAuthTokens:
 class ChannelAdapter(Adapter):
     # Which generated caption style suits this channel (instagram | facebook | tiktok | marketplace).
     caption_style: ClassVar[str] = "instagram"
+    auth_kind: ClassVar[str] = "oauth"  # oauth | api_keys
     max_caption_chars: ClassVar[int] = 2200
 
     def authorize_url(self, state: str, redirect_uri: str) -> str:

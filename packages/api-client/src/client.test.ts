@@ -255,3 +255,27 @@ describe("multipart uploads", () => {
     expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toEqual({ version: 4, title: "Dhaka topi" });
   });
 });
+
+describe("signed uploads", () => {
+  it("PUTs with only the ticket headers — never Authorization", async () => {
+    const { putToSignedUrl } = await import("./upload");
+    const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));
+    await putToSignedUrl(
+      { method: "PUT", url: "http://api.test/_dev/objects/m/1/original?exp=1&sig=x", headers: { "Content-Type": "image/jpeg" }, expires_at: "" },
+      new Blob(["x"]),
+      fetchMock as unknown as typeof fetch,
+    );
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toContain("/_dev/objects/");
+    expect(init.method).toBe("PUT");
+    expect(init.headers).toEqual({ "Content-Type": "image/jpeg" });
+    expect(init.credentials).toBe("omit");
+  });
+
+  it("maps storage failures to codes", async () => {
+    const { putToSignedUrl } = await import("./upload");
+    const t = { method: "PUT" as const, url: "u", headers: {}, expires_at: "" };
+    await expect(putToSignedUrl(t, new Blob([]), (async () => new Response(null, { status: 403 })) as unknown as typeof fetch)).rejects.toMatchObject({ code: "upload_url_expired" });
+    await expect(putToSignedUrl(t, new Blob([]), (async () => { throw new TypeError("cors"); }) as unknown as typeof fetch)).rejects.toMatchObject({ code: "upload_failed", status: 0 });
+  });
+});

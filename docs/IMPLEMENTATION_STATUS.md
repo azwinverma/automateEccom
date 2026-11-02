@@ -13,7 +13,7 @@ _Last updated: 2026-11-02 — Phase 0 complete (open: CI run, staging target); P
 
 | Area | Result (2026-11-02) |
 |---|---|
-| Backend | ruff + mypy clean · 126 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 6 migrations, upgrade/downgrade/check clean |
+| Backend | ruff + mypy clean · 138 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 6 migrations, upgrade/downgrade/check clean |
 | Web | typecheck, lint, 95 component tests, 20 api-client tests, production build; Playwright E2E (2 specs × desktop + 360px) passing against the **real** backend |
 | Mobile | `flutter analyze` clean · 51 tests · not yet built for a device or run against the real backend |
 | Containers | backend image built; compose stack booted (migrate → api → worker/beat) and outbox email dispatch verified |
@@ -24,10 +24,10 @@ _Last updated: 2026-11-02 — Phase 0 complete (open: CI run, staging target); P
 | Area | State |
 |---|---|
 | Catalog (CAT-001…010) | Backend TESTED; web screens in progress |
-| Media pipeline (MED-001…004, 010, 011) | Backend TESTED. AI image edit/generation, fidelity review and Auto Reels not started |
+| Media pipeline (MED-001…004, 008, 009, 010, 011) | Backend TESTED incl. Auto Reels (ffmpeg; Nepali overlays verified in Docker). AI image edit/generation + fidelity review not started |
 | AI Product Studio (CNT-002…006) | Backend TESTED with the sandbox provider; **no live model call yet** (needs `COS_ANTHROPIC_API_KEY`) |
 | Content engine (CNT-008…011) | Backend TESTED; calendar UI pending |
-| Channels (CHN-003/004/010/011/013) | Framework TESTED with a stateful sandbox channel. **Every real channel adapter is BLOCKED on platform app approval** (GAP-CHANNEL-APPS) |
+| Channels (CHN-003/004/009/010/011/013) | Framework TESTED (stateful sandbox). **WooCommerce adapter IMPLEMENTED** (contract-tested; needs a live store to verify). Meta/TikTok/Shopify BLOCKED on platform app approval (GAP-CHANNEL-APPS) |
 | Exception Inbox feed | Backend TESTED; client wiring in progress |
 | Mobile capture → draft → publish | In progress |
 
@@ -120,8 +120,8 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | MED-005 | background removal | P1 | NOT_STARTED | AIG-005 | — | — | Background removal needs an image-edit provider + fidelity review (GAP-AI-MEDIA) |
 | MED-006 | image generation | P1 | NOT_STARTED | AIG-005 | — | — | AI lifestyle images: provider not chosen (GAP-AI-MEDIA) |
 | MED-007 | fidelity review | P1 | NOT_STARTED | MED-006 | — | — | Fidelity review UI/flow for generated images |
-| MED-008 | Auto Reel | P1 | NOT_STARTED | MED-004 | — | — | Auto Reels (templated video from seller media) — next Phase 1 item |
-| MED-009 | video job state | P1 | NOT_STARTED | — | — | — |  |
+| MED-008 | Auto Reel | P1 | TESTED | MED-004 | apps/backend/app/domains/media/reels.py, video.py | test_reels | Templated H.264 reels, 4 aspects, product never cropped/covered, catalog price, usage metered; music not included (no licensed library) |
+| MED-009 | video job state | P1 | TESTED | MED-008 | apps/backend/app/domains/media/models.py (VideoJob), video.py | test_reels | queued→generating→post_processing→ready/failed/cancelled; premium provider path uses same states (provider not chosen) |
 | MED-010 | media metering | P1 | IMPLEMENTED | BIL-006 | apps/backend/app/domains/media/service.py | test_media::test_upload_request_validation… | storage_mb gauge; image/video generation metering awaits MED-006/008 |
 | MED-011 | lifecycle cleanup | P1 | IMPLEMENTED | MED-001 | apps/backend/app/domains/media/service.py, worker/tasks.py | — | Abandoned uploads purged after 24h; deleted assets' objects removed |
 | CNT-001 | brand voice | P1 | NOT_STARTED | CNT-002 | — | — | Brand voice profile per merchant (prompt input) not built |
@@ -143,7 +143,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CHN-006 | TikTok | P1 | BLOCKED | CHN-003 | — | — | TikTok: needs TikTok for Developers app + Content Posting API audit (GAP-CHANNEL-APPS) |
 | CHN-007 | TikTok Shop where eligible | P1 | BLOCKED | CHN-003 | — | — | TikTok Shop: seller-region eligibility for Nepal unconfirmed (GAP-CHANNEL-APPS) |
 | CHN-008 | Shopify | P1 | BLOCKED | CHN-003 | — | — | Shopify: needs Partner app credentials (GAP-CHANNEL-APPS) |
-| CHN-009 | WooCommerce | P1 | BLOCKED | CHN-003 | — | — | WooCommerce: per-store REST keys; adapter not written yet |
+| CHN-009 | WooCommerce | P1 | IMPLEMENTED | CHN-001 | apps/backend/app/domains/integrations/woocommerce.py | test_woocommerce (REST v3 contract, mocked HTTP) | Real adapter: API-key connect with live verification + currency guard, variable products/variations by SKU, stock, orders fetch, webhook HMAC. **Not yet run against a live store**; per-store webhook registration not built |
 | CHN-010 | webhook gateway | P1 | TESTED | CHN-001 | apps/backend/app/domains/channels/ | test_channels::test_webhook… | Verify→record→dedupe→fast 200→async; unverified never stored |
 | CHN-011 | dedupe | P1 | TESTED | CHN-010 | apps/backend/app/domains/channels/models.py | test_channels | Unique (provider, event id); duplicate counter |
 | CHN-012 | reconciliation | P1 | NOT_STARTED | CHN-008 | — | — | Periodic listing/inventory reconciliation against provider |

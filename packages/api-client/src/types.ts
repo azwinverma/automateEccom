@@ -441,3 +441,254 @@ export interface ImportJob {
   started_at: string | null;
   finished_at: string | null;
 }
+
+/* ---------- Exceptions (Phase 1) ---------- */
+
+export type ExceptionSeverityApi = "urgent" | "high" | "normal";
+export type ExceptionAction =
+  | "reconnect"
+  | "retry_publish"
+  | "reschedule"
+  | "review_post"
+  | "review_draft"
+  | "retry_draft"
+  | "confirm_attributes"
+  | "dismiss";
+
+export interface ExceptionRecord {
+  id: string;
+  type: string;
+  severity: ExceptionSeverityApi;
+  resource: { type: "channel_connection" | "product" | "content_post" | "studio_job" | "media" | (string & {}); id: string };
+  occurred_at: string | null;
+  action: ExceptionAction | (string & {});
+  details: Record<string, unknown>;
+}
+
+export interface ExceptionList {
+  items: ExceptionRecord[];
+  counts: Partial<Record<ExceptionSeverityApi, number>>;
+  total: number;
+}
+
+/* ---------- Media ---------- */
+
+export interface UploadTicket {
+  method: "PUT";
+  url: string;
+  headers: Record<string, string>;
+  expires_at: string;
+}
+
+export type MediaStatus = "pending_upload" | "uploaded" | "processing" | "ready" | "rejected" | "deleted";
+
+export interface MediaDerivative {
+  width: number | null;
+  height: number | null;
+  content_type: string;
+  /** Signed, short-lived. Refetch the asset rather than caching. */
+  url: string | null;
+}
+
+export interface MediaAsset {
+  id: string;
+  status: MediaStatus;
+  kind: string;
+  purpose: string;
+  file_name: string;
+  width: number | null;
+  height: number | null;
+  size_bytes: number | null;
+  quality_score: number | null;
+  quality_flags: string[];
+  stripped_location_metadata: boolean | null;
+  scan_status: string | null;
+  rejection_reason: string | null;
+  source: string | null;
+  created_at: string;
+  derivatives: Record<string, MediaDerivative>;
+}
+
+/* ---------- Studio ---------- */
+
+export type StudioStatus = "queued" | "running" | "ready" | "failed" | "applied" | "discarded";
+
+export interface StudioDraft {
+  is_product_photo: boolean;
+  category: { path: string[]; confidence: number };
+  title_en: string;
+  title_ne: string;
+  description_en: string;
+  description_ne: string;
+  bullets_en: string[];
+  attributes: { key: string; value: string; confidence: number }[];
+  colors: string[];
+  suggested_options: { name: string; values: string[] }[];
+  seo: { title: string; description: string };
+  hashtags: string[];
+  captions: { instagram: string; facebook: string; tiktok: string };
+  needs_seller_input: string[];
+  confidence: number;
+}
+
+export interface StudioIssue {
+  field: string;
+  /** `too_long`, `not_a_product_photo`, `truncated`, or `unsupported_claim:<price|discount|stock|delivery|warranty|authenticity>` */
+  kind: string;
+  excerpt?: string;
+}
+
+export interface StudioJob {
+  id: string;
+  status: StudioStatus;
+  asset_ids: string[];
+  locale: Locale;
+  seller_notes: string | null;
+  draft: StudioDraft | null;
+  confidence: number | null;
+  needs_review: boolean;
+  issues: StudioIssue[];
+  error_code: string | null;
+  attempts: number;
+  product_id: string | null;
+  ai: { provider: string; model: string; prompt_version: string } | null;
+  created_at: string;
+  finished_at: string | null;
+}
+
+export interface StudioApplyInput {
+  product: ProductCreateInput;
+  accepted_attribute_keys: string[];
+  category_path?: string[] | null;
+}
+
+/* ---------- Channels ---------- */
+
+export type ChannelCapability =
+  | "product_listing"
+  | "inventory_sync"
+  | "content_publish"
+  | "messages"
+  | "orders"
+  | "returns"
+  | "refunds"
+  | "fulfillment";
+
+export interface ChannelProvider {
+  code: string;
+  name: string;
+  sandbox: boolean;
+  capabilities: (ChannelCapability | (string & {}))[];
+}
+
+export type ConnectionStatus = "connected" | "expired" | "revoked" | "error" | "disconnected";
+
+export interface ChannelConnection {
+  id: string;
+  provider: string;
+  display_name: string;
+  status: ConnectionStatus;
+  external_account_id: string | null;
+  capabilities: (ChannelCapability | (string & {}))[];
+  scopes: string[];
+  token_expires_at: string | null;
+  last_healthy_at: string | null;
+  last_error_code: string | null;
+  needs_reconnect: boolean;
+  created_at: string;
+}
+
+export type ListingStatus = "pending" | "publishing" | "published" | "failed" | "out_of_sync" | "unpublished";
+
+export interface ChannelListing {
+  id: string;
+  connection_id: string;
+  product_id: string;
+  provider: string | null;
+  status: ListingStatus;
+  desired_state: "published" | "unpublished" | (string & {});
+  external_id: string | null;
+  last_error_code: string | null;
+  last_synced_at: string | null;
+  published_product_version: number | null;
+}
+
+/* ---------- Content ---------- */
+
+export type PostStatus =
+  | "draft"
+  | "pending_approval"
+  | "approved"
+  | "scheduled"
+  | "publishing"
+  | "published"
+  | "failed"
+  | "cancelled";
+export type PostKind = "post" | "story" | "reel";
+
+export interface ContentPost {
+  id: string;
+  connection_id: string;
+  product_id: string | null;
+  kind: PostKind;
+  caption: string;
+  hashtags: string[];
+  asset_ids: string[];
+  campaign: string | null;
+  source: "seller" | "ai_studio" | "ai_schedule" | (string & {});
+  status: PostStatus;
+  issues: StudioIssue[];
+  scheduled_at: string | null;
+  published_at: string | null;
+  external_id: string | null;
+  attempts: number;
+  last_error_code: string | null;
+  approved_at: string | null;
+  rejection_note: string | null;
+  version: number;
+  created_at: string;
+}
+
+export interface ContentPostInput {
+  connection_id: string;
+  caption: string;
+  hashtags: string[];
+  asset_ids: string[];
+  kind: PostKind;
+  product_id?: string | null;
+  campaign?: string | null;
+}
+
+/* ---------- Auto Reels ---------- */
+
+export type ReelAspect = "9:16" | "1:1" | "4:5" | "16:9";
+export type VideoStatus = "queued" | "generating" | "post_processing" | "ready" | "failed" | "cancelled";
+
+export interface AutoReelInput {
+  asset_ids: string[];
+  aspect: ReelAspect;
+  locale: Locale;
+  headline?: string | null;
+  cta?: string | null;
+  product_id?: string | null;
+  show_price: boolean;
+  seconds_per_slide: number;
+}
+
+export interface VideoJob {
+  id: string;
+  kind: string;
+  status: VideoStatus;
+  aspect: ReelAspect;
+  asset_ids: string[];
+  headline: string | null;
+  cta: string | null;
+  show_price: boolean;
+  product_id: string | null;
+  duration_s: number | null;
+  credits_charged: number | null;
+  error_code: string | null;
+  output: MediaAsset | null;
+  created_at: string;
+  finished_at: string | null;
+}

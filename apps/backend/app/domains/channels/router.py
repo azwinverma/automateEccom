@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -68,6 +68,30 @@ def connect(
 ) -> dict[str, Any]:
     url = service.start_connect(db, ctx, body.provider, body.redirect_uri, body.reconnect_connection_id)
     return {"authorize_url": url}
+
+
+class KeysIn(BaseModel):
+    provider: str = Field(min_length=2, max_length=40)
+    store_url: str = Field(min_length=10, max_length=300)
+    consumer_key: SecretStr = Field(min_length=10, max_length=200)
+    consumer_secret: SecretStr = Field(min_length=10, max_length=200)
+
+
+@router.post("/connect-with-keys", status_code=201)
+def connect_with_keys(
+    body: KeysIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    c = service.connect_with_keys(
+        db,
+        ctx,
+        body.provider,
+        body.store_url,
+        body.consumer_key.get_secret_value(),
+        body.consumer_secret.get_secret_value(),
+    )
+    return service.connection_view(c)
 
 
 @router.post("/oauth/callback", status_code=201)

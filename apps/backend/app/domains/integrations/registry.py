@@ -17,9 +17,13 @@ from app.domains.integrations.sandbox import (
     SandboxCourierAdapter,
     SandboxPaymentAdapter,
 )
+from app.domains.integrations.woocommerce import WooCommerceAdapter
 
 _REGISTRY: dict[str, dict[str, type[Adapter]]] = {
-    "channel": {SandboxChannelAdapter.code: SandboxChannelAdapter},
+    "channel": {
+        SandboxChannelAdapter.code: SandboxChannelAdapter,
+        WooCommerceAdapter.code: WooCommerceAdapter,
+    },
     "payment": {
         SandboxPaymentAdapter.code: SandboxPaymentAdapter,
         CashOnDeliveryAdapter.code: CashOnDeliveryAdapter,

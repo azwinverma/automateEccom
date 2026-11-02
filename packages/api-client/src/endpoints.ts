@@ -1,5 +1,20 @@
 import type { ApiClient } from "./client";
 import type {
+  AutoReelInput,
+  ChannelConnection,
+  ChannelListing,
+  ChannelProvider,
+  ContentPost,
+  ContentPostInput,
+  ExceptionList,
+  MediaAsset,
+  PostKind,
+  StudioApplyInput,
+  StudioJob,
+  StudioStatus,
+  UploadTicket,
+  VariantInput,
+  VideoJob,
   Category,
   Collection,
   ImportJob,
@@ -167,7 +182,97 @@ export function createApi(client: ApiClient) {
         form.append("file", file, fileName);
         return client.request<ImportJob>("/catalog/imports", { method: "POST", body: form, tenant: true });
       },
+      /** Add one variant to a saved product (optimistic lock on `version`). */
+      addVariant: (id: string, version: number, body: VariantInput) =>
+        client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/variants`, {
+          method: "POST",
+          body: { version, ...body },
+          tenant: true,
+        }),
+      publish: (id: string, connectionIds: string[]) =>
+        client.request<{ items: ChannelListing[] }>(`/catalog/products/${encodeURIComponent(id)}/publish`, {
+          method: "POST",
+          body: { connection_ids: connectionIds },
+          tenant: true,
+        }),
+      listings: (id: string) =>
+        client.request<{ items: ChannelListing[] }>(`/catalog/products/${encodeURIComponent(id)}/listings`, { tenant: true }),
+      unpublish: (id: string, connectionId: string) =>
+        client.request<ChannelListing>(
+          `/catalog/products/${encodeURIComponent(id)}/listings/${encodeURIComponent(connectionId)}`,
+          { method: "DELETE", tenant: true },
+        ),
       importJob: (id: string) => client.request<ImportJob>(`/catalog/imports/${encodeURIComponent(id)}`, { tenant: true }),
+    },
+    exceptions: {
+      list: () => client.request<ExceptionList>("/exceptions", { tenant: true }),
+    },
+    media: {
+      createUpload: (body: { file_name: string; content_type: string; size_bytes: number; purpose?: "product" | "content" | "brand" | "other" }) =>
+        client.request<{ asset_id: string; upload: UploadTicket }>("/media/uploads", { method: "POST", body, tenant: true }),
+      complete: (id: string) =>
+        client.request<MediaAsset>(`/media/${encodeURIComponent(id)}/complete`, { method: "POST", tenant: true }),
+      get: (id: string) => client.request<MediaAsset>(`/media/${encodeURIComponent(id)}`, { tenant: true }),
+      list: (q: { status?: "ready" | "processing" | "rejected"; limit?: number; cursor?: string } = {}) =>
+        client.request<Page<MediaAsset>>("/media", { tenant: true, query: { ...q } }),
+      remove: (id: string) => client.request<void>(`/media/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
+      createAutoReel: (body: AutoReelInput, o?: IdemOptions) =>
+        client.request<VideoJob>("/media/videos/auto-reels", { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      video: (id: string) => client.request<VideoJob>(`/media/videos/${encodeURIComponent(id)}`, { tenant: true }),
+      videos: () => client.request<{ items: VideoJob[] }>("/media/videos", { tenant: true }),
+      cancelVideo: (id: string) =>
+        client.request<VideoJob>(`/media/videos/${encodeURIComponent(id)}/cancel`, { method: "POST", tenant: true }),
+    },
+    studio: {
+      create: (body: { asset_ids: string[]; locale: "en" | "ne"; seller_notes?: string | null }, o?: IdemOptions) =>
+        client.request<StudioJob>("/studio/jobs", { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      job: (id: string) => client.request<StudioJob>(`/studio/jobs/${encodeURIComponent(id)}`, { tenant: true }),
+      jobs: (q: { status?: StudioStatus; limit?: number } = {}) =>
+        client.request<{ items: StudioJob[] }>("/studio/jobs", { tenant: true, query: { ...q } }),
+      apply: (id: string, body: StudioApplyInput) =>
+        client.request<ProductDetail>(`/studio/jobs/${encodeURIComponent(id)}/apply`, { method: "POST", body, tenant: true }),
+      discard: (id: string) =>
+        client.request<void>(`/studio/jobs/${encodeURIComponent(id)}/discard`, { method: "POST", tenant: true }),
+      retry: (id: string) =>
+        client.request<StudioJob>(`/studio/jobs/${encodeURIComponent(id)}/retry`, { method: "POST", tenant: true }),
+    },
+    channels: {
+      providers: () => client.request<{ items: ChannelProvider[] }>("/channels/providers", { tenant: true }),
+      list: () => client.request<{ items: ChannelConnection[] }>("/channels", { tenant: true }),
+      connect: (body: { provider: string; redirect_uri: string; reconnect_connection_id?: string | null }) =>
+        client.request<{ authorize_url: string }>("/channels/connect", { method: "POST", body, tenant: true }),
+      callback: (body: { provider: string; state: string; code: string }) =>
+        client.request<ChannelConnection>("/channels/oauth/callback", { method: "POST", body, tenant: true }),
+      health: (id: string) =>
+        client.request<ChannelConnection>(`/channels/${encodeURIComponent(id)}/health`, { method: "POST", tenant: true }),
+      disconnect: (id: string) =>
+        client.request<void>(`/channels/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
+    },
+    content: {
+      posts: (q: { from?: string; to?: string; status?: string } = {}) =>
+        client.request<{ items: ContentPost[] }>("/content/posts", { tenant: true, query: { ...q } }),
+      create: (body: ContentPostInput) => client.request<ContentPost>("/content/posts", { method: "POST", body, tenant: true }),
+      fromStudio: (body: { job_id: string; connection_ids: string[]; kind?: PostKind }) =>
+        client.request<{ items: ContentPost[] }>("/content/posts/from-studio", { method: "POST", body, tenant: true }),
+      update: (id: string, version: number, fields: { caption?: string; hashtags?: string[] }) =>
+        client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          body: { version, ...fields },
+          tenant: true,
+        }),
+      submit: (id: string) => client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/submit`, { method: "POST", tenant: true }),
+      approve: (id: string) => client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/approve`, { method: "POST", tenant: true }),
+      reject: (id: string, note?: string) =>
+        client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/reject`, { method: "POST", body: { note: note ?? null }, tenant: true }),
+      /** `at` is a UTC ISO string; omit to publish now. */
+      schedule: (id: string, at?: string | null) =>
+        client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/schedule`, {
+          method: "POST",
+          body: at ? { at } : {},
+          tenant: true,
+        }),
+      unschedule: (id: string) => client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/unschedule`, { method: "POST", tenant: true }),
+      cancel: (id: string) => client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/cancel`, { method: "POST", tenant: true }),
     },
     featureFlags: {
       get: () => client.request<{ flags: Record<string, boolean> }>("/feature-flags", { tenant: true }),
