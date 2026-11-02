@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/auth/session_controller.dart';
 import '../core/l10n/gen/app_localizations.dart';
 import '../design/tokens.g.dart';
+import '../design/widgets/nivaro_brand.dart';
 import '../design/widgets/state_views.dart';
 
 /// Shown while tokens/`/me` load, or when `/me` failed (e.g. offline) with
@@ -24,7 +25,7 @@ class SplashScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Spacer(),
-              Text(l.appName, style: theme.textTheme.headlineMedium),
+              NivaroLogo(height: 36, semanticLabel: l.appName),
               const SizedBox(height: AppSpace.s4),
               if (session is SessionUnavailable)
                 ErrorStateView(

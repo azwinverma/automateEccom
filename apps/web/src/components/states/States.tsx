@@ -1,6 +1,7 @@
 "use client";
 
 import { isApiError } from "@commerce-os/api-client";
+import { trailSegments } from "@commerce-os/design-system/brand/geometry";
 import type { ReactNode } from "react";
 import { errorMessage } from "@/i18n/errors";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -9,10 +10,37 @@ import { Icon } from "../ui/Icon";
 import { InlineAlert, RequestId, Skeleton } from "../ui/misc";
 import styles from "./states.module.css";
 
+/**
+ * Empty-state glyph: an outlined N-trail, "nothing has flowed through here yet". When the state offers a
+ * next step, the first rise is filled with the brand flow ("start here"). Calm by design (specs/26 §29).
+ */
+function EmptyTrail({ start }: { start: boolean }) {
+  const { segments, width, ribbon } = trailSegments({ count: 2, height: 26 });
+  const d = (i: number) => {
+    const g = segments[i]!;
+    return `M${g.x1} ${g.y1} L${g.x2} ${g.y2}`;
+  };
+  const order = [1, 0, 2]; // cross under both rises, as in the mark
+  return (
+    <svg className={styles.trail} width={width} height={26 + ribbon} viewBox={`0 ${-ribbon / 2} ${width} ${26 + ribbon}`} aria-hidden="true">
+      {order.map((i) => (
+        <g key={i} strokeLinecap="round" fill="none">
+          <path d={d(i)} strokeWidth={ribbon} className={styles.trailEdge} />
+          <path
+            d={d(i)}
+            strokeWidth={ribbon - 3}
+            className={start && i === 0 ? styles.trailStart : styles.trailFill}
+          />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 export function EmptyState({ title, body, actions }: { title: ReactNode; body?: ReactNode; actions?: ReactNode }) {
   return (
     <div className={styles.block}>
-      <span className={styles.mark} aria-hidden="true" />
+      <EmptyTrail start={Boolean(actions)} />
       <p className={styles.title}>{title}</p>
       {body ? <p className={styles.body}>{body}</p> : null}
       {actions ? <div className={styles.actions}>{actions}</div> : null}

@@ -34,6 +34,7 @@ export function StudioNew() {
   const router = useRouter();
   const [items, setItems] = useState<Item[]>([]);
   const [notes, setNotes] = useState("");
+  const [dragging, setDragging] = useState(false);
   const [draftLocale, setDraftLocale] = useState<"en" | "ne">(locale);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -111,20 +112,41 @@ export function StudioNew() {
         ) : null}
 
         <SectionHeader title={t("studio.photos")} />
-        <div className={wf.filePicker}>
-          <label htmlFor="studio-files" className="srOnly">
-            {t("studio.choose")}
-          </label>
+        <div
+          className={wf.filePicker}
+          data-dragging={dragging || undefined}
+          data-disabled={items.length >= MAX_STUDIO_PHOTOS || undefined}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            if (items.length < MAX_STUDIO_PHOTOS) addFiles(e.dataTransfer.files);
+          }}
+        >
           <input
             ref={inputRef}
             id="studio-files"
+            className={wf.fileInput}
             type="file"
             accept={ALLOWED_PHOTO_TYPES.join(",")}
             multiple
             onChange={(e) => addFiles(e.target.files)}
             disabled={items.length >= MAX_STUDIO_PHOTOS}
+            aria-describedby="studio-files-hint"
           />
-          <span className={wf.hint}>{t("studio.fileHint")}</span>
+          <label htmlFor="studio-files" className={wf.fileLabel}>
+            <Icon name="content" size={20} />
+            <span>
+              <strong>{t("studio.choose")}</strong> {t("studio.dropHint")}
+            </span>
+          </label>
+          <span className={wf.hint} id="studio-files-hint">
+            {t("studio.fileHint")}
+          </span>
         </div>
         {items.length ? (
           <ul className={wf.photoGrid} aria-live="polite" data-testid="studio-photos">

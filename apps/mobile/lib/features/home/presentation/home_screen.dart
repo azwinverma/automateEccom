@@ -6,6 +6,7 @@ import '../../../core/auth/session_controller.dart';
 import '../../../core/l10n/formatters.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../design/tokens.g.dart';
+import '../../../design/widgets/nivaro_brand.dart';
 import '../../../design/widgets/section_header.dart';
 import '../../../design/widgets/state_views.dart';
 import '../../channels/presentation/reconnect_sheet.dart';
@@ -101,11 +102,20 @@ class HomeScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      shopName,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                    Row(
+                      children: [
+                        NivaroMark(size: 18, semanticLabel: l.appName),
+                        const SizedBox(width: AppSpace.s2),
+                        Expanded(
+                          child: Text(
+                            shopName,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       l.homeGreeting(firstName),

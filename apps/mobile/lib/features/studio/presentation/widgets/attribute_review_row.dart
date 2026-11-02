@@ -11,7 +11,7 @@ String humaniseKey(String key) {
   return s.isEmpty ? key : '${s[0].toUpperCase()}${s.substring(1)}';
 }
 
-/// One AI attribute. Low-confidence values carry an indigo "Please check"
+/// One AI attribute. Low-confidence values carry a brand-blue "Please check"
 /// rail and need an explicit tap (accept or edit).
 class AttributeReviewRow extends StatelessWidget {
   const AttributeReviewRow({

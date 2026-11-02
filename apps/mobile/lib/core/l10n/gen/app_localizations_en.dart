@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Commerce OS';
+  String get appName => 'Nivaro';
 
   @override
   String get actionRetry => 'Try again';

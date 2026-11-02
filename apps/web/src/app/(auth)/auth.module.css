@@ -5,94 +5,37 @@
 }
 
 .aside {
+  /* Inverse brand panel: the only full-navy surface in the seller app. */
+  --color-brand-ink: var(--color-neutral-white);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: var(--space-10);
-  padding: var(--space-10) var(--space-8);
-  background: var(--color-neutral-ink);
-  color: #CBD5E1;
-}
-
-.wordmark {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-neutral-white);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-md);
-}
-.wordmarkMark {
-  display: grid;
-  grid-template-columns: repeat(3, 6px);
-  gap: 2px;
-}
-.wordmarkMark span {
-  height: 14px;
-  border-radius: 1px;
-  background: var(--color-brand-teal);
-}
-.wordmarkMark span:nth-child(2) {
-  background: var(--color-brand-sun);
-  height: 10px;
-  align-self: end;
-}
-.wordmarkMark span:nth-child(3) {
-  background: var(--color-brand-coral);
-  height: 6px;
-  align-self: end;
+  padding: var(--space-10) var(--space-8) var(--space-8);
+  background: var(--color-surface-inverse);
+  color: var(--color-neutral-line-strong);
 }
 
 .asideTitle {
   color: var(--color-neutral-white);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  max-width: 22ch;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 .asideBody {
-  margin-top: var(--space-3);
-  max-width: 40ch;
+  margin-top: var(--space-4);
+  max-width: 38ch;
   font-size: var(--font-size-sm);
 }
-
-.journey {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+.loopWrap {
+  width: min(100%, 300px);
+  margin-left: 12px;
+  color: var(--color-neutral-white);
 }
-.journey li {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) 0;
-  font-size: var(--font-size-sm);
-}
-.journey li::before {
-  content: "";
-  width: 9px;
-  height: 9px;
-  flex: none;
-  border-radius: var(--radius-full);
-  border: 1.5px solid #64748B;
-  background: var(--color-neutral-ink);
-  z-index: 1;
-}
-.journey li:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: calc(50% + 5px);
-  height: calc(100% - 10px);
-  width: 1px;
-  background: #334155;
-}
-.journey li:last-child::before {
-  border-color: var(--color-brand-teal);
-  background: var(--color-brand-teal);
+.mobileLogo {
+  display: none;
+  margin-right: auto;
 }
 
 .main {
@@ -102,6 +45,7 @@
 }
 .topRow {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   padding: var(--space-4) var(--space-6);
 }
@@ -192,12 +136,10 @@
     grid-template-columns: 1fr;
   }
   .aside {
-    padding: var(--space-5) var(--space-4);
-    gap: var(--space-4);
-  }
-  .asideCopy,
-  .journey {
     display: none;
+  }
+  .mobileLogo {
+    display: block;
   }
   .formWrap {
     padding: var(--space-6) var(--space-4) var(--space-12);

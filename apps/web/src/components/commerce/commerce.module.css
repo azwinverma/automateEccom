@@ -286,6 +286,13 @@
   color: var(--color-semantic-danger);
   font-weight: var(--font-weight-semibold);
 }
+.state100.stateFull .fill {
+  background: var(--color-text-primary);
+}
+.state100.stateFull .meterState {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
 .stateNeutral .meterNumbers {
   color: var(--text-muted);
 }

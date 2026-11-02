@@ -303,5 +303,9 @@ class ConsoleEmailAdapter(NotificationAdapter):
     ) -> None:
         self.mailbox_dir.mkdir(parents=True, exist_ok=True)
         path = self.mailbox_dir / f"{datetime.now(UTC):%Y%m%dT%H%M%S}-{uuid.uuid4().hex[:6]}.txt"
-        path.write_text(f"To: {to}\nSubject: {subject}\nLocale: {locale}\n\n{text}\n")
+        from app.core.config import get_settings
+
+        st = get_settings()
+        sender = f"{st.email_from_name} <{st.email_from_address}>"
+        path.write_text(f"From: {sender}\nTo: {to}\nSubject: {subject}\nLocale: {locale}\n\n{text}\n")
         log.info("email_sent_dev", to_domain=to.split("@")[-1], subject=subject, file=path.name)

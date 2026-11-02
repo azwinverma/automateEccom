@@ -1,5 +1,6 @@
 import "@commerce-os/design-system/tokens.css";
 import "./globals.css";
+import { tokens } from "@commerce-os/design-system/tokens";
 import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Devanagari } from "next/font/google";
 import type { ReactNode } from "react";
@@ -17,15 +18,28 @@ const devanagari = Noto_Sans_Devanagari({
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslator();
-  return { title: { default: t("meta.title"), template: `%s · ${t("meta.title")}` }, description: t("meta.description") };
+  const title = t("meta.titleFull");
+  const description = t("meta.description");
+  return {
+    // Public origin for absolute OG URLs; falls back to localhost in dev.
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3010"),
+    applicationName: t("brand.name"),
+    title: { default: title, template: `%s · ${t("meta.title")}` },
+    description,
+    openGraph: { type: "website", siteName: t("brand.name"), title, description },
+    twitter: { card: "summary_large_image", title, description },
+    appleWebApp: { title: t("brand.name"), statusBarStyle: "default" },
+    formatDetection: { telephone: false },
+  };
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Browser chrome colour must be a literal; values are the canvas tokens (light/dark).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
-    { media: "(prefers-color-scheme: dark)", color: "#0B1220" },
+    { media: "(prefers-color-scheme: light)", color: tokens.semantic.light["surface-canvas"] },
+    { media: "(prefers-color-scheme: dark)", color: tokens.semantic.dark["surface-canvas"] },
   ],
 };
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../design/tokens.g.dart';
+import '../../../design/widgets/nivaro_brand.dart';
 
 /// Shared single-column layout for auth/onboarding: wordmark, title,
 /// subtitle, then content. No hero art, no gradient.
@@ -37,21 +38,9 @@ class AuthLayout extends StatelessWidget {
               ),
               children: [
                 if (leading != null) leading!,
-                Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 18,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(width: AppSpace.s2),
-                    Text(
-                      l.appName,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: NivaroLogo(height: 24, semanticLabel: l.appName),
                 ),
                 const SizedBox(height: AppSpace.s8),
                 Semantics(

@@ -1,6 +1,6 @@
 # commerce_os_seller
 
-Flutter seller app for Commerce OS. See [`docs/mobile/README.md`](../../docs/mobile/README.md).
+Flutter seller app for Nivaro. See [`docs/mobile/README.md`](../../docs/mobile/README.md).
 
 ```bash
 flutter pub get && flutter analyze && flutter test

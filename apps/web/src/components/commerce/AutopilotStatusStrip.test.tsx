@@ -10,7 +10,7 @@ describe("AutopilotStatusStrip", () => {
     expect(screen.getByRole("img", { name: "Current mode: Assisted" })).toBeInTheDocument();
     expect(screen.getByTestId("automated-count")).toHaveTextContent("0");
     expect(screen.getByText(en.autopilot.emptyCounts)).toBeInTheDocument();
-    expect(screen.getByText("Smart and Autopilot arrive with automations in Phase 3.")).toBeInTheDocument();
+    expect(screen.getByText("Smart and Autopilot modes unlock when automations arrive.")).toBeInTheDocument();
   });
 
   it("shows a dash, not a fake zero, when counts are unmeasured", () => {

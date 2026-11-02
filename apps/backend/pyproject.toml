@@ -1,7 +1,7 @@
 [project]
 name = "commerce-os-backend"
 version = "0.1.0"
-description = "AI Commerce OS — modular monolith API + workers"
+description = "Nivaro (Autonomous Commerce OS): modular monolith API + workers"
 requires-python = ">=3.12,<3.14"
 dependencies = [
   "fastapi>=0.115.12",

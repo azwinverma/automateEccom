@@ -36,8 +36,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentTeal: AppColors.brandTeal,
     muted: AppColors.neutralSlateMuted,
     line: AppColors.neutralLine,
-    automation: AppColors.brandIndigo,
-    automationSoft: AppColors.brandIndigoSoft,
+    automation: AppColorsLight.textBrand,
+    automationSoft: AppColorsLight.surfaceBrandTint,
   );
 
   static const dark = AppPalette(
@@ -53,8 +53,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentTeal: AppColors.brandTeal,
     muted: AppColors.darkTextMuted,
     line: AppColors.darkLine,
-    automation: AppColors.brandIndigoSoft,
-    automationSoft: Color(0x334F46E5),
+    automation: AppColorsDark.textBrand,
+    automationSoft: AppColorsDark.surfaceBrandTint,
   );
 
   final Color success;
@@ -70,7 +70,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color muted;
   final Color line;
 
-  /// Indigo: marks AI/automation-originated content and decisions.
+  /// Nivaro Blue (strong): marks AI/automation-originated content and decisions.
   final Color automation;
   final Color automationSoft;
 
@@ -85,7 +85,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       t < 0.5 ? this : (other ?? this);
 }
 
-/// Material 3 restyled to the Commerce OS tokens: 6px corners (no pills),
+/// Material 3 restyled to the Nivaro tokens: 6px corners (no pills),
 /// neutral-first surfaces, no surface tint, Inter / Noto Sans Devanagari.
 abstract final class AppTheme {
   static const latinFamily = 'Inter';

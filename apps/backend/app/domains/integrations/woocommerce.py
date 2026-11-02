@@ -229,7 +229,7 @@ class WooCommerceAdapter(ChannelAdapter):
                 "/webhooks",
                 "webhook_register",
                 json={
-                    "name": f"Commerce OS: {topic}",
+                    "name": f"Nivaro: {topic}",  # display only; webhooks are tracked by id
                     "topic": topic,
                     "delivery_url": delivery_url,
                     "secret": secret,

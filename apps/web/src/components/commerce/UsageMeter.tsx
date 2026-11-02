@@ -49,7 +49,11 @@ export function UsageMeter({ usage, label: labelProp, periodEnd }: UsageMeterPro
         ? t("usage.perDay")
         : t("usage.perPeriod", { period: usage.period });
 
-  const rootClass = [styles.meter, STATE_CLASS[state], actions.overageNote && styles.stateOverage].filter(Boolean).join(" ");
+  // A capacity limit (stores, seats, channels) being full is a normal state, not an alarm: ink, not red.
+  const full = gauge && state === "100" && !actions.overageNote;
+  const rootClass = [styles.meter, STATE_CLASS[state], actions.overageNote && styles.stateOverage, full && styles.stateFull]
+    .filter(Boolean)
+    .join(" ");
   const head = (
     <div className={styles.meterLabel}>
       <strong>{label}</strong>
@@ -99,7 +103,9 @@ export function UsageMeter({ usage, label: labelProp, periodEnd }: UsageMeterPro
       : state === "100"
         ? actions.overageNote
           ? t("usage.overageState")
-          : t("usage.state100")
+          : full
+            ? t("usage.stateFull")
+            : t("usage.state100")
         : state === "85"
           ? t("usage.state85")
           : gauge

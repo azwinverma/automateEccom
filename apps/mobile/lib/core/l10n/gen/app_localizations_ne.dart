@@ -9,7 +9,7 @@ class AppLocalizationsNe extends AppLocalizations {
   AppLocalizationsNe([String locale = 'ne']) : super(locale);
 
   @override
-  String get appName => 'Commerce OS';
+  String get appName => 'Nivaro';
 
   @override
   String get actionRetry => 'फेरि प्रयास गर्नुहोस्';

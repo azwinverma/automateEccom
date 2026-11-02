@@ -59,8 +59,8 @@
   color: var(--color-semantic-info);
 }
 .badge.automated {
-  background: var(--color-brand-indigo-soft);
-  color: var(--color-brand-indigo);
+  background: var(--color-surface-brand-tint);
+  color: var(--color-text-brand);
 }
 
 @media (prefers-color-scheme: dark) {

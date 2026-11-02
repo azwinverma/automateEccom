@@ -27,6 +27,9 @@ class Settings(BaseSettings):
 
     environment: Environment = Environment.DEVELOPMENT
     service_name: str = "commerce-os-api"
+    # Customer-facing sender for transactional email (address domain is an owner decision: GAP-EMAIL-DOMAIN).
+    email_from_name: str = "Nivaro"
+    email_from_address: str = "no-reply@nivaro.invalid"
     log_level: str = "INFO"
     log_json: bool = True
 
@@ -40,6 +43,7 @@ class Settings(BaseSettings):
     # Auth
     jwt_secret: SecretStr = SecretStr("dev-only-change-me-dev-only-change-me")
     jwt_algorithm: str = "HS256"
+    # Technical identifiers keep the legacy name (ADR-028): changing them breaks issued tokens/data.
     jwt_issuer: str = "commerce-os"
     access_token_ttl_seconds: int = 900
     refresh_token_ttl_seconds: int = 60 * 60 * 24 * 30

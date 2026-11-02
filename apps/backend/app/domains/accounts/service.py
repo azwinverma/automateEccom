@@ -45,7 +45,9 @@ _COMMON_PASSWORDS: frozenset[str] = frozenset(
     (Path(__file__).parent / "common_passwords.txt").read_text().split()
 )
 RECOVERY_CODE_COUNT = 10
-TOTP_ISSUER = "Commerce OS"
+# Shown in authenticator apps for new enrolments. Existing enrolments keep the label they were created
+# with (the secret is unaffected), see ADR-028.
+TOTP_ISSUER = "Nivaro"
 
 
 @dataclass

@@ -8,6 +8,7 @@ import { LOCALES, type AppLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { NAV_GROUPS, SECTIONS } from "@/lib/sections";
+import { NivaroLogo, NivaroMark } from "../brand/Brand";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
 import {
@@ -132,6 +133,9 @@ function SidebarContent({ onOpenSearch, onNavigate }: { onOpenSearch: () => void
 
   return (
     <div className={styles.sidebarInner}>
+      <Link href="/home" className={styles.brandRow} onClick={onNavigate}>
+        <NivaroLogo height={20} label={t("brand.name")} />
+      </Link>
       <MerchantSwitcher />
       <button type="button" className={styles.searchButton} onClick={onOpenSearch}>
         <Icon name="search" />
@@ -244,6 +248,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Dialog.Content>
               </Dialog.Portal>
             </Dialog.Root>
+            <NivaroMark size={20} title={t("brand.name")} />
             <span className={styles.topbarTitle}>{membership?.merchant.name}</span>
             <Button variant="ghost" iconOnly aria-label={t("shell.search")} onClick={() => setSearchOpen(true)}>
               <Icon name="search" />

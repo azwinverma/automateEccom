@@ -20,7 +20,8 @@ def create_app() -> FastAPI:
     import_all()
 
     app = FastAPI(
-        title="Commerce OS API",
+        title="Nivaro API",
+        summary="Nivaro — Autonomous Commerce OS. Seller, channel and admin API.",
         version="0.1.0",
         openapi_url=f"{API_PREFIX}/openapi.json",
         docs_url=None if settings.is_production_like else f"{API_PREFIX}/docs",
