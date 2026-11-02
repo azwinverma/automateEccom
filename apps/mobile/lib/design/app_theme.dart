@@ -19,6 +19,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.accentTeal,
     required this.muted,
     required this.line,
+    required this.automation,
+    required this.automationSoft,
   });
 
   static const light = AppPalette(
@@ -34,6 +36,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentTeal: AppColors.brandTeal,
     muted: AppColors.neutralSlateMuted,
     line: AppColors.neutralLine,
+    automation: AppColors.brandIndigo,
+    automationSoft: AppColors.brandIndigoSoft,
   );
 
   static const dark = AppPalette(
@@ -49,6 +53,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentTeal: AppColors.brandTeal,
     muted: AppColors.darkTextMuted,
     line: AppColors.darkLine,
+    automation: AppColors.brandIndigoSoft,
+    automationSoft: Color(0x334F46E5),
   );
 
   final Color success;
@@ -63,6 +69,10 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color accentTeal;
   final Color muted;
   final Color line;
+
+  /// Indigo: marks AI/automation-originated content and decisions.
+  final Color automation;
+  final Color automationSoft;
 
   static AppPalette of(BuildContext context) =>
       Theme.of(context).extension<AppPalette>() ?? light;
@@ -82,88 +92,88 @@ abstract final class AppTheme {
   static const devanagariFamily = 'NotoSansDevanagari';
 
   static ThemeData light({Locale? locale}) => _build(
-        brightness: Brightness.light,
-        locale: locale,
-        scheme: const ColorScheme(
-          brightness: Brightness.light,
-          primary: AppColors.brandBlue,
-          onPrimary: AppColors.neutralWhite,
-          primaryContainer: AppColors.brandBlueSoft,
-          onPrimaryContainer: AppColors.neutralInk,
-          secondary: AppColors.brandTeal,
-          onSecondary: AppColors.neutralInk,
-          secondaryContainer: AppColors.brandTealSoft,
-          onSecondaryContainer: AppColors.neutralInk,
-          tertiary: AppColors.brandCoral,
-          onTertiary: AppColors.neutralInk,
-          tertiaryContainer: AppColors.brandCoralSoft,
-          onTertiaryContainer: AppColors.neutralInk,
-          error: AppColors.semanticDanger,
-          onError: AppColors.neutralWhite,
-          errorContainer: AppColors.semanticDangerSoft,
-          onErrorContainer: AppColors.semanticDanger,
-          surface: AppColors.neutralWhite,
-          onSurface: AppColors.neutralInk,
-          onSurfaceVariant: AppColors.neutralSlate,
-          surfaceContainerLowest: AppColors.neutralWhite,
-          surfaceContainerLow: AppColors.neutralCloud,
-          surfaceContainer: AppColors.neutralCloud,
-          surfaceContainerHigh: AppColors.neutralPaper,
-          surfaceContainerHighest: AppColors.neutralPaper,
-          outline: AppColors.neutralLineStrong,
-          outlineVariant: AppColors.neutralLine,
-          inverseSurface: AppColors.neutralInk,
-          onInverseSurface: AppColors.neutralCloud,
-          inversePrimary: AppColors.darkBrandBlue,
-          shadow: AppColors.neutralInk,
-          scrim: AppColors.neutralInk,
-          surfaceTint: Colors.transparent,
-        ),
-        palette: AppPalette.light,
-        scaffold: AppColors.neutralCloud,
-      );
+    brightness: Brightness.light,
+    locale: locale,
+    scheme: const ColorScheme(
+      brightness: Brightness.light,
+      primary: AppColors.brandBlue,
+      onPrimary: AppColors.neutralWhite,
+      primaryContainer: AppColors.brandBlueSoft,
+      onPrimaryContainer: AppColors.neutralInk,
+      secondary: AppColors.brandTeal,
+      onSecondary: AppColors.neutralInk,
+      secondaryContainer: AppColors.brandTealSoft,
+      onSecondaryContainer: AppColors.neutralInk,
+      tertiary: AppColors.brandCoral,
+      onTertiary: AppColors.neutralInk,
+      tertiaryContainer: AppColors.brandCoralSoft,
+      onTertiaryContainer: AppColors.neutralInk,
+      error: AppColors.semanticDanger,
+      onError: AppColors.neutralWhite,
+      errorContainer: AppColors.semanticDangerSoft,
+      onErrorContainer: AppColors.semanticDanger,
+      surface: AppColors.neutralWhite,
+      onSurface: AppColors.neutralInk,
+      onSurfaceVariant: AppColors.neutralSlate,
+      surfaceContainerLowest: AppColors.neutralWhite,
+      surfaceContainerLow: AppColors.neutralCloud,
+      surfaceContainer: AppColors.neutralCloud,
+      surfaceContainerHigh: AppColors.neutralPaper,
+      surfaceContainerHighest: AppColors.neutralPaper,
+      outline: AppColors.neutralLineStrong,
+      outlineVariant: AppColors.neutralLine,
+      inverseSurface: AppColors.neutralInk,
+      onInverseSurface: AppColors.neutralCloud,
+      inversePrimary: AppColors.darkBrandBlue,
+      shadow: AppColors.neutralInk,
+      scrim: AppColors.neutralInk,
+      surfaceTint: Colors.transparent,
+    ),
+    palette: AppPalette.light,
+    scaffold: AppColors.neutralCloud,
+  );
 
   static ThemeData dark({Locale? locale}) => _build(
-        brightness: Brightness.dark,
-        locale: locale,
-        scheme: const ColorScheme(
-          brightness: Brightness.dark,
-          primary: AppColors.darkBrandBlue,
-          onPrimary: AppColors.darkSurface,
-          primaryContainer: Color(0xFF1E3A8A),
-          onPrimaryContainer: AppColors.darkText,
-          secondary: AppColors.brandTeal,
-          onSecondary: AppColors.darkSurface,
-          secondaryContainer: Color(0xFF134E4A),
-          onSecondaryContainer: AppColors.darkText,
-          tertiary: AppColors.brandCoral,
-          onTertiary: AppColors.darkSurface,
-          tertiaryContainer: Color(0xFF7F1D1D),
-          onTertiaryContainer: AppColors.darkText,
-          error: AppColors.darkDanger,
-          onError: AppColors.darkSurface,
-          errorContainer: Color(0xFF450A0A),
-          onErrorContainer: AppColors.darkDanger,
-          surface: AppColors.darkSurface,
-          onSurface: AppColors.darkText,
-          onSurfaceVariant: AppColors.darkTextMuted,
-          surfaceContainerLowest: AppColors.darkSurface,
-          surfaceContainerLow: AppColors.darkSurface,
-          surfaceContainer: AppColors.darkSurfaceRaised,
-          surfaceContainerHigh: AppColors.darkSurfaceRaised,
-          surfaceContainerHighest: AppColors.darkLine,
-          outline: AppColors.darkLine,
-          outlineVariant: AppColors.darkLine,
-          inverseSurface: AppColors.darkText,
-          onInverseSurface: AppColors.darkSurface,
-          inversePrimary: AppColors.brandBlue,
-          shadow: Colors.black,
-          scrim: Colors.black,
-          surfaceTint: Colors.transparent,
-        ),
-        palette: AppPalette.dark,
-        scaffold: AppColors.darkSurface,
-      );
+    brightness: Brightness.dark,
+    locale: locale,
+    scheme: const ColorScheme(
+      brightness: Brightness.dark,
+      primary: AppColors.darkBrandBlue,
+      onPrimary: AppColors.darkSurface,
+      primaryContainer: Color(0xFF1E3A8A),
+      onPrimaryContainer: AppColors.darkText,
+      secondary: AppColors.brandTeal,
+      onSecondary: AppColors.darkSurface,
+      secondaryContainer: Color(0xFF134E4A),
+      onSecondaryContainer: AppColors.darkText,
+      tertiary: AppColors.brandCoral,
+      onTertiary: AppColors.darkSurface,
+      tertiaryContainer: Color(0xFF7F1D1D),
+      onTertiaryContainer: AppColors.darkText,
+      error: AppColors.darkDanger,
+      onError: AppColors.darkSurface,
+      errorContainer: Color(0xFF450A0A),
+      onErrorContainer: AppColors.darkDanger,
+      surface: AppColors.darkSurface,
+      onSurface: AppColors.darkText,
+      onSurfaceVariant: AppColors.darkTextMuted,
+      surfaceContainerLowest: AppColors.darkSurface,
+      surfaceContainerLow: AppColors.darkSurface,
+      surfaceContainer: AppColors.darkSurfaceRaised,
+      surfaceContainerHigh: AppColors.darkSurfaceRaised,
+      surfaceContainerHighest: AppColors.darkLine,
+      outline: AppColors.darkLine,
+      outlineVariant: AppColors.darkLine,
+      inverseSurface: AppColors.darkText,
+      onInverseSurface: AppColors.darkSurface,
+      inversePrimary: AppColors.brandBlue,
+      shadow: Colors.black,
+      scrim: Colors.black,
+      surfaceTint: Colors.transparent,
+    ),
+    palette: AppPalette.dark,
+    scaffold: AppColors.darkSurface,
+  );
 
   static bool isDevanagari(Locale? locale) => locale?.languageCode == 'ne';
 
@@ -175,14 +185,14 @@ abstract final class AppTheme {
     final heading = deva ? AppLineHeight.devanagari : AppLineHeight.tight;
 
     TextStyle s(double size, FontWeight w, double h) => TextStyle(
-          fontFamily: family,
-          fontFamilyFallback: fallback,
-          fontSize: size,
-          fontWeight: w,
-          height: h,
-          color: ink,
-          letterSpacing: 0,
-        );
+      fontFamily: family,
+      fontFamilyFallback: fallback,
+      fontSize: size,
+      fontWeight: w,
+      height: h,
+      color: ink,
+      letterSpacing: 0,
+    );
 
     return TextTheme(
       displaySmall: s(AppFontSize.x3xl, FontWeight.w700, heading),
@@ -217,9 +227,9 @@ abstract final class AppTheme {
     );
 
     OutlineInputBorder border(Color c, [double w = 1]) => OutlineInputBorder(
-          borderRadius: md,
-          borderSide: BorderSide(color: c, width: w),
-        );
+      borderRadius: md,
+      borderSide: BorderSide(color: c, width: w),
+    );
 
     return ThemeData(
       useMaterial3: true,
@@ -319,8 +329,9 @@ abstract final class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
         iconColor: scheme.onSurfaceVariant,
         titleTextStyle: text.bodyLarge,
-        subtitleTextStyle:
-            text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+        subtitleTextStyle: text.bodySmall?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
         shape: shape,
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -336,8 +347,9 @@ abstract final class AppTheme {
         behavior: SnackBarBehavior.floating,
         shape: shape,
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle:
-            text.bodyMedium?.copyWith(color: scheme.onInverseSurface),
+        contentTextStyle: text.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
       ),
       dialogTheme: DialogThemeData(
         shape: const RoundedRectangleBorder(

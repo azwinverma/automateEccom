@@ -39,8 +39,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    final language =
-        _language ?? Localizations.localeOf(context).languageCode;
+    final language = _language ?? Localizations.localeOf(context).languageCode;
     final name = _name.text.trim();
     final payload = '$name|$language';
     if (_keyPayload != null && _keyPayload != payload) {
@@ -53,7 +52,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       _error = null;
     });
     try {
-      final merchant = await ref.read(merchantApiProvider).create(
+      final merchant = await ref
+          .read(merchantApiProvider)
+          .create(
             name: name,
             defaultLocale: language,
             idempotencyKey: _idempotencyKey,
@@ -75,21 +76,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final language = _language ?? Localizations.localeOf(context).languageCode;
 
     Widget fixedRow(String label, String value) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpace.s3),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.s3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
-              Text(value, style: theme.textTheme.titleSmall),
-            ],
+            ),
           ),
-        );
+          Text(value, style: theme.textTheme.titleSmall),
+        ],
+      ),
+    );
 
     return AuthLayout(
       title: l.onboardingTitle,
@@ -152,9 +153,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             const SizedBox(height: AppSpace.s2),
             TextButton(
-              onPressed: _busy
-                  ? null
-                  : () => ref.read(sessionControllerProvider.notifier).logout(),
+              onPressed:
+                  _busy
+                      ? null
+                      : () =>
+                          ref.read(sessionControllerProvider.notifier).logout(),
               child: Text(l.settingsLogout),
             ),
           ],

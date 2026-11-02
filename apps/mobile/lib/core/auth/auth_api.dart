@@ -34,14 +34,14 @@ class AuthSession {
   });
 
   factory AuthSession.fromJson(Map<String, Object?> json) => AuthSession(
-        id: json['id']! as String,
-        current: (json['current'] as bool?) ?? false,
-        deviceName: json['device_name'] as String?,
-        ip: json['ip'] as String?,
-        userAgent: json['user_agent'] as String?,
-        createdAt: _date(json['created_at']),
-        lastUsedAt: _date(json['last_used_at']),
-      );
+    id: json['id']! as String,
+    current: (json['current'] as bool?) ?? false,
+    deviceName: json['device_name'] as String?,
+    ip: json['ip'] as String?,
+    userAgent: json['user_agent'] as String?,
+    createdAt: _date(json['created_at']),
+    lastUsedAt: _date(json['last_used_at']),
+  );
 
   final String id;
   final bool current;
@@ -75,36 +75,34 @@ class AuthApi {
     required String email,
     required String password,
     String? deviceName,
-  }) =>
-      _call(() async {
-        final res = await _dio.post<Map<String, Object?>>(
-          '/auth/login',
-          data: {
-            'email': email,
-            'password': password,
-            if (deviceName != null) 'device_name': deviceName,
-          },
-          options: Options(extra: _public),
-        );
-        final data = res.data!;
-        if (data['mfa_required'] == true) {
-          return LoginNeedsMfa(data['mfa_token']! as String);
-        }
-        return LoginSucceeded(TokenPair.fromJson(data));
-      });
+  }) => _call(() async {
+    final res = await _dio.post<Map<String, Object?>>(
+      '/auth/login',
+      data: {
+        'email': email,
+        'password': password,
+        if (deviceName != null) 'device_name': deviceName,
+      },
+      options: Options(extra: _public),
+    );
+    final data = res.data!;
+    if (data['mfa_required'] == true) {
+      return LoginNeedsMfa(data['mfa_token']! as String);
+    }
+    return LoginSucceeded(TokenPair.fromJson(data));
+  });
 
   Future<TokenPair> verifyMfa({
     required String mfaToken,
     required String code,
-  }) =>
-      _call(() async {
-        final res = await _dio.post<Map<String, Object?>>(
-          '/auth/mfa/verify',
-          data: {'mfa_token': mfaToken, 'code': code},
-          options: Options(extra: _public),
-        );
-        return TokenPair.fromJson(res.data!);
-      });
+  }) => _call(() async {
+    final res = await _dio.post<Map<String, Object?>>(
+      '/auth/mfa/verify',
+      data: {'mfa_token': mfaToken, 'code': code},
+      options: Options(extra: _public),
+    );
+    return TokenPair.fromJson(res.data!);
+  });
 
   Future<void> register({
     required String email,
@@ -112,67 +110,66 @@ class AuthApi {
     required String fullName,
     String? phone,
     String? locale,
-  }) =>
-      _call(() async {
-        await _dio.post<Object?>(
-          '/auth/register',
-          data: {
-            'email': email,
-            'password': password,
-            'full_name': fullName,
-            if (phone != null && phone.isNotEmpty) 'phone': phone,
-            if (locale != null) 'locale': locale,
-          },
-          options: Options(extra: _public),
-        );
-      });
+  }) => _call(() async {
+    await _dio.post<Object?>(
+      '/auth/register',
+      data: {
+        'email': email,
+        'password': password,
+        'full_name': fullName,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if (locale != null) 'locale': locale,
+      },
+      options: Options(extra: _public),
+    );
+  });
 
   Future<void> logout(String refreshToken) => _call(() async {
-        await _dio.post<Object?>(
-          '/auth/logout',
-          data: {'refresh_token': refreshToken},
-          options: Options(extra: _userScoped),
-        );
-      });
+    await _dio.post<Object?>(
+      '/auth/logout',
+      data: {'refresh_token': refreshToken},
+      options: Options(extra: _userScoped),
+    );
+  });
 
   Future<Me> me() => _call(() async {
-        final res = await _dio.get<Map<String, Object?>>(
-          '/me',
-          options: Options(extra: _userScoped),
-        );
-        return Me.fromJson(res.data!);
-      });
+    final res = await _dio.get<Map<String, Object?>>(
+      '/me',
+      options: Options(extra: _userScoped),
+    );
+    return Me.fromJson(res.data!);
+  });
 
   Future<void> updateLocale(String locale) => _call(() async {
-        await _dio.patch<Object?>(
-          '/me',
-          data: {'locale': locale},
-          options: Options(extra: _userScoped),
-        );
-      });
+    await _dio.patch<Object?>(
+      '/me',
+      data: {'locale': locale},
+      options: Options(extra: _userScoped),
+    );
+  });
 
   Future<List<AuthSession>> sessions() => _call(() async {
-        final res = await _dio.get<Map<String, Object?>>(
-          '/auth/sessions',
-          options: Options(extra: _userScoped),
-        );
-        return ((res.data!['items'] as List<Object?>?) ?? const [])
-            .whereType<Map<String, Object?>>()
-            .map(AuthSession.fromJson)
-            .toList(growable: false);
-      });
+    final res = await _dio.get<Map<String, Object?>>(
+      '/auth/sessions',
+      options: Options(extra: _userScoped),
+    );
+    return ((res.data!['items'] as List<Object?>?) ?? const [])
+        .whereType<Map<String, Object?>>()
+        .map(AuthSession.fromJson)
+        .toList(growable: false);
+  });
 
   Future<void> revokeSession(String id) => _call(() async {
-        await _dio.delete<Object?>(
-          '/auth/sessions/$id',
-          options: Options(extra: _userScoped),
-        );
-      });
+    await _dio.delete<Object?>(
+      '/auth/sessions/$id',
+      options: Options(extra: _userScoped),
+    );
+  });
 
   Future<void> revokeAllOtherSessions() => _call(() async {
-        await _dio.post<Object?>(
-          '/auth/sessions/revoke-all',
-          options: Options(extra: _userScoped),
-        );
-      });
+    await _dio.post<Object?>(
+      '/auth/sessions/revoke-all',
+      options: Options(extra: _userScoped),
+    );
+  });
 }

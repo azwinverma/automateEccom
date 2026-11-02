@@ -73,9 +73,10 @@ class AuthInterceptor extends Interceptor {
     try {
       final current = tokenStore.accessToken;
       final used = options.extra[_tokenUsedKey];
-      final String? fresh = current != null && current != used
-          ? current // Someone already rotated while this request was in flight.
-          : await refreshOnce();
+      final String? fresh =
+          current != null && current != used
+              ? current // Someone already rotated while this request was in flight.
+              : await refreshOnce();
 
       if (fresh == null) {
         handler.next(_sessionEnded(err, ClientErrorCodes.sessionEnded));
@@ -111,7 +112,8 @@ class AuthInterceptor extends Interceptor {
     } on DioException catch (e) {
       final status = e.response?.statusCode;
       if (status == 401 || status == 403) {
-        final code = ApiError.parseEnvelope(e.response?.data)?.code ??
+        final code =
+            ApiError.parseEnvelope(e.response?.data)?.code ??
             ClientErrorCodes.sessionEnded;
         await _endSession(code);
       }

@@ -237,3 +237,21 @@ describe("unwrap", () => {
     expect(unwrap({ id: "1" } as unknown as Record<string, { id: string }>, "merchant")).toEqual({ id: "1" });
   });
 });
+
+describe("multipart uploads", () => {
+  it("sends FormData untouched and lets the browser set the multipart boundary", async () => {
+    const { api, fetchMock } = setup(() => json(202, { id: "imp1", status: "queued" }), { getMerchantId: () => "m1" });
+    await api.catalog.uploadImport(new Blob(["title,price\nKurta,1250\n"], { type: "text/csv" }), "kurta.csv");
+    const init = fetchMock.mock.calls[0]![1]!;
+    expect(init.body).toBeInstanceOf(FormData);
+    expect((init.body as FormData).get("file")).toBeInstanceOf(Blob);
+    expect(headersOf(init)["Content-Type"]).toBeUndefined();
+    expect(headersOf(init)["X-Merchant-Id"]).toBe("m1");
+  });
+
+  it("sends version with product patches", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.catalog.updateProduct("p1", 4, { title: "Dhaka topi" });
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toEqual({ version: 4, title: "Dhaka topi" });
+  });
+});

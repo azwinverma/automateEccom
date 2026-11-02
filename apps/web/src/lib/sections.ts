@@ -33,7 +33,7 @@ export const SECTIONS: SectionDef[] = [
   { key: "inbox", href: "/inbox", icon: "inbox", group: "sell", phase: 2 },
   { key: "orders", href: "/orders", icon: "orders", group: "sell", phase: 1 },
   { key: "customers", href: "/customers", icon: "customers", group: "sell", phase: 1 },
-  { key: "products", href: "/products", icon: "products", group: "catalog", phase: 1 },
+  { key: "products", href: "/products", icon: "products", group: "catalog" },
   { key: "content", href: "/content", icon: "content", group: "catalog", phase: 2 },
   { key: "inventory", href: "/inventory", icon: "inventory", group: "catalog", phase: 1 },
   { key: "fulfillment", href: "/fulfillment", icon: "fulfillment", group: "deliver", phase: 2 },

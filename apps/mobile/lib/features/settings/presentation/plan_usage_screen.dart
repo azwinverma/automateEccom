@@ -88,11 +88,11 @@ class _PlanHeader extends StatelessWidget {
 
     final (String status, Color color) = switch (s.status) {
       'trialing' => (
-          s.trialEndsAt == null
-              ? l.planStatusActive
-              : l.planStatusTrialing(Formatters.date(s.trialEndsAt!, lang)),
-          palette.info,
-        ),
+        s.trialEndsAt == null
+            ? l.planStatusActive
+            : l.planStatusTrialing(Formatters.date(s.trialEndsAt!, lang)),
+        palette.info,
+      ),
       'active' => (l.planStatusActive, palette.success),
       'past_due' => (l.planStatusPastDue, palette.warning),
       'canceled' || 'cancelled' => (l.planStatusCanceled, palette.danger),
@@ -118,7 +118,10 @@ class _PlanHeader extends StatelessWidget {
               ),
             ),
           const SizedBox(height: AppSpace.s2),
-          Text(status, style: theme.textTheme.labelLarge?.copyWith(color: color)),
+          Text(
+            status,
+            style: theme.textTheme.labelLarge?.copyWith(color: color),
+          ),
           if (s.periodStart != null && s.periodEnd != null)
             Text(
               l.planPeriod(

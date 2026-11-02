@@ -29,9 +29,11 @@ class SplashScreen extends ConsumerWidget {
               if (session is SessionUnavailable)
                 ErrorStateView(
                   error: session.error,
-                  onRetry: () => ref
-                      .read(sessionControllerProvider.notifier)
-                      .bootstrap(),
+                  onRetry:
+                      () =>
+                          ref
+                              .read(sessionControllerProvider.notifier)
+                              .bootstrap(),
                 )
               else
                 Row(

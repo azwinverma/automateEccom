@@ -44,7 +44,7 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-NE-COPY | Med | Nepali copy was written without a native copy editor's review (spec 19 missing). | Native-speaker review pass. |
 | GAP-A11Y | Med | No full screen-reader audit (VoiceOver / TalkBack / NVDA). | Audit before the first external users. |
 | GAP-CHECKOUT | Med | "Buy credits" / upgrade have no purchase flow (needs PAY + BIL-011). | Phase 2 payments. |
-| GAP-E2E-401 | Low | One unexplained `GET /me 401` immediately after login during an E2E run that coincided with a backend restart. Not reproduced in 8 further runs. Access logs now include `error_code` to diagnose any recurrence. | Watch E2E in CI. |
+| ~~GAP-E2E-401~~ | Resolved | **Root cause found:** FastAPI ≥0.118 runs `yield` dependency teardown (our DB commit) *after* the response is sent, so a client could call `/me` before its new session was committed (and, worse, could get "success" for a commit that later failed). Fixed with `scope="function"` on every `get_db`; guarded by `test_db_dependency_commits_before_response`; E2E 18/18 in parallel with 0 error responses. | — |
 
 
 ## Phase 1 gaps
@@ -58,6 +58,15 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-BRAND-VOICE | Low | No per-merchant brand voice profile (CNT-001) feeds the prompts yet. | Add a merchant settings field + prompt variable. |
 | GAP-CHN-RECON | Med | No periodic reconciliation against providers (CHN-012), so drift made directly on a platform isn't detected. | Implement once a real adapter exists. |
 | GAP-CATALOG-TAXONOMY | Low | Categories are per-merchant; there is no shared Nepal-relevant base taxonomy or marketplace category mapping. | Seed a base taxonomy; map it per channel when real adapters land. |
+
+## Catalog API gaps reported by the web client (2026-11-02)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-CAT-VARIANT-LOCK | Low | Variant PATCH/archive don't take a version. The web client sends a version-checked product PATCH first; adding a variant is locked. | Accept `version` on variant writes. |
+| GAP-CAT-COLLECTIONS | Low | No endpoint lists a collection's members, and PUT replaces the whole list, so the web client shows collections read-only. | `GET /collections/{id}/products` plus add/remove endpoints. |
+| GAP-CAT-CATEGORIES | Low | Categories are create-only: no rename, move or delete. | Rename + move (rewrite descendant paths) + delete-if-empty. |
+| GAP-IMPORT-I18N | Low | CSV row errors with `invalid_row` carry English text only (e.g. "price: 'abc' is not a number"). | Structured `{field, reason}` codes per row. |
+| ~~Add variant after create~~ | Resolved | `POST /catalog/products/{id}/variants` (version-locked, adds new option values). | — |
 
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).

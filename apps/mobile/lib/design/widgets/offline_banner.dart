@@ -19,43 +19,45 @@ class OfflineBanner extends ConsumerWidget {
     return AnimatedSize(
       duration: Motion.standard(context),
       curve: Curves.easeOut,
-      child: online
-          ? const SizedBox(width: double.infinity)
-          : Material(
-              color: palette.warningSoft,
-              child: SafeArea(
-                bottom: false,
-                child: Semantics(
-                  liveRegion: true,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpace.s4,
-                      vertical: AppSpace.s2,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.wifi_off_outlined,
-                          size: 18,
-                          color: palette.warning,
-                        ),
-                        const SizedBox(width: AppSpace.s2),
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(context).offlineBanner,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.brightness == Brightness.light
-                                  ? AppColors.neutralInk
-                                  : palette.warning,
+      child:
+          online
+              ? const SizedBox(width: double.infinity)
+              : Material(
+                color: palette.warningSoft,
+                child: SafeArea(
+                  bottom: false,
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.s4,
+                        vertical: AppSpace.s2,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.wifi_off_outlined,
+                            size: 18,
+                            color: palette.warning,
+                          ),
+                          const SizedBox(width: AppSpace.s2),
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context).offlineBanner,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color:
+                                    theme.brightness == Brightness.light
+                                        ? AppColors.neutralInk
+                                        : palette.warning,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
     );
   }
 }

@@ -31,39 +31,47 @@ enum ExceptionType {
 
   /// Money and customer-facing failures are urgent; the rest are warnings.
   bool get isUrgent => switch (this) {
-        paymentMismatch ||
-        refundAboveThreshold ||
-        courierFailed ||
-        customerEscalation =>
-          true,
-        _ => false,
-      };
+    paymentMismatch ||
+    refundAboveThreshold ||
+    courierFailed ||
+    customerEscalation => true,
+    _ => false,
+  };
 
   IconData get icon => switch (this) {
-        paymentMismatch => Icons.payments_outlined,
-        lowConfidenceAi => Icons.help_outline,
-        refundAboveThreshold => Icons.undo_outlined,
-        courierFailed => Icons.local_shipping_outlined,
-        channelExpired => Icons.link_off_outlined,
-        inventoryMismatch => Icons.inventory_2_outlined,
-        publishFailed => Icons.cloud_off_outlined,
-        ambiguousVariant => Icons.straighten_outlined,
-        customerEscalation => Icons.support_agent_outlined,
-        providerFailure => Icons.report_problem_outlined,
-      };
+    paymentMismatch => Icons.payments_outlined,
+    lowConfidenceAi => Icons.help_outline,
+    refundAboveThreshold => Icons.undo_outlined,
+    courierFailed => Icons.local_shipping_outlined,
+    channelExpired => Icons.link_off_outlined,
+    inventoryMismatch => Icons.inventory_2_outlined,
+    publishFailed => Icons.cloud_off_outlined,
+    ambiguousVariant => Icons.straighten_outlined,
+    customerEscalation => Icons.support_agent_outlined,
+    providerFailure => Icons.report_problem_outlined,
+  };
 
   String label(AppLocalizations l) => switch (this) {
-        paymentMismatch => l.exPaymentMismatch,
-        lowConfidenceAi => l.exLowConfidenceAi,
-        refundAboveThreshold => l.exRefundAboveThreshold,
-        courierFailed => l.exCourierFailed,
-        channelExpired => l.exChannelExpired,
-        inventoryMismatch => l.exInventoryMismatch,
-        publishFailed => l.exPublishFailed,
-        ambiguousVariant => l.exAmbiguousVariant,
-        customerEscalation => l.exCustomerEscalation,
-        providerFailure => l.exProviderFailure,
-      };
+    paymentMismatch => l.exPaymentMismatch,
+    lowConfidenceAi => l.exLowConfidenceAi,
+    refundAboveThreshold => l.exRefundAboveThreshold,
+    courierFailed => l.exCourierFailed,
+    channelExpired => l.exChannelExpired,
+    inventoryMismatch => l.exInventoryMismatch,
+    publishFailed => l.exPublishFailed,
+    ambiguousVariant => l.exAmbiguousVariant,
+    customerEscalation => l.exCustomerEscalation,
+    providerFailure => l.exProviderFailure,
+  };
+}
+
+enum ExceptionSeverity {
+  urgent,
+  high,
+  normal;
+
+  static ExceptionSeverity? fromCode(String? code) =>
+      values.where((s) => s.name == code).firstOrNull;
 }
 
 @immutable
@@ -73,10 +81,23 @@ class ExceptionItem {
     required this.type,
     required this.subject,
     required this.occurredAt,
-  });
+    ExceptionSeverity? severity,
+    this.actionLabel,
+  }) : _severity = severity;
 
   final String id;
   final ExceptionType type;
+  final ExceptionSeverity? _severity;
+
+  /// Short label for what fixes it, e.g. "Reconnect".
+  final String? actionLabel;
+
+  /// Server severity when known; otherwise derived from the type.
+  ExceptionSeverity get severity =>
+      _severity ??
+      (type.isUrgent ? ExceptionSeverity.urgent : ExceptionSeverity.normal);
+
+  bool get isUrgent => severity != ExceptionSeverity.normal;
 
   /// Server-provided reference, e.g. order number or customer name.
   final String subject;
@@ -102,11 +123,11 @@ class ExceptionList extends StatelessWidget {
       );
     }
     final sorted = [...items]..sort((a, b) {
-        if (a.type.isUrgent != b.type.isUrgent) {
-          return a.type.isUrgent ? -1 : 1;
-        }
-        return b.occurredAt.compareTo(a.occurredAt);
-      });
+      if (a.type.isUrgent != b.type.isUrgent) {
+        return a.type.isUrgent ? -1 : 1;
+      }
+      return b.occurredAt.compareTo(a.occurredAt);
+    });
     return Column(
       children: [
         for (var i = 0; i < sorted.length; i++) ...[
@@ -130,7 +151,11 @@ class _ExceptionRow extends StatelessWidget {
     final theme = Theme.of(context);
     final palette = AppPalette.of(context);
     final lang = Localizations.localeOf(context).languageCode;
-    final tone = item.type.isUrgent ? palette.danger : palette.warning;
+    final tone = switch (item.severity) {
+      ExceptionSeverity.urgent => palette.danger,
+      ExceptionSeverity.high => palette.warning,
+      ExceptionSeverity.normal => palette.automation,
+    };
     return InkWell(
       onTap: onTap == null ? null : () => onTap!(item),
       child: ConstrainedBox(
@@ -151,13 +176,13 @@ class _ExceptionRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(item.type.label(l), style: theme.textTheme.titleSmall),
                     Text(
-                      item.type.label(l),
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    Text(
-                      item.subject,
-                      maxLines: 1,
+                      [
+                        item.subject,
+                        if (item.actionLabel != null) item.actionLabel!,
+                      ].join(' · '),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,

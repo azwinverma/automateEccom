@@ -31,7 +31,9 @@ String localizedErrorMessage(AppLocalizations l, ApiError error) {
     case 'email_taken':
       return l.errEmailTaken;
     case 'usage_limit_reached':
-      return l.errUsageLimitReached;
+      return error.details['resource'] == 'storage_mb'
+          ? l.errStorageFull
+          : l.errUsageLimitReached;
     case 'invalid_state_transition':
       return l.errInvalidStateTransition;
     case 'rate_limited':
@@ -42,6 +44,52 @@ String localizedErrorMessage(AppLocalizations l, ApiError error) {
       return l.errSessionReused;
     case 'session_revoked':
       return l.errSessionRevoked;
+    // Phase 1: media, studio, catalog, channels, content.
+    case 'file_too_large':
+      return l.errFileTooLarge;
+    case 'unsupported_media_type':
+      return l.errUnsupportedMediaType;
+    case 'file_unreadable':
+      return l.errFileUnreadable;
+    case 'upload_missing':
+      return l.errUploadMissing;
+    case 'upload_expired':
+    case 'invalid_signature':
+      return l.errUploadExpired;
+    case 'media_not_ready':
+      return l.errMediaNotReady;
+    case 'media_not_found':
+      return l.errMediaNotFound;
+    case 'media_in_use':
+      return l.errConflict;
+    case 'draft_not_ready':
+      return l.errDraftNotReady;
+    case 'invalid_photo_count':
+      return l.errInvalidPhotoCount;
+    case 'not_failed':
+      return l.errNotFailed;
+    case 'not_publishable':
+      return l.errNotPublishable;
+    case 'product_not_active':
+      return l.errProductNotActive;
+    case 'capability_not_supported':
+      return l.errCapabilityNotSupported;
+    case 'version_conflict':
+      return l.errVersionConflict;
+    case 'post_locked':
+      return l.errPostLocked;
+    case 'reconnect_required':
+      return l.errReconnectRequired;
+    case 'schedule_in_past':
+      return l.errScheduleInPast;
+    case 'schedule_too_far':
+      return l.errScheduleTooFar;
+    case 'caption_required':
+      return l.errCaptionRequired;
+    case 'caption_too_long':
+      return l.errCaptionTooLong;
+    case 'connection_not_found':
+      return l.errNotFound;
     case ClientErrorCodes.sessionEnded:
       return l.errSessionEnded;
     case ClientErrorCodes.network:

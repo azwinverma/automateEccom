@@ -158,7 +158,7 @@ def list_products(
     limit: int = Query(50, ge=1, le=200),
     cursor: str | None = None,
     ctx: TenantContext = Depends(require("catalog.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     stmt = select(Product)
     stmt = stmt.where(Product.status == status) if status else stmt.where(Product.status != "archived")
@@ -183,7 +183,7 @@ def list_products(
 def create_product(
     body: ProductIn,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     idem: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> Any:
     def _do() -> dict[str, Any]:
@@ -210,7 +210,7 @@ def create_product(
 def get_product(
     product_id: uuid.UUID,
     ctx: TenantContext = Depends(require("catalog.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.product_detail(db, ctx, product_id)
 
@@ -220,7 +220,7 @@ def patch_product(
     product_id: uuid.UUID,
     body: ProductPatch,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     fields = body.model_dump(exclude_unset=True, exclude={"version"})
     service.update_product(db, ctx, product_id, body.version, fields)
@@ -232,9 +232,26 @@ def set_status(
     product_id: uuid.UUID,
     body: StatusIn,
     ctx: TenantContext = Depends(require("catalog.publish")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     service.change_status(db, ctx, product_id, body.status, body.version)
+    return service.product_detail(db, ctx, product_id)
+
+
+class NewVariantIn(VariantIn):
+    version: int | None = Field(default=None, description="Optimistic lock: last product version you read")
+
+
+@router.post("/products/{product_id}/variants", status_code=201)
+def add_variant(
+    product_id: uuid.UUID,
+    body: NewVariantIn,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    service.add_variant(
+        db, ctx, product_id, body.version, service.VariantInput(**body.model_dump(exclude={"version"}))
+    )
     return service.product_detail(db, ctx, product_id)
 
 
@@ -244,7 +261,7 @@ def patch_variant(
     variant_id: uuid.UUID,
     body: VariantPatch,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     service.update_variant(db, ctx, product_id, variant_id, body.model_dump(exclude_unset=True))
     return service.product_detail(db, ctx, product_id)
@@ -255,7 +272,7 @@ def archive_variant(
     product_id: uuid.UUID,
     variant_id: uuid.UUID,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.archive_variant(db, ctx, product_id, variant_id)
     return Response(status_code=204)
@@ -266,7 +283,7 @@ def set_attributes(
     product_id: uuid.UUID,
     body: AttributesIn,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     service.set_attributes(
         db, ctx, product_id, [service.AttributeInput(**i.model_dump()) for i in body.items]
@@ -279,7 +296,7 @@ def confirm_attributes(
     product_id: uuid.UUID,
     body: ConfirmIn,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     service.confirm_attributes(db, ctx, product_id, body.keys)
     return service.product_detail(db, ctx, product_id)
@@ -290,7 +307,7 @@ def set_media(
     product_id: uuid.UUID,
     body: MediaIn,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     service.set_product_media(db, ctx, product_id, [service.MediaInput(**i.model_dump()) for i in body.items])
     return service.product_detail(db, ctx, product_id)
@@ -299,7 +316,7 @@ def set_media(
 # ----------------------------------------------------------------------------- categories / collections
 @router.get("/categories")
 def list_categories(
-    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict:
     rows = db.scalars(select(Category).order_by(Category.path).limit(1000))
     return {
@@ -319,7 +336,9 @@ def list_categories(
 
 @router.post("/categories", status_code=201)
 def create_category(
-    body: CategoryIn, ctx: TenantContext = Depends(require("catalog.write")), db: Session = Depends(get_db)
+    body: CategoryIn,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     c = service.create_category(db, ctx, body.name, body.parent_id, body.name_ne)
     return {
@@ -334,7 +353,7 @@ def create_category(
 
 @router.get("/collections")
 def list_collections(
-    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict:
     rows = db.scalars(select(Collection).order_by(Collection.title).limit(500))
     return {
@@ -346,7 +365,9 @@ def list_collections(
 
 @router.post("/collections", status_code=201)
 def create_collection(
-    body: CollectionIn, ctx: TenantContext = Depends(require("catalog.write")), db: Session = Depends(get_db)
+    body: CollectionIn,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     c = service.create_collection(db, ctx, body.title, body.description)
     return {"id": c.id, "title": c.title, "handle": c.handle, "description": c.description}
@@ -357,7 +378,7 @@ def set_collection_products(
     collection_id: uuid.UUID,
     body: CollectionProductsIn,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     return {"count": service.set_collection_products(db, ctx, collection_id, body.product_ids)}
 
@@ -381,7 +402,9 @@ def _job(j: ImportJob) -> dict[str, Any]:
 
 @router.post("/imports", status_code=202)
 def create_import(
-    file: UploadFile, ctx: TenantContext = Depends(require("catalog.write")), db: Session = Depends(get_db)
+    file: UploadFile,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     if file.content_type not in (
         "text/csv",
@@ -398,7 +421,9 @@ def create_import(
 
 @router.get("/imports/{import_id}")
 def get_import(
-    import_id: uuid.UUID, ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db)
+    import_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.read")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     j = db.get(ImportJob, import_id)
     if j is None or j.merchant_id != ctx.merchant_id:
@@ -408,7 +433,7 @@ def get_import(
 
 @router.get("/imports")
 def list_imports(
-    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict:
     rows = db.scalars(select(ImportJob).order_by(ImportJob.created_at.desc()).limit(50))
     return {"items": [{k: v for k, v in _job(j).items() if k != "errors"} for j in rows]}

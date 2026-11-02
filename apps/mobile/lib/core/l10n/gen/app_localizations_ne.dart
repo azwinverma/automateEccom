@@ -643,4 +643,642 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get resApiCalls => 'API कल';
+
+  @override
+  String get captureTitle => 'सामानको फोटो';
+
+  @override
+  String get captureIntro => '६ वटासम्म प्रस्ट फोटो थप्नुहोस्। अगाडि, पछाडि र कपडा वा लेबलको नजिकको फोटो सबैभन्दा राम्रो।';
+
+  @override
+  String get captureTakePhoto => 'फोटो खिच्नुहोस्';
+
+  @override
+  String get captureFromGallery => 'ग्यालरीबाट छान्नुहोस्';
+
+  @override
+  String capturePhotoCount(int count, int max) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String maxString = maxNumberFormat.format(max);
+
+    return '$maxString मध्ये $countString फोटो';
+  }
+
+  @override
+  String get captureLimitReached => '६ वटा फोटो पुग्यो, एउटा ड्राफ्टमा यति नै मिल्छ।';
+
+  @override
+  String captureSkipped(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString वटा फोटो थपिएन, ६ वटा मात्र मिल्छ।';
+  }
+
+  @override
+  String get captureNotesLabel => 'थप जानकारी (नभए पनि हुन्छ)';
+
+  @override
+  String get captureNotesHint => 'जस्तै: शुद्ध सुती, भक्तपुरमा हातले बनेको';
+
+  @override
+  String get captureMakeDraft => 'विवरण तयार गर्नुहोस्';
+
+  @override
+  String get captureWaitForUploads => 'फोटो अपलोड सकिन पर्खँदै…';
+
+  @override
+  String get captureNeedOneReady => 'अगाडि बढ्न कम्तीमा एउटा फोटो चाहिन्छ।';
+
+  @override
+  String get captureRemovePhoto => 'फोटो हटाउनुहोस्';
+
+  @override
+  String get capturePickerError => 'क्यामेरा वा ग्यालरी खुलेन। फोनको सेटिङमा फोटो र क्यामेरा अनुमति हेर्नुहोस्।';
+
+  @override
+  String get captureResumeAll => 'अपलोड फेरि सुरु गर्नुहोस्';
+
+  @override
+  String get captureKeepsGoing => 'अर्को एप खोल्दा पनि अपलोड चलिरहन्छ। एप बन्द भए पनि रोकिएकै ठाउँबाट सुरु हुन्छ।';
+
+  @override
+  String get uploadQueued => 'पालो पर्खँदै';
+
+  @override
+  String uploadUploading(String percent) {
+    return 'अपलोड हुँदै $percent';
+  }
+
+  @override
+  String get uploadProcessing => 'फोटो जाँच्दै';
+
+  @override
+  String get uploadReady => 'तयार';
+
+  @override
+  String get uploadPaused => 'रोकियो, इन्टरनेट छैन';
+
+  @override
+  String get uploadRetrying => 'फेरि प्रयास गर्दै…';
+
+  @override
+  String get uploadRejected => 'यो फोटो चल्दैन';
+
+  @override
+  String get uploadFailed => 'अपलोड भएन';
+
+  @override
+  String get uploadTapRetry => 'फेरि प्रयास गर्न थिच्नुहोस्';
+
+  @override
+  String get rejectNotAnImage => 'यो फाइल फोटो होइन।';
+
+  @override
+  String get rejectTooLarge => 'फोटो धेरै ठूलो भयो। २० MB भन्दा सानो छान्नुहोस्।';
+
+  @override
+  String get rejectUnsupported => 'यो ढाँचा चल्दैन। JPEG, PNG, WebP वा HEIC प्रयोग गर्नुहोस्।';
+
+  @override
+  String get rejectMalware => 'यो फाइल असुरक्षित देखियो, त्यसैले हटाइयो।';
+
+  @override
+  String get tipLowResolution => 'फोटो सानो छ। नजिक गएर वा मुख्य क्यामेराले खिच्नुहोस्।';
+
+  @override
+  String get tipBlurry => 'फोटो धमिलो देखियो। फोन स्थिर राखेर फोकस गर्नुहोस्।';
+
+  @override
+  String get tipTooDark => 'फोटो अँध्यारो देखियो। झ्यालनजिक खिचेर हेर्नुहोस्।';
+
+  @override
+  String get tipOverexposed => 'फोटो धेरै चम्किलो भयो। सिधा घामबाट अलि पर सर्नुहोस्।';
+
+  @override
+  String get errFileTooLarge => 'फोटो धेरै ठूलो भयो (बढीमा २० MB)।';
+
+  @override
+  String get errUnsupportedMediaType => 'JPEG, PNG, WebP वा HEIC फोटो प्रयोग गर्नुहोस्।';
+
+  @override
+  String get errStorageFull => 'प्लानको फोटो स्टोरेज भरियो। पुराना फोटो हटाउनुहोस् वा अपग्रेड गर्नुहोस्।';
+
+  @override
+  String get errFileUnreadable => 'फोनबाट यो फोटो पढ्न सकिएन। फेरि छान्नुहोस्।';
+
+  @override
+  String get errUploadMissing => 'फोटो हामीसम्म आइपुगेन। फेरि अपलोड गर्नुहोस्।';
+
+  @override
+  String get errUploadExpired => 'अपलोडमा धेरै समय लाग्यो। फेरि सुरु गर्नुहोस्।';
+
+  @override
+  String get errMediaNotReady => 'केही फोटो अझै जाँच हुँदैछन्। एकछिनपछि फेरि गर्नुहोस्।';
+
+  @override
+  String get errMediaNotFound => 'केही फोटो अब भेटिँदैनन्। फेरि थप्नुहोस्।';
+
+  @override
+  String get errDraftNotReady => 'यो ड्राफ्ट अझै तयार छैन।';
+
+  @override
+  String get errNotPublishable => 'यो सामान अहिले लाइभ गर्न तयार छैन।';
+
+  @override
+  String get errProductNotActive => 'पहिले सामान लाइभ गर्नुहोस्, अनि च्यानलमा पठाउनुहोस्।';
+
+  @override
+  String get errCapabilityNotSupported => 'यो च्यानलले त्यो गर्न सक्दैन।';
+
+  @override
+  String get errVersionConflict => 'अरू कसैले यो बदल्नुभयो। नयाँ विवरण ल्याइयो, हेरेर फेरि गर्नुहोस्।';
+
+  @override
+  String get errPostLocked => 'तालिका मिलाइएको पोस्ट बदल्न मिल्दैन। पहिले तालिका हटाउनुहोस्।';
+
+  @override
+  String get errReconnectRequired => 'पहिले यो च्यानल फेरि जोड्नुहोस्।';
+
+  @override
+  String get errScheduleInPast => 'आउने समय छान्नुहोस्।';
+
+  @override
+  String get errScheduleTooFar => 'पोस्ट ९० दिनभित्र मात्र तालिकामा राख्न सकिन्छ।';
+
+  @override
+  String get errCaptionRequired => 'क्याप्सन लेख्नुहोस्।';
+
+  @override
+  String get errCaptionTooLong => 'यो क्याप्सन च्यानलका लागि धेरै लामो भयो।';
+
+  @override
+  String get errInvalidPhotoCount => '१ देखि ६ वटा फोटो छान्नुहोस्।';
+
+  @override
+  String get errNotFailed => 'असफल ड्राफ्ट मात्र फेरि चलाउन मिल्छ।';
+
+  @override
+  String get errAiUnavailable => 'लेख्ने सेवा अहिले व्यस्त छ। केही मिनेटपछि फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get draftWorkingTitle => 'विवरण तयार गर्दैछौं';
+
+  @override
+  String get draftWorkingBody => 'तपाईंका फोटो हेरेर नेपाली र अंग्रेजीमा नाम, विवरण र क्याप्सन तयार गर्दैछौं। प्रायः एक मिनेटभित्र सकिन्छ।';
+
+  @override
+  String get draftQueued => 'पालोमा';
+
+  @override
+  String get draftRunning => 'काम हुँदैछ';
+
+  @override
+  String get draftLeaveOk => 'यो स्क्रिन छोड्न सक्नुहुन्छ, काम चलिरहन्छ। पछि \'ड्राफ्ट\' मा भेटिन्छ।';
+
+  @override
+  String get draftFailedTitle => 'ड्राफ्ट तयार गर्न सकिएन';
+
+  @override
+  String get draftFailedBody => 'लेख्ने सेवामा समस्या भयो। तपाईंका फोटो सुरक्षित छन्।';
+
+  @override
+  String get draftAppliedTitle => 'यो पहिले नै सामानको रूपमा सेभ भइसक्यो';
+
+  @override
+  String get draftOpenProduct => 'सामान खोल्नुहोस्';
+
+  @override
+  String get draftDiscarded => 'यो ड्राफ्ट हटाइएको छ।';
+
+  @override
+  String get reviewTitle => 'विवरण जाँच्नुहोस्';
+
+  @override
+  String get reviewAiNote => 'तपाईंका फोटो हेरेर AI ले लेखेको। नमिलेको कुरा बदल्नुहोस्।';
+
+  @override
+  String get reviewSectionText => 'नाम र विवरण';
+
+  @override
+  String get fieldTitleNe => 'नाम (नेपाली)';
+
+  @override
+  String get fieldTitleEn => 'नाम (अंग्रेजी)';
+
+  @override
+  String get fieldDescriptionNe => 'विवरण (नेपाली)';
+
+  @override
+  String get fieldDescriptionEn => 'विवरण (अंग्रेजी)';
+
+  @override
+  String get validationTitleRequired => 'नेपाली वा अंग्रेजीमा नाम राख्नुहोस्';
+
+  @override
+  String get reviewSectionCategory => 'श्रेणी';
+
+  @override
+  String get fieldCategoryHint => 'तह छुट्याउन / राख्नुहोस्, जस्तै: लुगा / कुर्ता';
+
+  @override
+  String confidenceLabel(String percent) {
+    return '$percent पक्का';
+  }
+
+  @override
+  String get reviewSectionDetails => 'विस्तृत जानकारी';
+
+  @override
+  String get attrPleaseCheck => 'कृपया जाँच्नुहोस्';
+
+  @override
+  String get attrAccept => 'ठीक छ';
+
+  @override
+  String get attrEdit => 'बदल्नुहोस्';
+
+  @override
+  String get attrAccepted => 'जाँचियो';
+
+  @override
+  String get attrEdited => 'तपाईंले बदल्नुभयो';
+
+  @override
+  String attrEditTitle(String name) {
+    return '$name बदल्नुहोस्';
+  }
+
+  @override
+  String get actionSave => 'सेभ गर्नुहोस्';
+
+  @override
+  String attrUncheckedError(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString वटा विवरण अझै जाँच्न बाँकी';
+  }
+
+  @override
+  String get reviewSectionPrice => 'मूल्य र विकल्प';
+
+  @override
+  String get reviewPriceNote => 'मूल्य सधैं तपाईंले नै राख्ने हो, AI ले राख्दैन।';
+
+  @override
+  String get fieldPrice => 'मूल्य (रू)';
+
+  @override
+  String fieldPriceFor(String variant) {
+    return '$variant को मूल्य';
+  }
+
+  @override
+  String get fieldSku => 'SKU (नभए पनि हुन्छ)';
+
+  @override
+  String get samePriceToggle => 'सबै विकल्पको एउटै मूल्य';
+
+  @override
+  String get validationPriceRequired => 'मूल्य हाल्नुहोस्';
+
+  @override
+  String get validationPriceInvalid => 'अंक मात्र, जस्तै: 1250 वा 1250.50';
+
+  @override
+  String get validationPriceDecimals => 'बढीमा २ दशमलव (पैसा)';
+
+  @override
+  String get validationPriceTooLarge => 'मूल्य धेरै भयो';
+
+  @override
+  String get optionAdd => 'विकल्प थप्नुहोस् (जस्तै: साइज)';
+
+  @override
+  String get optionName => 'विकल्पको नाम';
+
+  @override
+  String get optionValuesHint => 'मानहरू, अल्पविरामले छुट्याएर';
+
+  @override
+  String get optionRemove => 'विकल्प हटाउनुहोस्';
+
+  @override
+  String get optionValuesRequired => 'हरेक विकल्पमा कम्तीमा एउटा मान राख्नुहोस्';
+
+  @override
+  String variantsCount(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return '$countString वटा भेरियन्ट';
+  }
+
+  @override
+  String get tooManyVariants => '१०० भन्दा बढी जोडी बने। केही मान हटाउनुहोस्।';
+
+  @override
+  String get reviewSectionChecklist => 'AI ले थाहा पाएन, कृपया पुष्टि गर्नुहोस्';
+
+  @override
+  String get reviewSectionWarnings => 'जाँच्नुपर्ने कुरा';
+
+  @override
+  String get issueClaimPrice => 'लेखाइमा मूल्य उल्लेख छ। मूल्य तपाईंले नै राख्ने हो, कृपया जाँच्नुहोस्।';
+
+  @override
+  String get issueClaimDiscount => 'तपाईंले नभनेको छुटको कुरा लेखिएको छ। हटाउनुहोस् वा साँचो हो भने मात्र राख्नुहोस्।';
+
+  @override
+  String get issueClaimStock => 'लेखाइमा स्टकको कुरा छ। स्टक तपाईंको इन्भेन्टरीबाट आउँछ, कृपया जाँच्नुहोस्।';
+
+  @override
+  String get issueClaimDelivery => 'लेखाइमा डेलिभरीको वाचा छ। साँचो हो कि होइन जाँच्नुहोस्।';
+
+  @override
+  String get issueClaimWarranty => 'लेखाइमा वारेन्टीको कुरा छ। तपाईं दिनुहुन्छ भने मात्र राख्नुहोस्।';
+
+  @override
+  String get issueClaimAuthenticity => 'सक्कली/ओरिजिनल भनिएको छ। प्रमाण छ भने मात्र राख्नुहोस्।';
+
+  @override
+  String get issueClaimOther => 'प्रमाणित गर्न नसकिने कुरा लेखिएको छ। कृपया जाँच्नुहोस्।';
+
+  @override
+  String get issueNotProductPhoto => 'यी फोटोमा सामान नदेखिन सक्छ। सेभ गर्नुअघि जाँच्नुहोस्।';
+
+  @override
+  String get issueTooLong => 'केही लेखाइ धेरै लामो भएकाले छोटो पारियो। एकपटक पढ्नुहोस्।';
+
+  @override
+  String issueInField(String field) {
+    return 'ठाउँ: $field';
+  }
+
+  @override
+  String get reviewCreate => 'सामान सेभ गर्नुहोस्';
+
+  @override
+  String get reviewFixProblems => 'अगाडि बढ्न रातो देखिएका कुरा मिलाउनुहोस्।';
+
+  @override
+  String get productTitle => 'सामान';
+
+  @override
+  String get productStatusDraft => 'ड्राफ्ट';
+
+  @override
+  String get productStatusActive => 'लाइभ';
+
+  @override
+  String get productStatusArchived => 'संग्रहित';
+
+  @override
+  String get productSaved => 'ड्राफ्टको रूपमा सेभ भयो। तपाईंलाई मात्र देखिन्छ।';
+
+  @override
+  String get productGoLive => 'लाइभ गर्नुहोस्';
+
+  @override
+  String get productIsLive => 'क्याटलगमा लाइभ छ';
+
+  @override
+  String get productConfirmSection => 'AI विवरण पुष्टि गर्नुहोस्';
+
+  @override
+  String get productConfirmAll => 'सबै पुष्टि गर्नुहोस्';
+
+  @override
+  String get productProblemPrice => 'हरेक भेरियन्टको मूल्य चाहिन्छ।';
+
+  @override
+  String get productProblemAttributes => 'तलका AI विवरण पुष्टि गर्नुहोस्।';
+
+  @override
+  String get productProblemVariant => 'कम्तीमा एउटा सक्रिय भेरियन्ट चाहिन्छ (अहिलेलाई वेब ड्यासबोर्डबाट)।';
+
+  @override
+  String get productProblemTitle => 'सामानको नाम राख्नुहोस्।';
+
+  @override
+  String get productFix => 'मिलाउनुहोस्';
+
+  @override
+  String get productEditPrice => 'मूल्य बदल्नुहोस्';
+
+  @override
+  String get productEditTitle => 'नाम बदल्नुहोस्';
+
+  @override
+  String get productPrices => 'मूल्य';
+
+  @override
+  String get defaultVariant => 'मूल';
+
+  @override
+  String get publishSection => 'च्यानलमा पठाउनुहोस्';
+
+  @override
+  String get publishNeedsLive => 'च्यानलमा पठाउन पहिले लाइभ गर्नुहोस्।';
+
+  @override
+  String get publishNoChannels => 'अहिलेसम्म कुनै च्यानल जोडिएको छैन। वेब ड्यासबोर्डबाट Instagram, Facebook वा TikTok जोड्नुहोस्।';
+
+  @override
+  String get publishAction => 'पठाउनुहोस्';
+
+  @override
+  String get publishSelectOne => 'कम्तीमा एउटा च्यानल छान्नुहोस्';
+
+  @override
+  String get channelReconnect => 'फेरि जोड्नुहोस्';
+
+  @override
+  String get channelExpiredNote => 'जडान सकियो';
+
+  @override
+  String get listingPending => 'पालोमा';
+
+  @override
+  String get listingPublishing => 'पठाउँदै…';
+
+  @override
+  String get listingPublished => 'पठाइयो';
+
+  @override
+  String get listingFailed => 'असफल';
+
+  @override
+  String get listingOutOfSync => 'मिलेन';
+
+  @override
+  String get listingUnpublished => 'हटाइएको';
+
+  @override
+  String listingError(String code) {
+    return 'कारण: $code';
+  }
+
+  @override
+  String reconnectTitle(String channel) {
+    return '$channel फेरि जोड्नुहोस्';
+  }
+
+  @override
+  String get reconnectChannelGeneric => 'च्यानल';
+
+  @override
+  String get reconnectBody => 'अहिलेलाई ब्राउजरमा वेब ड्यासबोर्ड खोलेर च्यानल जोड्नुहोस्:';
+
+  @override
+  String get reconnectCopied => 'लिंक कपी भयो';
+
+  @override
+  String get actionCopyLink => 'लिंक कपी गर्नुहोस्';
+
+  @override
+  String get postsSection => 'पोस्ट बनाउनुहोस्';
+
+  @override
+  String get postsIntro => 'AI क्याप्सनबाट हरेक च्यानलका लागि पोस्ट बनाउँछौं। पठाउनुअघि तपाईं हेर्नुहुन्छ।';
+
+  @override
+  String get postsCreate => 'ड्राफ्ट बनाउनुहोस्';
+
+  @override
+  String get postsNoChannels => 'पोस्ट गर्न मिल्ने च्यानल अझै जोडिएको छैन।';
+
+  @override
+  String get postsNoDraft => 'पोस्ट बनाउन यो सामानको AI ड्राफ्ट चाहिन्छ।';
+
+  @override
+  String get postsTitle => 'पोस्ट';
+
+  @override
+  String get postStatusDraft => 'ड्राफ्ट';
+
+  @override
+  String get postStatusPendingApproval => 'स्वीकृतिको पर्खाइमा';
+
+  @override
+  String get postStatusApproved => 'स्वीकृत';
+
+  @override
+  String postStatusScheduled(String when) {
+    return '$when मा तय';
+  }
+
+  @override
+  String get postStatusPublishing => 'पठाउँदै…';
+
+  @override
+  String get postStatusPublished => 'प्रकाशित';
+
+  @override
+  String get postStatusFailed => 'असफल';
+
+  @override
+  String get postStatusCancelled => 'रद्द';
+
+  @override
+  String get fieldCaption => 'क्याप्सन';
+
+  @override
+  String get postSaveCaption => 'क्याप्सन सेभ गर्नुहोस्';
+
+  @override
+  String get postSubmit => 'पेस गर्नुहोस्';
+
+  @override
+  String get postApprove => 'स्वीकृत गर्नुहोस्';
+
+  @override
+  String get postPublishNow => 'अहिल्यै पठाउनुहोस्';
+
+  @override
+  String get postSchedule => 'समय तोक्नुहोस्';
+
+  @override
+  String get postNeedsApprovalNote => 'AI ले लेखेको पोस्ट पठाउनुअघि स्वीकृति चाहिन्छ।';
+
+  @override
+  String get postNoApprovePermission => 'पसल मालिक वा म्यानेजरलाई स्वीकृत गर्न भन्नुहोस्।';
+
+  @override
+  String get postCaptionSaved => 'क्याप्सन सेभ भयो';
+
+  @override
+  String get postNotFound => 'यो पोस्ट अब उपलब्ध छैन।';
+
+  @override
+  String get postsEmpty => 'अहिलेसम्म पोस्ट छैन।';
+
+  @override
+  String get draftsTitle => 'ड्राफ्ट';
+
+  @override
+  String get draftsNew => 'फोटोबाट नयाँ';
+
+  @override
+  String get draftsEmpty => 'अहिलेसम्म ड्राफ्ट छैन। सामानका केही फोटोबाट सुरु गर्नुहोस्।';
+
+  @override
+  String get draftsIntro => 'पोस्ट बनाउन ड्राफ्ट छान्नुहोस् वा नयाँ फोटोबाट सुरु गर्नुहोस्।';
+
+  @override
+  String get draftStatusWorking => 'लेख्दैछ…';
+
+  @override
+  String get draftStatusReady => 'जाँच्न तयार';
+
+  @override
+  String get draftStatusFailed => 'असफल';
+
+  @override
+  String get draftStatusApplied => 'सामान बनिसक्यो';
+
+  @override
+  String get draftStatusDiscarded => 'हटाइयो';
+
+  @override
+  String get draftUntitled => 'नाम नभएको ड्राफ्ट';
+
+  @override
+  String get exSubjectDraft => 'AI ड्राफ्ट';
+
+  @override
+  String get exSubjectPost => 'पोस्ट';
+
+  @override
+  String get exSubjectProduct => 'सामान';
+
+  @override
+  String get exActionReconnect => 'फेरि जोड्नुहोस्';
+
+  @override
+  String get exActionRetryPublish => 'फेरि पठाउनुहोस्';
+
+  @override
+  String get exActionReschedule => 'फेरि समय तोक्नुहोस्';
+
+  @override
+  String get exActionReviewPost => 'पोस्ट हेर्नुहोस्';
+
+  @override
+  String get exActionReviewDraft => 'ड्राफ्ट हेर्नुहोस्';
+
+  @override
+  String get exActionRetryDraft => 'ड्राफ्ट फेरि चलाउनुहोस्';
+
+  @override
+  String get exActionConfirmAttributes => 'विवरण पुष्टि गर्नुहोस्';
+
+  @override
+  String get exActionDismiss => 'लुकाउनुहोस्';
+
+  @override
+  String get homeSectionCatalog => 'क्याटलग';
 }

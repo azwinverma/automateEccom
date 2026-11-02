@@ -361,3 +361,37 @@ def test_rules_units():
     assert rules.generate_sku("ढाका टोपी", [], set()) == "ITEM"  # Devanagari-only handle → safe fallback
     with session_scope() as db:
         assert db.scalar(select(func.count()).select_from(AuditLog)) == 0
+
+
+def test_add_variant_after_create_with_new_option_value_and_lock(client, seller):
+    p = _create(client, seller).json()
+    r = client.post(
+        f"{API}/products/{p['id']}/variants",
+        headers=seller.h(),
+        json={"version": p["version"], "options": {"color": "Navy", "size": "XL"}, "price_minor": 265000},
+    )
+    assert r.status_code == 201, r.text
+    d = r.json()
+    assert len(d["variants"]) == 5 and d["version"] == p["version"] + 1
+    assert next(o for o in d["options"] if o["name"] == "Size")["values"] == ["M", "L", "XL"]
+    new = next(v for v in d["variants"] if v["options"] == {"Color": "Navy", "Size": "XL"})
+    assert new["sku"] == "COTTON-KURTA-DHAKA-BORDE-NAVY-XL"
+    dup = client.post(
+        f"{API}/products/{p['id']}/variants",
+        headers=seller.h(),
+        json={"options": {"Color": "Navy", "Size": "xl"}, "price_minor": 1},
+    )
+    assert dup.status_code == 409 and dup.json()["error"]["code"] == "duplicate_variant"
+    stale = client.post(
+        f"{API}/products/{p['id']}/variants",
+        headers=seller.h(),
+        json={"version": p["version"], "options": {"Color": "Navy", "Size": "S"}, "price_minor": 1},
+    )
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "version_conflict"
+    bad = client.post(
+        f"{API}/products/{p['id']}/variants",
+        headers=seller.h(),
+        json={"options": {"Color": "Navy", "Fit": "Slim"}, "price_minor": 1},
+    )
+    assert bad.json()["error"]["code"] == "variant_options_mismatch"
+    assert bad.json()["error"]["details"]["missing"] == ["Size"]

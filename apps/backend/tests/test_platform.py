@@ -197,3 +197,34 @@ def test_route_template_recovers_mount_prefix():
     scope = {"route": R(), "path": "/api/v1/stores/abc-123", "path_params": {"store_id": "abc-123"}}
     assert route_template(scope) == "/api/v1/stores/{store_id}"
     assert route_template({"path": "/nope"}) == "unmatched"
+
+
+def test_db_dependency_commits_before_response():
+    """Regression: FastAPI's default 'request' scope runs yield-teardown (our commit) after the
+    response is sent, so clients raced uncommitted sessions (`session_revoked` right after login)."""
+    from fastapi.routing import APIRoute
+
+    from app.api.deps import get_db
+    from app.main import create_app
+
+    def walk(dep, found):
+        for sub in dep.dependencies:
+            if sub.call is get_db:
+                found.append(sub)
+            walk(sub, found)
+        return found
+
+    def api_routes(routes):
+        for route in routes:
+            if isinstance(route, APIRoute):
+                yield route
+            inner = getattr(route, "original_router", None) or route
+            yield from api_routes(getattr(inner, "routes", []) if inner is not route else [])
+
+    app = create_app()
+    checked = 0
+    for r in api_routes(app.routes):
+        for d in walk(r.dependant, []):
+            checked += 1
+            assert d.scope == "function", f"{r.path}: get_db must use scope='function'"
+    assert checked > 50

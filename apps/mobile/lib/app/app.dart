@@ -29,8 +29,9 @@ class CommerceOsApp extends ConsumerWidget {
       ],
       theme: AppTheme.light(locale: locale),
       darkTheme: AppTheme.dark(locale: locale),
-      builder: (context, child) =>
-          OfflineFrame(child: child ?? const SizedBox.shrink()),
+      builder:
+          (context, child) =>
+              OfflineFrame(child: child ?? const SizedBox.shrink()),
     );
   }
 }

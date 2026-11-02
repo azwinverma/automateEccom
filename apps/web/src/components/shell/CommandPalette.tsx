@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
+import { confirmLeave } from "@/lib/navigationGuard";
 import { SECTIONS, SETTINGS_PAGES } from "@/lib/sections";
 import { Icon, type IconName } from "../ui/Icon";
 import styles from "./shell.module.css";
@@ -59,7 +60,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
   }, [open]);
 
   const go = (entry: Entry | undefined) => {
-    if (!entry) return;
+    if (!entry || !confirmLeave()) return;
     onOpenChange(false);
     router.push(entry.href);
   };

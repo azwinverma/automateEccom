@@ -95,13 +95,10 @@ class SessionController extends Notifier<SessionState> {
   String? _pickMerchant(Me me, String? prefer) {
     final active = me.activeMemberships;
     if (active.isEmpty) return null;
-    final stored = prefer ??
-        ref.read(sharedPreferencesProvider).getString(_kMerchant);
+    final stored =
+        prefer ?? ref.read(sharedPreferencesProvider).getString(_kMerchant);
     return active
-        .firstWhere(
-          (m) => m.merchant.id == stored,
-          orElse: () => active.first,
-        )
+        .firstWhere((m) => m.merchant.id == stored, orElse: () => active.first)
         .merchant
         .id;
   }
@@ -183,10 +180,10 @@ class SessionController extends Notifier<SessionState> {
   }
 
   static String _deviceName() => switch (defaultTargetPlatform) {
-        TargetPlatform.android => 'Android phone',
-        TargetPlatform.iOS => 'iPhone',
-        _ => 'Mobile device',
-      };
+    TargetPlatform.android => 'Android phone',
+    TargetPlatform.iOS => 'iPhone',
+    _ => 'Mobile device',
+  };
 }
 
 final sessionControllerProvider =

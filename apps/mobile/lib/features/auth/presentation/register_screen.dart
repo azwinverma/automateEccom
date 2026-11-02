@@ -52,7 +52,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _error = null;
     });
     try {
-      final mfa = await ref.read(sessionControllerProvider.notifier).register(
+      final mfa = await ref
+          .read(sessionControllerProvider.notifier)
+          .register(
             email: _email.text.trim(),
             password: _password.text,
             fullName: _name.text.trim(),

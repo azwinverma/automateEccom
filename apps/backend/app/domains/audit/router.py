@@ -23,7 +23,7 @@ def list_audit_logs(
     limit: int = Query(50, ge=1, le=200),
     cursor: str | None = None,
     ctx: TenantContext = Depends(require("audit.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     # AuditLog is not TenantScoped (platform events have no tenant), so filter explicitly.
     stmt = select(AuditLog).where(AuditLog.merchant_id == ctx.merchant_id)

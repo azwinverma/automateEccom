@@ -24,23 +24,30 @@ enum QuickAction {
     return null;
   }
 
+  /// Live flows (Phase 1) vs. honest "coming soon" explainers.
+  String get route => switch (this) {
+    addProduct || captureProduct => '/studio/capture',
+    generateContent => '/studio/drafts',
+    _ => '/soon/$slug',
+  };
+
   String label(AppLocalizations l) => switch (this) {
-        addProduct => l.qaAddProduct,
-        captureProduct => l.qaCaptureProduct,
-        generateContent => l.qaGenerateContent,
-        createReel => l.qaCreateReel,
-        viewOrders => l.qaViewOrders,
-        viewMessages => l.qaViewMessages,
-      };
+    addProduct => l.qaAddProduct,
+    captureProduct => l.qaCaptureProduct,
+    generateContent => l.qaGenerateContent,
+    createReel => l.qaCreateReel,
+    viewOrders => l.qaViewOrders,
+    viewMessages => l.qaViewMessages,
+  };
 
   String description(AppLocalizations l) => switch (this) {
-        addProduct => l.soonAddProductBody,
-        captureProduct => l.soonCaptureProductBody,
-        generateContent => l.soonGenerateContentBody,
-        createReel => l.soonCreateReelBody,
-        viewOrders => l.soonViewOrdersBody,
-        viewMessages => l.soonViewMessagesBody,
-      };
+    addProduct => l.soonAddProductBody,
+    captureProduct => l.soonCaptureProductBody,
+    generateContent => l.soonGenerateContentBody,
+    createReel => l.soonCreateReelBody,
+    viewOrders => l.soonViewOrdersBody,
+    viewMessages => l.soonViewMessagesBody,
+  };
 }
 
 /// Three-column grid of large, flat tap targets (≥ 72dp tall), reachable
@@ -68,15 +75,17 @@ class QuickActionsGrid extends StatelessWidget {
                 SizedBox(
                   width: width,
                   child: Material(
-                    color: a == QuickAction.captureProduct
-                        ? theme.colorScheme.primaryContainer
-                        : theme.colorScheme.surface,
+                    color:
+                        a == QuickAction.captureProduct
+                            ? theme.colorScheme.primaryContainer
+                            : theme.colorScheme.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.md),
                       side: BorderSide(
-                        color: a == QuickAction.captureProduct
-                            ? theme.colorScheme.primaryContainer
-                            : theme.colorScheme.outlineVariant,
+                        color:
+                            a == QuickAction.captureProduct
+                                ? theme.colorScheme.primaryContainer
+                                : theme.colorScheme.outlineVariant,
                       ),
                     ),
                     clipBehavior: Clip.antiAlias,
@@ -92,9 +101,10 @@ class QuickActionsGrid extends StatelessWidget {
                             children: [
                               Icon(
                                 a.icon,
-                                color: a == QuickAction.captureProduct
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.onSurface,
+                                color:
+                                    a == QuickAction.captureProduct
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.onSurface,
                               ),
                               const SizedBox(height: AppSpace.s2),
                               Text(

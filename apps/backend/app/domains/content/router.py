@@ -55,7 +55,7 @@ def calendar(
     end: datetime | None = Query(None, alias="to"),
     status: str | None = None,
     ctx: TenantContext = Depends(require("content.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     if start and end and (end - start).days > 93:
         raise ValidationFailed("Calendar range can be at most 3 months", code="range_too_large")
@@ -73,14 +73,18 @@ def calendar(
 
 @router.post("/posts", status_code=201)
 def create(
-    body: PostIn, ctx: TenantContext = Depends(require("content.write")), db: Session = Depends(get_db)
+    body: PostIn,
+    ctx: TenantContext = Depends(require("content.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.create_post(db, ctx, **body.model_dump()))
 
 
 @router.post("/posts/from-studio", status_code=201)
 def from_studio(
-    body: FromStudioIn, ctx: TenantContext = Depends(require("content.write")), db: Session = Depends(get_db)
+    body: FromStudioIn,
+    ctx: TenantContext = Depends(require("content.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return {
         "items": [
@@ -95,7 +99,7 @@ def update(
     post_id: uuid.UUID,
     body: PostPatch,
     ctx: TenantContext = Depends(require("content.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(
         service.update_post(
@@ -106,14 +110,18 @@ def update(
 
 @router.post("/posts/{post_id}/submit")
 def submit(
-    post_id: uuid.UUID, ctx: TenantContext = Depends(require("content.write")), db: Session = Depends(get_db)
+    post_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("content.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.submit(db, ctx, post_id))
 
 
 @router.post("/posts/{post_id}/approve")
 def approve(
-    post_id: uuid.UUID, ctx: TenantContext = Depends(require("content.read")), db: Session = Depends(get_db)
+    post_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("content.read")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.approve(db, ctx, post_id))
 
@@ -123,7 +131,7 @@ def reject(
     post_id: uuid.UUID,
     body: RejectIn,
     ctx: TenantContext = Depends(require("content.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.reject(db, ctx, post_id, body.note))
 
@@ -133,7 +141,7 @@ def schedule(
     post_id: uuid.UUID,
     body: ScheduleIn,
     ctx: TenantContext = Depends(require("content.publish")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.schedule(db, ctx, post_id, body.at))
 
@@ -142,13 +150,15 @@ def schedule(
 def unschedule(
     post_id: uuid.UUID,
     ctx: TenantContext = Depends(require("content.publish")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.unschedule(db, ctx, post_id))
 
 
 @router.post("/posts/{post_id}/cancel")
 def cancel(
-    post_id: uuid.UUID, ctx: TenantContext = Depends(require("content.write")), db: Session = Depends(get_db)
+    post_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("content.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.cancel(db, ctx, post_id))

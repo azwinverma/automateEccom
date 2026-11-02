@@ -139,7 +139,9 @@ export class ApiClient {
       ...options.headers,
       "X-Request-ID": requestId,
     };
-    if (options.body !== undefined) headers["Content-Type"] = "application/json";
+    const isForm = typeof FormData !== "undefined" && options.body instanceof FormData;
+    // FormData sets its own multipart boundary; JSON bodies are serialised.
+    if (options.body !== undefined && !isForm) headers["Content-Type"] = "application/json";
     if (token) headers.Authorization = `Bearer ${token}`;
     if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
     if (options.tenant) {
@@ -155,7 +157,7 @@ export class ApiClient {
       response = await this.fetchImpl(this.buildUrl(path, options.query), {
         method: options.method ?? "GET",
         headers,
-        body: options.body === undefined ? undefined : JSON.stringify(options.body),
+        body: options.body === undefined ? undefined : isForm ? (options.body as FormData) : JSON.stringify(options.body),
         signal: options.signal,
         credentials: "same-origin",
       });

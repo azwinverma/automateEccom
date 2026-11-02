@@ -13,14 +13,14 @@ class AppUser {
   });
 
   factory AppUser.fromJson(Map<String, Object?> json) => AppUser(
-        id: json['id']! as String,
-        email: json['email']! as String,
-        fullName: (json['full_name'] as String?) ?? '',
-        phone: json['phone'] as String?,
-        locale: json['locale'] as String?,
-        emailVerified: (json['email_verified'] as bool?) ?? false,
-        mfaEnabled: (json['mfa_enabled'] as bool?) ?? false,
-      );
+    id: json['id']! as String,
+    email: json['email']! as String,
+    fullName: (json['full_name'] as String?) ?? '',
+    phone: json['phone'] as String?,
+    locale: json['locale'] as String?,
+    emailVerified: (json['email_verified'] as bool?) ?? false,
+    mfaEnabled: (json['mfa_enabled'] as bool?) ?? false,
+  );
 
   final String id;
   final String email;
@@ -56,12 +56,12 @@ class Membership {
   });
 
   factory Membership.fromJson(Map<String, Object?> json) => Membership(
-        merchant: MerchantSummary.fromJson(
-          json['merchant']! as Map<String, Object?>,
-        ),
-        role: (json['role'] as String?) ?? 'viewer',
-        status: (json['status'] as String?) ?? 'active',
-      );
+    merchant: MerchantSummary.fromJson(
+      json['merchant']! as Map<String, Object?>,
+    ),
+    role: (json['role'] as String?) ?? 'viewer',
+    status: (json['status'] as String?) ?? 'active',
+  );
 
   final MerchantSummary merchant;
   final String role;
@@ -76,12 +76,12 @@ class Me {
   const Me({required this.user, required this.memberships});
 
   factory Me.fromJson(Map<String, Object?> json) => Me(
-        user: AppUser.fromJson(json['user']! as Map<String, Object?>),
-        memberships: ((json['memberships'] as List<Object?>?) ?? const [])
-            .whereType<Map<String, Object?>>()
-            .map(Membership.fromJson)
-            .toList(growable: false),
-      );
+    user: AppUser.fromJson(json['user']! as Map<String, Object?>),
+    memberships: ((json['memberships'] as List<Object?>?) ?? const [])
+        .whereType<Map<String, Object?>>()
+        .map(Membership.fromJson)
+        .toList(growable: false),
+  );
 
   final AppUser user;
   final List<Membership> memberships;

@@ -75,10 +75,7 @@ class VideoCreditMeter extends StatelessWidget {
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
-                Text(
-                  l.videoMeterNoDailyCap,
-                  style: theme.textTheme.bodyMedium,
-                ),
+                Text(l.videoMeterNoDailyCap, style: theme.textTheme.bodyMedium),
               ],
             ),
           )

@@ -125,3 +125,45 @@ These are recorded here so the backend team can confirm them:
 11. "Buy credits" and "Compare plans" link to the Plan page anchors. The contract has no checkout endpoint yet.
 12. The backend is assumed to read `X-Forwarded-For` and `User-Agent`, which the BFF forwards, to record session IP and device.
 13. Phase 0 has no endpoint for exceptions or automation counts. Home passes real empty values: `items=[]` and counts of `0` with honest copy.
+
+## Products (Phase 1 catalog)
+
+Routes: `/products` (list), `/products/new`, `/products/[id]` (editor). The API wrapper is `api.catalog.*` in
+`packages/api-client`. Logic that can be tested without the UI lives in `apps/web/src/lib/catalog`:
+
+| File | What it does |
+|---|---|
+| `lib/money.ts` | Rupees ↔ paisa using string math. Accepts `1,250.50`, `Rs 1250`, `रू १२५०`. Allows at most 2 decimals and caps at NPR 100M, matching the backend guard. |
+| `catalog/variants.ts` | Builds option combinations (cartesian product). Grid rows are keyed by option values, so renaming an option keeps prices already typed in. Removed combinations stay excluded. |
+| `catalog/editor.ts` | Maps the form to and from the API, validates on the client, and builds per-field diffs for PATCH. |
+| `catalog/status.ts` | Lifecycle transitions mirrored from the backend, and the map from each `not_publishable` problem to its editor section. |
+| `catalog/codes.ts` | SKU normalisation and GTIN check digits, mirroring `rules.py`, so a typo is caught before the request. |
+| `catalog/csv.ts` | Import template, error export, formula-injection guard, and a UTF-8 BOM so Excel shows Devanagari. |
+| `catalog/useImportJob.ts` | Polls an import with backoff (1s ×1.5, capped at 5s). Stops on a terminal status, on unmount, or after 3 failures in a row. |
+
+How saving works in the editor:
+1. `PATCH /products/{id}` is sent first, always with `version`. An empty patch still checks for concurrent edits.
+2. Then one `PATCH` per changed variant.
+3. Then the variant archives the seller queued with Remove.
+4. Finally a fresh `GET`.
+
+If something fails partway, the rows that saved become clean. Failed cells keep the seller's values and show the
+error, and a banner says what happened. A `version_conflict` shows a banner and keeps the edits; Reload throws them
+away, and the banner says so. Attribute review (confirm, edit, add) saves immediately and never touches `version`.
+
+Status changes are separate from Save. They are disabled while there are unsaved edits, and disabled for anyone
+without `catalog.publish`.
+
+`lib/navigationGuard.ts` blocks leaving the page with unsaved changes in three ways: `beforeunload`, a capture-phase
+click handler on same-origin links, and `confirmLeave()`, which the command palette calls.
+
+### Catalog API gaps (reported to the backend team)
+- **Options and variants are fixed after create.** There is no endpoint to add an option, value or variant to an
+  existing product. The editor shows existing variants, which can be edited or archived, and explains the limit.
+- **Variant PATCH has no `version`.** The editor works around this by sending an empty product PATCH with `version`
+  first.
+- **Collection membership can't be edited safely.** `PUT /collections/{id}/products` replaces the whole list, and no
+  endpoint lists a collection's products. Collections are therefore shown read-only.
+- **Categories are create-only.** There is no rename, move or delete.
+- **Import row errors with `code: invalid_row` carry English text** (e.g. `price: 'abc' is not a number`) and no
+  structured field, so they can't be localized. Known catalog codes are localized.

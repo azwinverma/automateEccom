@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Principal, client_ip, get_db, get_principal, request_meta
 from app.core import ratelimit
+from app.core.config import get_settings
 from app.domains.accounts import service
 from app.domains.merchants.models import Membership, Merchant
 from app.domains.platform import outbox
@@ -86,8 +87,12 @@ def _pair(p: service.TokenPair) -> TokenPairOut:
 
 
 @router.post("/auth/register", status_code=201, response_model=UserOut)
-def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)) -> UserOut:
-    ratelimit.hit(f"register:ip:{client_ip(request)}", limit=10, window_seconds=3600)
+def register(body: RegisterIn, request: Request, db: Session = Depends(get_db, scope="function")) -> UserOut:
+    ratelimit.hit(
+        f"register:ip:{client_ip(request)}",
+        limit=get_settings().rate_limit_register_per_hour,
+        window_seconds=3600,
+    )
     user = service.register(
         db,
         email=body.email,
@@ -101,8 +106,12 @@ def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)) 
 
 
 @router.post("/auth/login", response_model=TokenPairOut | MfaChallengeOut)
-def login(body: LoginIn, request: Request, db: Session = Depends(get_db)) -> TokenPairOut | MfaChallengeOut:
-    ratelimit.hit(f"login:ip:{client_ip(request)}", limit=30, window_seconds=60)
+def login(
+    body: LoginIn, request: Request, db: Session = Depends(get_db, scope="function")
+) -> TokenPairOut | MfaChallengeOut:
+    ratelimit.hit(
+        f"login:ip:{client_ip(request)}", limit=get_settings().rate_limit_login_per_minute, window_seconds=60
+    )
     ratelimit.hit(f"login:email:{body.email.lower()}", limit=10, window_seconds=300)
     result = service.login(
         db, email=body.email, password=body.password, device_name=body.device_name, meta=request_meta(request)
@@ -113,18 +122,22 @@ def login(body: LoginIn, request: Request, db: Session = Depends(get_db)) -> Tok
 
 
 @router.post("/auth/mfa/verify", response_model=TokenPairOut)
-def mfa_verify(body: MfaVerifyIn, request: Request, db: Session = Depends(get_db)) -> TokenPairOut:
+def mfa_verify(
+    body: MfaVerifyIn, request: Request, db: Session = Depends(get_db, scope="function")
+) -> TokenPairOut:
     ratelimit.hit(f"mfa:ip:{client_ip(request)}", limit=20, window_seconds=300)
     return _pair(service.verify_mfa(db, mfa_token=body.mfa_token, code=body.code, meta=request_meta(request)))
 
 
 @router.post("/auth/refresh", response_model=TokenPairOut)
-def refresh(body: RefreshIn, request: Request, db: Session = Depends(get_db)) -> TokenPairOut:
+def refresh(
+    body: RefreshIn, request: Request, db: Session = Depends(get_db, scope="function")
+) -> TokenPairOut:
     return _pair(service.refresh(db, refresh_token=body.refresh_token, meta=request_meta(request)))
 
 
 @router.post("/auth/logout", status_code=204)
-def logout(body: RefreshIn, request: Request, db: Session = Depends(get_db)) -> Response:
+def logout(body: RefreshIn, request: Request, db: Session = Depends(get_db, scope="function")) -> Response:
     service.logout(db, refresh_token=body.refresh_token, meta=request_meta(request))
     return Response(status_code=204)
 
@@ -142,7 +155,7 @@ class SessionOut(BaseModel):
 
 @router.get("/auth/sessions")
 def sessions(
-    p: Principal = Depends(get_principal), db: Session = Depends(get_db)
+    p: Principal = Depends(get_principal), db: Session = Depends(get_db, scope="function")
 ) -> dict[str, list[SessionOut]]:
     rows = service.list_sessions(db, p.user.id)
     return {
@@ -167,7 +180,7 @@ def revoke_session(
     session_id: uuid.UUID,
     request: Request,
     p: Principal = Depends(get_principal),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.revoke_session(db, p.user, session_id, request_meta(request))
     return Response(status_code=204)
@@ -175,7 +188,7 @@ def revoke_session(
 
 @router.post("/auth/sessions/revoke-all", status_code=204)
 def revoke_all(
-    request: Request, p: Principal = Depends(get_principal), db: Session = Depends(get_db)
+    request: Request, p: Principal = Depends(get_principal), db: Session = Depends(get_db, scope="function")
 ) -> Response:
     service.revoke_all_other_sessions(db, p.user, p.session.id, request_meta(request))
     return Response(status_code=204)
@@ -195,28 +208,38 @@ class DisableMfaIn(CodeIn):
 
 
 @router.post("/auth/mfa/totp/setup", response_model=TotpSetupOut)
-def totp_setup(p: Principal = Depends(get_principal), db: Session = Depends(get_db)) -> TotpSetupOut:
+def totp_setup(
+    p: Principal = Depends(get_principal), db: Session = Depends(get_db, scope="function")
+) -> TotpSetupOut:
     secret, uri = service.totp_setup(db, p.user)
     return TotpSetupOut(secret=secret, otpauth_uri=uri)
 
 
 @router.post("/auth/mfa/totp/enable")
 def totp_enable(
-    body: CodeIn, request: Request, p: Principal = Depends(get_principal), db: Session = Depends(get_db)
+    body: CodeIn,
+    request: Request,
+    p: Principal = Depends(get_principal),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, list[str]]:
     return {"recovery_codes": service.totp_enable(db, p.user, body.code, request_meta(request))}
 
 
 @router.post("/auth/mfa/totp/disable", status_code=204)
 def totp_disable(
-    body: DisableMfaIn, request: Request, p: Principal = Depends(get_principal), db: Session = Depends(get_db)
+    body: DisableMfaIn,
+    request: Request,
+    p: Principal = Depends(get_principal),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.totp_disable(db, p.user, body.code, body.password, request_meta(request))
     return Response(status_code=204)
 
 
 @router.post("/auth/verify-email/request", status_code=202)
-def verify_email_request(p: Principal = Depends(get_principal), db: Session = Depends(get_db)) -> Response:
+def verify_email_request(
+    p: Principal = Depends(get_principal), db: Session = Depends(get_db, scope="function")
+) -> Response:
     ratelimit.hit(f"verify-email:{p.user.id}", limit=5, window_seconds=3600)
     if p.user.email_verified_at is None:
         outbox.publish(
@@ -235,7 +258,9 @@ class TokenIn(BaseModel):
 
 
 @router.post("/auth/verify-email/confirm", status_code=204)
-def verify_email_confirm(body: TokenIn, request: Request, db: Session = Depends(get_db)) -> Response:
+def verify_email_confirm(
+    body: TokenIn, request: Request, db: Session = Depends(get_db, scope="function")
+) -> Response:
     service.confirm_email(db, body.token, request_meta(request))
     return Response(status_code=204)
 
@@ -259,7 +284,7 @@ class MeOut(BaseModel):
 
 
 @router.get("/me", response_model=MeOut, tags=["me"])
-def me(p: Principal = Depends(get_principal), db: Session = Depends(get_db)) -> MeOut:
+def me(p: Principal = Depends(get_principal), db: Session = Depends(get_db, scope="function")) -> MeOut:
     rows = db.execute(
         select(Membership, Merchant)
         .join(Merchant, Merchant.id == Membership.merchant_id)
@@ -285,7 +310,10 @@ class MePatch(BaseModel):
 
 @router.patch("/me", response_model=UserOut, tags=["me"])
 def patch_me(
-    body: MePatch, request: Request, p: Principal = Depends(get_principal), db: Session = Depends(get_db)
+    body: MePatch,
+    request: Request,
+    p: Principal = Depends(get_principal),
+    db: Session = Depends(get_db, scope="function"),
 ) -> UserOut:
     from app.domains.audit import service as audit
 

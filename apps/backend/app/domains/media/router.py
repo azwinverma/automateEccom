@@ -31,7 +31,9 @@ class UploadIn(BaseModel):
 
 @router.post("/uploads", status_code=201)
 def create_upload(
-    body: UploadIn, ctx: TenantContext = Depends(require("media.write")), db: Session = Depends(get_db)
+    body: UploadIn,
+    ctx: TenantContext = Depends(require("media.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     a, upload = service.create_upload(
         db, ctx, body.file_name, body.content_type, body.size_bytes, body.purpose
@@ -41,7 +43,9 @@ def create_upload(
 
 @router.post("/{asset_id}/complete", status_code=202)
 def complete_upload(
-    asset_id: uuid.UUID, ctx: TenantContext = Depends(require("media.write")), db: Session = Depends(get_db)
+    asset_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("media.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.asset_view(db, service.complete_upload(db, ctx, asset_id), with_urls=False)
 
@@ -61,7 +65,7 @@ class ReelIn(BaseModel):
 def create_auto_reel(
     body: ReelIn,
     ctx: TenantContext = Depends(require("media.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     idem: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> dict[str, Any]:
     key = idem or str(uuid.uuid4())
@@ -82,14 +86,16 @@ def create_auto_reel(
 
 @router.get("/videos/{job_id}")
 def get_video(
-    job_id: uuid.UUID, ctx: TenantContext = Depends(require("media.read")), db: Session = Depends(get_db)
+    job_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("media.read")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return video.job_view(db, video._get(db, ctx, job_id))
 
 
 @router.get("/videos")
 def list_videos(
-    ctx: TenantContext = Depends(require("media.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("media.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict[str, Any]:
     rows = db.scalars(select(VideoJob).order_by(VideoJob.created_at.desc()).limit(50))
     return {"items": [video.job_view(db, j) for j in rows]}
@@ -97,14 +103,18 @@ def list_videos(
 
 @router.post("/videos/{job_id}/cancel")
 def cancel_video(
-    job_id: uuid.UUID, ctx: TenantContext = Depends(require("media.write")), db: Session = Depends(get_db)
+    job_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("media.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return video.job_view(db, video.cancel(db, ctx, job_id))
 
 
 @router.get("/{asset_id}")
 def get_asset(
-    asset_id: uuid.UUID, ctx: TenantContext = Depends(require("media.read")), db: Session = Depends(get_db)
+    asset_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("media.read")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.asset_view(db, service._get(db, ctx, asset_id))
 
@@ -115,7 +125,7 @@ def list_assets(
     limit: int = Query(50, ge=1, le=100),
     cursor: str | None = None,
     ctx: TenantContext = Depends(require("media.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     stmt = select(MediaAsset).where(MediaAsset.status.not_in(("deleted", "pending_upload")))
     if status:
@@ -127,7 +137,9 @@ def list_assets(
 
 @router.delete("/{asset_id}", status_code=204)
 def delete_asset(
-    asset_id: uuid.UUID, ctx: TenantContext = Depends(require("media.write")), db: Session = Depends(get_db)
+    asset_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("media.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.delete_asset(db, ctx, asset_id)
     return Response(status_code=204)

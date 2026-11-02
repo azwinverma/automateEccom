@@ -58,10 +58,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     TextInput.finishAutofillContext();
     await _run(() async {
-      final token = await ref.read(sessionControllerProvider.notifier).login(
-            email: _email.text.trim(),
-            password: _password.text,
-          );
+      final token = await ref
+          .read(sessionControllerProvider.notifier)
+          .login(email: _email.text.trim(), password: _password.text);
       if (token != null && mounted) setState(() => _mfaToken = token);
     });
   }
@@ -69,7 +68,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _submitCode() async {
     if (!(_mfaKey.currentState?.validate() ?? false)) return;
     await _run(
-      () => ref.read(sessionControllerProvider.notifier).verifyMfa(
+      () => ref
+          .read(sessionControllerProvider.notifier)
+          .verifyMfa(
             mfaToken: _mfaToken!,
             code: _code.text.trim().replaceAll(' ', ''),
           ),
@@ -101,9 +102,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (_) => _submitCode(),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontFamily: AppTheme.latinFamily,
-                      letterSpacing: 4,
-                    ),
+                  fontFamily: AppTheme.latinFamily,
+                  letterSpacing: 4,
+                ),
                 decoration: InputDecoration(labelText: l.fieldMfaCode),
                 validator: (v) => Validators.code(l, v),
               ),
@@ -119,9 +120,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: AppSpace.s2),
               TextButton(
-                onPressed: _busy
-                    ? null
-                    : () => setState(() {
+                onPressed:
+                    _busy
+                        ? null
+                        : () => setState(() {
                           _mfaToken = null;
                           _code.clear();
                           _error = null;

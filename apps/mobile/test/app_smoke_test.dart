@@ -4,6 +4,7 @@ import 'package:commerce_os_seller/core/config/app_config.dart';
 import 'package:commerce_os_seller/core/l10n/locale_controller.dart';
 import 'package:commerce_os_seller/core/storage/key_value_store.dart';
 import 'package:commerce_os_seller/core/storage/providers.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,9 +31,31 @@ const _me = {
   ],
 };
 
-FakeResponse _api(dynamic o) {
-  final path = (o as dynamic).path as String;
+List<Map<String, Object?>> _exceptions = const [];
+
+FakeResponse _api(RequestOptions o) {
+  final path = o.path;
   switch (path) {
+    case '/exceptions':
+      return FakeResponse(200, {
+        'items': _exceptions,
+        'counts': <String, Object?>{},
+        'total': _exceptions.length,
+      });
+    case '/merchant':
+      return const FakeResponse(200, {
+        'id': 'm1',
+        'name': 'Thamel Handloom',
+        'automation_mode': 'assisted',
+      });
+    case '/studio/jobs/j1':
+      return const FakeResponse(200, {
+        'id': 'j1',
+        'status': 'failed',
+        'asset_ids': ['a1'],
+        'error_code': 'ai_unavailable',
+        'issues': <Object?>[],
+      });
     case '/me':
       return const FakeResponse(200, _me);
     case '/billing/subscription':
@@ -104,7 +127,10 @@ Future<FakeAdapter> _boot(
   WidgetTester tester, {
   required bool signedIn,
   String locale = 'en',
+  List<Map<String, Object?>> exceptions = const [],
+  double height = 740,
 }) async {
+  _exceptions = exceptions;
   SharedPreferences.setMockInitialValues({'app.locale': locale});
   final prefs = await SharedPreferences.getInstance();
   final secure = InMemoryKeyValueStore();
@@ -113,7 +139,7 @@ Future<FakeAdapter> _boot(
     secure.values['auth.refresh_token'] = 'r1';
   }
   final adapter = FakeAdapter(_api);
-  tester.view.physicalSize = const Size(360 * 3, 740 * 3);
+  tester.view.physicalSize = Size(360 * 3, height * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -149,13 +175,21 @@ void main() {
     expect(find.text('Namaste, Sita'), findsOneWidget);
     expect(find.text('Thamel Handloom'), findsOneWidget);
     expect(find.text('Nothing needs you right now'), findsOneWidget);
-    expect(find.textContaining('Not active yet'), findsOneWidget);
+    // Real mode from GET /merchant; no invented "handled" count.
+    expect(find.text('Assisted'), findsOneWidget);
+    expect(find.text('0 need you'), findsOneWidget);
+    expect(find.textContaining('handled'), findsNothing);
     await tester.scrollUntilVisible(find.text('Ready to ship'), 200);
     expect(find.text('Not counted yet'), findsNWidgets(4));
 
-    // Quick action → honest Phase 1 explainer.
+    // Capture is live now; Reels are still an honest explainer.
     await tester.scrollUntilVisible(find.text('Capture product'), -200);
     await tester.tap(find.text('Capture product'));
+    await tester.pumpAndSettle();
+    expect(find.text('Take photo'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create Reel'));
     await tester.pumpAndSettle();
     expect(find.text('Coming in the next release'), findsOneWidget);
     await tester.pageBack();
@@ -185,6 +219,50 @@ void main() {
     expect(find.text('This phone'), findsOneWidget);
     expect(find.text('Chrome on Windows'), findsOneWidget);
     expect(find.text('Log out all other devices'), findsOneWidget);
+  });
+
+  testWidgets('live exceptions render and route by action', (tester) async {
+    await _boot(
+      tester,
+      signedIn: true,
+      height: 1400,
+      exceptions: [
+        {
+          'id': 'channel_expired:c1',
+          'type': 'channel_expired',
+          'severity': 'urgent',
+          'resource': {'type': 'channel_connection', 'id': 'c1'},
+          'occurred_at': '2026-11-02T08:00:00Z',
+          'action': 'reconnect',
+          'details': {'provider': 'instagram', 'name': 'Thamel IG'},
+        },
+        {
+          'id': 'provider_failure:j1',
+          'type': 'provider_failure',
+          'severity': 'normal',
+          'resource': {'type': 'studio_job', 'id': 'j1'},
+          'occurred_at': '2026-11-02T07:00:00Z',
+          'action': 'retry_draft',
+          'details': {'error_code': 'ai_unavailable'},
+        },
+      ],
+    );
+    expect(find.text('Channel disconnected'), findsOneWidget);
+    expect(find.text('Thamel IG · Reconnect'), findsOneWidget);
+    expect(find.text('2 items'), findsOneWidget);
+    expect(find.text('2 need you'), findsOneWidget);
+
+    await tester.tap(find.text('Thamel IG · Reconnect'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reconnect Thamel IG'), findsOneWidget);
+    expect(find.textContaining('reconnect=c1'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('AI draft · Retry draft'));
+    await tester.pumpAndSettle();
+    expect(find.text("We couldn't write this draft"), findsOneWidget);
+    expect(find.byKey(const Key('job-retry')), findsOneWidget);
   });
 
   testWidgets('Nepali home renders without overflow', (tester) async {

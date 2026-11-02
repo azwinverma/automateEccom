@@ -47,5 +47,7 @@ def metrics() -> PlainTextResponse:
 
 
 @router.get("/feature-flags")
-def feature_flags(ctx: TenantContext = Depends(get_tenant), db: Session = Depends(get_db)) -> dict:
+def feature_flags(
+    ctx: TenantContext = Depends(get_tenant), db: Session = Depends(get_db, scope="function")
+) -> dict:
     return {"flags": flags.evaluate_all(db, ctx.merchant_id)}

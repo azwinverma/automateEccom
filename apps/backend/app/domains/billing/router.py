@@ -15,7 +15,7 @@ router = APIRouter(prefix="/billing", tags=["billing"])
 
 @router.get("/subscription")
 def subscription(
-    ctx: TenantContext = Depends(require("billing.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("billing.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict:
     ent = entitlements.resolve(db, ctx.merchant_id)
     sub = ent.subscription
@@ -42,7 +42,7 @@ def subscription(
 
 @router.get("/entitlements")
 def get_entitlements(
-    ctx: TenantContext = Depends(require("billing.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("billing.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict:
     ent = entitlements.resolve(db, ctx.merchant_id)
     return {
@@ -57,7 +57,7 @@ def credits(
     limit: int = Query(50, ge=1, le=200),
     cursor: str | None = None,
     ctx: TenantContext = Depends(require("billing.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     rows = list(db.scalars(paginate_desc(select(CreditTransaction), CreditTransaction.id, limit, cursor)))
     items, nxt = build_page(rows, limit)

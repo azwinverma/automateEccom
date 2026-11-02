@@ -7,16 +7,45 @@ import '../../../core/l10n/formatters.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../design/tokens.g.dart';
 import '../../../design/widgets/section_header.dart';
+import '../../../design/widgets/state_views.dart';
+import '../../channels/presentation/reconnect_sheet.dart';
+import '../../exceptions/data/exception_routing.dart';
+import '../../exceptions/data/exceptions_api.dart';
+import '../../exceptions/presentation/exception_mapping.dart';
 import 'widgets/autopilot_status_strip.dart';
 import 'widgets/exception_list.dart';
 import 'widgets/quick_actions.dart';
 import 'widgets/today_metrics.dart';
 
 /// Home, ordered by seller priority: what needs me → act fast → today's
-/// numbers. Phase 0 has no order/inbox/automation domains, so those regions
-/// render honest empty states.
+/// numbers. Exceptions are live (`GET /exceptions`); orders/revenue still
+/// have no backend domain, so those stay honest empty states.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  Future<void> _open(
+    BuildContext context,
+    WidgetRef ref,
+    ApiException e,
+  ) async {
+    switch (resolveExceptionAction(e)) {
+      case OpenRoute(:final location):
+        await context.push(location);
+        ref.invalidate(exceptionsProvider);
+      case ReconnectChannel(:final connectionId):
+        await showReconnectSheet(
+          context,
+          connectionId: connectionId,
+          channelName: e.details['name'] as String?,
+        );
+      case DismissLocally(:final exceptionId):
+        await ref
+            .read(dismissedExceptionsProvider.notifier)
+            .dismiss(exceptionId);
+      case NoAction():
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,16 +56,38 @@ class HomeScreen extends ConsumerWidget {
     final signedIn = session is SessionSignedIn ? session : null;
     final firstName = (signedIn?.me.user.fullName ?? '').split(' ').first;
     final shopName = signedIn?.merchant?.name ?? '';
+    final exceptions = ref.watch(exceptionsProvider);
+    final mode = ref.watch(automationModeProvider).valueOrNull;
+    final count = exceptions.valueOrNull?.length;
 
-    // Real sources arrive with the orders/inbox/automation domains.
-    const exceptions = <ExceptionItem>[];
-    const AutopilotStatus? autopilot = null;
+    final autopilot =
+        mode == null || count == null
+            ? null
+            : AutopilotStatus(
+              mode: switch (mode) {
+                'smart' => AutopilotMode.smart,
+                'autopilot' => AutopilotMode.autopilot,
+                _ => AutopilotMode.assisted,
+              },
+              // No automation-run metric exists yet; shown only when it does.
+              automatedCount: null,
+              needsAttentionCount: count,
+            );
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () =>
+          onRefresh: () async {
+            ref
+              ..invalidate(exceptionsProvider)
+              ..invalidate(automationModeProvider);
+            await Future.wait<Object?>([
               ref.read(sessionControllerProvider.notifier).refreshMe(),
+              ref
+                  .read(exceptionsProvider.future)
+                  .catchError((Object _) => <ApiException>[]),
+            ]);
+          },
           child: ListView(
             padding: const EdgeInsets.only(bottom: AppSpace.s8),
             children: [
@@ -69,18 +120,31 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const AutopilotStatusStrip(status: autopilot),
+              AutopilotStatusStrip(status: autopilot),
               SectionHeader(
                 l.homeSectionNeedsYou,
-                trailing: exceptions.isEmpty
-                    ? null
-                    : Text(l.exceptionsCount(exceptions.length)),
+                trailing:
+                    count == null || count == 0
+                        ? null
+                        : Text(l.exceptionsCount(count)),
               ),
-              const ExceptionList(items: exceptions),
+              AsyncValueView<List<ApiException>>(
+                value: exceptions,
+                onRetry: () => ref.invalidate(exceptionsProvider),
+                loading: const SkeletonList(rows: 2),
+                data: (items) {
+                  final byId = {for (final e in items) e.id: e};
+                  return ExceptionList(
+                    items: toExceptionItems(l, items),
+                    onTap: (item) {
+                      final e = byId[item.id];
+                      if (e != null) _open(context, ref, e);
+                    },
+                  );
+                },
+              ),
               SectionHeader(l.quickActionsTitle),
-              QuickActionsGrid(
-                onSelected: (a) => context.push('/soon/${a.slug}'),
-              ),
+              QuickActionsGrid(onSelected: (a) => context.push(a.route)),
               SectionHeader(l.homeSectionToday),
               const TodayMetrics(),
             ],

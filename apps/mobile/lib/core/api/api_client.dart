@@ -8,14 +8,14 @@ import 'request_context_interceptor.dart';
 import 'retry_interceptor.dart';
 
 BaseOptions _baseOptions(AppConfig config) => BaseOptions(
-      baseUrl: config.apiV1,
-      connectTimeout: config.connectTimeout,
-      receiveTimeout: config.receiveTimeout,
-      sendTimeout: config.sendTimeout,
-      contentType: Headers.jsonContentType,
-      responseType: ResponseType.json,
-      headers: {'Accept': 'application/json'},
-    );
+  baseUrl: config.apiV1,
+  connectTimeout: config.connectTimeout,
+  receiveTimeout: config.receiveTimeout,
+  sendTimeout: config.sendTimeout,
+  contentType: Headers.jsonContentType,
+  responseType: ResponseType.json,
+  headers: {'Accept': 'application/json'},
+);
 
 /// Builds the app's Dio stack.
 ///

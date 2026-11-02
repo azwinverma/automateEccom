@@ -32,7 +32,7 @@ def search_merchants(
     q: str | None = Query(None, max_length=100),
     limit: int = Query(25, ge=1, le=100),
     p: Principal = Depends(require_staff),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     stmt = select(Merchant).order_by(Merchant.created_at.desc()).limit(limit)
     if q:
@@ -48,7 +48,9 @@ def search_merchants(
 
 @router.get("/merchants/{merchant_id}")
 def merchant_detail(
-    merchant_id: uuid.UUID, p: Principal = Depends(require_staff), db: Session = Depends(get_db)
+    merchant_id: uuid.UUID,
+    p: Principal = Depends(require_staff),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     m = db.get(Merchant, merchant_id)
     if m is None:
@@ -90,7 +92,7 @@ def list_outbox(
     status: str = Query("dead", pattern="^(pending|dispatched|dead)$"),
     limit: int = Query(50, le=200),
     p: Principal = Depends(require_staff),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     rows = db.scalars(
         select(OutboxEvent)
@@ -120,7 +122,7 @@ def retry_outbox(
     event_id: uuid.UUID,
     request: Request,
     p: Principal = Depends(require_staff),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     ev = outbox.requeue(db, event_id)
     audit.record(
@@ -137,7 +139,9 @@ def retry_outbox(
 
 
 @router.get("/feature-flags")
-def list_flags(p: Principal = Depends(require_staff), db: Session = Depends(get_db)) -> dict:
+def list_flags(
+    p: Principal = Depends(require_staff), db: Session = Depends(get_db, scope="function")
+) -> dict:
     return {
         "items": [
             {
@@ -165,7 +169,7 @@ def upsert_flag(
     body: FlagIn,
     request: Request,
     p: Principal = Depends(require_staff),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     f = db.get(FeatureFlag, key)
     before = None

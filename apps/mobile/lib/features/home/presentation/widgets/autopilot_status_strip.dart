@@ -15,7 +15,9 @@ class AutopilotStatus {
   });
 
   final AutopilotMode mode;
-  final int automatedCount;
+
+  /// Null when no automation-run count exists yet (never invented).
+  final int? automatedCount;
   final int needsAttentionCount;
 }
 
@@ -46,65 +48,68 @@ class AutopilotStatusStrip extends StatelessWidget {
         horizontal: AppSpace.s4,
         vertical: AppSpace.s3,
       ),
-      child: s == null
-          ? Row(
-              children: [
-                Icon(
-                  Icons.pause_circle_outline,
-                  size: 20,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: AppSpace.s2),
-                Text(l.autopilotTitle, style: theme.textTheme.titleSmall),
-                const SizedBox(width: AppSpace.s2),
-                Expanded(
-                  child: Text(
-                    l.autopilotNotActive,
+      child:
+          s == null
+              ? Row(
+                children: [
+                  Icon(
+                    Icons.pause_circle_outline,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: AppSpace.s2),
+                  Text(l.autopilotTitle, style: theme.textTheme.titleSmall),
+                  const SizedBox(width: AppSpace.s2),
+                  Expanded(
+                    child: Text(
+                      l.autopilotNotActive,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+              : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: AppSpace.s3,
+                    runSpacing: AppSpace.s1,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _ModeSegments(mode: s.mode),
+                      if (s.automatedCount != null)
+                        _Count(
+                          key: const Key('autopilot-automated'),
+                          text: l.autopilotAutomated(s.automatedCount!),
+                          color: palette.success,
+                          icon: Icons.check,
+                        ),
+                      _Count(
+                        key: const Key('autopilot-attention'),
+                        text: l.autopilotNeedsAttention(s.needsAttentionCount),
+                        color:
+                            s.needsAttentionCount > 0
+                                ? palette.warning
+                                : theme.colorScheme.onSurfaceVariant,
+                        icon: Icons.flag_outlined,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpace.s1),
+                  Text(
+                    switch (s.mode) {
+                      AutopilotMode.assisted => l.autopilotModeAssistedHint,
+                      AutopilotMode.smart => l.autopilotModeSmartHint,
+                      AutopilotMode.autopilot => l.autopilotModeAutopilotHint,
+                    },
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                ),
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: AppSpace.s3,
-                  runSpacing: AppSpace.s1,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    _ModeSegments(mode: s.mode),
-                    _Count(
-                      key: const Key('autopilot-automated'),
-                      text: l.autopilotAutomated(s.automatedCount),
-                      color: palette.success,
-                      icon: Icons.check,
-                    ),
-                    _Count(
-                      key: const Key('autopilot-attention'),
-                      text: l.autopilotNeedsAttention(s.needsAttentionCount),
-                      color: s.needsAttentionCount > 0
-                          ? palette.warning
-                          : theme.colorScheme.onSurfaceVariant,
-                      icon: Icons.flag_outlined,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpace.s1),
-                Text(
-                  switch (s.mode) {
-                    AutopilotMode.assisted => l.autopilotModeAssistedHint,
-                    AutopilotMode.smart => l.autopilotModeSmartHint,
-                    AutopilotMode.autopilot => l.autopilotModeAutopilotHint,
-                  },
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
     );
   }
 }
@@ -134,9 +139,10 @@ class _ModeSegments extends StatelessWidget {
               width: 14,
               height: 6,
               margin: const EdgeInsetsDirectional.only(end: 2),
-              color: m.index <= mode.index
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceContainerHighest,
+              color:
+                  m.index <= mode.index
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.surfaceContainerHighest,
             ),
           const SizedBox(width: AppSpace.s2),
           Text(label, style: theme.textTheme.titleSmall),
@@ -160,17 +166,14 @@ class _Count extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: AppSpace.s1),
-          Text(
-            text,
-            style: Theme.of(context)
-                .textTheme
-                .labelMedium
-                ?.copyWith(color: color),
-          ),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 16, color: color),
+      const SizedBox(width: AppSpace.s1),
+      Text(
+        text,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
+      ),
+    ],
+  );
 }

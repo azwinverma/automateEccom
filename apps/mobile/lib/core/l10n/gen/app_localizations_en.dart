@@ -643,4 +643,660 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resApiCalls => 'API calls';
+
+  @override
+  String get captureTitle => 'Capture product';
+
+  @override
+  String get captureIntro => 'Add up to 6 clear photos. Front, back and a close-up of the fabric or label work best.';
+
+  @override
+  String get captureTakePhoto => 'Take photo';
+
+  @override
+  String get captureFromGallery => 'Choose from gallery';
+
+  @override
+  String capturePhotoCount(int count, int max) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String maxString = maxNumberFormat.format(max);
+
+    return '$countString of $maxString photos';
+  }
+
+  @override
+  String get captureLimitReached => 'That\'s 6 photos — the most one draft can use.';
+
+  @override
+  String captureSkipped(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString photos weren\'t added',
+      one: '1 photo wasn\'t added',
+    );
+    return '$_temp0 — 6 is the limit.';
+  }
+
+  @override
+  String get captureNotesLabel => 'Anything we should know? (optional)';
+
+  @override
+  String get captureNotesHint => 'e.g. pure cotton, handmade in Bhaktapur';
+
+  @override
+  String get captureMakeDraft => 'Write my listing';
+
+  @override
+  String get captureWaitForUploads => 'Waiting for photos to finish uploading…';
+
+  @override
+  String get captureNeedOneReady => 'Add at least one photo to continue.';
+
+  @override
+  String get captureRemovePhoto => 'Remove photo';
+
+  @override
+  String get capturePickerError => 'Couldn\'t open the camera or gallery. Check photo and camera access in phone Settings.';
+
+  @override
+  String get captureResumeAll => 'Resume uploads';
+
+  @override
+  String get captureKeepsGoing => 'Uploads keep going if you switch apps. If the app closes, they pick up where they left off.';
+
+  @override
+  String get uploadQueued => 'Waiting';
+
+  @override
+  String uploadUploading(String percent) {
+    return 'Uploading $percent';
+  }
+
+  @override
+  String get uploadProcessing => 'Checking photo';
+
+  @override
+  String get uploadReady => 'Ready';
+
+  @override
+  String get uploadPaused => 'Paused — no connection';
+
+  @override
+  String get uploadRetrying => 'Retrying…';
+
+  @override
+  String get uploadRejected => 'Can\'t use this photo';
+
+  @override
+  String get uploadFailed => 'Upload failed';
+
+  @override
+  String get uploadTapRetry => 'Tap to retry';
+
+  @override
+  String get rejectNotAnImage => 'This file isn\'t a photo.';
+
+  @override
+  String get rejectTooLarge => 'Photo is too big. Pick one under 20 MB.';
+
+  @override
+  String get rejectUnsupported => 'This format isn\'t supported. Use JPEG, PNG, WebP or HEIC.';
+
+  @override
+  String get rejectMalware => 'This file looked unsafe, so we deleted it.';
+
+  @override
+  String get tipLowResolution => 'Photo is small. Move closer or use the main camera.';
+
+  @override
+  String get tipBlurry => 'Photo looks blurry. Hold steady and tap to focus.';
+
+  @override
+  String get tipTooDark => 'Photo looks dark. Try near a window.';
+
+  @override
+  String get tipOverexposed => 'Photo is too bright. Move out of direct sun.';
+
+  @override
+  String get errFileTooLarge => 'Photo is too big (max 20 MB).';
+
+  @override
+  String get errUnsupportedMediaType => 'Use a JPEG, PNG, WebP or HEIC photo.';
+
+  @override
+  String get errStorageFull => 'Photo storage on your plan is full. Delete old photos or upgrade.';
+
+  @override
+  String get errFileUnreadable => 'We couldn\'t read this photo from your phone. Pick it again.';
+
+  @override
+  String get errUploadMissing => 'The photo didn\'t reach us. Retry the upload.';
+
+  @override
+  String get errUploadExpired => 'The upload took too long. Start it again.';
+
+  @override
+  String get errMediaNotReady => 'Some photos are still being checked. Try again in a moment.';
+
+  @override
+  String get errMediaNotFound => 'Some photos are no longer available. Add them again.';
+
+  @override
+  String get errDraftNotReady => 'This draft isn\'t ready yet.';
+
+  @override
+  String get errNotPublishable => 'This product isn\'t ready to go live yet.';
+
+  @override
+  String get errProductNotActive => 'Make the product live first, then publish it to channels.';
+
+  @override
+  String get errCapabilityNotSupported => 'This channel can\'t do that.';
+
+  @override
+  String get errVersionConflict => 'Someone else changed this. We loaded the latest — check and try again.';
+
+  @override
+  String get errPostLocked => 'Scheduled posts can\'t be edited. Unschedule it first.';
+
+  @override
+  String get errReconnectRequired => 'Reconnect this channel first.';
+
+  @override
+  String get errScheduleInPast => 'Pick a time in the future.';
+
+  @override
+  String get errScheduleTooFar => 'Posts can be scheduled up to 90 days ahead.';
+
+  @override
+  String get errCaptionRequired => 'Write a caption.';
+
+  @override
+  String get errCaptionTooLong => 'This caption is too long for the channel.';
+
+  @override
+  String get errInvalidPhotoCount => 'Choose 1 to 6 photos.';
+
+  @override
+  String get errNotFailed => 'Only failed drafts can be retried.';
+
+  @override
+  String get errAiUnavailable => 'Our writing service is busy. Try again in a few minutes.';
+
+  @override
+  String get draftWorkingTitle => 'Writing your listing';
+
+  @override
+  String get draftWorkingBody => 'Reading your photos and drafting the name, description and captions in Nepali and English. This usually takes under a minute.';
+
+  @override
+  String get draftQueued => 'In line';
+
+  @override
+  String get draftRunning => 'Working on it';
+
+  @override
+  String get draftLeaveOk => 'You can leave this screen; we\'ll keep working. Find it later under Drafts.';
+
+  @override
+  String get draftFailedTitle => 'We couldn\'t write this draft';
+
+  @override
+  String get draftFailedBody => 'Our writing service had a problem. Your photos are safe.';
+
+  @override
+  String get draftAppliedTitle => 'Already saved as a product';
+
+  @override
+  String get draftOpenProduct => 'Open product';
+
+  @override
+  String get draftDiscarded => 'This draft was discarded.';
+
+  @override
+  String get reviewTitle => 'Check your listing';
+
+  @override
+  String get reviewAiNote => 'Written by AI from your photos. Change anything that\'s off.';
+
+  @override
+  String get reviewSectionText => 'Name and description';
+
+  @override
+  String get fieldTitleNe => 'Name (Nepali)';
+
+  @override
+  String get fieldTitleEn => 'Name (English)';
+
+  @override
+  String get fieldDescriptionNe => 'Description (Nepali)';
+
+  @override
+  String get fieldDescriptionEn => 'Description (English)';
+
+  @override
+  String get validationTitleRequired => 'Add a name in Nepali or English';
+
+  @override
+  String get reviewSectionCategory => 'Category';
+
+  @override
+  String get fieldCategoryHint => 'Separate levels with /, e.g. Clothing / Kurta';
+
+  @override
+  String confidenceLabel(String percent) {
+    return '$percent sure';
+  }
+
+  @override
+  String get reviewSectionDetails => 'Details';
+
+  @override
+  String get attrPleaseCheck => 'Please check';
+
+  @override
+  String get attrAccept => 'Looks right';
+
+  @override
+  String get attrEdit => 'Edit';
+
+  @override
+  String get attrAccepted => 'Checked';
+
+  @override
+  String get attrEdited => 'Edited by you';
+
+  @override
+  String attrEditTitle(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String attrUncheckedError(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString details still need a check',
+      one: '1 detail still needs a check',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewSectionPrice => 'Price and options';
+
+  @override
+  String get reviewPriceNote => 'Prices always come from you — AI never sets them.';
+
+  @override
+  String get fieldPrice => 'Price (Rs)';
+
+  @override
+  String fieldPriceFor(String variant) {
+    return 'Price for $variant';
+  }
+
+  @override
+  String get fieldSku => 'SKU (optional)';
+
+  @override
+  String get samePriceToggle => 'Same price for all options';
+
+  @override
+  String get validationPriceRequired => 'Enter a price';
+
+  @override
+  String get validationPriceInvalid => 'Use numbers only, e.g. 1250 or 1250.50';
+
+  @override
+  String get validationPriceDecimals => 'Up to 2 decimal places (paisa)';
+
+  @override
+  String get validationPriceTooLarge => 'That price is too high';
+
+  @override
+  String get optionAdd => 'Add option (e.g. Size)';
+
+  @override
+  String get optionName => 'Option name';
+
+  @override
+  String get optionValuesHint => 'Values, separated by commas';
+
+  @override
+  String get optionRemove => 'Remove option';
+
+  @override
+  String get optionValuesRequired => 'Add at least one value for each option';
+
+  @override
+  String variantsCount(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString variants',
+      one: '1 variant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tooManyVariants => 'That makes more than 100 combinations. Remove some values.';
+
+  @override
+  String get reviewSectionChecklist => 'AI couldn\'t tell — please confirm';
+
+  @override
+  String get reviewSectionWarnings => 'Things to check';
+
+  @override
+  String get issueClaimPrice => 'The text mentions a price. Prices come from you; please check.';
+
+  @override
+  String get issueClaimDiscount => 'The text mentions a discount you didn\'t give us. Remove it or make sure it\'s real.';
+
+  @override
+  String get issueClaimStock => 'The text talks about stock. Stock comes from your inventory; please check.';
+
+  @override
+  String get issueClaimDelivery => 'The text promises delivery terms. Make sure they\'re right.';
+
+  @override
+  String get issueClaimWarranty => 'The text mentions a warranty. Keep it only if you offer one.';
+
+  @override
+  String get issueClaimAuthenticity => 'The text says it\'s original or genuine. Keep it only if you can back it up.';
+
+  @override
+  String get issueClaimOther => 'The text makes a claim we couldn\'t verify. Please check.';
+
+  @override
+  String get issueNotProductPhoto => 'These photos may not show a product. Check them before saving.';
+
+  @override
+  String get issueTooLong => 'Some text was too long and was shortened. Read it once.';
+
+  @override
+  String issueInField(String field) {
+    return 'In: $field';
+  }
+
+  @override
+  String get reviewCreate => 'Save product';
+
+  @override
+  String get reviewFixProblems => 'Fix the highlighted items to continue.';
+
+  @override
+  String get productTitle => 'Product';
+
+  @override
+  String get productStatusDraft => 'Draft';
+
+  @override
+  String get productStatusActive => 'Live';
+
+  @override
+  String get productStatusArchived => 'Archived';
+
+  @override
+  String get productSaved => 'Saved as a draft. Only you can see it.';
+
+  @override
+  String get productGoLive => 'Go live';
+
+  @override
+  String get productIsLive => 'Live in your catalog';
+
+  @override
+  String get productConfirmSection => 'Confirm AI details';
+
+  @override
+  String get productConfirmAll => 'Confirm all';
+
+  @override
+  String get productProblemPrice => 'Every variant needs a price.';
+
+  @override
+  String get productProblemAttributes => 'Confirm the AI details below.';
+
+  @override
+  String get productProblemVariant => 'Add at least one active variant (from the web dashboard for now).';
+
+  @override
+  String get productProblemTitle => 'Add a product name.';
+
+  @override
+  String get productFix => 'Fix';
+
+  @override
+  String get productEditPrice => 'Edit price';
+
+  @override
+  String get productEditTitle => 'Edit name';
+
+  @override
+  String get productPrices => 'Prices';
+
+  @override
+  String get defaultVariant => 'Default';
+
+  @override
+  String get publishSection => 'Publish to channels';
+
+  @override
+  String get publishNeedsLive => 'Go live first to publish to channels.';
+
+  @override
+  String get publishNoChannels => 'No shop channels connected yet. Connect Instagram, Facebook or TikTok from the web dashboard.';
+
+  @override
+  String get publishAction => 'Publish';
+
+  @override
+  String get publishSelectOne => 'Choose at least one channel';
+
+  @override
+  String get channelReconnect => 'Reconnect';
+
+  @override
+  String get channelExpiredNote => 'Connection expired';
+
+  @override
+  String get listingPending => 'Waiting';
+
+  @override
+  String get listingPublishing => 'Publishing…';
+
+  @override
+  String get listingPublished => 'Published';
+
+  @override
+  String get listingFailed => 'Failed';
+
+  @override
+  String get listingOutOfSync => 'Out of sync';
+
+  @override
+  String get listingUnpublished => 'Not listed';
+
+  @override
+  String listingError(String code) {
+    return 'Reason: $code';
+  }
+
+  @override
+  String reconnectTitle(String channel) {
+    return 'Reconnect $channel';
+  }
+
+  @override
+  String get reconnectChannelGeneric => 'channel';
+
+  @override
+  String get reconnectBody => 'For now, reconnect channels from the web dashboard in a browser:';
+
+  @override
+  String get reconnectCopied => 'Link copied';
+
+  @override
+  String get actionCopyLink => 'Copy link';
+
+  @override
+  String get postsSection => 'Create posts';
+
+  @override
+  String get postsIntro => 'Turn the AI captions into posts for each channel. You review before anything goes out.';
+
+  @override
+  String get postsCreate => 'Create drafts';
+
+  @override
+  String get postsNoChannels => 'No channel that can post is connected yet.';
+
+  @override
+  String get postsNoDraft => 'Posts need the AI draft this product came from.';
+
+  @override
+  String get postsTitle => 'Posts';
+
+  @override
+  String get postStatusDraft => 'Draft';
+
+  @override
+  String get postStatusPendingApproval => 'Waiting for approval';
+
+  @override
+  String get postStatusApproved => 'Approved';
+
+  @override
+  String postStatusScheduled(String when) {
+    return 'Scheduled $when';
+  }
+
+  @override
+  String get postStatusPublishing => 'Publishing…';
+
+  @override
+  String get postStatusPublished => 'Published';
+
+  @override
+  String get postStatusFailed => 'Failed';
+
+  @override
+  String get postStatusCancelled => 'Cancelled';
+
+  @override
+  String get fieldCaption => 'Caption';
+
+  @override
+  String get postSaveCaption => 'Save caption';
+
+  @override
+  String get postSubmit => 'Submit';
+
+  @override
+  String get postApprove => 'Approve';
+
+  @override
+  String get postPublishNow => 'Publish now';
+
+  @override
+  String get postSchedule => 'Schedule';
+
+  @override
+  String get postNeedsApprovalNote => 'AI-written posts need an approval before they go out.';
+
+  @override
+  String get postNoApprovePermission => 'Ask the shop owner or a manager to approve this.';
+
+  @override
+  String get postCaptionSaved => 'Caption saved';
+
+  @override
+  String get postNotFound => 'This post is no longer available.';
+
+  @override
+  String get postsEmpty => 'No posts yet.';
+
+  @override
+  String get draftsTitle => 'Drafts';
+
+  @override
+  String get draftsNew => 'New from photos';
+
+  @override
+  String get draftsEmpty => 'No drafts yet. Start with a few photos of a product.';
+
+  @override
+  String get draftsIntro => 'Pick a draft to turn into posts, or start with new photos.';
+
+  @override
+  String get draftStatusWorking => 'Writing…';
+
+  @override
+  String get draftStatusReady => 'Ready to check';
+
+  @override
+  String get draftStatusFailed => 'Failed';
+
+  @override
+  String get draftStatusApplied => 'Saved as product';
+
+  @override
+  String get draftStatusDiscarded => 'Discarded';
+
+  @override
+  String get draftUntitled => 'Untitled draft';
+
+  @override
+  String get exSubjectDraft => 'AI draft';
+
+  @override
+  String get exSubjectPost => 'Post';
+
+  @override
+  String get exSubjectProduct => 'Product';
+
+  @override
+  String get exActionReconnect => 'Reconnect';
+
+  @override
+  String get exActionRetryPublish => 'Retry publish';
+
+  @override
+  String get exActionReschedule => 'Reschedule';
+
+  @override
+  String get exActionReviewPost => 'Review post';
+
+  @override
+  String get exActionReviewDraft => 'Review draft';
+
+  @override
+  String get exActionRetryDraft => 'Retry draft';
+
+  @override
+  String get exActionConfirmAttributes => 'Confirm details';
+
+  @override
+  String get exActionDismiss => 'Hide';
+
+  @override
+  String get homeSectionCatalog => 'Catalog';
 }

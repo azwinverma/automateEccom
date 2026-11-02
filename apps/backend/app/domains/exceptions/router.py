@@ -15,7 +15,7 @@ router = APIRouter(tags=["exceptions"])
 
 @router.get("/exceptions")
 def list_exceptions(
-    ctx: TenantContext = Depends(get_tenant), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(get_tenant), db: Session = Depends(get_db, scope="function")
 ) -> dict[str, Any]:
     items = open_exceptions(db, ctx.merchant_id)
     return {"items": items, "counts": dict(Counter(i["severity"] for i in items)), "total": len(items)}

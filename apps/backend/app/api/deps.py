@@ -22,6 +22,10 @@ from app.domains.merchants.rbac import permissions_for
 
 
 def get_db() -> Iterator[Session]:
+    """Request unit of work. MUST be declared with ``scope="function"`` so the commit happens before
+    the response is sent: with FastAPI's default ("request") scope the client can act on a response
+    whose data isn't committed yet, or be told "success" for a commit that then fails.
+    Enforced by tests/test_platform.py::test_db_dependency_commits_before_response."""
     db = session_factory()()
     try:
         yield db
@@ -64,7 +68,7 @@ class Principal:
         return Actor(type="user", id=self.user.id, display=self.user.email)
 
 
-def get_principal(request: Request, db: Session = Depends(get_db)) -> Principal:
+def get_principal(request: Request, db: Session = Depends(get_db, scope="function")) -> Principal:
     auth = request.headers.get("authorization", "")
     scheme, _, token = auth.partition(" ")
     if scheme.lower() != "bearer" or not token:
@@ -77,7 +81,7 @@ def get_principal(request: Request, db: Session = Depends(get_db)) -> Principal:
 def get_tenant(
     request: Request,
     principal: Principal = Depends(get_principal),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     x_merchant_id: str | None = Header(default=None, alias="X-Merchant-Id"),
 ) -> TenantContext:
     if not x_merchant_id:

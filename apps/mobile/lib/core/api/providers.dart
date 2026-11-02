@@ -29,8 +29,9 @@ final dioProvider = Provider<Dio>((ref) {
     // Read lazily: the session depends on Dio, not the other way round.
     merchantId: () => ref.read(activeMerchantIdProvider),
     languageCode: () => ref.read(effectiveLocaleProvider).languageCode,
-    onSessionEnded: (reason) =>
-        ref.read(sessionControllerProvider.notifier).onSessionEnded(reason),
+    onSessionEnded:
+        (reason) =>
+            ref.read(sessionControllerProvider.notifier).onSessionEnded(reason),
   );
   ref.onDispose(dio.close);
   return dio;
@@ -49,4 +50,3 @@ final connectivityProvider = StreamProvider<bool>((ref) async* {
   yield online(await connectivity.checkConnectivity());
   yield* connectivity.onConnectivityChanged.map(online);
 });
-

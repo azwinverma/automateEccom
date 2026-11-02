@@ -72,7 +72,7 @@ def create_merchant(
     body: MerchantIn,
     request: Request,
     p: Principal = Depends(get_principal),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     idem: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> MerchantOut:
     return run_idempotent(
@@ -100,7 +100,7 @@ def create_merchant(
 
 @router.get("/merchant", response_model=MerchantOut)
 def get_merchant(
-    ctx: TenantContext = Depends(require("merchant.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("merchant.read")), db: Session = Depends(get_db, scope="function")
 ) -> MerchantOut:
     m = db.get(Merchant, ctx.merchant_id)
     assert m is not None
@@ -125,7 +125,7 @@ class MerchantPatch(BaseModel):
 def patch_merchant(
     body: MerchantPatch,
     ctx: TenantContext = Depends(require("merchant.update")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> MerchantOut:
     if body.automation_mode == "autopilot":
         from app.domains.billing.service import entitlements
@@ -162,7 +162,7 @@ def list_stores(
     limit: int = Query(50, ge=1, le=200),
     cursor: str | None = None,
     ctx: TenantContext = Depends(require("store.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     rows = list(db.scalars(paginate_desc(select(Store), Store.id, limit, cursor)))
     items, nxt = build_page(rows, limit)
@@ -178,7 +178,7 @@ class StoreIn(BaseModel):
 def create_store(
     body: StoreIn,
     ctx: TenantContext = Depends(require("store.create")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     idem: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> StoreOut:
     return run_idempotent(
@@ -202,7 +202,7 @@ def patch_store(
     store_id: uuid.UUID,
     body: StorePatch,
     ctx: TenantContext = Depends(require("store.update")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> StoreOut:
     return StoreOut.of(service.update_store(db, ctx, store_id, body.name, body.status))
 
@@ -223,7 +223,9 @@ class MemberOut(BaseModel):
 
 
 @router.get("/members")
-def list_members(ctx: TenantContext = Depends(require("team.read")), db: Session = Depends(get_db)) -> dict:
+def list_members(
+    ctx: TenantContext = Depends(require("team.read")), db: Session = Depends(get_db, scope="function")
+) -> dict:
     rows = db.execute(
         select(Membership, User)
         .join(User, User.id == Membership.user_id)
@@ -253,7 +255,7 @@ def change_role(
     membership_id: uuid.UUID,
     body: RoleIn,
     ctx: TenantContext = Depends(require("team.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     m = service.change_member_role(db, ctx, membership_id, body.role.value)
     return {"id": m.id, "role": m.role}
@@ -263,7 +265,7 @@ def change_role(
 def remove_member(
     membership_id: uuid.UUID,
     ctx: TenantContext = Depends(require("team.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.remove_member(db, ctx, membership_id)
     return Response(status_code=204)
@@ -296,7 +298,7 @@ class InvitationOut(BaseModel):
 
 @router.get("/invitations")
 def list_invitations(
-    ctx: TenantContext = Depends(require("team.manage")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("team.manage")), db: Session = Depends(get_db, scope="function")
 ) -> dict:
     rows = db.scalars(
         select(Invitation).where(Invitation.status == "pending").order_by(Invitation.created_at.desc())
@@ -308,7 +310,7 @@ def list_invitations(
 def create_invitation(
     body: InvitationIn,
     ctx: TenantContext = Depends(require("team.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     idem: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> InvitationOut:
     from app.core import ratelimit
@@ -329,7 +331,7 @@ def create_invitation(
 def revoke_invitation(
     invitation_id: uuid.UUID,
     ctx: TenantContext = Depends(require("team.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.revoke_invitation(db, ctx, invitation_id)
     return Response(status_code=204)
@@ -341,7 +343,10 @@ class AcceptIn(BaseModel):
 
 @router.post("/invitations/accept")
 def accept_invitation(
-    body: AcceptIn, request: Request, p: Principal = Depends(get_principal), db: Session = Depends(get_db)
+    body: AcceptIn,
+    request: Request,
+    p: Principal = Depends(get_principal),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     m = service.accept_invitation(db, p.user, body.token, request_meta(request))
     return {"membership": {"id": m.id, "merchant_id": m.merchant_id, "role": m.role}}

@@ -21,16 +21,17 @@ class SettingsScreen extends ConsumerWidget {
     final choice = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: RadioGroupList(
-          current: current?.languageCode ?? 'system',
-          options: {
-            'system': l.languageSystem,
-            'ne': l.languageNepali,
-            'en': l.languageEnglish,
-          },
-        ),
-      ),
+      builder:
+          (context) => SafeArea(
+            child: RadioGroupList(
+              current: current?.languageCode ?? 'system',
+              options: {
+                'system': l.languageSystem,
+                'ne': l.languageNepali,
+                'en': l.languageEnglish,
+              },
+            ),
+          ),
     );
     if (choice == null) return;
     final locale = choice == 'system' ? null : Locale(choice);
@@ -51,19 +52,20 @@ class SettingsScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.logoutConfirmTitle),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.actionCancel),
+      builder:
+          (context) => AlertDialog(
+            title: Text(l.logoutConfirmTitle),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(l.actionCancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(l.settingsLogout),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.settingsLogout),
-          ),
-        ],
-      ),
     );
     if (ok ?? false) {
       await ref.read(sessionControllerProvider.notifier).logout();
@@ -113,15 +115,17 @@ class SettingsScreen extends ConsumerWidget {
                       if (!user.emailVerified)
                         Text(
                           l.emailUnverified,
-                          style: theme.textTheme.labelMedium
-                              ?.copyWith(color: palette.warning),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: palette.warning,
+                          ),
                         ),
                       Text(
                         user.mfaEnabled ? l.mfaOn : l.mfaOff,
                         style: theme.textTheme.labelMedium?.copyWith(
-                          color: user.mfaEnabled
-                              ? palette.success
-                              : theme.colorScheme.onSurfaceVariant,
+                          color:
+                              user.mfaEnabled
+                                  ? palette.success
+                                  : theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -135,9 +139,10 @@ class SettingsScreen extends ConsumerWidget {
               tileColor: theme.colorScheme.surface,
               leading: const Icon(Icons.storefront_outlined),
               title: Text(signedIn!.merchant!.name),
-              subtitle: signedIn.merchant!.slug == null
-                  ? null
-                  : Text(signedIn.merchant!.slug!),
+              subtitle:
+                  signedIn.merchant!.slug == null
+                      ? null
+                      : Text(signedIn.merchant!.slug!),
             ),
           ],
           const SizedBox(height: AppSpace.s6),
@@ -238,12 +243,13 @@ class RadioGroupList extends StatelessWidget {
         for (final e in options.entries)
           ListTile(
             title: Text(e.value),
-            trailing: e.key == current
-                ? Icon(
-                    Icons.check,
-                    color: Theme.of(context).colorScheme.primary,
-                  )
-                : null,
+            trailing:
+                e.key == current
+                    ? Icon(
+                      Icons.check,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                    : null,
             selected: e.key == current,
             onTap: () => Navigator.pop(context, e.key),
           ),
@@ -252,4 +258,3 @@ class RadioGroupList extends StatelessWidget {
     );
   }
 }
-

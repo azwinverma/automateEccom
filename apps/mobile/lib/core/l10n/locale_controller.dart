@@ -27,8 +27,9 @@ class LocaleController extends Notifier<Locale?> {
   }
 }
 
-final localeControllerProvider =
-    NotifierProvider<LocaleController, Locale?>(LocaleController.new);
+final localeControllerProvider = NotifierProvider<LocaleController, Locale?>(
+  LocaleController.new,
+);
 
 /// Picks Nepali for Nepali-language phones or phones set to Nepal; English
 /// otherwise.
@@ -46,8 +47,5 @@ Locale resolveAppLocale(Locale? explicit, List<Locale>? deviceLocales) {
 /// Effective app locale (explicit choice or resolved from the device).
 final effectiveLocaleProvider = Provider<Locale>((ref) {
   final explicit = ref.watch(localeControllerProvider);
-  return resolveAppLocale(
-    explicit,
-    PlatformDispatcher.instance.locales,
-  );
+  return resolveAppLocale(explicit, PlatformDispatcher.instance.locales);
 });

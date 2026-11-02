@@ -6,6 +6,8 @@ import '../core/auth/session_controller.dart';
 import '../core/l10n/gen/app_localizations.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
+import '../features/catalog/presentation/product_screen.dart';
+import '../features/content/presentation/posts_screen.dart';
 import '../features/home/presentation/coming_soon_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/widgets/quick_actions.dart';
@@ -13,6 +15,9 @@ import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/settings/presentation/plan_usage_screen.dart';
 import '../features/settings/presentation/security_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/studio/presentation/capture_screen.dart';
+import '../features/studio/presentation/drafts_screen.dart';
+import '../features/studio/presentation/job_screen.dart';
 import 'splash_screen.dart';
 
 abstract final class Routes {
@@ -58,8 +63,11 @@ final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: Routes.splash,
     refreshListenable: refresh,
-    redirect: (context, state) =>
-        authRedirect(ref.read(sessionControllerProvider), state.matchedLocation),
+    redirect:
+        (context, state) => authRedirect(
+          ref.read(sessionControllerProvider),
+          state.matchedLocation,
+        ),
     routes: [
       GoRoute(path: Routes.splash, builder: (_, __) => const SplashScreen()),
       GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
@@ -103,14 +111,49 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: '/studio/capture',
+        builder: (_, __) => const CaptureScreen(),
+      ),
+      GoRoute(path: '/studio/drafts', builder: (_, __) => const DraftsScreen()),
+      GoRoute(
+        path: '/studio/jobs/:id',
+        builder: (_, s) => JobScreen(jobId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/products/:id',
+        builder:
+            (_, s) => ProductScreen(
+              productId: s.pathParameters['id']!,
+              jobId: s.uri.queryParameters['job'],
+            ),
+      ),
+      GoRoute(
+        path: '/posts',
+        builder:
+            (_, s) => PostsScreen(
+              postIds:
+                  (s.uri.queryParameters['ids'] ?? '')
+                      .split(',')
+                      .where((e) => e.isNotEmpty)
+                      .toList(),
+            ),
+      ),
+      GoRoute(
+        path: '/posts/:id',
+        builder: (_, s) => PostsScreen(postIds: [s.pathParameters['id']!]),
+      ),
+      GoRoute(
         path: '/soon/:feature',
-        redirect: (_, state) =>
-            QuickAction.fromSlug(state.pathParameters['feature'] ?? '') == null
-                ? Routes.home
-                : null,
-        builder: (_, state) => ComingSoonScreen(
-          action: QuickAction.fromSlug(state.pathParameters['feature']!)!,
-        ),
+        redirect:
+            (_, state) =>
+                QuickAction.fromSlug(state.pathParameters['feature'] ?? '') ==
+                        null
+                    ? Routes.home
+                    : null,
+        builder:
+            (_, state) => ComingSoonScreen(
+              action: QuickAction.fromSlug(state.pathParameters['feature']!)!,
+            ),
       ),
     ],
   );
@@ -133,8 +176,8 @@ class _HomeShell extends StatelessWidget {
       body: shell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
-        onDestinationSelected: (i) =>
-            shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        onDestinationSelected:
+            (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),

@@ -1,12 +1,18 @@
 {
   "@@locale": "en",
   "appName": "Commerce OS",
-
   "actionRetry": "Try again",
   "actionContinue": "Continue",
   "actionCancel": "Cancel",
   "requestIdLabel": "Ref {id}",
-  "@requestIdLabel": {"description": "Tiny support reference shown under errors", "placeholders": {"id": {"type": "String"}}},
+  "@requestIdLabel": {
+    "description": "Tiny support reference shown under errors",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
   "loadingLabel": "Loading",
   "splashLoading": "Opening your shop…",
   "offlineBanner": "You're offline. Changes wait until you're back.",
@@ -17,7 +23,6 @@
   "permissionDeniedBody": "Ask the shop owner to give your role access.",
   "featureNotInPlanTitle": "Not in your current plan",
   "featureNotInPlanBody": "Upgrade your plan to use this.",
-
   "errValidation": "Some details need fixing.",
   "errNotAuthenticated": "Please log in again.",
   "errInvalidCredentials": "Email or password didn't match.",
@@ -42,7 +47,6 @@
   "errServer": "Something went wrong on our side. Try again in a bit.",
   "errUnknown": "Something went wrong. Try again.",
   "errFieldInvalid": "Check this field",
-
   "loginTitle": "Log in to your shop",
   "loginSubtitle": "Orders, messages and stock in one place.",
   "fieldEmail": "Email",
@@ -53,12 +57,26 @@
   "validationEmailInvalid": "That email doesn't look right",
   "validationPasswordRequired": "Enter your password",
   "validationPasswordTooShort": "Use at least {min} characters",
-  "@validationPasswordTooShort": {"placeholders": {"min": {"type": "int", "format": "decimalPattern"}}},
+  "@validationPasswordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "validationPasswordEqualsEmail": "Password can't be the same as your email",
   "validationNameRequired": "Enter your name",
   "validationPhoneInvalid": "Enter a valid mobile number",
   "passwordHint": "At least {min} characters. Avoid common passwords.",
-  "@passwordHint": {"placeholders": {"min": {"type": "int", "format": "decimalPattern"}}},
+  "@passwordHint": {
+    "placeholders": {
+      "min": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "loginAction": "Log in",
   "loginNoAccount": "New here? Create an account",
   "showPassword": "Show password",
@@ -73,7 +91,6 @@
   "registerSubtitle": "Takes about a minute.",
   "registerAction": "Create account",
   "registerHaveAccount": "Already have an account? Log in",
-
   "onboardingTitle": "Set up your shop",
   "onboardingSubtitle": "You can change these later in Settings.",
   "fieldBusinessName": "Shop or business name",
@@ -89,11 +106,16 @@
   "languageNepali": "नेपाली",
   "languageEnglish": "English",
   "onboardingAction": "Create shop",
-
   "navHome": "Home",
   "navSettings": "Settings",
   "homeGreeting": "Namaste, {name}",
-  "@homeGreeting": {"placeholders": {"name": {"type": "String"}}},
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "homeSectionToday": "Today",
   "metricOrders": "Orders",
   "metricRevenue": "Revenue",
@@ -102,12 +124,25 @@
   "metricNotYet": "Not counted yet",
   "metricNotYetBody": "These numbers start once orders and messages connect. Until then we show nothing rather than guesses.",
   "metricUnavailableSemantics": "{metric}: not available yet",
-  "@metricUnavailableSemantics": {"placeholders": {"metric": {"type": "String"}}},
+  "@metricUnavailableSemantics": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      }
+    }
+  },
   "homeSectionNeedsYou": "Needs you",
   "exceptionsEmptyTitle": "Nothing needs you right now",
   "exceptionsEmptyBody": "Payment mismatches, failed deliveries and unsure AI replies will show up here first.",
   "exceptionsCount": "{count, plural, =1{1 item} other{{count} items}}",
-  "@exceptionsCount": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "@exceptionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "exPaymentMismatch": "Payment doesn't match",
   "exLowConfidenceAi": "AI wasn't sure",
   "exRefundAboveThreshold": "Large refund to approve",
@@ -118,7 +153,6 @@
   "exAmbiguousVariant": "Which size or colour?",
   "exCustomerEscalation": "Customer wants a person",
   "exProviderFailure": "Service problem",
-
   "autopilotTitle": "Autopilot",
   "autopilotModeAssisted": "Assisted",
   "autopilotModeSmart": "Smart",
@@ -127,11 +161,24 @@
   "autopilotModeSmartHint": "Routine work runs, risky work waits for you",
   "autopilotModeAutopilotHint": "Runs on its own within your rules",
   "autopilotAutomated": "{count} handled",
-  "@autopilotAutomated": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "@autopilotAutomated": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "autopilotNeedsAttention": "{count} need you",
-  "@autopilotNeedsAttention": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "@autopilotNeedsAttention": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "autopilotNotActive": "Not active yet. Starts when orders and messages connect.",
-
   "quickActionsTitle": "Quick actions",
   "qaAddProduct": "Add product",
   "qaCaptureProduct": "Capture product",
@@ -148,7 +195,6 @@
   "soonCreateReelBody": "Turn your product photos and clips into a short Reel. Uses video credits from your plan.",
   "soonViewOrdersBody": "Follow every order from chat to doorstep: COD, courier status and returns.",
   "soonViewMessagesBody": "All customer messages in one inbox. AI drafts replies from your real stock and prices.",
-
   "settingsTitle": "Settings",
   "settingsProfile": "Profile",
   "settingsShop": "Shop",
@@ -161,35 +207,76 @@
   "emailUnverified": "Email not verified",
   "mfaOn": "Two-step login is on",
   "mfaOff": "Two-step login is off",
-
   "securityTitle": "Security & devices",
   "sessionsTitle": "Logged-in devices",
   "sessionThisDevice": "This phone",
   "sessionLastUsed": "Last used {when}",
-  "@sessionLastUsed": {"placeholders": {"when": {"type": "String"}}},
+  "@sessionLastUsed": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "sessionUnknownDevice": "Unknown device",
   "sessionRevoke": "Log out",
   "sessionRevokeConfirm": "Log out {device}?",
-  "@sessionRevokeConfirm": {"placeholders": {"device": {"type": "String"}}},
+  "@sessionRevokeConfirm": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
   "sessionsRevokeOthers": "Log out all other devices",
   "sessionsRevokeOthersConfirm": "Every device except this phone will be logged out.",
   "sessionsRevokedToast": "Logged out",
   "sessionsOnlyThis": "Only this phone is logged in.",
-
   "planTitle": "Plan & usage",
   "planStatusTrialing": "Trial · ends {date}",
-  "@planStatusTrialing": {"placeholders": {"date": {"type": "String"}}},
+  "@planStatusTrialing": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "planStatusActive": "Active",
   "planStatusPastDue": "Payment due",
   "planStatusCanceled": "Canceled",
   "planPeriod": "Current period {start} – {end}",
-  "@planPeriod": {"placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}},
+  "@planPeriod": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "usageTitle": "Usage",
   "usageUsedOf": "{used} of {limit}",
-  "@usageUsedOf": {"placeholders": {"used": {"type": "String"}, "limit": {"type": "String"}}},
+  "@usageUsedOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
   "usageUnlimited": "Unlimited",
   "usageReserved": "{count} in progress",
-  "@usageReserved": {"placeholders": {"count": {"type": "int", "format": "decimalPattern"}}},
+  "@usageReserved": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "usagePeriodMonth": "This month",
   "usagePeriodDay": "Today",
   "usageLevelNotice": "Over 70% used",
@@ -198,7 +285,13 @@
   "usageEmpty": "Nothing on your plan is metered yet.",
   "creditsTitle": "Credits",
   "creditsBalance": "{balance} credits",
-  "@creditsBalance": {"placeholders": {"balance": {"type": "String"}}},
+  "@creditsBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
   "creditsNoTransactions": "No credit activity yet",
   "videoMeterTitle": "Video credits",
   "videoMeterMonthly": "This month",
@@ -206,7 +299,6 @@
   "videoMeterNoDailyCap": "No daily cap",
   "videoMeterDailyReached": "Today's cap reached. It resets tomorrow.",
   "videoMeterHelp": "A monthly quota plus a daily cap, so one busy day can't use up the whole month.",
-
   "resAiTextGenerations": "AI writing",
   "resAiInboxReplies": "AI replies",
   "resAiImages": "AI images",
@@ -219,5 +311,297 @@
   "resStores": "Stores",
   "resStorage": "Storage",
   "resAutomationRuns": "Automation runs",
-  "resApiCalls": "API calls"
+  "resApiCalls": "API calls",
+  "captureTitle": "Capture product",
+  "captureIntro": "Add up to 6 clear photos. Front, back and a close-up of the fabric or label work best.",
+  "captureTakePhoto": "Take photo",
+  "captureFromGallery": "Choose from gallery",
+  "capturePhotoCount": "{count} of {max} photos",
+  "@capturePhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "max": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "captureLimitReached": "That's 6 photos — the most one draft can use.",
+  "captureSkipped": "{count, plural, =1{1 photo wasn't added} other{{count} photos weren't added}} — 6 is the limit.",
+  "@captureSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "captureNotesLabel": "Anything we should know? (optional)",
+  "captureNotesHint": "e.g. pure cotton, handmade in Bhaktapur",
+  "captureMakeDraft": "Write my listing",
+  "captureWaitForUploads": "Waiting for photos to finish uploading…",
+  "captureNeedOneReady": "Add at least one photo to continue.",
+  "captureRemovePhoto": "Remove photo",
+  "capturePickerError": "Couldn't open the camera or gallery. Check photo and camera access in phone Settings.",
+  "captureResumeAll": "Resume uploads",
+  "captureKeepsGoing": "Uploads keep going if you switch apps. If the app closes, they pick up where they left off.",
+  "uploadQueued": "Waiting",
+  "uploadUploading": "Uploading {percent}",
+  "@uploadUploading": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadProcessing": "Checking photo",
+  "uploadReady": "Ready",
+  "uploadPaused": "Paused — no connection",
+  "uploadRetrying": "Retrying…",
+  "uploadRejected": "Can't use this photo",
+  "uploadFailed": "Upload failed",
+  "uploadTapRetry": "Tap to retry",
+  "rejectNotAnImage": "This file isn't a photo.",
+  "rejectTooLarge": "Photo is too big. Pick one under 20 MB.",
+  "rejectUnsupported": "This format isn't supported. Use JPEG, PNG, WebP or HEIC.",
+  "rejectMalware": "This file looked unsafe, so we deleted it.",
+  "tipLowResolution": "Photo is small. Move closer or use the main camera.",
+  "tipBlurry": "Photo looks blurry. Hold steady and tap to focus.",
+  "tipTooDark": "Photo looks dark. Try near a window.",
+  "tipOverexposed": "Photo is too bright. Move out of direct sun.",
+  "errFileTooLarge": "Photo is too big (max 20 MB).",
+  "errUnsupportedMediaType": "Use a JPEG, PNG, WebP or HEIC photo.",
+  "errStorageFull": "Photo storage on your plan is full. Delete old photos or upgrade.",
+  "errFileUnreadable": "We couldn't read this photo from your phone. Pick it again.",
+  "errUploadMissing": "The photo didn't reach us. Retry the upload.",
+  "errUploadExpired": "The upload took too long. Start it again.",
+  "errMediaNotReady": "Some photos are still being checked. Try again in a moment.",
+  "errMediaNotFound": "Some photos are no longer available. Add them again.",
+  "errDraftNotReady": "This draft isn't ready yet.",
+  "errNotPublishable": "This product isn't ready to go live yet.",
+  "errProductNotActive": "Make the product live first, then publish it to channels.",
+  "errCapabilityNotSupported": "This channel can't do that.",
+  "errVersionConflict": "Someone else changed this. We loaded the latest — check and try again.",
+  "errPostLocked": "Scheduled posts can't be edited. Unschedule it first.",
+  "errReconnectRequired": "Reconnect this channel first.",
+  "errScheduleInPast": "Pick a time in the future.",
+  "errScheduleTooFar": "Posts can be scheduled up to 90 days ahead.",
+  "errCaptionRequired": "Write a caption.",
+  "errCaptionTooLong": "This caption is too long for the channel.",
+  "errInvalidPhotoCount": "Choose 1 to 6 photos.",
+  "errNotFailed": "Only failed drafts can be retried.",
+  "errAiUnavailable": "Our writing service is busy. Try again in a few minutes.",
+  "draftWorkingTitle": "Writing your listing",
+  "draftWorkingBody": "Reading your photos and drafting the name, description and captions in Nepali and English. This usually takes under a minute.",
+  "draftQueued": "In line",
+  "draftRunning": "Working on it",
+  "draftLeaveOk": "You can leave this screen; we'll keep working. Find it later under Drafts.",
+  "draftFailedTitle": "We couldn't write this draft",
+  "draftFailedBody": "Our writing service had a problem. Your photos are safe.",
+  "draftAppliedTitle": "Already saved as a product",
+  "draftOpenProduct": "Open product",
+  "draftDiscarded": "This draft was discarded.",
+  "reviewTitle": "Check your listing",
+  "reviewAiNote": "Written by AI from your photos. Change anything that's off.",
+  "reviewSectionText": "Name and description",
+  "fieldTitleNe": "Name (Nepali)",
+  "fieldTitleEn": "Name (English)",
+  "fieldDescriptionNe": "Description (Nepali)",
+  "fieldDescriptionEn": "Description (English)",
+  "validationTitleRequired": "Add a name in Nepali or English",
+  "reviewSectionCategory": "Category",
+  "fieldCategoryHint": "Separate levels with /, e.g. Clothing / Kurta",
+  "confidenceLabel": "{percent} sure",
+  "@confidenceLabel": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewSectionDetails": "Details",
+  "attrPleaseCheck": "Please check",
+  "attrAccept": "Looks right",
+  "attrEdit": "Edit",
+  "attrAccepted": "Checked",
+  "attrEdited": "Edited by you",
+  "attrEditTitle": "Edit {name}",
+  "@attrEditTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "actionSave": "Save",
+  "attrUncheckedError": "{count, plural, =1{1 detail still needs a check} other{{count} details still need a check}}",
+  "@attrUncheckedError": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "reviewSectionPrice": "Price and options",
+  "reviewPriceNote": "Prices always come from you — AI never sets them.",
+  "fieldPrice": "Price (Rs)",
+  "fieldPriceFor": "Price for {variant}",
+  "@fieldPriceFor": {
+    "placeholders": {
+      "variant": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldSku": "SKU (optional)",
+  "samePriceToggle": "Same price for all options",
+  "validationPriceRequired": "Enter a price",
+  "validationPriceInvalid": "Use numbers only, e.g. 1250 or 1250.50",
+  "validationPriceDecimals": "Up to 2 decimal places (paisa)",
+  "validationPriceTooLarge": "That price is too high",
+  "optionAdd": "Add option (e.g. Size)",
+  "optionName": "Option name",
+  "optionValuesHint": "Values, separated by commas",
+  "optionRemove": "Remove option",
+  "optionValuesRequired": "Add at least one value for each option",
+  "variantsCount": "{count, plural, =1{1 variant} other{{count} variants}}",
+  "@variantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "tooManyVariants": "That makes more than 100 combinations. Remove some values.",
+  "reviewSectionChecklist": "AI couldn't tell — please confirm",
+  "reviewSectionWarnings": "Things to check",
+  "issueClaimPrice": "The text mentions a price. Prices come from you; please check.",
+  "issueClaimDiscount": "The text mentions a discount you didn't give us. Remove it or make sure it's real.",
+  "issueClaimStock": "The text talks about stock. Stock comes from your inventory; please check.",
+  "issueClaimDelivery": "The text promises delivery terms. Make sure they're right.",
+  "issueClaimWarranty": "The text mentions a warranty. Keep it only if you offer one.",
+  "issueClaimAuthenticity": "The text says it's original or genuine. Keep it only if you can back it up.",
+  "issueClaimOther": "The text makes a claim we couldn't verify. Please check.",
+  "issueNotProductPhoto": "These photos may not show a product. Check them before saving.",
+  "issueTooLong": "Some text was too long and was shortened. Read it once.",
+  "issueInField": "In: {field}",
+  "@issueInField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewCreate": "Save product",
+  "reviewFixProblems": "Fix the highlighted items to continue.",
+  "productTitle": "Product",
+  "productStatusDraft": "Draft",
+  "productStatusActive": "Live",
+  "productStatusArchived": "Archived",
+  "productSaved": "Saved as a draft. Only you can see it.",
+  "productGoLive": "Go live",
+  "productIsLive": "Live in your catalog",
+  "productConfirmSection": "Confirm AI details",
+  "productConfirmAll": "Confirm all",
+  "productProblemPrice": "Every variant needs a price.",
+  "productProblemAttributes": "Confirm the AI details below.",
+  "productProblemVariant": "Add at least one active variant (from the web dashboard for now).",
+  "productProblemTitle": "Add a product name.",
+  "productFix": "Fix",
+  "productEditPrice": "Edit price",
+  "productEditTitle": "Edit name",
+  "productPrices": "Prices",
+  "defaultVariant": "Default",
+  "publishSection": "Publish to channels",
+  "publishNeedsLive": "Go live first to publish to channels.",
+  "publishNoChannels": "No shop channels connected yet. Connect Instagram, Facebook or TikTok from the web dashboard.",
+  "publishAction": "Publish",
+  "publishSelectOne": "Choose at least one channel",
+  "channelReconnect": "Reconnect",
+  "channelExpiredNote": "Connection expired",
+  "listingPending": "Waiting",
+  "listingPublishing": "Publishing…",
+  "listingPublished": "Published",
+  "listingFailed": "Failed",
+  "listingOutOfSync": "Out of sync",
+  "listingUnpublished": "Not listed",
+  "listingError": "Reason: {code}",
+  "@listingError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "reconnectTitle": "Reconnect {channel}",
+  "@reconnectTitle": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "reconnectChannelGeneric": "channel",
+  "reconnectBody": "For now, reconnect channels from the web dashboard in a browser:",
+  "reconnectCopied": "Link copied",
+  "actionCopyLink": "Copy link",
+  "postsSection": "Create posts",
+  "postsIntro": "Turn the AI captions into posts for each channel. You review before anything goes out.",
+  "postsCreate": "Create drafts",
+  "postsNoChannels": "No channel that can post is connected yet.",
+  "postsNoDraft": "Posts need the AI draft this product came from.",
+  "postsTitle": "Posts",
+  "postStatusDraft": "Draft",
+  "postStatusPendingApproval": "Waiting for approval",
+  "postStatusApproved": "Approved",
+  "postStatusScheduled": "Scheduled {when}",
+  "@postStatusScheduled": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "postStatusPublishing": "Publishing…",
+  "postStatusPublished": "Published",
+  "postStatusFailed": "Failed",
+  "postStatusCancelled": "Cancelled",
+  "fieldCaption": "Caption",
+  "postSaveCaption": "Save caption",
+  "postSubmit": "Submit",
+  "postApprove": "Approve",
+  "postPublishNow": "Publish now",
+  "postSchedule": "Schedule",
+  "postNeedsApprovalNote": "AI-written posts need an approval before they go out.",
+  "postNoApprovePermission": "Ask the shop owner or a manager to approve this.",
+  "postCaptionSaved": "Caption saved",
+  "postNotFound": "This post is no longer available.",
+  "postsEmpty": "No posts yet.",
+  "draftsTitle": "Drafts",
+  "draftsNew": "New from photos",
+  "draftsEmpty": "No drafts yet. Start with a few photos of a product.",
+  "draftsIntro": "Pick a draft to turn into posts, or start with new photos.",
+  "draftStatusWorking": "Writing…",
+  "draftStatusReady": "Ready to check",
+  "draftStatusFailed": "Failed",
+  "draftStatusApplied": "Saved as product",
+  "draftStatusDiscarded": "Discarded",
+  "draftUntitled": "Untitled draft",
+  "exSubjectDraft": "AI draft",
+  "exSubjectPost": "Post",
+  "exSubjectProduct": "Product",
+  "exActionReconnect": "Reconnect",
+  "exActionRetryPublish": "Retry publish",
+  "exActionReschedule": "Reschedule",
+  "exActionReviewPost": "Review post",
+  "exActionReviewDraft": "Review draft",
+  "exActionRetryDraft": "Retry draft",
+  "exActionConfirmAttributes": "Confirm details",
+  "exActionDismiss": "Hide",
+  "homeSectionCatalog": "Catalog"
 }

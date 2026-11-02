@@ -39,7 +39,11 @@ class AuthLayout extends StatelessWidget {
                 if (leading != null) leading!,
                 Row(
                   children: [
-                    Container(width: 4, height: 18, color: theme.colorScheme.primary),
+                    Container(
+                      width: 4,
+                      height: 18,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(width: AppSpace.s2),
                     Text(
                       l.appName,
@@ -83,7 +87,9 @@ class SubmitButton extends StatelessWidget {
 
   final String label;
   final bool busy;
-  final VoidCallback onPressed;
+
+  /// Null disables the button.
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +98,16 @@ class SubmitButton extends StatelessWidget {
       height: 52,
       child: FilledButton(
         onPressed: busy ? null : onPressed,
-        child: busy
-            ? SizedBox.square(
-                dimension: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  semanticsLabel: AppLocalizations.of(context).loadingLabel,
-                ),
-              )
-            : Text(label),
+        child:
+            busy
+                ? SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    semanticsLabel: AppLocalizations.of(context).loadingLabel,
+                  ),
+                )
+                : Text(label),
       ),
     );
   }

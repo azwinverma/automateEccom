@@ -569,6 +569,106 @@ def update_variant(
     return v
 
 
+def add_variant(
+    db: Session, ctx: TenantContext, product_id: uuid.UUID, expected_version: int | None, vi: VariantInput
+) -> Variant:
+    """Add one variant after creation (e.g. a new size). Uses the product's existing option names;
+    new values for those options are created on the fly. Adding a new option *name* to a product
+    that already has variants is not supported (it would leave existing variants without a value)."""
+    p = _get_product(db, ctx, product_id)
+    _check_version(p, expected_version)
+    options = db.scalars(
+        select(ProductOption).where(ProductOption.product_id == p.id).order_by(ProductOption.position)
+    ).all()
+    names = [o.name for o in options]
+    lowered = {k.lower(): v for k, v in vi.options.items()}
+    missing = [n for n in names if not lowered.get(n.lower(), "").strip()]
+    unknown = [k for k in vi.options if k.lower() not in {n.lower() for n in names}]
+    if missing or unknown:
+        raise ValidationFailed(
+            "Give exactly one value for each of this product's options",
+            code="variant_options_mismatch",
+            details={"missing": missing, "unknown": unknown, "options": names},
+        )
+    count = db.scalar(select(func.count()).select_from(Variant).where(Variant.product_id == p.id)) or 0
+    if count >= MAX_VARIANTS:
+        raise ValidationFailed(f"At most {MAX_VARIANTS} variants per product", code="too_many_variants")
+    _validate_variant_money(vi)
+    normalized = {n: lowered[n.lower()].strip() for n in names}
+    sig = _signature(names, normalized)
+    if db.scalar(select(Variant.id).where(Variant.product_id == p.id, Variant.option_signature == sig)):
+        raise Conflict(
+            "A variant with these options already exists",
+            code="duplicate_variant",
+            details={"options": normalized},
+        )
+    value_ids: list[uuid.UUID] = []
+    canonical: list[str] = []
+    for opt in options:
+        val = normalized[opt.name]
+        existing = db.scalars(select(ProductOptionValue).where(ProductOptionValue.option_id == opt.id)).all()
+        match = next((v for v in existing if v.value.lower() == val.lower()), None)
+        if match is None:
+            if len(existing) >= MAX_VALUES_PER_OPTION:
+                raise ValidationFailed("Too many values for one option", code="too_many_option_values")
+            match = ProductOptionValue(
+                merchant_id=ctx.merchant_id, option_id=opt.id, value=val, position=len(existing)
+            )
+            db.add(match)
+            db.flush()
+        value_ids.append(match.id)
+        canonical.append(match.value)
+    existing_skus = _existing_skus(db, ctx.merchant_id)
+    sku = rules.normalize_sku(vi.sku) or rules.generate_sku(p.handle, canonical, existing_skus)
+    if vi.sku and sku in existing_skus:
+        raise Conflict(
+            f"SKU {sku} is already used by another product", code="sku_taken", details={"sku": sku}
+        )
+    v = Variant(
+        merchant_id=ctx.merchant_id,
+        product_id=p.id,
+        sku=sku,
+        barcode=rules.normalize_barcode(vi.barcode),
+        title=" / ".join(canonical) or "Default",
+        option_signature=sig,
+        price_minor=vi.price_minor,
+        compare_at_minor=vi.compare_at_minor,
+        cost_minor=vi.cost_minor,
+        currency=_currency(db, ctx.merchant_id),
+        weight_grams=vi.weight_grams,
+        length_mm=vi.length_mm,
+        width_mm=vi.width_mm,
+        height_mm=vi.height_mm,
+        position=count,
+    )
+    db.add(v)
+    try:
+        with db.begin_nested():
+            db.flush()
+    except IntegrityError as e:
+        raise Conflict("SKU or barcode already used by another product", code="sku_or_barcode_taken") from e
+    for vid in value_ids:
+        db.add(VariantOptionValue(merchant_id=ctx.merchant_id, variant_id=v.id, option_value_id=vid))
+    p.updated_at = utcnow()  # bumps product version: concurrent editors see a conflict
+    try:
+        db.flush()
+    except StaleDataError as e:
+        raise Conflict("This product was changed by someone else.", code="version_conflict") from e
+    audit.record(
+        db,
+        action="catalog.variant_added",
+        resource_type="variant",
+        resource_id=v.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        changes={"options": [None, normalized], "price_minor": [None, v.price_minor]},
+        metadata={"product_id": str(p.id)},
+    )
+    _publish(db, ctx, "catalog.variant_updated", p, {"variant_id": str(v.id), "fields": ["created"]})
+    return v
+
+
 def archive_variant(db: Session, ctx: TenantContext, product_id: uuid.UUID, variant_id: uuid.UUID) -> None:
     p = _get_product(db, ctx, product_id)
     v = db.get(Variant, variant_id)

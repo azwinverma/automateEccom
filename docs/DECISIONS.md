@@ -112,3 +112,9 @@ The flow is: HTTP creates a job → outbox event → handler enqueues a Celery t
 
 ## ADR-020: The Exception Inbox is derived, not stored
 `GET /exceptions` computes open exceptions from authoritative domain state: expired connections, failed listings and posts, pending approvals, drafts needing review, unconfirmed AI attributes, and quarantined uploads. Fixing the underlying problem removes the item, so there's no separate ack/resolve state to drift. Dismiss and snooze, and exceptions from future domains (orders, payments, couriers), plug into the same function.
+
+## ADR-021: DB unit of work commits before the response (dependency scope)
+FastAPI 0.118+ runs `yield` dependency teardown after the response is sent by default (`scope="request"`). Our `get_db` commits in teardown. That allowed clients to act on uncommitted data (an intermittent `session_revoked` right after login) and to receive success for commits that could still fail.
+- **Fix:** every `get_db` dependency declares `scope="function"`, used uniformly so that tenant binding and the endpoint share one session.
+- **Guard:** a structural test walks every route's dependency tree and fails on any other scope.
+- **Lesson:** this regression arrived with a security-driven dependency upgrade (ADR-014). Upgrades must run the full E2E suite against a real stack, not only unit tests.

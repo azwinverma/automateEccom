@@ -52,12 +52,13 @@ class UsageMeter extends StatelessWidget {
       UsageLevel.warning => l10n.usageLevelWarning,
       UsageLevel.reached => reachedText ?? l10n.usageLevelReached,
     };
-    final amount = lim == null
-        ? l10n.usageUnlimited
-        : l10n.usageUsedOf(
-            Formatters.integer(used, lang),
-            Formatters.integer(lim, lang),
-          );
+    final amount =
+        lim == null
+            ? l10n.usageUnlimited
+            : l10n.usageUsedOf(
+              Formatters.integer(used, lang),
+              Formatters.integer(lim, lang),
+            );
 
     return Semantics(
       container: true,
@@ -75,9 +76,7 @@ class UsageMeter extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Expanded(
-                  child: Text(label, style: theme.textTheme.titleSmall),
-                ),
+                Expanded(child: Text(label, style: theme.textTheme.titleSmall)),
                 Text(
                   amount,
                   key: const Key('usage-amount'),
@@ -109,9 +108,10 @@ class UsageMeter extends StatelessWidget {
                 key: Key('usage-level-${lvl.name}'),
                 style: theme.textTheme.bodySmall?.copyWith(
                   // Sun yellow is too light for text; the bar carries it.
-                  color: lvl == UsageLevel.notice
-                      ? theme.colorScheme.onSurface
-                      : usageLevelColor(context, lvl),
+                  color:
+                      lvl == UsageLevel.notice
+                          ? theme.colorScheme.onSurface
+                          : usageLevelColor(context, lvl),
                   fontWeight:
                       lvl == UsageLevel.reached ? FontWeight.w600 : null,
                 ),

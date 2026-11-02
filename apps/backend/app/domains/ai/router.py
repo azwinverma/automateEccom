@@ -56,7 +56,8 @@ class RotateIn(BaseModel):
 
 @router.get("/credentials")
 def list_credentials(
-    ctx: TenantContext = Depends(require("ai.credentials.manage")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("ai.credentials.manage")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     rows = db.scalars(
         select(ProviderCredential).where(
@@ -70,7 +71,7 @@ def list_credentials(
 def create_credential(
     body: CredentialIn,
     ctx: TenantContext = Depends(require("ai.credentials.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> CredentialOut:
     return CredentialOut.of(
         credentials.create(db, ctx, body.provider, body.api_key.get_secret_value(), body.fallback_to_platform)
@@ -82,7 +83,7 @@ def rotate_credential(
     cred_id: uuid.UUID,
     body: RotateIn,
     ctx: TenantContext = Depends(require("ai.credentials.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> CredentialOut:
     return CredentialOut.of(
         credentials.rotate(db, ctx, cred_id, body.api_key.get_secret_value(), body.fallback_to_platform)
@@ -93,7 +94,7 @@ def rotate_credential(
 def test_credential(
     cred_id: uuid.UUID,
     ctx: TenantContext = Depends(require("ai.credentials.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict:
     return {"ok": credentials.test(db, ctx, cred_id)}
 
@@ -102,7 +103,7 @@ def test_credential(
 def revoke_credential(
     cred_id: uuid.UUID,
     ctx: TenantContext = Depends(require("ai.credentials.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     credentials.revoke(db, ctx, cred_id)
     return Response(status_code=204)

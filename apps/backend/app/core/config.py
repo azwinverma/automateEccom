@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     login_max_failures: int = 10
     login_lockout_seconds: int = 900
     staff_require_mfa: bool = True
+    # Abuse limits (per client IP). Raise only in test/E2E environments.
+    rate_limit_register_per_hour: int = 10
+    rate_limit_login_per_minute: int = 30
 
     # Envelope encryption key-encryption-key (base64, 32 bytes). Production must use KMS provider.
     kek_provider: str = "local"

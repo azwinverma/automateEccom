@@ -51,7 +51,8 @@
   background: var(--row-hover);
 }
 
-.num {
+.num,
+.table th.num {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }

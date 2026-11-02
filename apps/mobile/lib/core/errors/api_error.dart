@@ -78,12 +78,14 @@ class ApiError implements Exception {
         final response = e.response;
         if (response == null) {
           return ApiError(
-            kind: e.type == DioExceptionType.unknown
-                ? ApiErrorKind.network
-                : ApiErrorKind.unknown,
-            code: e.type == DioExceptionType.unknown
-                ? ClientErrorCodes.network
-                : ClientErrorCodes.unknown,
+            kind:
+                e.type == DioExceptionType.unknown
+                    ? ApiErrorKind.network
+                    : ApiErrorKind.unknown,
+            code:
+                e.type == DioExceptionType.unknown
+                    ? ClientErrorCodes.network
+                    : ClientErrorCodes.unknown,
             requestId: requestId,
           );
         }
@@ -106,7 +108,8 @@ class ApiError implements Exception {
     final retryAfterRaw = headers?.value('retry-after');
     final retrySeconds =
         retryAfterRaw == null ? null : int.tryParse(retryAfterRaw.trim());
-    final code = envelope?.code ??
+    final code =
+        envelope?.code ??
         ((statusCode ?? 0) >= 500
             ? ClientErrorCodes.server
             : ClientErrorCodes.unknown);
@@ -116,7 +119,8 @@ class ApiError implements Exception {
       statusCode: statusCode,
       message: envelope?.message,
       details: envelope?.details ?? const {},
-      requestId: envelope?.requestId ??
+      requestId:
+          envelope?.requestId ??
           headers?.value('x-request-id') ??
           fallbackRequestId,
       retryAfter: retrySeconds == null ? null : Duration(seconds: retrySeconds),
@@ -128,8 +132,9 @@ class ApiError implements Exception {
     String code,
     String? message,
     Map<String, Object?> details,
-    String? requestId
-  })? parseEnvelope(Object? data) {
+    String? requestId,
+  })?
+  parseEnvelope(Object? data) {
     if (data is! Map) return null;
     final error = data['error'];
     if (error is! Map) return null;
@@ -141,9 +146,10 @@ class ApiError implements Exception {
     return (
       code: code,
       message: message is String ? message : null,
-      details: details is Map
-          ? details.map((k, v) => MapEntry(k.toString(), v as Object?))
-          : const <String, Object?>{},
+      details:
+          details is Map
+              ? details.map((k, v) => MapEntry(k.toString(), v as Object?))
+              : const <String, Object?>{},
       requestId: requestId is String ? requestId : null,
     );
   }

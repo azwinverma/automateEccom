@@ -27,20 +27,21 @@ class SecurityScreen extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     final ok = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: body == null ? null : Text(body),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.actionCancel),
+      builder:
+          (context) => AlertDialog(
+            title: Text(title),
+            content: body == null ? null : Text(body),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(l.actionCancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(l.sessionRevoke),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.sessionRevoke),
-          ),
-        ],
-      ),
     );
     if (!(ok ?? false)) return;
     try {
@@ -71,11 +72,14 @@ class SecurityScreen extends ConsumerWidget {
               value: sessions,
               onRetry: () => ref.invalidate(sessionsProvider),
               data: (items) {
-                final sorted = [...items]
-                  ..sort((a, b) => a.current == b.current
-                      ? (b.lastUsedAt ?? DateTime(0))
-                          .compareTo(a.lastUsedAt ?? DateTime(0))
-                      : (a.current ? -1 : 1));
+                final sorted = [...items]..sort(
+                  (a, b) =>
+                      a.current == b.current
+                          ? (b.lastUsedAt ?? DateTime(0)).compareTo(
+                            a.lastUsedAt ?? DateTime(0),
+                          )
+                          : (a.current ? -1 : 1),
+                );
                 final others = sorted.where((s) => !s.current).length;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,9 +87,10 @@ class SecurityScreen extends ConsumerWidget {
                     for (final s in sorted) ...[
                       _SessionRow(
                         session: s,
-                        onRevoke: s.current
-                            ? null
-                            : () => _confirmAndRun(
+                        onRevoke:
+                            s.current
+                                ? null
+                                : () => _confirmAndRun(
                                   context,
                                   ref,
                                   title: l.sessionRevokeConfirm(
@@ -106,13 +111,14 @@ class SecurityScreen extends ConsumerWidget {
                             foregroundColor: AppPalette.of(context).danger,
                             minimumSize: const Size.fromHeight(52),
                           ),
-                          onPressed: () => _confirmAndRun(
-                            context,
-                            ref,
-                            title: l.sessionsRevokeOthers,
-                            body: l.sessionsRevokeOthersConfirm,
-                            action: api.revokeAllOtherSessions,
-                          ),
+                          onPressed:
+                              () => _confirmAndRun(
+                                context,
+                                ref,
+                                title: l.sessionsRevokeOthers,
+                                body: l.sessionsRevokeOthersConfirm,
+                                action: api.revokeAllOtherSessions,
+                              ),
                           child: Text(l.sessionsRevokeOthers),
                         ),
                       ),
@@ -171,9 +177,10 @@ class _SessionRow extends StatelessWidget {
         ],
       ),
       subtitle: subtitle.isEmpty ? null : Text(subtitle),
-      trailing: onRevoke == null
-          ? null
-          : TextButton(onPressed: onRevoke, child: Text(l.sessionRevoke)),
+      trailing:
+          onRevoke == null
+              ? null
+              : TextButton(onPressed: onRevoke, child: Text(l.sessionRevoke)),
     );
   }
 }

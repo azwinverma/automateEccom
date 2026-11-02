@@ -267,3 +267,177 @@ export interface ErrorEnvelope {
     request_id?: string | null;
   };
 }
+
+/* ---------- Catalog (Phase 1) ---------- */
+
+export type ProductStatus = "draft" | "active" | "archived";
+
+export interface ProductSummary {
+  id: string;
+  title: string;
+  handle: string;
+  status: ProductStatus;
+  category_id: string | null;
+  version: number;
+  updated_at: string;
+  variant_count: number;
+  price_range: { min_minor: number; max_minor: number; currency: string } | null;
+}
+
+export interface ProductListQuery {
+  status?: ProductStatus;
+  q?: string;
+  category_id?: string;
+  limit?: number;
+  cursor?: string;
+}
+
+export interface ProductOption {
+  id: string;
+  name: string;
+  values: string[];
+}
+
+export interface VariantDetail {
+  id: string;
+  title: string;
+  sku: string;
+  barcode: string | null;
+  options: Record<string, string>;
+  price: Money;
+  compare_at: Money | null;
+  cost: Money | null;
+  weight_grams: number | null;
+  /** [length, width, height] in mm; entries may be null. */
+  dimensions_mm: (number | null)[];
+  status: "active" | "archived";
+  suppliers: unknown[];
+}
+
+export type AttributeSource = "seller" | "ai" | "import" | "channel";
+
+export interface ProductAttribute {
+  key: string;
+  value: string;
+  locale: "en" | "ne";
+  source: AttributeSource;
+  confidence: number | null;
+  confirmed: boolean;
+}
+
+export interface ProductDetail {
+  id: string;
+  title: string;
+  title_ne: string | null;
+  handle: string;
+  description: string | null;
+  description_ne: string | null;
+  status: ProductStatus;
+  kind?: string;
+  category_id: string | null;
+  brand: string | null;
+  product_type: string | null;
+  tags: string[];
+  seo_title: string | null;
+  seo_description: string | null;
+  version: number;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  options: ProductOption[];
+  variants: VariantDetail[];
+  attributes: ProductAttribute[];
+  collection_ids: string[];
+  needs_review: boolean;
+}
+
+export interface VariantInput {
+  options: Record<string, string>;
+  price_minor: number;
+  sku?: string;
+  barcode?: string;
+  compare_at_minor?: number;
+  cost_minor?: number;
+  weight_grams?: number;
+  length_mm?: number;
+  width_mm?: number;
+  height_mm?: number;
+}
+
+export interface ProductCreateInput {
+  title: string;
+  handle?: string;
+  description?: string;
+  title_ne?: string;
+  description_ne?: string;
+  category_id?: string;
+  brand?: string;
+  product_type?: string;
+  tags: string[];
+  seo_title?: string;
+  seo_description?: string;
+  options: { name: string; values: string[] }[];
+  variants: VariantInput[];
+}
+
+export type ProductPatchInput = Partial<
+  Pick<
+    ProductCreateInput,
+    "title" | "handle" | "description" | "title_ne" | "description_ne" | "brand" | "product_type" | "tags" | "seo_title" | "seo_description"
+  >
+> & { category_id?: string | null };
+
+export interface VariantPatchInput {
+  price_minor?: number;
+  compare_at_minor?: number | null;
+  cost_minor?: number | null;
+  sku?: string;
+  barcode?: string | null;
+  weight_grams?: number | null;
+  length_mm?: number | null;
+  width_mm?: number | null;
+  height_mm?: number | null;
+}
+
+export type PublishProblem = "title_required" | "active_variant_required" | "price_required" | "unconfirmed_ai_attributes";
+
+export interface Category {
+  id: string;
+  name: string;
+  name_ne: string | null;
+  parent_id: string | null;
+  /** Slug path, e.g. `clothing/women/kurta`. Items come sorted by path. */
+  path: string;
+  depth: number;
+}
+
+export interface Collection {
+  id: string;
+  title: string;
+  handle: string;
+  description: string | null;
+}
+
+export type ImportStatus = "queued" | "processing" | "completed" | "completed_with_errors" | "failed";
+
+export interface ImportRowError {
+  row: number | null;
+  handle?: string | null;
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface ImportJob {
+  id: string;
+  status: ImportStatus;
+  file_name: string;
+  total_rows: number | null;
+  products_created: number;
+  products_updated: number;
+  rows_failed: number;
+  errors: ImportRowError[];
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+}

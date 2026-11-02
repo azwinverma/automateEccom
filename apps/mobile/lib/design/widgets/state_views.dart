@@ -17,13 +17,13 @@ class SkeletonBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-        ),
-      );
+    height: height,
+    width: width,
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+    ),
+  );
 }
 
 /// Skeleton rows approximating a list of settings/usage rows.
@@ -129,32 +129,36 @@ class ErrorStateView extends StatelessWidget {
     final palette = AppPalette.of(context);
     final e = asApiError(error);
 
-    final (IconData icon, String title, String body, bool canRetry) =
-        switch (e) {
+    final (
+      IconData icon,
+      String title,
+      String body,
+      bool canRetry,
+    ) = switch (e) {
       _ when e.code == 'feature_not_in_plan' => (
-          Icons.lock_outline,
-          l.featureNotInPlanTitle,
-          l.featureNotInPlanBody,
-          false,
-        ),
+        Icons.lock_outline,
+        l.featureNotInPlanTitle,
+        l.featureNotInPlanBody,
+        false,
+      ),
       _ when e.code == 'permission_denied' => (
-          Icons.lock_outline,
-          l.permissionDeniedTitle,
-          l.permissionDeniedBody,
-          false,
-        ),
+        Icons.lock_outline,
+        l.permissionDeniedTitle,
+        l.permissionDeniedBody,
+        false,
+      ),
       _ when e.isOffline => (
-          Icons.wifi_off_outlined,
-          l.offlineTitle,
-          localizedErrorMessage(l, e),
-          true,
-        ),
+        Icons.wifi_off_outlined,
+        l.offlineTitle,
+        localizedErrorMessage(l, e),
+        true,
+      ),
       _ => (
-          Icons.error_outline,
-          l.errorTitle,
-          localizedErrorMessage(l, e),
-          true,
-        ),
+        Icons.error_outline,
+        l.errorTitle,
+        localizedErrorMessage(l, e),
+        true,
+      ),
     };
 
     return Padding(
@@ -169,9 +173,10 @@ class ErrorStateView extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: e.isPermissionDenied
-                      ? theme.colorScheme.onSurfaceVariant
-                      : palette.danger,
+                  color:
+                      e.isPermissionDenied
+                          ? theme.colorScheme.onSurfaceVariant
+                          : palette.danger,
                 ),
                 const SizedBox(width: AppSpace.s3),
                 Expanded(

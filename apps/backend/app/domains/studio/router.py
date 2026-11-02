@@ -35,7 +35,7 @@ class ApplyIn(BaseModel):
 def create_job(
     body: JobIn,
     ctx: TenantContext = Depends(require("ai.use")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     idem: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> Any:
     def _do() -> dict[str, Any]:
@@ -54,7 +54,9 @@ def create_job(
 
 @router.get("/jobs/{job_id}")
 def get_job(
-    job_id: uuid.UUID, ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db)
+    job_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.read")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.job_view(service._get(db, ctx, job_id))
 
@@ -64,7 +66,7 @@ def list_jobs(
     status: Literal["queued", "running", "ready", "failed", "applied", "discarded"] | None = None,
     limit: int = Query(30, ge=1, le=100),
     ctx: TenantContext = Depends(require("catalog.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     stmt = select(StudioJob).order_by(StudioJob.created_at.desc()).limit(limit)
     if status:
@@ -77,7 +79,7 @@ def apply_job(
     job_id: uuid.UUID,
     body: ApplyIn,
     ctx: TenantContext = Depends(require("catalog.write")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     p = body.product
     data = catalog.ProductInput(
@@ -91,7 +93,9 @@ def apply_job(
 
 @router.post("/jobs/{job_id}/discard", status_code=204)
 def discard_job(
-    job_id: uuid.UUID, ctx: TenantContext = Depends(require("catalog.write")), db: Session = Depends(get_db)
+    job_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("catalog.write")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.discard_job(db, ctx, job_id)
     return Response(status_code=204)
@@ -99,6 +103,8 @@ def discard_job(
 
 @router.post("/jobs/{job_id}/retry", status_code=202)
 def retry_job(
-    job_id: uuid.UUID, ctx: TenantContext = Depends(require("ai.use")), db: Session = Depends(get_db)
+    job_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("ai.use")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.job_view(service.retry_job(db, ctx, job_id))

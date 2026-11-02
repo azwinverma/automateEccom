@@ -50,7 +50,7 @@ def providers(ctx: TenantContext = Depends(require("channels.read"))) -> dict[st
 
 @router.get("")
 def list_connections(
-    ctx: TenantContext = Depends(require("channels.read")), db: Session = Depends(get_db)
+    ctx: TenantContext = Depends(require("channels.read")), db: Session = Depends(get_db, scope="function")
 ) -> dict[str, Any]:
     rows = db.scalars(
         select(ChannelConnection)
@@ -62,7 +62,9 @@ def list_connections(
 
 @router.post("/connect")
 def connect(
-    body: ConnectIn, ctx: TenantContext = Depends(require("channels.manage")), db: Session = Depends(get_db)
+    body: ConnectIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     url = service.start_connect(db, ctx, body.provider, body.redirect_uri, body.reconnect_connection_id)
     return {"authorize_url": url}
@@ -70,7 +72,9 @@ def connect(
 
 @router.post("/oauth/callback", status_code=201)
 def oauth_callback(
-    body: CallbackIn, ctx: TenantContext = Depends(require("channels.manage")), db: Session = Depends(get_db)
+    body: CallbackIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.connection_view(service.complete_connect(db, ctx, body.provider, body.state, body.code))
 
@@ -79,7 +83,7 @@ def oauth_callback(
 def health(
     connection_id: uuid.UUID,
     ctx: TenantContext = Depends(require("channels.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.connection_view(service.check_health(db, ctx, connection_id))
 
@@ -88,7 +92,7 @@ def health(
 def disconnect(
     connection_id: uuid.UUID,
     ctx: TenantContext = Depends(require("channels.manage")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     service.disconnect(db, ctx, connection_id)
     return Response(status_code=204)
@@ -100,7 +104,7 @@ def publish(
     product_id: uuid.UUID,
     body: PublishIn,
     ctx: TenantContext = Depends(require("catalog.publish")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     rows = service.request_publish(db, ctx, product_id, body.connection_ids)
     return {"items": [service.listing_view(r) for r in rows]}
@@ -110,7 +114,7 @@ def publish(
 def listings(
     product_id: uuid.UUID,
     ctx: TenantContext = Depends(require("catalog.read")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     rows = db.execute(
         select(ChannelListing, ChannelConnection)
@@ -125,7 +129,7 @@ def unpublish(
     product_id: uuid.UUID,
     connection_id: uuid.UUID,
     ctx: TenantContext = Depends(require("catalog.publish")),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.listing_view(service.unpublish(db, ctx, product_id, connection_id))
 
@@ -176,7 +180,7 @@ def list_webhooks(
     provider: str | None = None,
     limit: int = Query(50, le=200),
     p: Principal = Depends(require_staff),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     stmt = select(WebhookEvent).order_by(WebhookEvent.received_at.desc()).limit(limit)
     if status:
@@ -206,7 +210,7 @@ def replay(
     event_id: uuid.UUID,
     request: Request,
     p: Principal = Depends(require_staff),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     from app.core.context import Actor
 

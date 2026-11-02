@@ -49,10 +49,10 @@ class UsageBurst {
   const UsageBurst({required this.period, required this.used, this.limit});
 
   factory UsageBurst.fromJson(Map<String, Object?> json) => UsageBurst(
-        period: (json['period'] as String?) ?? 'day',
-        limit: _intOrNull(json['limit']),
-        used: _int(json['used']),
-      );
+    period: (json['period'] as String?) ?? 'day',
+    limit: _intOrNull(json['limit']),
+    used: _int(json['used']),
+  );
 
   final String period;
 
@@ -74,16 +74,17 @@ class UsageLimit {
   });
 
   factory UsageLimit.fromJson(Map<String, Object?> json) => UsageLimit(
-        resource: (json['resource'] as String?) ?? '',
-        period: (json['period'] as String?) ?? 'month',
-        limit: _intOrNull(json['limit']),
-        used: _int(json['used']),
-        reserved: _int(json['reserved']),
-        burst: json['burst'] is Map<String, Object?>
+    resource: (json['resource'] as String?) ?? '',
+    period: (json['period'] as String?) ?? 'month',
+    limit: _intOrNull(json['limit']),
+    used: _int(json['used']),
+    reserved: _int(json['reserved']),
+    burst:
+        json['burst'] is Map<String, Object?>
             ? UsageBurst.fromJson(json['burst']! as Map<String, Object?>)
             : null,
-        alertLevel: json['alert_level']?.toString(),
-      );
+    alertLevel: json['alert_level']?.toString(),
+  );
 
   final String resource;
   final String period;
@@ -133,10 +134,10 @@ class Credits {
   const Credits({required this.balance, required this.transactionCount});
 
   factory Credits.fromJson(Map<String, Object?> json) => Credits(
-        balance: _int(json['balance']),
-        transactionCount:
-            ((json['transactions'] as List<Object?>?) ?? const []).length,
-      );
+    balance: _int(json['balance']),
+    transactionCount:
+        ((json['transactions'] as List<Object?>?) ?? const []).length,
+  );
 
   final int balance;
   final int transactionCount;

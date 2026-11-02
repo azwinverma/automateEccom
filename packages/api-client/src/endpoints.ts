@@ -1,5 +1,16 @@
 import type { ApiClient } from "./client";
 import type {
+  Category,
+  Collection,
+  ImportJob,
+  ProductAttribute,
+  ProductCreateInput,
+  ProductDetail,
+  ProductListQuery,
+  ProductPatchInput,
+  ProductStatus,
+  ProductSummary,
+  VariantPatchInput,
   AuditLogEntry,
   AuditLogQuery,
   CreateMerchantInput,
@@ -104,6 +115,59 @@ export function createApi(client: ApiClient) {
     audit: {
       list: (q: AuditLogQuery = {}) =>
         client.request<Page<AuditLogEntry>>("/audit-logs", { tenant: true, query: { ...q } }),
+    },
+    catalog: {
+      products: (q: ProductListQuery = {}) =>
+        client.request<Page<ProductSummary>>("/catalog/products", { tenant: true, query: { ...q } }),
+      product: (id: string) => client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}`, { tenant: true }),
+      createProduct: (body: ProductCreateInput, o?: IdemOptions) =>
+        client.request<ProductDetail>("/catalog/products", { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      /** Send the `version` you last read; `409 version_conflict` if someone else saved first. */
+      updateProduct: (id: string, version: number, fields: ProductPatchInput) =>
+        client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          body: { version, ...fields },
+          tenant: true,
+        }),
+      setStatus: (id: string, status: ProductStatus, version: number) =>
+        client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/status`, {
+          method: "POST",
+          body: { status, version },
+          tenant: true,
+        }),
+      updateVariant: (id: string, variantId: string, body: VariantPatchInput) =>
+        client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/variants/${encodeURIComponent(variantId)}`, {
+          method: "PATCH",
+          body,
+          tenant: true,
+        }),
+      archiveVariant: (id: string, variantId: string) =>
+        client.request<void>(`/catalog/products/${encodeURIComponent(id)}/variants/${encodeURIComponent(variantId)}`, {
+          method: "DELETE",
+          tenant: true,
+        }),
+      setAttributes: (id: string, items: Pick<ProductAttribute, "key" | "value" | "locale">[]) =>
+        client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/attributes`, {
+          method: "PUT",
+          body: { items },
+          tenant: true,
+        }),
+      confirmAttributes: (id: string, keys: string[]) =>
+        client.request<ProductDetail>(`/catalog/products/${encodeURIComponent(id)}/attributes/confirm`, {
+          method: "POST",
+          body: { keys },
+          tenant: true,
+        }),
+      categories: () => client.request<{ items: Category[] }>("/catalog/categories", { tenant: true }),
+      createCategory: (body: { name: string; name_ne?: string; parent_id?: string | null }) =>
+        client.request<Category>("/catalog/categories", { method: "POST", body, tenant: true }),
+      collections: () => client.request<{ items: Collection[] }>("/catalog/collections", { tenant: true }),
+      uploadImport: (file: File | Blob, fileName = "import.csv") => {
+        const form = new FormData();
+        form.append("file", file, fileName);
+        return client.request<ImportJob>("/catalog/imports", { method: "POST", body: form, tenant: true });
+      },
+      importJob: (id: string) => client.request<ImportJob>(`/catalog/imports/${encodeURIComponent(id)}`, { tenant: true }),
     },
     featureFlags: {
       get: () => client.request<{ flags: Record<string, boolean> }>("/feature-flags", { tenant: true }),

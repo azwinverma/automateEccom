@@ -17,11 +17,11 @@ UsageLevel usageLevelFor(double ratio) {
 /// Server `alert_level` ("70"|"85"|"100") — the stricter of server and
 /// client-computed levels wins.
 UsageLevel usageLevelFromAlert(String? alert) => switch (alert) {
-      '100' => UsageLevel.reached,
-      '85' => UsageLevel.warning,
-      '70' => UsageLevel.notice,
-      _ => UsageLevel.normal,
-    };
+  '100' => UsageLevel.reached,
+  '85' => UsageLevel.warning,
+  '70' => UsageLevel.notice,
+  _ => UsageLevel.normal,
+};
 
 Color usageLevelColor(BuildContext context, UsageLevel level) {
   final palette = AppPalette.of(context);
@@ -54,12 +54,13 @@ class MeterBar extends StatelessWidget {
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: clamped),
               duration: Motion.standard(context),
-              builder: (context, v, _) => FractionallySizedBox(
-                widthFactor: v,
-                heightFactor: 1,
-                alignment: AlignmentDirectional.centerStart,
-                child: ColoredBox(color: usageLevelColor(context, level)),
-              ),
+              builder:
+                  (context, v, _) => FractionallySizedBox(
+                    widthFactor: v,
+                    heightFactor: 1,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: ColoredBox(color: usageLevelColor(context, level)),
+                  ),
             ),
           ],
         ),

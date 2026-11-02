@@ -14,9 +14,10 @@ class AppConfig {
 
   factory AppConfig.fromEnvironment({TargetPlatform? platform}) {
     const defined = String.fromEnvironment('API_BASE_URL');
-    final host = defined.isNotEmpty
-        ? defined
-        : defaultBaseUrlFor(platform ?? defaultTargetPlatform);
+    final host =
+        defined.isNotEmpty
+            ? defined
+            : defaultBaseUrlFor(platform ?? defaultTargetPlatform);
     return AppConfig(apiBaseUrl: host);
   }
 
