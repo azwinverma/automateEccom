@@ -32,6 +32,7 @@ celery.conf.update(
             "schedule": 300.0,
         },
         "refresh-channel-tokens": {"task": "app.worker.tasks.refresh_channel_tokens", "schedule": 300.0},
+        "publish-due-content": {"task": "app.worker.tasks.publish_due_content", "schedule": 30.0},
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
     },
 )

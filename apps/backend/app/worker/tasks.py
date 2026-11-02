@@ -66,6 +66,17 @@ def refresh_channel_tokens() -> dict[str, int]:
     return stats
 
 
+@celery.task(name="app.worker.tasks.publish_due_content", ignore_result=True)
+def publish_due_content() -> dict[str, int]:
+    from app.domains.content.service import publish_due
+
+    with session_scope() as db:
+        stats = publish_due(db)
+    if any(stats.values()):
+        log.info("content_published", **stats)
+    return stats
+
+
 @celery.task(name="app.worker.tasks.purge_idempotency", ignore_result=True)
 def purge_idempotency() -> int:
     with session_scope() as db:

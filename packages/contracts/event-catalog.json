@@ -597,6 +597,29 @@
           "error_code"
         ]
       }
+    },
+    {
+      "type": "content.publish_failed",
+      "version": 1,
+      "description": "A scheduled post could not be published after retries (or needs reconnect); surfaces in the Exception Inbox.",
+      "aggregate": "content",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "post_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "error_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "post_id",
+          "error_code"
+        ]
+      }
     }
   ]
 }

@@ -92,6 +92,11 @@ def _clean() -> Iterator[None]:
 
     SandboxAdapter.failures.clear()
     SandboxAdapter.override_data.clear()
+    from app.domains.integrations.sandbox import SandboxChannelAdapter
+
+    SandboxChannelAdapter.failures.clear()
+    SandboxChannelAdapter.published.clear()
+    SandboxChannelAdapter.revoked_refresh_tokens.clear()
 
 
 @pytest.fixture
