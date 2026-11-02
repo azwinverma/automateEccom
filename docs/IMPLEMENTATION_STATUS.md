@@ -7,17 +7,29 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases are provisional because `22_PHASED_ROADMAP.md` is not in the repository (GAP-SPEC-22): **P0** Foundation · **P1** Product → Publish · **P2** Conversation → Order (CRM, orders, inventory, payments) · **P3** Fulfil & return · **P4** Automation · **P5** Analytics, procurement, growth. ADM/UX items ship alongside the phase they support.
 
-_Last updated: 2026-11-02 — Phase 0 foundation._
+_Last updated: 2026-11-02 — Phase 0 complete (open: CI run, staging target); Phase 1 backend core built._
 
 ## Summary
 
 | Area | Result (2026-11-02) |
 |---|---|
-| Backend | ruff + mypy clean · 65 tests passed (real Postgres 14 + Redis 7) · 84% line coverage · pip-audit: no known vulns · alembic upgrade/downgrade/check clean |
+| Backend | ruff + mypy clean · 126 tests passed (real Postgres 14 + Redis 7) · 87% line coverage · pip-audit: no known vulns · 6 migrations, upgrade/downgrade/check clean |
 | Web | typecheck, lint, 95 component tests, 20 api-client tests, production build; Playwright E2E (2 specs × desktop + 360px) passing against the **real** backend |
 | Mobile | `flutter analyze` clean · 51 tests · not yet built for a device or run against the real backend |
 | Containers | backend image built; compose stack booted (migrate → api → worker/beat) and outbox email dispatch verified |
 | CI | workflow written, not yet executed on GitHub (repo has no remote) |
+
+## Phase 1 (Product → Publish) progress
+
+| Area | State |
+|---|---|
+| Catalog (CAT-001…010) | Backend TESTED; web screens in progress |
+| Media pipeline (MED-001…004, 010, 011) | Backend TESTED. AI image edit/generation, fidelity review and Auto Reels not started |
+| AI Product Studio (CNT-002…006) | Backend TESTED with the sandbox provider; **no live model call yet** (needs `COS_ANTHROPIC_API_KEY`) |
+| Content engine (CNT-008…011) | Backend TESTED; calendar UI pending |
+| Channels (CHN-003/004/010/011/013) | Framework TESTED with a stateful sandbox channel. **Every real channel adapter is BLOCKED on platform app approval** (GAP-CHANNEL-APPS) |
+| Exception Inbox feed | Backend TESTED; client wiring in progress |
+| Mobile capture → draft → publish | In progress |
 
 ## Phase 0 exit criteria
 
@@ -87,55 +99,55 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | AIG-009 | circuit breaker | P0 | TESTED | — | apps/backend/app/domains/ai/circuit.py | test_ai_gateway::test_circuit_opens… | Shared Redis breaker, half-open single probe, event on open |
 | AIG-010 | retry/timeout | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/gateway.py | test_ai_gateway::test_transient_errors… | Bounded attempts, full jitter, Retry-After |
 | AIG-011 | BYOK encryption | P0 | TESTED | BIL-004 | apps/backend/app/core/crypto.py, domains/ai/credentials.py | test_ai_gateway::test_byok… | Envelope AES-GCM, AAD-bound, crypto-shred on revoke. KMS provider stub only (GAP-KMS) |
-| AIG-012 | prompt registry | P0 | IN_PROGRESS | AIG-001 | apps/backend/app/domains/ai/models.py | — | PromptTemplate table + version recorded per execution; no registry service/rollout yet |
+| AIG-012 | prompt registry | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/prompts.py | test_studio | Versioned built-in prompts with DB override; version recorded per execution |
 | AIG-013 | schema validation | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/gateway.py | test_ai_gateway::test_schema_violation…, test_low_confidence… | JSON-schema validation, confidence → needs_review |
 | AIG-014 | cost ledger | P0 | TESTED | AIG-001 | apps/backend/app/domains/ai/models.py, gateway.py | test_ai_gateway::test_structured_success… | Per-attempt ledger: provider/model/tokens/cost/latency/credits/plan/prompt/trace |
 | AIG-015 | eval harness | P0 | NOT_STARTED | AIG-012 | — | — | Eval harness needs real prompts (Phase 1) |
-| CAT-001 | Product | P1 | NOT_STARTED | — | — | — |  |
-| CAT-002 | Variant | P1 | NOT_STARTED | — | — | — |  |
-| CAT-003 | options | P1 | NOT_STARTED | — | — | — |  |
-| CAT-004 | taxonomy | P1 | NOT_STARTED | — | — | — |  |
-| CAT-005 | pricing | P1 | NOT_STARTED | — | — | — |  |
-| CAT-006 | cost | P1 | NOT_STARTED | — | — | — |  |
-| CAT-007 | lifecycle | P1 | NOT_STARTED | — | — | — |  |
-| CAT-008 | import | P1 | NOT_STARTED | — | — | — |  |
-| CAT-009 | SKU rules | P1 | NOT_STARTED | — | — | — |  |
-| CAT-010 | listing mapping | P1 | NOT_STARTED | — | — | — |  |
-| MED-001 | signed upload | P1 | NOT_STARTED | — | — | — |  |
-| MED-002 | validation | P1 | NOT_STARTED | — | — | — |  |
-| MED-003 | EXIF | P1 | NOT_STARTED | — | — | — |  |
-| MED-004 | derivatives | P1 | NOT_STARTED | — | — | — |  |
-| MED-005 | background removal | P1 | NOT_STARTED | — | — | — |  |
-| MED-006 | image generation | P1 | NOT_STARTED | — | — | — |  |
-| MED-007 | fidelity review | P1 | NOT_STARTED | — | — | — |  |
-| MED-008 | Auto Reel | P1 | NOT_STARTED | — | — | — |  |
+| CAT-001 | Product | P1 | TESTED | IAM-006 | apps/backend/app/domains/catalog/ | test_catalog | Product with i18n fields, SEO, tags, optimistic lock (version) |
+| CAT-002 | Variant | P1 | TESTED | CAT-001 | apps/backend/app/domains/catalog/models.py, service.py | test_catalog | Variants ≤100, unique option combination, dims/weight |
+| CAT-003 | options | P1 | TESTED | CAT-002 | apps/backend/app/domains/catalog/service.py | test_catalog | ≤3 options, values case-insensitive, relational links |
+| CAT-004 | taxonomy | P1 | TESTED | CAT-001 | apps/backend/app/domains/catalog/service.py | test_catalog::test_categories_and_collections | Merchant taxonomy tree (≤6 levels, materialised path); no shared global taxonomy yet |
+| CAT-005 | pricing | P1 | TESTED | CAT-002 | apps/backend/app/domains/catalog/rules.py | test_catalog | Integer paisa; compare-at > price; range guard against unit mistakes |
+| CAT-006 | cost | P1 | TESTED | CAT-002 | apps/backend/app/domains/catalog/models.py | test_catalog | Variant cost + supplier cost/MOQ/lead time (VariantSupplier) |
+| CAT-007 | lifecycle | P1 | TESTED | CAT-001 | apps/backend/app/domains/catalog/service.py | test_catalog::test_lifecycle… | draft/active/archived machine; publish guards incl. unconfirmed AI attributes |
+| CAT-008 | import | P1 | TESTED | CAT-001,FND-012 | apps/backend/app/domains/catalog/imports.py | test_catalog::test_csv_import… | Async CSV (rupee parsing, grouping, per-product savepoints, row errors, dup-file guard). Runs inside outbox handler (GAP-IMPORT-QUEUE) |
+| CAT-009 | SKU rules | P1 | TESTED | CAT-002 | apps/backend/app/domains/catalog/rules.py | test_catalog::test_rules_units | SKU format + generation, GTIN checksum, unique per merchant |
+| CAT-010 | listing mapping | P1 | TESTED | CHN-001 | apps/backend/app/domains/channels/service.py | test_channels | Listing per connection; desired/actual reconcile per product version |
+| MED-001 | signed upload | P1 | TESTED | FND-006 | apps/backend/app/domains/media/ | test_media | Signed PUT (dev object store for local backend; S3 presign untested GAP-S3) |
+| MED-002 | validation | P1 | TESTED | MED-001 | apps/backend/app/domains/media/imaging.py, scanner.py | test_media | Byte-sniffed format, bomb guard, clamd INSTREAM; scanner outage retries |
+| MED-003 | EXIF | P1 | TESTED | MED-002 | apps/backend/app/domains/media/imaging.py | test_media::test_imaging_applies… | Orientation applied; all metadata incl. GPS stripped from derivatives |
+| MED-004 | derivatives | P1 | TESTED | MED-003 | apps/backend/app/domains/media/imaging.py | test_media | thumb/medium/white-square/4:5/9:16; pad never crops or recolours |
+| MED-005 | background removal | P1 | NOT_STARTED | AIG-005 | — | — | Background removal needs an image-edit provider + fidelity review (GAP-AI-MEDIA) |
+| MED-006 | image generation | P1 | NOT_STARTED | AIG-005 | — | — | AI lifestyle images: provider not chosen (GAP-AI-MEDIA) |
+| MED-007 | fidelity review | P1 | NOT_STARTED | MED-006 | — | — | Fidelity review UI/flow for generated images |
+| MED-008 | Auto Reel | P1 | NOT_STARTED | MED-004 | — | — | Auto Reels (templated video from seller media) — next Phase 1 item |
 | MED-009 | video job state | P1 | NOT_STARTED | — | — | — |  |
-| MED-010 | media metering | P1 | NOT_STARTED | — | — | — |  |
-| MED-011 | lifecycle cleanup | P1 | NOT_STARTED | — | — | — |  |
-| CNT-001 | brand voice | P1 | NOT_STARTED | — | — | — |  |
-| CNT-002 | titles | P1 | NOT_STARTED | — | — | — |  |
-| CNT-003 | descriptions | P1 | NOT_STARTED | — | — | — |  |
-| CNT-004 | SEO | P1 | NOT_STARTED | — | — | — |  |
-| CNT-005 | captions | P1 | NOT_STARTED | — | — | — |  |
-| CNT-006 | hashtags | P1 | NOT_STARTED | — | — | — |  |
-| CNT-007 | translation | P1 | NOT_STARTED | — | — | — |  |
-| CNT-008 | calendar | P1 | NOT_STARTED | — | — | — |  |
-| CNT-009 | approval | P1 | NOT_STARTED | — | — | — |  |
-| CNT-010 | scheduler | P1 | NOT_STARTED | — | — | — |  |
-| CNT-011 | retry | P1 | NOT_STARTED | — | — | — |  |
+| MED-010 | media metering | P1 | IMPLEMENTED | BIL-006 | apps/backend/app/domains/media/service.py | test_media::test_upload_request_validation… | storage_mb gauge; image/video generation metering awaits MED-006/008 |
+| MED-011 | lifecycle cleanup | P1 | IMPLEMENTED | MED-001 | apps/backend/app/domains/media/service.py, worker/tasks.py | — | Abandoned uploads purged after 24h; deleted assets' objects removed |
+| CNT-001 | brand voice | P1 | NOT_STARTED | CNT-002 | — | — | Brand voice profile per merchant (prompt input) not built |
+| CNT-002 | titles | P1 | TESTED | AIG-001 | apps/backend/app/domains/studio/ | test_studio | Titles en/ne via Product Studio extraction |
+| CNT-003 | descriptions | P1 | TESTED | CNT-002 | apps/backend/app/domains/studio/ | test_studio | Descriptions + bullets en/ne |
+| CNT-004 | SEO | P1 | TESTED | CNT-002 | apps/backend/app/domains/studio/ | test_studio | SEO title/description with length limits |
+| CNT-005 | captions | P1 | TESTED | CNT-002 | apps/backend/app/domains/studio/, content/ | test_studio, test_content | Per-platform captions (instagram/facebook/tiktok) + grounding check |
+| CNT-006 | hashtags | P1 | TESTED | CNT-002 | apps/backend/app/domains/studio/service.py | test_studio | Hashtags normalised |
+| CNT-007 | translation | P1 | IN_PROGRESS | CNT-002 | apps/backend/app/domains/studio/prompts.py | test_studio | Nepali generated with the listing; no standalone translation task yet |
+| CNT-008 | calendar | P1 | TESTED | CHN-002 | apps/backend/app/domains/content/ | test_content | Calendar range query; UI pending |
+| CNT-009 | approval | P1 | TESTED | CNT-008 | apps/backend/app/domains/content/service.py | test_content | Approval policy by automation mode + grounding issues |
+| CNT-010 | scheduler | P1 | TESTED | CNT-009 | apps/backend/app/domains/content/service.py, worker/ | test_content | 30s beat scheduler, idempotent provider call |
+| CNT-011 | retry | P1 | TESTED | CNT-010 | apps/backend/app/domains/content/service.py | test_content::test_transient_failures… | Backoff retry → failed + exception event; reconnect handling |
 | CHN-001 | adapter interface | P1 | TESTED | — | apps/backend/app/domains/integrations/base.py, registry.py | test_platform::test_registry… | Channel/Payment/Courier/Notification interfaces |
 | CHN-002 | capabilities | P1 | TESTED | CHN-001 | apps/backend/app/domains/integrations/base.py | test_platform::test_registry… | Capability enums; sandbox adapters refused in production |
-| CHN-003 | OAuth | P1 | NOT_STARTED | — | — | — |  |
-| CHN-004 | token refresh | P1 | NOT_STARTED | — | — | — |  |
-| CHN-005 | Meta/Instagram | P1 | NOT_STARTED | — | — | — |  |
-| CHN-006 | TikTok | P1 | NOT_STARTED | — | — | — |  |
-| CHN-007 | TikTok Shop where eligible | P1 | NOT_STARTED | — | — | — |  |
-| CHN-008 | Shopify | P1 | NOT_STARTED | — | — | — |  |
-| CHN-009 | WooCommerce | P1 | NOT_STARTED | — | — | — |  |
-| CHN-010 | webhook gateway | P1 | NOT_STARTED | — | — | — |  |
-| CHN-011 | dedupe | P1 | NOT_STARTED | — | — | — |  |
-| CHN-012 | reconciliation | P1 | NOT_STARTED | — | — | — |  |
-| CHN-013 | health UI | P1 | NOT_STARTED | — | — | — |  |
+| CHN-003 | OAuth | P1 | TESTED | CHN-001 | apps/backend/app/domains/channels/ | test_channels | Single-use merchant+user-bound state; sealed tokens |
+| CHN-004 | token refresh | P1 | TESTED | CHN-003 | apps/backend/app/domains/channels/service.py | test_channels::test_token_refresh… | Proactive refresh; auth failure → expired + event |
+| CHN-005 | Meta/Instagram | P1 | BLOCKED | CHN-003 | — | — | Meta/Instagram: needs Meta app + App Review for instagram_content_publish / pages_manage_posts (GAP-CHANNEL-APPS) |
+| CHN-006 | TikTok | P1 | BLOCKED | CHN-003 | — | — | TikTok: needs TikTok for Developers app + Content Posting API audit (GAP-CHANNEL-APPS) |
+| CHN-007 | TikTok Shop where eligible | P1 | BLOCKED | CHN-003 | — | — | TikTok Shop: seller-region eligibility for Nepal unconfirmed (GAP-CHANNEL-APPS) |
+| CHN-008 | Shopify | P1 | BLOCKED | CHN-003 | — | — | Shopify: needs Partner app credentials (GAP-CHANNEL-APPS) |
+| CHN-009 | WooCommerce | P1 | BLOCKED | CHN-003 | — | — | WooCommerce: per-store REST keys; adapter not written yet |
+| CHN-010 | webhook gateway | P1 | TESTED | CHN-001 | apps/backend/app/domains/channels/ | test_channels::test_webhook… | Verify→record→dedupe→fast 200→async; unverified never stored |
+| CHN-011 | dedupe | P1 | TESTED | CHN-010 | apps/backend/app/domains/channels/models.py | test_channels | Unique (provider, event id); duplicate counter |
+| CHN-012 | reconciliation | P1 | NOT_STARTED | CHN-008 | — | — | Periodic listing/inventory reconciliation against provider |
+| CHN-013 | health UI | P1 | IMPLEMENTED | CHN-003 | apps/backend/app/domains/channels/ | test_channels | Health check API + status; UI pending |
 | CRM-001 | Customer | P2 | NOT_STARTED | — | — | — |  |
 | CRM-002 | identities | P2 | NOT_STARTED | — | — | — |  |
 | CRM-003 | addresses | P2 | NOT_STARTED | — | — | — |  |
@@ -236,8 +248,8 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | ADM-001 | merchant lookup | P0+ | IMPLEMENTED | IAM-005 | apps/backend/app/domains/admin/router.py | test_platform::test_admin_requires_staff_with_mfa | API only; admin UI not built |
 | ADM-002 | usage/credits | P0+ | IMPLEMENTED | BIL-006 | apps/backend/app/domains/admin/router.py | — | Usage + credit balance in merchant detail API |
 | ADM-003 | provider health | P0+ | IMPLEMENTED | AIG-008 | apps/backend/app/domains/admin/router.py | — | Provider/circuit health API |
-| ADM-004 | channel health | P0+ | NOT_STARTED | — | — | — |  |
-| ADM-005 | webhook explorer | P0+ | NOT_STARTED | — | — | — |  |
+| ADM-004 | channel health | P0+ | IMPLEMENTED | CHN-013 | apps/backend/app/domains/channels/router.py | — | Connection health per merchant via API; admin UI pending |
+| ADM-005 | webhook explorer | P0+ | TESTED | CHN-010 | apps/backend/app/domains/channels/router.py | test_channels::test_webhook_unknown… | Admin webhook explorer + replay (audited) |
 | ADM-006 | replay | P0+ | IMPLEMENTED | FND-012 | apps/backend/app/domains/admin/router.py | test_idempotency_outbox (requeue) | Outbox replay (audited) |
 | ADM-007 | DLQ | P0+ | IMPLEMENTED | FND-012 | apps/backend/app/domains/admin/router.py | — | Dead outbox events listing |
 | ADM-008 | plan editor | P0+ | NOT_STARTED | — | — | — |  |
@@ -250,7 +262,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-004 | Product Brain | P0 | NOT_STARTED | — | — | — |  |
 | UX-005 | Channel Sync Rail | P0 | NOT_STARTED | — | — | — |  |
 | UX-006 | Autopilot Strip | P0 | IMPLEMENTED | UX-002 | apps/web/src/components/commerce, apps/mobile/lib/features/home | widget/component tests | Autopilot Status Strip (no data source until AUT) |
-| UX-007 | Exception Inbox | P0 | IMPLEMENTED | UX-002 | apps/web/src/components/commerce, apps/mobile/lib/features/home | widget/component tests | Exception Inbox (10 types; empty until domains emit exceptions) |
+| UX-007 | Exception Inbox | P0 | IN_PROGRESS | UX-002 | apps/backend/app/domains/exceptions/, apps/web, apps/mobile | test_exceptions | Live feed from domain state; web/mobile wiring in progress |
 | UX-008 | Order Journey | P0 | NOT_STARTED | — | — | — |  |
 | UX-009 | AI Timeline | P0 | NOT_STARTED | — | — | — |  |
 | UX-010 | Profit Card | P0 | NOT_STARTED | — | — | — |  |

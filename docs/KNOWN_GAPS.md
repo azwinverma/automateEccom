@@ -46,6 +46,19 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-CHECKOUT | Med | "Buy credits" / upgrade have no purchase flow (needs PAY + BIL-011). | Phase 2 payments. |
 | GAP-E2E-401 | Low | One unexplained `GET /me 401` immediately after login during an E2E run that coincided with a backend restart. Not reproduced in 8 further runs. Access logs now include `error_code` to diagnose any recurrence. | Watch E2E in CI. |
 
+
+## Phase 1 gaps
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-CHANNEL-APPS | High | No real channel can be connected. Each needs a platform developer app and review:<br>• **Meta:** app + App Review for `instagram_basic`, `instagram_content_publish`, `pages_manage_posts`, `pages_read_engagement`, plus Business verification<br>• **TikTok:** Content Posting API audit<br>• **TikTok Shop:** seller-region eligibility for Nepal unconfirmed<br>• **Shopify:** Partner app<br>• **WooCommerce:** per-store REST keys<br>The framework, OAuth, token refresh, webhooks and publishing are built and tested against a stateful sandbox channel. | Create the developer apps and provide credentials; then write each adapter against `ChannelAdapter`. |
+| GAP-AI-LIVE | High | The Product Studio has only run against the sandbox provider. Prompt quality, Nepali copy quality and extraction accuracy are **unmeasured**. | Set `COS_ANTHROPIC_API_KEY` in staging; build the eval set (AIG-015) from real seller photos. |
+| GAP-AUTO-REELS | Med | Auto Reels (MED-008), AI background removal (MED-005), AI lifestyle images (MED-006) and the fidelity review flow (MED-007) are not built. | Auto Reels next (no external provider needed: ffmpeg templating). Image AI needs a provider decision. |
+| GAP-IMPORT-QUEUE | Low | The CSV import runs inside the outbox handler, which blocks that dispatcher for up to ~5,000 rows. | Move to a Celery task on its own queue, as Studio does. |
+| GAP-CLAMAV-COMPOSE | Med | ClamAV is not in docker compose. Dev uses the no-op scanner (assets show `scan_status: skipped`); production refuses to start without clamd. | Add a `clamav` service under a compose profile and a staging deployment. |
+| GAP-BRAND-VOICE | Low | No per-merchant brand voice profile (CNT-001) feeds the prompts yet. | Add a merchant settings field + prompt variable. |
+| GAP-CHN-RECON | Med | No periodic reconciliation against providers (CHN-012), so drift made directly on a platform isn't detected. | Implement once a real adapter exists. |
+| GAP-CATALOG-TAXONOMY | Low | Categories are per-merchant; there is no shared Nepal-relevant base taxonomy or marketplace category mapping. | Seed a base taxonomy; map it per channel when real adapters land. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.

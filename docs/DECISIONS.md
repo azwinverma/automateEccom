@@ -85,3 +85,30 @@ The initial exact pins in `pyproject.toml` were stale, and `pip-audit` found kno
 - Derive from the 9 present docs and the build brief.
 - Prefer security and data integrity.
 - Mark derived values **provisional**. Plan limits other than the video numbers in spec 08 are provisional. Prices are `NULL` (not configured) rather than invented.
+
+## ADR-016: AI output is a draft document; commercial facts stay with the seller
+The Product Studio stores the model output as a JSONB draft on `studio_jobs`. It is review material, not commerce data.
+- **Schema:** the extraction schema has no price, stock, delivery or discount fields.
+- **Seller-entered facts:** `apply` requires seller-entered variants and prices.
+- **Grounding check:** a deterministic check (English and Nepali patterns) flags such claims in generated copy unless the seller's own notes contain them.
+- **Attribute confidence:** attributes become `confirmed` automatically only above the routing policy's `min_confidence` (0.75). Below that, the product cannot go live until the seller confirms them.
+
+## ADR-017: Slow AI work runs on Celery behind the outbox
+The flow is: HTTP creates a job → outbox event → handler enqueues a Celery task on the `ai` queue → the task calls the gateway without holding a DB transaction.
+- **Recovery:** a beat sweeper re-enqueues jobs stuck in queued/running, which covers broker loss.
+- **Retries:** at most 3 attempts.
+- **No charge on failure:** provider outages leave the usage reservation released.
+
+## ADR-018: Channel listings reconcile desired vs actual state per product version
+`channel_listings` stores `desired_state` and the `published_product_version`.
+- **Idempotency:** each sync uses the key `listing:{id}:v{product.version}`. A redelivered event is a no-op, and updates reuse the provider's `external_id`, so there are no duplicate listings.
+- **Credential rejection** marks the connection `expired` (with an event and an exception). Listings wait and re-sync automatically on reconnect.
+- **Transient errors** back off through delayed outbox events.
+
+## ADR-019: Content approval follows automation mode
+- **Seller-written posts:** never need approval.
+- **AI-written posts:** need approval in Assisted mode, or in any mode when the grounding check flagged issues. Otherwise they are auto-approved.
+- **Edits:** any edit after approval sends the post back to draft.
+
+## ADR-020: The Exception Inbox is derived, not stored
+`GET /exceptions` computes open exceptions from authoritative domain state: expired connections, failed listings and posts, pending approvals, drafts needing review, unconfirmed AI attributes, and quarantined uploads. Fixing the underlying problem removes the item, so there's no separate ack/resolve state to drift. Dismiss and snooze, and exceptions from future domains (orders, payments, couriers), plug into the same function.
