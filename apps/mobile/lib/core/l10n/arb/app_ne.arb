@@ -393,5 +393,9 @@
   "exActionRetryDraft": "ड्राफ्ट फेरि चलाउनुहोस्",
   "exActionConfirmAttributes": "विवरण पुष्टि गर्नुहोस्",
   "exActionDismiss": "लुकाउनुहोस्",
-  "homeSectionCatalog": "क्याटलग"
+  "homeSectionCatalog": "क्याटलग",
+  "settingsTheme": "थिम",
+  "themeLight": "उज्यालो",
+  "themeDark": "अँध्यारो",
+  "themeSystem": "फोनकै थिम"
 }

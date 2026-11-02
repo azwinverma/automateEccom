@@ -1299,4 +1299,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSectionCatalog => 'Catalog';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeSystem => 'Same as phone';
 }

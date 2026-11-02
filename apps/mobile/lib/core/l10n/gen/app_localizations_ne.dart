@@ -1281,4 +1281,16 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get homeSectionCatalog => 'क्याटलग';
+
+  @override
+  String get settingsTheme => 'थिम';
+
+  @override
+  String get themeLight => 'उज्यालो';
+
+  @override
+  String get themeDark => 'अँध्यारो';
+
+  @override
+  String get themeSystem => 'फोनकै थिम';
 }

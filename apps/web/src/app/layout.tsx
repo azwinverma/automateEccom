@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { getLocale, getTranslator } from "@/i18n/server";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { getTheme } from "@/lib/theme/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const devanagari = Noto_Sans_Devanagari({
@@ -33,20 +34,32 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  // Browser chrome colour must be a literal; values are the canvas tokens (light/dark).
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: tokens.semantic.light["surface-canvas"] },
-    { media: "(prefers-color-scheme: dark)", color: tokens.semantic.dark["surface-canvas"] },
-  ],
-};
+export async function generateViewport(): Promise<Viewport> {
+  const theme = await getTheme();
+  // Browser chrome colour must be a literal; values are the canvas tokens for the chosen theme.
+  const light = tokens.semantic.light["surface-canvas"];
+  const dark = tokens.semantic.dark["surface-canvas"];
+  return {
+    width: "device-width",
+    initialScale: 1,
+    colorScheme: theme === "system" ? "light dark" : theme,
+    themeColor:
+      theme === "system"
+        ? [
+            { media: "(prefers-color-scheme: light)", color: light },
+            { media: "(prefers-color-scheme: dark)", color: dark },
+          ]
+        : theme === "dark"
+          ? dark
+          : light,
+  };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const locale = await getLocale();
+  const [locale, theme] = await Promise.all([getLocale(), getTheme()]);
   return (
-    <html lang={locale} className={`${inter.variable} ${devanagari.variable}`}>
+    // data-theme is set on the server from the cookie (light by default), so there is no theme flash.
+    <html lang={locale} data-theme={theme} className={`${inter.variable} ${devanagari.variable}`}>
       <body>
         <I18nProvider locale={locale}>
           <AuthProvider>{children}</AuthProvider>

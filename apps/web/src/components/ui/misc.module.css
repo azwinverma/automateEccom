@@ -63,16 +63,6 @@
   color: var(--color-text-brand);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .badge.success,
-  :root:not([data-theme="light"]) .badge.warning,
-  :root:not([data-theme="light"]) .badge.danger,
-  :root:not([data-theme="light"]) .badge.info,
-  :root:not([data-theme="light"]) .badge.automated {
-    background: var(--surface-sunken);
-  }
-}
-
 .alert {
   display: flex;
   gap: var(--space-3);

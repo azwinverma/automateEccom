@@ -30,6 +30,12 @@ export const ne: Messages = {
     stageFulfillDetail: "COD र कुरियर",
     stageLearnDetail: "रिटर्नपछिको नाफा",
   },
+  theme: {
+    label: "थिम",
+    light: "उज्यालो",
+    dark: "अँध्यारो",
+    system: "डिभाइस अनुसार",
+  },
   common: {
     save: "सेभ गर्नुहोस्",
     saving: "सेभ हुँदैछ…",

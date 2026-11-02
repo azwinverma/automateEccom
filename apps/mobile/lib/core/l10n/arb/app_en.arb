@@ -603,5 +603,9 @@
   "exActionRetryDraft": "Retry draft",
   "exActionConfirmAttributes": "Confirm details",
   "exActionDismiss": "Hide",
-  "homeSectionCatalog": "Catalog"
+  "homeSectionCatalog": "Catalog",
+  "settingsTheme": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "Same as phone"
 }

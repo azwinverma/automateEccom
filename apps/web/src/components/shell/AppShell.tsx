@@ -8,6 +8,8 @@ import { LOCALES, type AppLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { NAV_GROUPS, SECTIONS } from "@/lib/sections";
+import { THEMES, resolveTheme } from "@/lib/theme/config";
+import { useTheme } from "@/lib/theme/ThemeToggle";
 import { NivaroLogo, NivaroMark } from "../brand/Brand";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
@@ -80,6 +82,7 @@ function MerchantSwitcher() {
 function UserMenu() {
   const { t, locale, setLocale } = useI18n();
   const { me, signOut, api } = useAuth();
+  const [theme, setTheme] = useTheme();
   const router = useRouter();
   if (!me) return null;
   const changeLocale = (next: string) => {
@@ -108,6 +111,15 @@ function UserMenu() {
           {LOCALES.map((l) => (
             <MenuRadioItem key={l} value={l}>
               <span lang={l}>{t(`language.${l}`)}</span>
+            </MenuRadioItem>
+          ))}
+        </MenuRadioGroup>
+        <MenuSeparator />
+        <MenuLabel>{t("theme.label")}</MenuLabel>
+        <MenuRadioGroup value={theme} onValueChange={(v) => setTheme(resolveTheme(v))}>
+          {THEMES.map((th) => (
+            <MenuRadioItem key={th} value={th}>
+              {t(`theme.${th}`)}
             </MenuRadioItem>
           ))}
         </MenuRadioGroup>

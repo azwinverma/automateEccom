@@ -139,7 +139,7 @@
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root[data-theme="system"] {
     --color-brand-primary: #60A5FA;
     --color-brand-secondary: #2DD4BF;
     --color-brand-ink: #FFFFFF;
@@ -177,6 +177,11 @@
     --color-semantic-warning: #FBBF24;
     --color-semantic-danger: #F87171;
     --color-semantic-info: #93C5FD;
+    --color-semantic-success-soft: #0F2A1C;
+    --color-semantic-warning-soft: #2A1E0A;
+    --color-semantic-danger-soft: #2A1215;
+    --color-semantic-info-soft: #16264A;
+    --color-brand-blue-soft: #16264A;
     color-scheme: dark;
   }
 }
@@ -218,6 +223,11 @@
   --color-semantic-warning: #FBBF24;
   --color-semantic-danger: #F87171;
   --color-semantic-info: #93C5FD;
+  --color-semantic-success-soft: #0F2A1C;
+  --color-semantic-warning-soft: #2A1E0A;
+  --color-semantic-danger-soft: #2A1215;
+  --color-semantic-info-soft: #16264A;
+  --color-brand-blue-soft: #16264A;
   color-scheme: dark;
 }
 :lang(ne) { font-family: var(--font-family-devanagari); line-height: var(--line-height-devanagari); }

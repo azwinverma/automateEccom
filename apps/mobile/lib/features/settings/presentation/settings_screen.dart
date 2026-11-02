@@ -9,6 +9,7 @@ import '../../../core/auth/session_controller.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../../design/app_theme.dart';
+import '../../../design/theme_controller.dart';
 import '../../../design/tokens.g.dart';
 import '../../../design/widgets/section_header.dart';
 
@@ -46,6 +47,29 @@ class SettingsScreen extends ConsumerWidget {
             .then<void>((_) {}, onError: (Object _) {}),
       );
     }
+  }
+
+  Future<void> _pickTheme(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder:
+          (context) => SafeArea(
+            child: RadioGroupList(
+              current: ref.read(themeControllerProvider).name,
+              options: {
+                'light': l.themeLight,
+                'dark': l.themeDark,
+                'system': l.themeSystem,
+              },
+            ),
+          ),
+    );
+    if (choice == null) return;
+    await ref
+        .read(themeControllerProvider.notifier)
+        .set(ThemeMode.values.byName(choice));
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
@@ -152,6 +176,17 @@ class SettingsScreen extends ConsumerWidget {
             title: l.settingsLanguage,
             value: languageName,
             onTap: () => _pickLanguage(context, ref),
+          ),
+          const Divider(),
+          _NavRow(
+            icon: Icons.contrast,
+            title: l.settingsTheme,
+            value: switch (ref.watch(themeControllerProvider)) {
+              ThemeMode.dark => l.themeDark,
+              ThemeMode.system => l.themeSystem,
+              ThemeMode.light => l.themeLight,
+            },
+            onTap: () => _pickTheme(context, ref),
           ),
           const Divider(),
           _NavRow(

@@ -27,6 +27,12 @@ export const en = {
     stageFulfillDetail: "COD and courier",
     stageLearnDetail: "Profit after returns",
   },
+  theme: {
+    label: "Theme",
+    light: "Light",
+    dark: "Dark",
+    system: "Match device",
+  },
   common: {
     save: "Save",
     saving: "Saving…",
