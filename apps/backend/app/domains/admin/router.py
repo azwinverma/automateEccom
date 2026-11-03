@@ -4,18 +4,26 @@ Never returns secret values."""
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
+from typing import Literal
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import Principal, get_db, request_meta, require_staff
 from app.core.context import Actor
-from app.core.errors import NotFound
+from app.core.db import utcnow
+from app.core.errors import Conflict, NotFound, ValidationFailed
+from app.core.pagination import build_page, paginate_desc
+from app.domains.accounts.models import User
 from app.domains.ai.gateway import gateway
 from app.domains.audit import service as audit
+from app.domains.audit.models import AuditLog
+from app.domains.billing.models import EntitlementOverride, MeteredResource
 from app.domains.billing.service import entitlements
+from app.domains.channels.models import ChannelConnection
 from app.domains.merchants.models import Membership, Merchant
 from app.domains.platform import outbox
 from app.domains.platform.models import FeatureFlag, OutboxEvent
@@ -46,22 +54,53 @@ def search_merchants(
     }
 
 
+def _merchant_or_404(db: Session, merchant_id: uuid.UUID) -> Merchant:
+    m = db.get(Merchant, merchant_id)
+    if m is None:
+        raise NotFound()
+    return m
+
+
+def _override_view(o: EntitlementOverride) -> dict:
+    return {
+        "id": o.id,
+        "resource_code": o.resource_code,
+        "feature_code": o.feature_code,
+        "enabled": o.enabled,
+        "period": o.period,
+        "limit_value": o.limit_value,
+        "reason": o.reason,
+        "expires_at": o.expires_at,
+        "created_at": o.created_at,
+        "active": o.expires_at is None or o.expires_at > utcnow(),
+    }
+
+
 @router.get("/merchants/{merchant_id}")
 def merchant_detail(
     merchant_id: uuid.UUID,
     p: Principal = Depends(require_staff),
     db: Session = Depends(get_db, scope="function"),
 ) -> dict:
-    m = db.get(Merchant, merchant_id)
-    if m is None:
-        raise NotFound()
-    members = (
-        db.scalar(
-            select(func.count())
-            .select_from(Membership)
-            .where(Membership.merchant_id == merchant_id, Membership.status == "active")
-        )
-        or 0
+    m = _merchant_or_404(db, merchant_id)
+    member_rows = db.execute(
+        select(Membership, User)
+        .join(User, User.id == Membership.user_id)
+        .where(Membership.merchant_id == merchant_id)
+        .order_by(Membership.created_at)
+        .execution_options(skip_tenant_filter=True)
+    ).all()
+    connections = db.scalars(
+        select(ChannelConnection)
+        .where(ChannelConnection.merchant_id == merchant_id, ChannelConnection.status != "disconnected")
+        .order_by(ChannelConnection.created_at)
+        .execution_options(skip_tenant_filter=True)
+    )
+    overrides = db.scalars(
+        select(EntitlementOverride)
+        .where(EntitlementOverride.merchant_id == merchant_id)
+        .order_by(EntitlementOverride.created_at.desc())
+        .execution_options(skip_tenant_filter=True)
     )
     ent = entitlements.resolve(db, merchant_id)
     return {
@@ -72,13 +111,225 @@ def merchant_detail(
             "status": m.status,
             "country": m.country,
             "currency": m.currency,
+            "timezone": m.timezone,
+            "default_locale": m.default_locale,
             "created_at": m.created_at,
         },
-        "members": members,
+        "members": sum(1 for mb, _ in member_rows if mb.status == "active"),
+        "team": [
+            {
+                "user_id": u.id,
+                "email": u.email,
+                "full_name": u.full_name,
+                "role": mb.role,
+                "status": mb.status,
+                "mfa_enabled": u.mfa_enabled,
+                "last_login_at": u.last_login_at,
+            }
+            for mb, u in member_rows
+        ],
         "plan": ent.plan_code,
         "subscription_status": ent.subscription.status if ent.subscription else None,
         "usage": entitlements.usage_summary(db, merchant_id),
         "credit_balance": entitlements.balance(db, merchant_id),
+        "connections": [
+            {
+                "id": c.id,
+                "provider": c.provider,
+                "display_name": c.display_name,
+                "status": c.status,
+                "last_healthy_at": c.last_healthy_at,
+                "last_error_code": c.last_error_code,
+                "consecutive_failures": c.consecutive_failures,
+                "token_expires_at": c.token_expires_at,
+            }
+            for c in connections
+        ],
+        "overrides": [_override_view(o) for o in overrides],
+    }
+
+
+class StatusIn(BaseModel):
+    status: Literal["active", "suspended"]
+    reason: str = Field(min_length=5, max_length=300)
+
+
+@router.post("/merchants/{merchant_id}/status")
+def set_merchant_status(
+    merchant_id: uuid.UUID,
+    body: StatusIn,
+    request: Request,
+    p: Principal = Depends(require_staff),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict:
+    """Suspend (every seller request then gets 403 merchant_suspended) or reactivate a shop."""
+    m = _merchant_or_404(db, merchant_id)
+    if m.status == "closed":
+        raise Conflict("A closed shop can't be changed here", code="merchant_closed")
+    before = m.status
+    m.status = body.status
+    audit.record(
+        db,
+        action="admin.merchant_status_changed",
+        resource_type="merchant",
+        resource_id=m.id,
+        actor=_staff_actor(p),
+        merchant_id=m.id,
+        meta=request_meta(request),
+        changes={"status": {"from": before, "to": body.status}},
+        metadata={"reason": body.reason},
+    )
+    return {"id": m.id, "status": m.status}
+
+
+class OverrideIn(BaseModel):
+    resource_code: str = Field(min_length=2, max_length=64)
+    period: Literal["month", "day", "lifetime"]
+    limit_value: int = Field(ge=0, le=10_000_000, strict=True)
+    reason: str = Field(min_length=5, max_length=300)
+    expires_at: datetime | None = None
+
+
+@router.post("/merchants/{merchant_id}/overrides", status_code=201)
+def create_override(
+    merchant_id: uuid.UUID,
+    body: OverrideIn,
+    request: Request,
+    p: Principal = Depends(require_staff),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict:
+    """Raise or lower one limit for one merchant (support goodwill, pilots). Wins over the plan."""
+    _merchant_or_404(db, merchant_id)
+    res = db.get(MeteredResource, body.resource_code)
+    if res is None:
+        raise ValidationFailed(code="unknown_resource", details={"resource_code": body.resource_code})
+    if res.kind == "gauge" and body.period != "lifetime":
+        raise ValidationFailed(code="gauge_period_lifetime", details={"resource_code": body.resource_code})
+    if body.expires_at is not None and body.expires_at <= utcnow():
+        raise ValidationFailed(code="expires_in_past")
+    o = EntitlementOverride(
+        merchant_id=merchant_id,
+        resource_code=body.resource_code,
+        period=body.period,
+        limit_value=body.limit_value,
+        reason=body.reason,
+        created_by_user_id=p.user.id,
+        expires_at=body.expires_at,
+    )
+    db.add(o)
+    db.flush()
+    audit.record(
+        db,
+        action="admin.entitlement_override_created",
+        resource_type="entitlement_override",
+        resource_id=o.id,
+        actor=_staff_actor(p),
+        merchant_id=merchant_id,
+        meta=request_meta(request),
+        metadata=body.model_dump(mode="json"),
+    )
+    return _override_view(o)
+
+
+@router.delete("/merchants/{merchant_id}/overrides/{override_id}", status_code=204)
+def end_override(
+    merchant_id: uuid.UUID,
+    override_id: uuid.UUID,
+    request: Request,
+    p: Principal = Depends(require_staff),
+    db: Session = Depends(get_db, scope="function"),
+) -> Response:
+    """Ends an override now (kept for the record; expiry set to now rather than deleting the row)."""
+    o = db.scalar(
+        select(EntitlementOverride)
+        .where(EntitlementOverride.id == override_id, EntitlementOverride.merchant_id == merchant_id)
+        .execution_options(skip_tenant_filter=True)
+    )
+    if o is None:
+        raise NotFound()
+    if o.expires_at is None or o.expires_at > utcnow():
+        o.expires_at = utcnow()
+        audit.record(
+            db,
+            action="admin.entitlement_override_ended",
+            resource_type="entitlement_override",
+            resource_id=o.id,
+            actor=_staff_actor(p),
+            merchant_id=merchant_id,
+            meta=request_meta(request),
+        )
+    return Response(status_code=204)
+
+
+class CreditsIn(BaseModel):
+    amount: int = Field(gt=0, le=1_000_000, strict=True)
+    reason: str = Field(min_length=5, max_length=300)
+    idempotency_key: str = Field(min_length=8, max_length=80)
+
+
+@router.post("/merchants/{merchant_id}/credits", status_code=201)
+def grant_credits(
+    merchant_id: uuid.UUID,
+    body: CreditsIn,
+    request: Request,
+    p: Principal = Depends(require_staff),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict:
+    """Goodwill credits. The key makes a double-click or retry grant once."""
+    _merchant_or_404(db, merchant_id)
+    tx = entitlements.grant_credits(
+        db, merchant_id, body.amount, f"staff:{body.idempotency_key}", kind="grant", note=body.reason
+    )
+    audit.record(
+        db,
+        action="admin.credits_granted",
+        resource_type="credit_transaction",
+        resource_id=tx.id,
+        actor=_staff_actor(p),
+        merchant_id=merchant_id,
+        meta=request_meta(request),
+        metadata={"amount": body.amount, "reason": body.reason},
+    )
+    return {"transaction_id": tx.id, "balance": entitlements.balance(db, merchant_id)}
+
+
+@router.get("/audit-logs")
+def platform_audit(
+    merchant_id: uuid.UUID | None = None,
+    actor_type: str | None = Query(None, pattern="^(user|system|automation|ai|staff|webhook)$"),
+    action: str | None = Query(None, max_length=100),
+    limit: int = Query(50, ge=1, le=200),
+    cursor: str | None = None,
+    p: Principal = Depends(require_staff),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict:
+    """Cross-merchant audit trail for staff (who did what, including other staff)."""
+    stmt = select(AuditLog)
+    if merchant_id:
+        stmt = stmt.where(AuditLog.merchant_id == merchant_id)
+    if actor_type:
+        stmt = stmt.where(AuditLog.actor_type == actor_type)
+    if action:
+        stmt = stmt.where(AuditLog.action.startswith(action))
+    rows = list(db.scalars(paginate_desc(stmt, AuditLog.id, limit, cursor)))
+    items, nxt = build_page(rows, limit)
+    return {
+        "items": [
+            {
+                "id": a.id,
+                "merchant_id": a.merchant_id,
+                "occurred_at": a.occurred_at,
+                "actor": {"type": a.actor_type, "id": a.actor_id, "display": a.actor_display},
+                "action": a.action,
+                "resource_type": a.resource_type,
+                "resource_id": a.resource_id,
+                "request_id": a.request_id,
+                "changes": a.changes,
+                "metadata": a.meta,
+            }
+            for a in items
+        ],
+        "next_cursor": nxt,
     }
 
 

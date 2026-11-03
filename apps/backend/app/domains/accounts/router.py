@@ -35,6 +35,8 @@ class UserOut(BaseModel):
     locale: str
     email_verified: bool
     mfa_enabled: bool
+    # Platform staff can open the Nivaro Console (it still requires an MFA-verified session).
+    is_platform_staff: bool = False
 
     @staticmethod
     def of(u: service.User) -> UserOut:
@@ -46,6 +48,7 @@ class UserOut(BaseModel):
             locale=u.locale,
             email_verified=u.email_verified_at is not None,
             mfa_enabled=u.mfa_enabled,
+            is_platform_staff=u.is_platform_staff,
         )
 
 
@@ -310,9 +313,14 @@ class MembershipOut(BaseModel):
     status: str
 
 
+class SessionInfoOut(BaseModel):
+    mfa: bool
+
+
 class MeOut(BaseModel):
     user: UserOut
     memberships: list[MembershipOut]
+    session: SessionInfoOut | None = None
 
 
 @router.get("/me", response_model=MeOut, tags=["me"])
@@ -331,6 +339,7 @@ def me(p: Principal = Depends(get_principal), db: Session = Depends(get_db, scop
             )
             for m, mc in rows
         ],
+        session=SessionInfoOut(mfa="mfa" in (p.session.amr or [])),
     )
 
 
