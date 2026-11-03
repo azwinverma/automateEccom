@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
+from typing import Annotated
 
 from fastapi import Depends, Header, Request
 from sqlalchemy import select
@@ -82,7 +83,7 @@ def get_tenant(
     request: Request,
     principal: Principal = Depends(get_principal),
     db: Session = Depends(get_db, scope="function"),
-    x_merchant_id: str | None = Header(default=None, alias="X-Merchant-Id"),
+    x_merchant_id: Annotated[str | None, Header(alias="X-Merchant-Id")] = None,
 ) -> TenantContext:
     if not x_merchant_id:
         raise NotFound("X-Merchant-Id header is required", code="merchant_required")

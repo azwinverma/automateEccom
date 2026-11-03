@@ -265,6 +265,38 @@ def verify_email_confirm(
     return Response(status_code=204)
 
 
+# ----------------------------------------------------------------------------- password reset (QA-001)
+class ForgotIn(BaseModel):
+    email: EmailStr
+
+
+class ResetIn(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+    password: str = Field(min_length=1, max_length=256)
+
+
+@router.post("/auth/password/forgot", status_code=202)
+def password_forgot(
+    body: ForgotIn, request: Request, db: Session = Depends(get_db, scope="function")
+) -> Response:
+    """Always 202 so the response never reveals whether an account exists."""
+    meta = request_meta(request)
+    ratelimit.hit(f"pwreset:ip:{meta.ip}", limit=10, window_seconds=3600)
+    ratelimit.hit(f"pwreset:email:{body.email.lower()}", limit=3, window_seconds=3600)
+    service.request_password_reset(db, body.email, meta)
+    return Response(status_code=202)
+
+
+@router.post("/auth/password/reset", status_code=204)
+def password_reset(
+    body: ResetIn, request: Request, db: Session = Depends(get_db, scope="function")
+) -> Response:
+    meta = request_meta(request)
+    ratelimit.hit(f"pwreset-confirm:ip:{meta.ip}", limit=20, window_seconds=3600)
+    service.reset_password(db, body.token, body.password, meta)
+    return Response(status_code=204)
+
+
 # ----------------------------------------------------------------------------- me
 class MerchantRef(BaseModel):
     id: uuid.UUID

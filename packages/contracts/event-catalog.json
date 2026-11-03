@@ -66,6 +66,44 @@
       }
     },
     {
+      "type": "accounts.password_changed",
+      "version": 1,
+      "description": "Password was reset; all sessions were revoked; handler sends a security notice email.",
+      "aggregate": "accounts",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "user_id"
+        ]
+      }
+    },
+    {
+      "type": "accounts.password_reset_requested",
+      "version": 1,
+      "description": "User asked to reset their password; handler issues a single-use 30-minute token and emails the link.",
+      "aggregate": "accounts",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "user_id"
+        ]
+      }
+    },
+    {
       "type": "accounts.refresh_token_reuse_detected",
       "version": 1,
       "description": "A rotated refresh token was replayed; the session family was revoked (possible token theft).",

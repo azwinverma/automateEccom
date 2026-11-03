@@ -9,7 +9,7 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 log = structlog.get_logger(__name__)
@@ -107,6 +107,18 @@ def _envelope(request: Request, code: str, message: str, details: dict[str, Any]
     }
 
 
+# Postgres SQLSTATE classes that mean "can't reach / can't serve right now", not "your query is wrong":
+# 08 connection exception, 57P01-57P03 shutdown / cannot connect now, 53300 too many connections.
+_UNAVAILABLE_SQLSTATES = ("08", "57P01", "57P02", "57P03", "53300")
+
+
+def is_db_unavailable(exc: BaseException) -> bool:
+    if not isinstance(exc, OperationalError):
+        return False
+    state = getattr(getattr(getattr(exc, "orig", None), "diag", None), "sqlstate", None)
+    return state is None or any(state.startswith(p) for p in _UNAVAILABLE_SQLSTATES)
+
+
 def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def _app_error(request: Request, exc: AppError) -> JSONResponse:
@@ -134,6 +146,18 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
+        if is_db_unavailable(exc):
+            # The database is down or saturated: an outage, not a bug (QA-016). Clients retry; the load
+            # balancer already sees /readyz failing. No stack trace: it's noise during an outage.
+            diag = getattr(getattr(exc, "orig", None), "diag", None)
+            log.warning("database_unavailable", sqlstate=getattr(diag, "sqlstate", None))
+            return JSONResponse(
+                _envelope(
+                    request, "dependency_unavailable", "A service we rely on is down. Try again shortly.", {}
+                ),
+                status_code=503,
+                headers={"Retry-After": "5"},
+            )
         if isinstance(exc, DBAPIError):
             # Postgres echoes row values in messages (e.g. unique-violation DETAIL), so log only
             # structured, value-free facts plus stack frames.

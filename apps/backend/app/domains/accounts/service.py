@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import secrets
 import uuid
 from dataclasses import dataclass
@@ -33,6 +34,7 @@ from app.domains.accounts.models import (
     AuthSession,
     EmailVerificationToken,
     MfaRecoveryCode,
+    PasswordResetToken,
     RefreshToken,
     User,
 )
@@ -237,7 +239,8 @@ def login(
 
 def verify_mfa(db: Session, *, mfa_token: str, code: str, meta: RequestMeta) -> TokenPair:
     payload = decode_jwt(mfa_token, "mfa")
-    user = db.get(User, uuid.UUID(payload["sub"]))
+    # Row lock: makes TOTP replay protection and failure counting atomic under concurrent requests.
+    user = db.get(User, uuid.UUID(payload["sub"]), with_for_update=True)
     if user is None or not user.mfa_enabled or user.status != "active":
         raise NotAuthenticated(code="invalid_token")
     if not (_check_totp(user, code) or _consume_recovery_code(db, user, code)):
@@ -408,10 +411,21 @@ def _totp_aad(user: User) -> str:
 
 
 def _check_totp(user: User, code: str) -> bool:
-    if not user.mfa_totp_secret_sealed or not code.isdigit():
+    """Accept a TOTP code once: only a time-step newer than the last accepted one (QA-011).
+    Callers must hold the user row lock so two concurrent requests can't both accept the same step."""
+    if not user.mfa_totp_secret_sealed or not code.isdigit() or len(code) != 6:
         return False
     secret = SealedSecret(user.mfa_totp_secret_sealed).open(_totp_aad(user))
-    return pyotp.TOTP(secret).verify(code, valid_window=1)
+    totp = pyotp.TOTP(secret)
+    now = utcnow()
+    current = totp.timecode(now)
+    for step in (current - 1, current, current + 1):  # ±1 step of clock skew, as before
+        if step <= (user.mfa_totp_last_step or -1):
+            continue
+        if hmac.compare_digest(totp.generate_otp(step), code):
+            user.mfa_totp_last_step = step
+            return True
+    return False
 
 
 def _consume_recovery_code(db: Session, user: User, code: str) -> bool:
@@ -432,6 +446,7 @@ def totp_setup(db: Session, user: User) -> tuple[str, str]:
         raise Conflict("MFA is already enabled", code="mfa_already_enabled")
     secret = pyotp.random_base32()
     user.mfa_totp_secret_sealed = SealedSecret.seal(secret, _totp_aad(user)).blob
+    user.mfa_totp_last_step = None  # new secret, new step history
     uri = pyotp.TOTP(secret).provisioning_uri(name=user.email, issuer_name=TOTP_ISSUER)
     return secret, uri
 
@@ -523,4 +538,90 @@ def confirm_email(db: Session, token: str, meta: RequestMeta) -> User:
             merchant_id=None,
             meta=meta,
         )
+    return user
+
+
+# ----------------------------------------------------------------------------- password reset (QA-001)
+PASSWORD_RESET_TTL = timedelta(minutes=30)
+
+
+def request_password_reset(db: Session, email: str, meta: RequestMeta) -> None:
+    """Always succeeds from the caller's view (no account enumeration). Only active accounts get an
+    email; the token itself is issued when the email is sent (outbox handler)."""
+    user = find_user_by_email(db, email)
+    if user is None or user.status != "active":
+        return
+    outbox.publish(
+        db,
+        event_type="accounts.password_reset_requested",
+        aggregate_type="user",
+        aggregate_id=user.id,
+        merchant_id=None,
+        payload={"user_id": str(user.id)},
+    )
+    audit.record(
+        db,
+        action="accounts.password_reset_requested",
+        resource_type="user",
+        resource_id=user.id,
+        actor=Actor.system("auth"),
+        merchant_id=None,
+        meta=meta,
+    )
+
+
+def issue_password_reset(db: Session, user: User) -> str:
+    """New token; any earlier unused tokens for this user stop working."""
+    now = utcnow()
+    db.execute(
+        update(PasswordResetToken)
+        .where(PasswordResetToken.user_id == user.id, PasswordResetToken.used_at.is_(None))
+        .values(used_at=now)
+    )
+    token = new_opaque_token()
+    db.add(
+        PasswordResetToken(user_id=user.id, token_hash=hash_token(token), expires_at=now + PASSWORD_RESET_TTL)
+    )
+    return token
+
+
+def reset_password(db: Session, token: str, new_password: str, meta: RequestMeta) -> User:
+    row = db.scalar(
+        select(PasswordResetToken).where(PasswordResetToken.token_hash == hash_token(token)).with_for_update()
+    )
+    if row is None or row.used_at is not None or row.expires_at < utcnow():
+        raise ValidationFailed("Reset link is invalid or expired", code="reset_invalid")
+    user = db.get(User, row.user_id)
+    if user is None or user.status != "active":
+        raise ValidationFailed("Reset link is invalid or expired", code="reset_invalid")
+    validate_password(new_password, user.email)
+    now = utcnow()
+    row.used_at = now
+    user.password_hash = hash_password(new_password)
+    user.failed_login_count = 0
+    user.locked_until = None
+    # Whoever knew the old password must not stay signed in anywhere.
+    revoked = db.execute(
+        update(AuthSession)
+        .where(AuthSession.user_id == user.id, AuthSession.revoked_at.is_(None))
+        .values(revoked_at=now, revoked_reason="password_reset")
+    )
+    audit.record(
+        db,
+        action="accounts.password_reset",
+        resource_type="user",
+        resource_id=user.id,
+        actor=_user_actor(user),
+        merchant_id=None,
+        meta=meta,
+        metadata={"sessions_revoked": int(getattr(revoked, "rowcount", 0) or 0)},
+    )
+    outbox.publish(
+        db,
+        event_type="accounts.password_changed",
+        aggregate_type="user",
+        aggregate_id=user.id,
+        merchant_id=None,
+        payload={"user_id": str(user.id)},
+    )
     return user

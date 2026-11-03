@@ -51,6 +51,34 @@ def send_email_verification(db: Session, ev: OutboxEvent) -> None:
     mailer().send_email(user.email, subject, body, idempotency_key=f"verify:{ev.id}", locale=user.locale)
 
 
+@handler("accounts.password_reset_requested")
+def send_password_reset(db: Session, ev: OutboxEvent) -> None:
+    from app.domains.accounts.service import issue_password_reset
+    from app.domains.integrations.registry import mailer
+
+    user = db.get(User, uuid.UUID(ev.payload["user_id"]))
+    if user is None or user.status != "active":
+        return
+    token = issue_password_reset(db, user)
+    subject, body = email_copy(
+        "password_reset", user.locale, link=f"{_web_base()}/reset-password?token={token}", name=user.full_name
+    )
+    mailer().send_email(user.email, subject, body, idempotency_key=f"pwreset:{ev.id}", locale=user.locale)
+
+
+@handler("accounts.password_changed")
+def send_password_changed(db: Session, ev: OutboxEvent) -> None:
+    from app.domains.integrations.registry import mailer
+
+    user = db.get(User, uuid.UUID(ev.payload["user_id"]))
+    if user is None:
+        return
+    subject, body = email_copy(
+        "password_changed", user.locale, name=user.full_name, link=f"{_web_base()}/login"
+    )
+    mailer().send_email(user.email, subject, body, idempotency_key=f"pwchanged:{ev.id}", locale=user.locale)
+
+
 @handler("merchants.invitation_created")
 def send_invitation(db: Session, ev: OutboxEvent) -> None:
     from app.domains.integrations.registry import mailer

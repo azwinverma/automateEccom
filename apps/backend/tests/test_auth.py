@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 import pyotp
 from sqlalchemy import select
 
@@ -97,7 +99,10 @@ def test_mfa_totp_flow_with_single_use_recovery_codes(client):
     assert (
         client.post(f"{API}/auth/mfa/totp/enable", headers=s.h(), json={"code": "000000"}).status_code == 401
     )
-    codes = client.post(f"{API}/auth/mfa/totp/enable", headers=s.h(), json={"code": totp.now()}).json()[
+    # Enable with the previous step's code (still inside the ±1 window) so login can use the current one:
+    # each TOTP step is accepted only once (QA-011).
+    prev = totp.at(time.time() - 30)
+    codes = client.post(f"{API}/auth/mfa/totp/enable", headers=s.h(), json={"code": prev}).json()[
         "recovery_codes"
     ]
     assert len(codes) == 10
