@@ -28,12 +28,20 @@ from app.domains.integrations.base import (
     ChannelCapability,
     IntegrationError,
     NormalizedWebhook,
+    RemoteListing,
 )
 from app.domains.integrations.http import ResilientClient
 
 
 def _money(minor: int | None) -> str:
     return "" if minor is None else str((Decimal(minor) / 100).quantize(Decimal("0.01")))
+
+
+def _minor(value: Any) -> int | None:
+    """Woo decimal string ("2450.00") → minor units; None for an empty/unset price."""
+    if value in (None, ""):
+        return None
+    return int((Decimal(str(value)) * 100).quantize(Decimal("1")))
 
 
 def validate_store_url(url: str) -> str:
@@ -191,6 +199,41 @@ class WooCommerceAdapter(ChannelAdapter):
         except IntegrationError as e:
             if e.code != "not_found":
                 raise
+
+    def fetch_listings(self, external_ids: list[str]) -> dict[str, RemoteListing]:
+        out: dict[str, RemoteListing] = {}
+        for i in range(0, len(external_ids), 100):
+            chunk = external_ids[i : i + 100]
+            products = self._call(
+                "GET",
+                "/products",
+                "listings_fetch",
+                params={"include": ",".join(chunk), "per_page": 100, "status": "any"},
+            )
+            for prod in products or []:
+                pid = str(prod["id"])
+                if pid not in chunk:
+                    continue
+                items = (
+                    self._call(
+                        "GET", f"/products/{pid}/variations", "variations_list", params={"per_page": 100}
+                    )
+                    if prod.get("type") == "variable"
+                    else [prod]
+                ) or []
+                prices: dict[str, int] = {}
+                stock: dict[str, int | None] = {}
+                for it in items:
+                    sku = it.get("sku")
+                    price = _minor(it.get("price"))
+                    if not sku or price is None:
+                        continue
+                    prices[sku] = price
+                    stock[sku] = it.get("stock_quantity") if it.get("manage_stock") else None
+                out[pid] = RemoteListing(
+                    external_id=pid, visible=prod.get("status") == "publish", prices=prices, stock=stock
+                )
+        return out
 
     def update_inventory(self, external_sku: str, available: int, idempotency_key: str) -> None:
         found = self._call("GET", "/products", "find_sku", params={"sku": external_sku})

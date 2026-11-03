@@ -103,6 +103,8 @@
   "exCourierFailed": "डेलिभरी असफल",
   "exChannelExpired": "च्यानल छुट्यो",
   "exInventoryMismatch": "स्टक मिलेन",
+  "exListingDrift": "च्यानलमा बदलियो",
+  "exActionResolveDrift": "संस्करण छान्नुहोस्",
   "exPublishFailed": "पोस्ट हुन सकेन",
   "exAmbiguousVariant": "कुन साइज वा रङ?",
   "exCustomerEscalation": "ग्राहक मान्छेसँगै कुरा गर्न चाहनुहुन्छ",

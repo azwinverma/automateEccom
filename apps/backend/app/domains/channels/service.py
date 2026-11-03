@@ -36,7 +36,13 @@ from app.domains.billing.service import entitlements, register_gauge
 from app.domains.catalog.models import Product
 from app.domains.channels.models import ChannelConnection, ChannelListing, OAuthState, WebhookEvent
 from app.domains.integrations import registry
-from app.domains.integrations.base import ChannelAdapter, ChannelCapability, IntegrationError, OAuthTokens
+from app.domains.integrations.base import (
+    ChannelAdapter,
+    ChannelCapability,
+    IntegrationError,
+    OAuthTokens,
+    RemoteListing,
+)
 from app.domains.platform import outbox
 from app.domains.platform.models import OutboxEvent
 from app.domains.platform.outbox import handler
@@ -841,6 +847,16 @@ def listing_view(listing: ChannelListing, c: ChannelConnection | None = None) ->
         "last_error_code": listing.last_error_code,
         "last_synced_at": listing.last_synced_at,
         "published_product_version": listing.published_product_version,
+        "drift": (
+            {
+                "code": listing.drift_code,
+                "details": listing.drift_details or {},
+                "detected_at": listing.drift_detected_at,
+            }
+            if listing.drift_code
+            else None
+        ),
+        "last_reconciled_at": listing.last_reconciled_at,
     }
 
 
@@ -855,3 +871,182 @@ def _product_deleted_on_channel(db: Session, ev: WebhookEvent) -> None:
     ):
         listing.status, listing.external_id, listing.desired_state = "unpublished", None, "unpublished"
         listing.last_error_code = "deleted_on_channel"
+
+
+# ----------------------------------------------------------------------------- reconciliation (CHN-012)
+RECONCILE_BATCH = 100
+DRIFT_CODES = ("missing_on_channel", "hidden_on_channel", "price_changed", "variants_changed")
+
+
+def _expected_prices(db: Session, listing: ChannelListing) -> dict[str, int]:
+    from app.domains.catalog.models import Variant
+
+    rows = db.execute(
+        select(Variant.sku, Variant.price_minor).where(
+            Variant.product_id == listing.product_id, Variant.status == "active", Variant.sku.is_not(None)
+        )
+    ).all()
+    return {sku: listing.price_override_minor or price for sku, price in rows if sku}
+
+
+def _drift(expected: dict[str, int], remote: RemoteListing | None) -> tuple[str, dict[str, Any]] | None:
+    if remote is None:
+        return "missing_on_channel", {}
+    if not remote.visible:
+        return "hidden_on_channel", {}
+    missing = sorted(set(expected) - set(remote.prices))
+    extra = sorted(set(remote.prices) - set(expected))
+    if missing or extra:
+        return "variants_changed", {"missing_skus": missing[:20], "extra_skus": extra[:20]}
+    changed = [
+        {"sku": sku, "expected_minor": want, "channel_minor": remote.prices[sku]}
+        for sku, want in sorted(expected.items())
+        if remote.prices[sku] != want
+    ]
+    if changed:
+        return "price_changed", {"prices": changed[:20]}
+    return None
+
+
+def reconcile_connection(db: Session, connection_id: uuid.UUID) -> dict[str, int]:
+    """Compare every live listing on one connection with the provider's copy.
+
+    New drift is recorded on the listing (and surfaces in the Exception Inbox); nothing is pushed or
+    pulled automatically. Drift that disappears (the seller fixed it on the channel) clears itself."""
+    stats = {"checked": 0, "drift": 0, "cleared": 0, "skipped": 0}
+    c = db.scalar(
+        select(ChannelConnection)
+        .where(ChannelConnection.id == connection_id)
+        .execution_options(skip_tenant_filter=True)
+    )
+    if c is None or c.status != "connected" or ChannelCapability.PRODUCT_LISTING.value not in c.capabilities:
+        stats["skipped"] = 1
+        return stats
+    bind_tenant(db, c.merchant_id)
+    listings = list(
+        db.scalars(
+            select(ChannelListing).where(
+                ChannelListing.connection_id == c.id,
+                ChannelListing.desired_state == "published",
+                ChannelListing.status == "published",
+                ChannelListing.external_id.is_not(None),
+            )
+        )
+    )
+    adapter = adapter_for(c)
+    now = utcnow()
+    for i in range(0, len(listings), RECONCILE_BATCH):
+        chunk = listings[i : i + RECONCILE_BATCH]
+        try:
+            remote = adapter.fetch_listings([lst.external_id for lst in chunk if lst.external_id])
+        except IntegrationError as e:
+            INTEGRATION_CALLS.labels(c.provider, "reconcile", e.code).inc()
+            if e.auth:
+                _mark_expired(db, c, e.code)
+            stats["skipped"] += len(chunk)
+            log.warning("reconcile_failed", provider=c.provider, connection_id=str(c.id), error=e.code)
+            return stats
+        INTEGRATION_CALLS.labels(c.provider, "reconcile", "ok").inc()
+        for lst in chunk:
+            stats["checked"] += 1
+            lst.last_reconciled_at = now
+            found = _drift(_expected_prices(db, lst), remote.get(lst.external_id or ""))
+            if found is None:
+                if lst.drift_code:
+                    stats["cleared"] += 1
+                lst.drift_code = lst.drift_details = lst.drift_detected_at = None
+                continue
+            code, details = found
+            stats["drift"] += 1
+            if lst.drift_code != code:
+                lst.drift_detected_at = now
+                outbox.publish(
+                    db,
+                    event_type="listings.drift_detected",
+                    aggregate_type="channel_listing",
+                    aggregate_id=lst.id,
+                    merchant_id=lst.merchant_id,
+                    payload={"listing_id": str(lst.id), "drift_code": code},
+                )
+            lst.drift_code, lst.drift_details = code, details
+    return stats
+
+
+def reconcile_all(db: Session, limit: int = 500) -> dict[str, int]:
+    totals = {"connections": 0, "checked": 0, "drift": 0, "cleared": 0, "skipped": 0}
+    ids = list(
+        db.scalars(
+            select(ChannelConnection.id)
+            .where(ChannelConnection.status == "connected")
+            .order_by(ChannelConnection.id)
+            .limit(limit)
+            .execution_options(skip_tenant_filter=True)
+        )
+    )
+    for cid in ids:
+        with db.begin_nested():
+            s = reconcile_connection(db, cid)
+        totals["connections"] += 1
+        for k, v in s.items():
+            totals[k] += v
+    return totals
+
+
+def request_reconcile(db: Session, ctx: TenantContext, connection_id: uuid.UUID) -> ChannelConnection:
+    c = _get(db, ctx, connection_id)
+    if c.status != "connected":
+        raise Conflict("Reconnect this channel before checking it", code="reconnect_required")
+    outbox.publish(
+        db,
+        event_type="channels.reconcile_requested",
+        aggregate_type="channel_connection",
+        aggregate_id=c.id,
+        merchant_id=c.merchant_id,
+        payload={"connection_id": str(c.id)},
+    )
+    return c
+
+
+@handler("channels.reconcile_requested")
+def _on_reconcile_requested(db: Session, ev: OutboxEvent) -> None:
+    reconcile_connection(db, uuid.UUID(ev.payload["connection_id"]))
+
+
+def resolve_drift(
+    db: Session, ctx: TenantContext, product_id: uuid.UUID, connection_id: uuid.UUID, action: str
+) -> ChannelListing:
+    """``push``: overwrite the channel with Nivaro's version (recreate it if it was deleted).
+    ``accept``: keep the channel's version — a missing/hidden listing becomes unpublished here; a price
+    or variant difference is acknowledged (the next product edit will publish Nivaro's version again)."""
+    listing = db.scalar(
+        select(ChannelListing).where(
+            ChannelListing.product_id == product_id, ChannelListing.connection_id == connection_id
+        )
+    )
+    if listing is None or listing.merchant_id != ctx.merchant_id:
+        raise NotFound()
+    if not listing.drift_code:
+        raise Conflict("This listing matches the channel", code="no_drift")
+    code = listing.drift_code
+    if action == "push":
+        if code == "missing_on_channel":
+            listing.external_id = None
+        listing.published_product_version = None  # force a full publish even at the same version
+        listing.desired_state, listing.status, listing.attempts = "published", "out_of_sync", 0
+        _queue_publish(db, listing)
+    elif code in ("missing_on_channel", "hidden_on_channel"):
+        if code == "missing_on_channel":
+            listing.external_id = None
+        listing.desired_state, listing.status = "unpublished", "unpublished"
+    listing.drift_code = listing.drift_details = listing.drift_detected_at = None
+    audit.record(
+        db,
+        action="channels.drift_resolved",
+        resource_type="channel_listing",
+        resource_id=listing.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"drift_code": code, "resolution": action},
+    )
+    return listing

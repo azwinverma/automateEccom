@@ -230,6 +230,12 @@ export function createApi(client: ApiClient) {
           `/catalog/products/${encodeURIComponent(id)}/listings/${encodeURIComponent(connectionId)}`,
           { method: "DELETE", tenant: true },
         ),
+      /** push = overwrite the channel with Nivaro's version; accept = keep the channel's version. */
+      resolveDrift: (id: string, connectionId: string, action: "push" | "accept") =>
+        client.request<ChannelListing>(
+          `/catalog/products/${encodeURIComponent(id)}/listings/${encodeURIComponent(connectionId)}/resolve-drift`,
+          { method: "POST", body: { action }, tenant: true },
+        ),
       importJob: (id: string) => client.request<ImportJob>(`/catalog/imports/${encodeURIComponent(id)}`, { tenant: true }),
     },
     exceptions: {
@@ -276,6 +282,9 @@ export function createApi(client: ApiClient) {
         client.request<ChannelConnection>("/channels/oauth/callback", { method: "POST", body, tenant: true }),
       health: (id: string) =>
         client.request<ChannelConnection>(`/channels/${encodeURIComponent(id)}/health`, { method: "POST", tenant: true }),
+      /** Queue a check of this channel's live listings against the channel (CHN-012). */
+      reconcile: (id: string) =>
+        client.request<ChannelConnection>(`/channels/${encodeURIComponent(id)}/reconcile`, { method: "POST", tenant: true }),
       disconnect: (id: string) =>
         client.request<void>(`/channels/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
     },

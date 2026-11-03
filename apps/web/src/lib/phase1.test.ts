@@ -115,6 +115,7 @@ describe("exception action routing", () => {
     [{ action: "retry_draft", resource: { type: "studio_job", id: "j1" } }, { kind: "command", command: "retry_draft" }],
     [{ action: "confirm_attributes" }, { kind: "link", href: "/products/p1#attributes" }],
     [{ action: "dismiss", resource: { type: "media", id: "m1" } }, { kind: "command", command: "remove_file" }],
+    [{ action: "resolve_drift", type: "listing_drift" }, { kind: "link", href: "/products/p1#channels", label: "resolve_drift" }],
     [{ action: "something_new" }, { kind: "none" }],
   ] as [Partial<ExceptionRecord>, object][])("%o", (over, expected) => {
     expect(exceptionTarget(ex(over))).toMatchObject(expected);
@@ -127,6 +128,10 @@ describe("exception action routing", () => {
     expect(exceptionSummaryKey(ex({ type: "low_confidence_ai", resource: { type: "content_post", id: "p" }, details: { issues: 2 } }))).toEqual({
       key: "postNeedsApproval",
       vars: { count: 2 },
+    });
+    expect(exceptionSummaryKey(ex({ type: "listing_drift", details: { product_title: "Pashmina", name: "Thamel Woo" } }))).toEqual({
+      key: "listingDrift",
+      vars: { name: "Pashmina", channel: "Thamel Woo" },
     });
     expect(exceptionSummaryKey(ex({ type: "mystery" })).key).toBe("generic");
   });

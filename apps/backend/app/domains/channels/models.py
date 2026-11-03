@@ -112,6 +112,11 @@ class ChannelListing(IdMixin, TimestampMixin, TenantScoped, Base):
         ),
         CheckConstraint("price_override_minor is null or price_override_minor >= 0", name="price"),
         Index("ix_listing_product", "product_id"),
+        CheckConstraint(
+            "drift_code is null or drift_code in "
+            "('missing_on_channel','hidden_on_channel','price_changed','variants_changed')",
+            name="drift_code",
+        ),
     )
 
     connection_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("channel_connections.id", ondelete="CASCADE"))
@@ -125,3 +130,8 @@ class ChannelListing(IdMixin, TimestampMixin, TenantScoped, Base):
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_error_code: Mapped[str | None] = mapped_column(String(64))
     last_synced_at: Mapped[datetime | None]
+    # CHN-012: what reconciliation last found on the channel. Drift is reported, never silently overwritten.
+    drift_code: Mapped[str | None] = mapped_column(String(32))
+    drift_details: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    drift_detected_at: Mapped[datetime | None]
+    last_reconciled_at: Mapped[datetime | None]

@@ -10,6 +10,7 @@ String exceptionActionLabel(AppLocalizations l, String action) =>
       'review_post' => l.exActionReviewPost,
       'review_draft' => l.exActionReviewDraft,
       'retry_draft' => l.exActionRetryDraft,
+      'resolve_drift' => l.exActionResolveDrift,
       'confirm_attributes' => l.exActionConfirmAttributes,
       'dismiss' => l.exActionDismiss,
       _ => '',

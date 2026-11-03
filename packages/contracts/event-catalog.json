@@ -1035,6 +1035,53 @@
           "status"
         ]
       }
+    },
+    {
+      "type": "listings.drift_detected",
+      "version": 1,
+      "description": "Reconciliation found a listing that differs from the channel's copy (missing, hidden, price or variants changed). Surfaces in the Exception Inbox; never auto-overwritten.",
+      "aggregate": "listings",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "listing_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "drift_code": {
+            "enum": [
+              "missing_on_channel",
+              "hidden_on_channel",
+              "price_changed",
+              "variants_changed"
+            ]
+          }
+        },
+        "required": [
+          "listing_id",
+          "drift_code"
+        ]
+      }
+    },
+    {
+      "type": "channels.reconcile_requested",
+      "version": 1,
+      "description": "Seller asked to check a connection's listings against the channel now.",
+      "aggregate": "channels",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "connection_id"
+        ]
+      }
     }
   ],
   "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."

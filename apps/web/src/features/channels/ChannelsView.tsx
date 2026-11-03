@@ -213,7 +213,10 @@ export function ChannelsView() {
     try {
       const next = await api.channels.health(c.id);
       connections.setData((d) => ({ items: d.items.map((x) => (x.id === c.id ? next : x)) }));
-      toast(t("channels.checked"));
+      // A healthy listing channel also gets its live listings compared with the channel (CHN-012).
+      const listings = canManage && next.status === "connected" && next.capabilities.includes("product_listing");
+      if (listings) await api.channels.reconcile(c.id);
+      toast(t(listings ? "channels.checkedListings" : "channels.checked"));
     } catch (e) {
       setError(e);
     } finally {

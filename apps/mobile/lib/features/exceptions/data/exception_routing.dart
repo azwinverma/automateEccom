@@ -41,6 +41,7 @@ ExceptionTarget resolveExceptionAction(ApiException e) {
           ? OpenRoute('/studio/jobs/$id')
           : const NoAction();
     case 'retry_publish':
+    case 'resolve_drift':
     case 'confirm_attributes':
       return e.resourceType == 'product'
           ? OpenRoute('/products/$id')

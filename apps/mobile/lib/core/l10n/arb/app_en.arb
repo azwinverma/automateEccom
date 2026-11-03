@@ -149,6 +149,8 @@
   "exCourierFailed": "Delivery failed",
   "exChannelExpired": "Channel disconnected",
   "exInventoryMismatch": "Stock doesn't match",
+  "exListingDrift": "Changed on a channel",
+  "exActionResolveDrift": "Choose version",
   "exPublishFailed": "Post didn't publish",
   "exAmbiguousVariant": "Which size or colour?",
   "exCustomerEscalation": "Customer wants a person",

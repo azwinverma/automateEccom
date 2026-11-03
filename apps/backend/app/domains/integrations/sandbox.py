@@ -33,6 +33,7 @@ from app.domains.integrations.base import (
     PaymentIntentResult,
     PaymentStatus,
     RateQuote,
+    RemoteListing,
     ShipmentResult,
 )
 
@@ -161,6 +162,21 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
     def unpublish_listing(self, external_id: str, idempotency_key: str) -> None:
         self._fail()
         self.published.pop(external_id, None)
+
+    def fetch_listings(self, external_ids: list[str]) -> dict[str, RemoteListing]:
+        self._fail()
+        out = {}
+        for ext in external_ids:
+            doc = self.published.get(ext)
+            if doc is None:
+                continue
+            out[ext] = RemoteListing(
+                external_id=ext,
+                visible=doc.get("_visible", True),
+                prices={v["sku"]: v["price_minor"] for v in doc.get("variants", []) if v.get("sku")},
+                stock={v["sku"]: v.get("_stock") for v in doc.get("variants", []) if v.get("sku")},
+            )
+        return out
 
     def update_inventory(self, external_sku: str, available: int, idempotency_key: str) -> None:
         self._fail()

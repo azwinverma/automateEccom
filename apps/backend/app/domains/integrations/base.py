@@ -131,6 +131,20 @@ class OAuthTokens:
     external_account_id: str | None = None
 
 
+@dataclass
+class RemoteListing:
+    """A listing as the provider currently has it (CHN-012 reconciliation).
+
+    ``visible`` is False when the listing exists but is hidden/draft on the channel. ``prices`` and
+    ``stock`` are keyed by SKU; a SKU absent from ``prices`` does not exist on the channel. ``stock``
+    values are None when the channel doesn't manage stock for that SKU."""
+
+    external_id: str
+    visible: bool
+    prices: dict[str, int] = field(default_factory=dict)
+    stock: dict[str, int | None] = field(default_factory=dict)
+
+
 class ChannelAdapter(Adapter):
     # Which generated caption style suits this channel (instagram | facebook | tiktok | marketplace).
     caption_style: ClassVar[str] = "instagram"
@@ -160,6 +174,12 @@ class ChannelAdapter(Adapter):
     def unpublish_listing(self, external_id: str, idempotency_key: str) -> None:
         self._require(ChannelCapability.PRODUCT_LISTING)
         raise NotImplementedError
+
+    def fetch_listings(self, external_ids: list[str]) -> dict[str, RemoteListing]:
+        """Current provider state of these listings. An id missing from the result no longer exists
+        on the channel. Read-only: reconciliation never writes from here."""
+        self._require(ChannelCapability.PRODUCT_LISTING)
+        raise CapabilityNotSupported(self.code, "fetch_listings")
 
     def update_inventory(self, external_sku: str, available: int, idempotency_key: str) -> None:
         self._require(ChannelCapability.INVENTORY_SYNC)

@@ -345,6 +345,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get exInventoryMismatch => 'स्टक मिलेन';
 
   @override
+  String get exListingDrift => 'च्यानलमा बदलियो';
+
+  @override
+  String get exActionResolveDrift => 'संस्करण छान्नुहोस्';
+
+  @override
   String get exPublishFailed => 'पोस्ट हुन सकेन';
 
   @override

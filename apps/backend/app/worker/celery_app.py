@@ -33,6 +33,8 @@ celery.conf.update(
             "schedule": 300.0,
         },
         "refresh-channel-tokens": {"task": "app.worker.tasks.refresh_channel_tokens", "schedule": 300.0},
+        # CHN-012: spec default is every 6h per merchant.
+        "reconcile-channels": {"task": "app.worker.tasks.reconcile_channels", "schedule": 6 * 3600.0},
         "publish-due-content": {"task": "app.worker.tasks.publish_due_content", "schedule": 30.0},
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
     },

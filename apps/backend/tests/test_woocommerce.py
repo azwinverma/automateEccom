@@ -251,3 +251,52 @@ def test_per_store_webhooks_registered_verified_and_cleaned_up(client, seller):
     deleted = respx.delete(url__regex=rf"{WC}/webhooks/\d+").mock(return_value=httpx.Response(200, json={}))
     assert client.delete(f"{API}/channels/{c['id']}", headers=seller.h()).status_code == 204
     assert deleted.call_count == 3
+
+
+@respx.mock
+def test_fetch_listings_reads_prices_stock_and_visibility():
+    """CHN-012 contract: GET /products?include=… plus variations for variable products."""
+    a = WooCommerceAdapter(
+        credentials={"consumer_key": KEYS["consumer_key"], "consumer_secret": KEYS["consumer_secret"]},
+        config={"store_url": STORE},
+    )
+    route = respx.get(f"{WC}/products").mock(
+        return_value=httpx.Response(
+            200,
+            json=[
+                {
+                    "id": 11,
+                    "type": "simple",
+                    "status": "publish",
+                    "sku": "MUG-1",
+                    "price": "450.00",
+                    "manage_stock": True,
+                    "stock_quantity": 3,
+                },
+                {"id": 12, "type": "variable", "status": "draft", "sku": ""},
+            ],
+        )
+    )
+    respx.get(f"{WC}/products/12/variations").mock(
+        return_value=httpx.Response(
+            200,
+            json=[
+                {
+                    "id": 121,
+                    "sku": "KUR-M",
+                    "price": "2450.50",
+                    "manage_stock": False,
+                    "stock_quantity": None,
+                },
+                {"id": 122, "sku": "", "price": "1.00"},
+            ],
+        )
+    )
+    out = a.fetch_listings(["11", "12", "99"])
+    q = route.calls[0].request.url.params
+    assert q["include"] == "11,12,99" and q["status"] == "any"
+    assert set(out) == {"11", "12"}  # 99 was deleted in the store
+    assert out["11"].visible and out["11"].prices == {"MUG-1": 45000} and out["11"].stock == {"MUG-1": 3}
+    assert (
+        not out["12"].visible and out["12"].prices == {"KUR-M": 245050} and out["12"].stock == {"KUR-M": None}
+    )

@@ -14,6 +14,7 @@ export type ExceptionActionLabel =
   | "review_draft"
   | "retry_draft"
   | "confirm_attributes"
+  | "resolve_drift"
   | "remove_file";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
@@ -43,6 +44,8 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
       return { kind: "link", href: `/products/studio/${enc(id)}`, label: "review_draft" };
     case "retry_draft":
       return { kind: "command", command: "retry_draft", label: "retry_draft" };
+    case "resolve_drift":
+      return { kind: "link", href: `/products/${enc(id)}#channels`, label: "resolve_drift" };
     case "confirm_attributes":
       return { kind: "link", href: `/products/${enc(id)}#attributes`, label: "confirm_attributes" };
     case "dismiss":
@@ -55,10 +58,11 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
 /** Dictionary key (under `exceptions.summary.*`) and variables for the one-line summary. */
 export function exceptionSummaryKey(item: ExceptionRecord): { key: string; vars: Record<string, string | number> } {
   const d = item.details;
-  const name = str(d.name) ?? str(d.product_title) ?? str(d.file_name) ?? "";
+  const name = str(d.product_title) ?? str(d.name) ?? str(d.file_name) ?? "";
   const r = item.resource.type;
   if (item.type === "channel_expired") return { key: "channelExpired", vars: { name } };
   if (item.type === "publish_failed" && r === "product") return { key: "listingFailed", vars: { name } };
+  if (item.type === "listing_drift") return { key: "listingDrift", vars: { name, channel: str(d.name) ?? "" } };
   if (item.type === "publish_failed" && r === "content_post") return { key: "postFailed", vars: {} };
   if (item.type === "low_confidence_ai" && r === "content_post") return { key: "postNeedsApproval", vars: { count: Number(d.issues ?? 0) } };
   if (item.type === "low_confidence_ai" && r === "studio_job") return { key: "draftReady", vars: {} };

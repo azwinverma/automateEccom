@@ -113,6 +113,16 @@ def health(
     return service.connection_view(service.check_health(db, ctx, connection_id))
 
 
+@router.post("/{connection_id}/reconcile", status_code=202)
+def reconcile(
+    connection_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    """Queue a check of every live listing on this channel against the channel's own copy (CHN-012)."""
+    return service.connection_view(service.request_reconcile(db, ctx, connection_id))
+
+
 @router.delete("/{connection_id}", status_code=204)
 def disconnect(
     connection_id: uuid.UUID,
@@ -159,6 +169,21 @@ def unpublish(
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.listing_view(service.unpublish(db, ctx, product_id, connection_id))
+
+
+class ResolveDriftIn(BaseModel):
+    action: str = Field(pattern="^(push|accept)$")
+
+
+@listings_router.post("/products/{product_id}/listings/{connection_id}/resolve-drift")
+def resolve_drift(
+    product_id: uuid.UUID,
+    connection_id: uuid.UUID,
+    body: ResolveDriftIn,
+    ctx: TenantContext = Depends(require("catalog.publish")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    return service.listing_view(service.resolve_drift(db, ctx, product_id, connection_id, body.action))
 
 
 # ----------------------------------------------------------------------------- public webhook gateway

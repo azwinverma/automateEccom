@@ -18,7 +18,7 @@ export const LISTING_IN_FLIGHT = new Set(["pending", "publishing"]);
 
 /** Per-channel listing status for one product; polls while anything is queued or publishing. */
 export function ListingsPanel({ product, canPublish }: { product: ProductDetail; canPublish: boolean }) {
-  const { t, relative } = useI18n();
+  const { t, relative, money } = useI18n();
   const { api } = useAuth();
   const toast = useToast();
   const connections = useApiQuery((a) => a.channels.list());
@@ -119,6 +119,14 @@ export function ListingsPanel({ product, canPublish }: { product: ProductDetail;
                   </td>
                   <td>
                     <Badge tone={TONE[status] ?? "neutral"}>{t(`listings.status.${status as "none"}`)}</Badge>
+                    {l?.drift ? (
+                      <div data-testid="listing-drift" style={{ marginTop: 4 }}>
+                        <Badge tone="warning">{t("listings.drift.badge")}</Badge>
+                        <div className={table.muted} style={{ fontSize: "var(--font-size-xs)", marginTop: 2 }}>
+                          {driftText(l, t, money, product.variants[0]?.price.currency)}
+                        </div>
+                      </div>
+                    ) : null}
                     {l?.last_error_code && (status === "failed" || status === "out_of_sync") ? (
                       <div className={table.muted} style={{ fontSize: "var(--font-size-xs)", marginTop: 2 }}>
                         {t("listings.lastError", { message: t.dynamic(`errors.${l.last_error_code}`) ?? l.last_error_code })}
@@ -130,7 +138,27 @@ export function ListingsPanel({ product, canPublish }: { product: ProductDetail;
                     ) : null}
                   </td>
                   <td className={table.actions}>
-                    {inFlight || !canPublish ? null : status === "published" || status === "out_of_sync" ? (
+                    {l?.drift && canPublish && !inFlight ? (
+                      <div className={wf.rowActions}>
+                        <Button
+                          size="sm"
+                          disabled={busy !== null || c.needs_reconnect}
+                          loading={busy === `push-${c.id}`}
+                          onClick={() => act(`push-${c.id}`, () => api.catalog.resolveDrift(product.id, c.id, "push"), t("listings.drift.pushed"))}
+                        >
+                          {t("listings.drift.push")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={busy !== null}
+                          loading={busy === `accept-${c.id}`}
+                          onClick={() => act(`accept-${c.id}`, () => api.catalog.resolveDrift(product.id, c.id, "accept"), t("listings.drift.accepted"))}
+                        >
+                          {t("listings.drift.accept")}
+                        </Button>
+                      </div>
+                    ) : inFlight || !canPublish ? null : status === "published" || status === "out_of_sync" ? (
                       <div className={wf.rowActions}>
                         <Button size="sm" disabled={blocked} loading={busy === c.id} onClick={() => act(c.id, () => api.catalog.publish(product.id, [c.id]), t("listings.queued"))}>
                           {t("listings.update")}
@@ -165,4 +193,17 @@ export function ListingsPanel({ product, canPublish }: { product: ProductDetail;
       </div>
     </div>
   );
+}
+
+type T = ReturnType<typeof useI18n>["t"];
+
+/** One line saying what differs; price drift names the first SKU with both prices. */
+export function driftText(l: ChannelListing, t: T, money: (minor: number, currency?: string) => string, currency = "NPR"): string {
+  const d = l.drift;
+  if (!d) return "";
+  if (d.code === "price_changed" && d.details.prices?.length) {
+    const p = d.details.prices[0]!;
+    return t("listings.drift.price_changed", { sku: p.sku, channel: money(p.channel_minor, currency), yours: money(p.expected_minor, currency) });
+  }
+  return t.dynamic(`listings.drift.${d.code}`) ?? t("listings.drift.variants_changed");
 }

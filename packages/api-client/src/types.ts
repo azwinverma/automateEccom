@@ -611,6 +611,21 @@ export interface ChannelListing {
   last_error_code: string | null;
   last_synced_at: string | null;
   published_product_version: number | null;
+  /** CHN-012: set when the channel's copy differs from Nivaro's. The seller decides which one wins. */
+  drift: ListingDrift | null;
+  last_reconciled_at: string | null;
+}
+
+export type DriftCode = "missing_on_channel" | "hidden_on_channel" | "price_changed" | "variants_changed";
+
+export interface ListingDrift {
+  code: DriftCode | (string & {});
+  details: {
+    prices?: { sku: string; expected_minor: number; channel_minor: number }[];
+    missing_skus?: string[];
+    extra_skus?: string[];
+  };
+  detected_at: string | null;
 }
 
 /* ---------- Content ---------- */

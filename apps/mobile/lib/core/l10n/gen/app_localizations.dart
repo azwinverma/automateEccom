@@ -713,6 +713,18 @@ abstract class AppLocalizations {
   /// **'Stock doesn\'t match'**
   String get exInventoryMismatch;
 
+  /// No description provided for @exListingDrift.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed on a channel'**
+  String get exListingDrift;
+
+  /// No description provided for @exActionResolveDrift.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose version'**
+  String get exActionResolveDrift;
+
   /// No description provided for @exPublishFailed.
   ///
   /// In en, this message translates to:

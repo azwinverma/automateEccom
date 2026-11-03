@@ -91,6 +91,34 @@ def open_exceptions(db: Session, merchant_id: uuid.UUID, limit: int = 200) -> li
             )
         )
 
+    drift_rows = db.execute(
+        select(ChannelListing, Product.title, ChannelConnection.display_name, ChannelConnection.provider)
+        .join(Product, Product.id == ChannelListing.product_id)
+        .join(ChannelConnection, ChannelConnection.id == ChannelListing.connection_id)
+        .where(
+            ChannelListing.merchant_id == merchant_id,
+            ChannelListing.drift_code.is_not(None),
+            ChannelListing.desired_state == "published",
+        )
+    ).all()
+    for listing, title, channel_name, provider in drift_rows:
+        # CHN-012: the channel's copy differs from Nivaro's; the seller decides which one wins.
+        items.append(
+            _item(
+                "listing_drift",
+                "high",
+                "product",
+                listing.product_id,
+                listing.drift_detected_at,
+                "resolve_drift",
+                product_title=title,
+                name=channel_name,
+                provider=provider,
+                connection_id=str(listing.connection_id),
+                drift_code=listing.drift_code,
+            )
+        )
+
     for p in db.scalars(
         select(ContentPost).where(ContentPost.merchant_id == merchant_id, ContentPost.status == "failed")
     ):

@@ -66,6 +66,16 @@ def refresh_channel_tokens() -> dict[str, int]:
     return stats
 
 
+@celery.task(name="app.worker.tasks.reconcile_channels", ignore_result=True)
+def reconcile_channels() -> dict[str, int]:
+    from app.domains.channels.service import reconcile_all
+
+    with session_scope() as db:
+        stats = reconcile_all(db)
+    log.info("channels_reconciled", **stats)
+    return stats
+
+
 @celery.task(name="app.worker.tasks.publish_due_content", ignore_result=True)
 def publish_due_content() -> dict[str, int]:
     from app.domains.content.service import publish_due

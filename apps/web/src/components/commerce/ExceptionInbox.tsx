@@ -16,6 +16,7 @@ export const EXCEPTION_TYPES = [
   "channel_expired",
   "inventory_mismatch",
   "publish_failed",
+  "listing_drift",
   "ambiguous_variant",
   "customer_escalation",
   "provider_failure",

@@ -345,6 +345,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exInventoryMismatch => 'Stock doesn\'t match';
 
   @override
+  String get exListingDrift => 'Changed on a channel';
+
+  @override
+  String get exActionResolveDrift => 'Choose version';
+
+  @override
   String get exPublishFailed => 'Post didn\'t publish';
 
   @override
