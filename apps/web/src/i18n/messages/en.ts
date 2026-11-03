@@ -208,6 +208,7 @@ export const en = {
     search: "Jump to…",
     accountMenu: "Account",
     signOut: "Sign out",
+    console: "Nivaro Console",
     role: {
       owner: "Owner",
       admin: "Admin",

@@ -50,6 +50,15 @@ import type {
   TotpSetup,
   UpdateMeInput,
   User,
+  AdminAuditEntry,
+  AdminFeatureFlag,
+  AdminMerchantDetail,
+  AdminMerchantSummary,
+  AdminOutboxEvent,
+  AdminOverride,
+  AdminOverrideInput,
+  AdminProviderHealth,
+  AdminWebhookEvent,
 } from "./types";
 
 /** Options for idem endpoints: pass a stable key to make retries safe. */
@@ -316,6 +325,42 @@ export function createApi(client: ApiClient) {
     },
     featureFlags: {
       get: () => client.request<{ flags: Record<string, boolean> }>("/feature-flags", { tenant: true }),
+    },
+    /** Nivaro Console. Staff + MFA-verified session only; never tenant-scoped; every write is audited. */
+    admin: {
+      merchants: (q: { q?: string; limit?: number } = {}) =>
+        client.request<{ items: AdminMerchantSummary[] }>("/admin/merchants", { query: { ...q } }),
+      merchant: (id: string) => client.request<AdminMerchantDetail>(`/admin/merchants/${encodeURIComponent(id)}`),
+      setStatus: (id: string, status: "active" | "suspended", reason: string) =>
+        client.request<{ id: string; status: string }>(`/admin/merchants/${encodeURIComponent(id)}/status`, {
+          method: "POST",
+          body: { status, reason },
+        }),
+      createOverride: (id: string, body: AdminOverrideInput) =>
+        client.request<AdminOverride>(`/admin/merchants/${encodeURIComponent(id)}/overrides`, { method: "POST", body }),
+      endOverride: (id: string, overrideId: string) =>
+        client.request<void>(`/admin/merchants/${encodeURIComponent(id)}/overrides/${encodeURIComponent(overrideId)}`, {
+          method: "DELETE",
+        }),
+      grantCredits: (id: string, body: { amount: number; reason: string; idempotency_key: string }) =>
+        client.request<{ transaction_id: string; balance: number }>(`/admin/merchants/${encodeURIComponent(id)}/credits`, {
+          method: "POST",
+          body,
+        }),
+      audit: (q: { merchant_id?: string; actor_type?: string; action?: string; limit?: number; cursor?: string } = {}) =>
+        client.request<{ items: AdminAuditEntry[]; next_cursor: string | null }>("/admin/audit-logs", { query: { ...q } }),
+      webhooks: (q: { status?: string; provider?: string; limit?: number } = {}) =>
+        client.request<{ items: AdminWebhookEvent[] }>("/admin/webhooks", { query: { ...q } }),
+      replayWebhook: (id: string) =>
+        client.request<{ id: string; status: string }>(`/admin/webhooks/${encodeURIComponent(id)}/replay`, { method: "POST" }),
+      outbox: (status: "pending" | "dispatched" | "dead" = "dead") =>
+        client.request<{ items: AdminOutboxEvent[] }>("/admin/outbox", { query: { status } }),
+      retryOutbox: (id: string) =>
+        client.request<{ id: string; status: string }>(`/admin/outbox/${encodeURIComponent(id)}/retry`, { method: "POST" }),
+      providers: () => client.request<{ items: AdminProviderHealth[] }>("/admin/ai/providers"),
+      flags: () => client.request<{ items: AdminFeatureFlag[] }>("/admin/feature-flags"),
+      upsertFlag: (key: string, body: Omit<AdminFeatureFlag, "key">) =>
+        client.request<AdminFeatureFlag>(`/admin/feature-flags/${encodeURIComponent(key)}`, { method: "PUT", body }),
     },
   };
 }

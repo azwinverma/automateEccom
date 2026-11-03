@@ -211,6 +211,7 @@ export const ne: Messages = {
     search: "पेज खोज्नुहोस्…",
     accountMenu: "खाता",
     signOut: "लगआउट",
+    console: "Nivaro Console",
     role: {
       owner: "मालिक",
       admin: "एडमिन",

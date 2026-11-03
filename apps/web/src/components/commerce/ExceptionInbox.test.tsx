@@ -56,7 +56,7 @@ describe("ExceptionInbox", () => {
       expect(within(row).getByRole("button", { name: en.exceptions.action[type] })).toBeInTheDocument();
     }
     expect(within(rows[0]!).getByText(en.exceptions.severityHigh)).toBeInTheDocument();
-    expect(screen.getByText("10 open")).toBeInTheDocument();
+    expect(screen.getByText(`${EXCEPTION_TYPES.length} open`)).toBeInTheDocument();
     await userEvent.click(within(rows[0]!).getByRole("button"));
     expect(onAction).toHaveBeenCalledWith(expect.objectContaining({ severity: "urgent" }));
   });

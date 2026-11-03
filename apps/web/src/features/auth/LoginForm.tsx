@@ -36,7 +36,10 @@ export function LoginForm() {
     const hasBusiness = me.memberships.some((m) => m.status === "active" || !m.status);
     const next = safeNext(params.get("next"));
     // An invitee may not have a business yet: the invitation itself is where they're going (QA-008).
-    router.replace(hasBusiness || next.startsWith("/invite") ? next : "/onboarding");
+    // Platform staff usually have no shop of their own: they land in the Console.
+    const staffConsole = me.user.is_platform_staff && (next.startsWith("/console") || !hasBusiness);
+    if (staffConsole) router.replace(next.startsWith("/console") ? next : "/console");
+    else router.replace(hasBusiness || next.startsWith("/invite") ? next : "/onboarding");
   };
 
   const submitCredentials = async (e: FormEvent) => {

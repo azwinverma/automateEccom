@@ -127,6 +127,12 @@ function UserMenu() {
           ))}
         </MenuRadioGroup>
         <MenuSeparator />
+        {me.user.is_platform_staff ? (
+          <MenuItem onSelect={() => router.push("/console")}>
+            <Icon name="shield" />
+            {t("shell.console")}
+          </MenuItem>
+        ) : null}
         <MenuItem
           onSelect={() => {
             void signOut().finally(() => router.replace("/login"));

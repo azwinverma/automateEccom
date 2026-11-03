@@ -87,6 +87,8 @@ export interface User {
   locale: Locale;
   email_verified: boolean;
   mfa_enabled: boolean;
+  /** Platform staff may open the Nivaro Console (it also needs an MFA-verified session). */
+  is_platform_staff?: boolean;
 }
 
 export interface MerchantRef {
@@ -106,6 +108,8 @@ export interface Membership {
 export interface Me {
   user: User;
   memberships: Membership[];
+  /** The current sign-in; `mfa` = it passed two-step verification. */
+  session?: { mfa: boolean } | null;
 }
 
 export interface UpdateMeInput {
@@ -706,4 +710,111 @@ export interface VideoJob {
   output: MediaAsset | null;
   created_at: string;
   finished_at: string | null;
+}
+
+/* ---------- Nivaro Console (staff only) ---------- */
+
+export interface AdminMerchantSummary {
+  id: string;
+  name: string;
+  slug: string;
+  status: "active" | "suspended" | "closed" | (string & {});
+  created_at: string;
+}
+
+export interface AdminOverride {
+  id: string;
+  resource_code: string | null;
+  feature_code: string | null;
+  enabled: boolean | null;
+  period: string | null;
+  limit_value: number | null;
+  reason: string;
+  expires_at: string | null;
+  created_at: string;
+  active: boolean;
+}
+
+export interface AdminMerchantDetail {
+  merchant: AdminMerchantSummary & { country: string; currency: string; timezone: string; default_locale: string };
+  members: number;
+  team: { user_id: string; email: string; full_name: string; role: string; status: string; mfa_enabled: boolean; last_login_at: string | null }[];
+  plan: string | null;
+  subscription_status: string | null;
+  usage: UsageLimit[];
+  credit_balance: number;
+  connections: {
+    id: string;
+    provider: string;
+    display_name: string;
+    status: string;
+    last_healthy_at: string | null;
+    last_error_code: string | null;
+    consecutive_failures: number;
+    token_expires_at: string | null;
+  }[];
+  overrides: AdminOverride[];
+}
+
+export interface AdminOverrideInput {
+  resource_code: string;
+  period: "month" | "day" | "lifetime";
+  limit_value: number;
+  reason: string;
+  expires_at?: string | null;
+}
+
+export interface AdminAuditEntry {
+  id: string;
+  merchant_id: string | null;
+  occurred_at: string;
+  actor: { type: string; id: string | null; display: string | null };
+  action: string;
+  resource_type: string;
+  resource_id: string | null;
+  request_id: string | null;
+  changes: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface AdminWebhookEvent {
+  id: string;
+  provider: string;
+  event_type: string;
+  status: "received" | "processed" | "ignored" | "failed" | "dead" | (string & {});
+  merchant_id: string | null;
+  attempts: number;
+  duplicates: number;
+  last_error: string | null;
+  received_at: string;
+}
+
+export interface AdminOutboxEvent {
+  id: string;
+  event_type: string;
+  merchant_id: string | null;
+  status: "pending" | "dispatched" | "dead" | (string & {});
+  attempts: number;
+  last_error: string | null;
+  created_at: string;
+  available_at: string;
+}
+
+export interface AdminProviderHealth {
+  provider: string;
+  model: string;
+  /** Has a key (or is the dev sandbox) so it can actually be called. */
+  configured: boolean;
+  state: "closed" | "open" | "half_open" | "unknown" | (string & {});
+  success_rate_1h?: number | null;
+  attempts_1h?: number;
+  last_latency_ms?: number | null;
+}
+
+export interface AdminFeatureFlag {
+  key: string;
+  description: string;
+  default_enabled: boolean;
+  rollout_percentage: number;
+  kill_switch: boolean;
 }
