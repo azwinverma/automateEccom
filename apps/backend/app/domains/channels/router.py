@@ -16,6 +16,7 @@ from app.core.config import Environment, get_settings
 from app.core.context import TenantContext
 from app.core.errors import NotFound, ValidationFailed
 from app.domains.audit import service as audit
+from app.domains.catalog import service as catalog_service
 from app.domains.channels import service
 from app.domains.channels.models import ChannelConnection, ChannelListing, WebhookEvent
 from app.domains.integrations import registry
@@ -140,6 +141,8 @@ def listings(
     ctx: TenantContext = Depends(require("catalog.read")),
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
+    # Same ownership rule as every product route: a foreign or unknown product is 404, not an empty list.
+    catalog_service.get_product(db, ctx, product_id)
     rows = db.execute(
         select(ChannelListing, ChannelConnection)
         .join(ChannelConnection, ChannelConnection.id == ChannelListing.connection_id)

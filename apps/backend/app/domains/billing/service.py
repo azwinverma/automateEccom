@@ -18,6 +18,7 @@ Rules:
 
 from __future__ import annotations
 
+import hashlib
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -25,7 +26,7 @@ from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import structlog
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, or_, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
@@ -143,6 +144,13 @@ def register_gauge(resource: str) -> Callable[[GaugeCounter], GaugeCounter]:
     return deco
 
 
+def lock_gauge(db: Session, merchant_id: uuid.UUID, resource: str) -> None:
+    key = int.from_bytes(
+        hashlib.sha256(f"gauge:{merchant_id}:{resource}".encode()).digest()[:8], "big", signed=True
+    )
+    db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": key})
+
+
 class EntitlementService:
     # ------------------------------------------------------------------ resolution
     def resolve(self, db: Session, merchant_id: uuid.UUID) -> Entitlements:
@@ -233,7 +241,12 @@ class EntitlementService:
         self, db: Session, merchant_id: uuid.UUID, resource: str, current: int | None = None, adding: int = 1
     ) -> None:
         """Block if adding ``adding`` units would exceed the gauge limit. ``current`` defaults to the
-        registered counter so the enforced number and the displayed number are the same query."""
+        registered counter so the enforced number and the displayed number are the same query.
+
+        Concurrency (QA-015): a transaction-scoped advisory lock per (merchant, resource) is taken
+        before counting and held until the caller's transaction commits, so concurrent creates are
+        serialised and each one counts the rows committed before it. Other merchants never wait."""
+        lock_gauge(db, merchant_id, resource)
         if current is None:
             counter = GAUGE_COUNTERS.get(resource)
             if counter is None:

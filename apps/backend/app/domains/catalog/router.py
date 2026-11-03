@@ -18,7 +18,8 @@ from app.domains.catalog.models import Category, Collection, ImportJob, Product,
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
 
-Minor = Field(default=None, ge=0, le=10_000_000_000)
+# Money is integer minor units, strictly: "100", 12.5 or true are rejected rather than coerced (QA-004).
+Minor = Field(default=None, ge=0, le=10_000_000_000, strict=True)
 
 
 # ----------------------------------------------------------------------------- schemas
@@ -29,7 +30,7 @@ class OptionIn(BaseModel):
 
 class VariantIn(BaseModel):
     options: dict[str, str] = Field(default_factory=dict)
-    price_minor: int = Field(ge=0, le=10_000_000_000)
+    price_minor: int = Field(ge=0, le=10_000_000_000, strict=True)
     sku: str | None = Field(default=None, max_length=64)
     barcode: str | None = Field(default=None, max_length=32)
     compare_at_minor: int | None = Minor

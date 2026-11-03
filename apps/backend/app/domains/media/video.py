@@ -74,9 +74,10 @@ def create_auto_reel(
         raise Conflict(
             "Some photos are missing or still processing", code="media_not_ready", details={"asset_ids": bad}
         )
-    if show_price:
-        if product_id is None:
-            raise ValidationFailed("Pick the product whose price to show", code="product_required_for_price")
+    if show_price and product_id is None:
+        raise ValidationFailed("Pick the product whose price to show", code="product_required_for_price")
+    if product_id is not None:
+        # Any referenced product must be this merchant's, with or without a price overlay (QA-012).
         p = db.get(Product, product_id)
         if p is None or p.merchant_id != ctx.merchant_id:
             raise NotFound("Product not found", code="product_not_found")

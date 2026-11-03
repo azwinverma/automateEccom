@@ -332,6 +332,7 @@ def test_listing_rows_are_tenant_scoped(client):
     client.post(
         f"{API}/catalog/products/{pa['id']}/publish", headers=a.h(), json={"connection_ids": [ca["id"]]}
     )
-    assert client.get(f"{API}/catalog/products/{pa['id']}/listings", headers=b.h()).json()["items"] == []
+    # Another merchant can't even learn the product exists (QA-003: 404, not an empty list).
+    assert client.get(f"{API}/catalog/products/{pa['id']}/listings", headers=b.h()).status_code == 404
     with session_scope() as db:
         assert db.scalar(select(ChannelListing)).merchant_id == uuid.UUID(a.merchant_id)

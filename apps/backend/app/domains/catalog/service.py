@@ -104,7 +104,7 @@ def _currency(db: Session, merchant_id: uuid.UUID) -> str:
     return m.currency
 
 
-def _get_product(db: Session, ctx: TenantContext, product_id: uuid.UUID) -> Product:
+def get_product(db: Session, ctx: TenantContext, product_id: uuid.UUID) -> Product:
     p = db.get(Product, product_id)
     if p is None or p.merchant_id != ctx.merchant_id:
         raise NotFound()
@@ -131,6 +131,28 @@ def _unique_handle(db: Session, merchant_id: uuid.UUID, base: str, exclude: uuid
             return handle
         n += 1
         handle = f"{base[:110]}-{n}"
+
+
+def _insert_with_free_handle(db: Session, p: Product, explicit: bool) -> None:
+    """Insert ``p``; if a concurrent request took the same auto-generated handle, retry with a short
+    suffix instead of failing (QA-013). A handle the seller chose is a clean 409."""
+    for attempt in range(5):
+        try:
+            with db.begin_nested():
+                db.add(p)
+                db.flush()
+            return
+        except IntegrityError as e:
+            if "handle" not in str(e.orig):
+                raise
+            if explicit:
+                raise Conflict("Another product already uses this handle", code="handle_taken") from e
+            p.handle = (
+                f"{p.handle[:110]}-{uuid.uuid4().hex[:4]}"
+                if attempt
+                else _unique_handle(db, p.merchant_id, p.handle)
+            )
+    raise Conflict("Couldn't reserve a product handle. Try again.", code="handle_taken")
 
 
 def _existing_skus(db: Session, merchant_id: uuid.UUID) -> set[str]:
@@ -233,6 +255,7 @@ def create_product(db: Session, ctx: TenantContext, data: ProductInput) -> Produ
         select(Product.id).where(Product.merchant_id == ctx.merchant_id, Product.handle == handle)
     ):
         raise Conflict("Another product already uses this handle", code="handle_taken")
+    explicit_handle = handle is not None
     handle = handle or _unique_handle(db, ctx.merchant_id, rules.handleize(title))
 
     p = Product(
@@ -250,8 +273,7 @@ def create_product(db: Session, ctx: TenantContext, data: ProductInput) -> Produ
         seo_description=data.seo_description,
         created_by_user_id=ctx.actor.id,
     )
-    db.add(p)
-    db.flush()
+    _insert_with_free_handle(db, p, explicit_handle)
     _replace_options_and_variants(db, ctx, p, data.options, data.variants)
     audit.record(
         db,
@@ -399,7 +421,7 @@ def update_product(
     expected_version: int | None,
     fields: dict[str, Any],
 ) -> Product:
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     _check_version(p, expected_version)
     before = {k: getattr(p, k) for k in fields if k in UPDATABLE_FIELDS}
     for k, v in fields.items():
@@ -450,7 +472,7 @@ def update_product(
 def change_status(
     db: Session, ctx: TenantContext, product_id: uuid.UUID, to: str, expected_version: int | None
 ) -> Product:
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     _check_version(p, expected_version)
     if to == p.status:
         return p
@@ -530,7 +552,7 @@ def update_variant(
     fields: dict[str, Any],
     expected_version: int | None = None,
 ) -> Variant:
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     _check_version(p, expected_version)
     v = db.get(Variant, variant_id)
     if v is None or v.product_id != p.id:
@@ -581,7 +603,7 @@ def add_variant(
     """Add one variant after creation (e.g. a new size). Uses the product's existing option names;
     new values for those options are created on the fly. Adding a new option *name* to a product
     that already has variants is not supported (it would leave existing variants without a value)."""
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     _check_version(p, expected_version)
     options = db.scalars(
         select(ProductOption).where(ProductOption.product_id == p.id).order_by(ProductOption.position)
@@ -682,7 +704,7 @@ def archive_variant(
     variant_id: uuid.UUID,
     expected_version: int | None = None,
 ) -> None:
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     _check_version(p, expected_version)
     v = db.get(Variant, variant_id)
     if v is None or v.product_id != p.id:
@@ -727,7 +749,7 @@ def set_attributes(
     db: Session, ctx: TenantContext, product_id: uuid.UUID, items: list[AttributeInput]
 ) -> list[ProductAttribute]:
     """Seller-entered attributes replace values for the same key/locale and are always confirmed."""
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     out = []
     for it in items:
         key = rules.handleize(it.key).replace("-", "_")[:60]
@@ -801,7 +823,7 @@ def suggest_attributes(
 
 
 def confirm_attributes(db: Session, ctx: TenantContext, product_id: uuid.UUID, keys: list[str]) -> int:
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     rows = db.scalars(
         select(ProductAttribute).where(
             ProductAttribute.product_id == p.id,
@@ -842,7 +864,7 @@ def set_product_media(
     """Replace the ordered photo list. Only processed (ready) photos of this merchant are accepted."""
     from app.domains.media.models import MediaAsset
 
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     if len(items) > MAX_PRODUCT_MEDIA:
         raise ValidationFailed(f"At most {MAX_PRODUCT_MEDIA} photos per product", code="too_many_media")
     ids = [i.asset_id for i in items]
@@ -997,7 +1019,7 @@ def set_collection_products(
 
 # ----------------------------------------------------------------------------- reads
 def product_detail(db: Session, ctx: TenantContext, product_id: uuid.UUID) -> dict[str, Any]:
-    p = _get_product(db, ctx, product_id)
+    p = get_product(db, ctx, product_id)
     options = db.scalars(
         select(ProductOption).where(ProductOption.product_id == p.id).order_by(ProductOption.position)
     ).all()

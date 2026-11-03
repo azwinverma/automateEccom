@@ -28,6 +28,7 @@ from app.core.context import Actor, TenantContext
 from app.core.db import bind_tenant, utcnow
 from app.core.errors import Conflict, InvalidStateTransition, NotFound, PermissionDenied, ValidationFailed
 from app.domains.audit import service as audit
+from app.domains.catalog import service as catalog_service
 from app.domains.channels.models import ChannelConnection
 from app.domains.channels.service import _mark_expired, adapter_for
 from app.domains.content.models import ContentPost
@@ -159,6 +160,8 @@ def create_post(
     if kind in ("story", "reel") and not asset_ids:
         raise ValidationFailed("Stories and reels need a photo or video", code="media_required")
     _check_assets(db, ctx, asset_ids)
+    if product_id is not None:
+        catalog_service.get_product(db, ctx, product_id)  # 404 unless it is this merchant's (QA-012)
     tags = list(dict.fromkeys(t.lstrip("#").strip().lower() for t in hashtags if t.strip()))[:30]
     p = ContentPost(
         merchant_id=ctx.merchant_id,

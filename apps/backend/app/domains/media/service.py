@@ -108,7 +108,16 @@ def complete_upload(db: Session, ctx: TenantContext, asset_id: uuid.UUID) -> Med
         raise Conflict("We didn't receive the file yet. Retry the upload.", code="upload_missing") from e
     if len(data) > get_settings().media_max_upload_bytes:
         raise ValidationFailed("File is larger than allowed", code="file_too_large")
-    a.size_bytes = len(data)  # trust the bytes we stored, not the declared size
+    if len(data) != a.size_bytes:
+        # The slot (and the storage quota check) was granted for the declared size; a different file
+        # would let a client bypass the quota (QA-014). Drop it so the client re-uploads the real file.
+        get_storage().delete(a.original_key)
+        raise ValidationFailed(
+            "The uploaded file doesn't match the size that was announced. Upload it again.",
+            code="upload_size_mismatch",
+            details={"declared": a.size_bytes, "received": len(data)},
+        )
+    a.size_bytes = len(data)
     a.sha256 = hashlib.sha256(data).hexdigest()
     a.status = "uploaded"
     db.flush()
