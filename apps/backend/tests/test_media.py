@@ -89,8 +89,14 @@ def test_imaging_applies_orientation_strips_gps_and_builds_padded_derivatives():
     ],
 )
 def test_imaging_rejects_non_images_and_bombs(data, reason):
-    with pytest.raises(imaging.ImageRejected) as e:
-        imaging.process(data)
+    import warnings
+
+    from PIL import Image
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", Image.DecompressionBombWarning)  # the bomb case is the point
+        with pytest.raises(imaging.ImageRejected) as e:
+            imaging.process(data)
     assert e.value.reason == reason
 
 

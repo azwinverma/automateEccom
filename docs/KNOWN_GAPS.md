@@ -106,6 +106,15 @@ are done. The items below remain.
 | GAP-BRAND-LEGACY-DOCS | Low | `docs/Autonomous_Commerce_OS_Business_Partner_Brief.pdf` predates the brand. Technical identifiers keep `commerce-os` (intentional, ADR-028). | Regenerate the partner brief as Nivaro. |
 | GAP-NE-TAGLINE | Low | The Nepali tagline "तपाईंको पसल, अटोपाइलटमा।" and module copy need native-speaker review (with GAP-NE-COPY). | Native review. |
 
+## QA cycle 2026-11-03 (see docs/QA_TEST_REPORT.md, docs/PRODUCTION_READINESS_REPORT.md)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-CSP-NONCE | Low | CSP still allows `'unsafe-inline'` scripts (Next.js bootstrap). | Nonce-based CSP via middleware + `headers()` once rendering is per request. |
+| GAP-LOAD-TEST | Med | No throughput/load test (webhook floods, flash sale, video queue). Concurrency correctness is tested. | k6/Locust against staging. |
+| GAP-BACKUP-PROD | High (launch) | Only a local pg_dump/restore drill. No PITR, object-storage backup or DR runbook. | With the hosting decision (GAP-INFRA-TARGET). |
+| GAP-RATELIMIT-FAILOPEN | Low | Rate limits fail open when Redis is down (DB lockout still applies). | Accepted; revisit with a local fallback bucket if abuse appears. |
+| GAP-PENTEST | Med (launch) | No external security review. | Before paid launch: auth, tenancy, uploads. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.

@@ -280,3 +280,34 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
     adoption numbers.
   - Product imagery is a flat illustration, labelled as a stand-in for real seller photography.
 - **Content source:** the partner brief PDF, plus specs 01/21/25/26.
+
+## ADR-035: Password reset (QA-001)
+- **Decision:** `POST /auth/password/forgot` always answers 202 (no account enumeration) and is
+  rate-limited per IP (10/h) and per email (3/h).
+- **Token:** issued when the email is sent. Single-use, 30 minutes, stored only as a hash. Issuing a new
+  token voids older ones.
+- **Reset:** `POST /auth/password/reset` enforces password policy, revokes every session, clears
+  lockout, audits the change and emails a "password changed" notice.
+- **Where it appears:** the web reset page is the landing page for emailed links. Mobile requests the
+  link natively.
+
+## ADR-036: Gauge limits serialised with advisory locks (QA-015)
+- **Decision:** `check_gauge` takes `pg_advisory_xact_lock(hash(merchant, resource))` before counting,
+  held until commit.
+- **Why:** count-then-insert can't be made atomic with a CHECK constraint, and a counter table would
+  duplicate the source of truth.
+- **Cost:** contention is per merchant per resource only.
+
+## ADR-037: TOTP replay protection (QA-011)
+- **Decision:** `users.mfa_totp_last_step`. A code is valid once, for a time-step newer than the last
+  accepted one (±1 step of skew), checked under a row lock.
+
+## ADR-038: Runtime CSP from middleware (QA-009)
+- **Decision:** the CSP is built per request from `PUBLIC_API_ORIGIN` / `BACKEND_URL`, because the
+  browser uploads to and loads media from the API origin, which differs per environment.
+- **Allowed:** inline scripts, for the Next.js bootstrap. Nonces are a follow-up.
+- **HSTS:** sent only over HTTPS.
+
+## ADR-039: Database outage is 503, not 500 (QA-016)
+- **Decision:** connection-class `OperationalError` (no SQLSTATE, 08xxx, 57P0x, 53300) maps to 503
+  `dependency_unavailable` with `Retry-After`. Query bugs stay 500 so they still alert as bugs.
