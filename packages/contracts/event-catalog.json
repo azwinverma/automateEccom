@@ -1082,6 +1082,38 @@
           "connection_id"
         ]
       }
+    },
+    {
+      "type": "inventory.level_changed",
+      "version": 1,
+      "description": "Available stock for a variant at a location changed (ledger entry). Drives channel stock sync and low-stock alerts.",
+      "aggregate": "inventory",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "location_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "available": {
+            "type": "integer"
+          },
+          "low_stock": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "variant_id",
+          "location_id",
+          "available",
+          "low_stock"
+        ]
+      }
     }
   ],
   "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."

@@ -107,6 +107,7 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
     failures: ClassVar[_ScriptedFailures] = _ScriptedFailures()
     revoked_refresh_tokens: ClassVar[set[str]] = set()
     published: ClassVar[dict[str, dict[str, Any]]] = {}
+    stock: ClassVar[dict[str, int]] = {}  # sku → quantity last pushed by stock sync
 
     def _fail(self) -> None:
         err = self.failures.pop()
@@ -174,12 +175,13 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
                 external_id=ext,
                 visible=doc.get("_visible", True),
                 prices={v["sku"]: v["price_minor"] for v in doc.get("variants", []) if v.get("sku")},
-                stock={v["sku"]: v.get("_stock") for v in doc.get("variants", []) if v.get("sku")},
+                stock={v["sku"]: self.stock.get(v["sku"]) for v in doc.get("variants", []) if v.get("sku")},
             )
         return out
 
     def update_inventory(self, external_sku: str, available: int, idempotency_key: str) -> None:
         self._fail()
+        self.stock[external_sku] = available
 
     def publish_content(self, content: dict[str, Any], idempotency_key: str) -> str:
         self._require(ChannelCapability.CONTENT_PUBLISH)

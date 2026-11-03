@@ -1050,3 +1050,50 @@ def resolve_drift(
         metadata={"drift_code": code, "resolution": action},
     )
     return listing
+
+
+# ----------------------------------------------------------------------------- stock sync (INV-009)
+@handler("inventory.level_changed", name="channels.sync_stock")
+def _sync_stock(db: Session, ev: OutboxEvent) -> None:
+    """Push the variant's total available stock to every live listing on an inventory-sync channel.
+
+    Transient provider errors raise so the outbox retries with backoff; a rejected credential expires the
+    connection (the seller reconnects, and the next stock change syncs again)."""
+    from app.domains.catalog.models import Variant
+    from app.domains.inventory.service import availability
+
+    variant = db.scalar(
+        select(Variant)
+        .where(Variant.id == uuid.UUID(ev.payload["variant_id"]))
+        .execution_options(skip_tenant_filter=True)
+    )
+    if variant is None or not variant.sku:
+        return  # channels match stock by SKU
+    bind_tenant(db, variant.merchant_id)
+    avail = availability(db, variant.merchant_id, [variant.id])[variant.id]
+    rows = db.execute(
+        select(ChannelListing, ChannelConnection)
+        .join(ChannelConnection, ChannelConnection.id == ChannelListing.connection_id)
+        .where(
+            ChannelListing.product_id == variant.product_id,
+            ChannelListing.status == "published",
+            ChannelConnection.status == "connected",
+        )
+    ).all()
+    for _listing, c in rows:
+        if ChannelCapability.INVENTORY_SYNC.value not in c.capabilities:
+            continue
+        qty = max(0, avail.available - c.safety_stock)
+        try:
+            adapter_for(c).update_inventory(
+                variant.sku, qty, idempotency_key=f"stock:{variant.id}:{ev.id}:{c.id}"
+            )
+            INTEGRATION_CALLS.labels(c.provider, "stock_sync", "ok").inc()
+        except IntegrationError as e:
+            INTEGRATION_CALLS.labels(c.provider, "stock_sync", e.code).inc()
+            if e.auth:
+                _mark_expired(db, c, e.code)
+            elif e.retryable:
+                raise
+            else:
+                log.warning("stock_sync_failed", provider=c.provider, sku=variant.sku, error=e.code)

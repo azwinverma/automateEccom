@@ -50,6 +50,8 @@ class ChannelConnection(IdMixin, TimestampMixin, TenantScoped, Base):
         ARRAY(String(40)), default=list, server_default="{}", nullable=False
     )
     webhooks_registered_at: Mapped[datetime | None]
+    # INV-009: units held back from this channel to absorb sync lag (it sees available - safety_stock).
+    safety_stock: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
 
 
 class OAuthState(IdMixin, TenantScoped, Base):
