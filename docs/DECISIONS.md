@@ -311,3 +311,19 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 ## ADR-039: Database outage is 503, not 500 (QA-016)
 - **Decision:** connection-class `OperationalError` (no SQLSTATE, 08xxx, 57P0x, 53300) maps to 503
   `dependency_unavailable` with `Retry-After`. Query bugs stay 500 so they still alert as bugs.
+
+## ADR-040: Nivaro Console is English-only and lives in the web app (2026-11-03)
+- **Context:** the Console is an internal staff tool; seller surfaces must be bilingual (specs/19).
+- **Decision:** the Console ships at `/console` inside the web app (same BFF/session), English copy in
+  `features/console/copy.ts`, not the seller dictionaries. Access: platform staff + MFA-verified
+  session (API-enforced); non-staff see a plain not-found page.
+- **Consequences:** one deployment, no second auth surface. If non-English-speaking support staff join,
+  move the copy into the typed dictionaries.
+
+## ADR-041: Listing reconciliation reports drift, the seller decides (CHN-012, 2026-11-03)
+- **Decision:** reconciliation only reads the channel. Drift is stored on the listing and shown in the
+  Exception Inbox; the seller chooses "use Nivaro's version" (republish, recreate if deleted) or "keep the
+  channel's version". Drift that disappears on the channel clears itself. A credential failure expires
+  the connection instead of recording drift.
+- **Why:** spec 10 ("drift creates exceptions, never silent overwrites"); sellers edit directly in their
+  stores, and overwriting would destroy their work.

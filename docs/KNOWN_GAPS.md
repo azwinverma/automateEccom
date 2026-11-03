@@ -101,7 +101,7 @@ are done. The items below remain.
 | GAP-BRAND-BANNERS | Low | Only the default OG/social image exists. The campaign, onboarding, AI Video, Autopilot, upgrade and milestone banner set is not built. | BRD-007. |
 | GAP-BRAND-ICONS | Low | No Android adaptive icon (foreground/background layers); legacy square mipmaps only. The in-house line icon set is not exported for Flutter, which still uses Material icons. | BRD-012. |
 | GAP-MARKETING-SITE | Low | The website is built at `/` (ADR-034). Still missing: real seller photography or product screenshots (a flat illustration stands in, labelled), legal pages (privacy, terms), sitemap/robots, analytics with consent, pricing (GAP-SPEC-21), and a proof section once real customers consent. | BRD-014 follow-ups. |
-| GAP-CONSOLE-UI | Med | Nivaro Console (admin UI) does not exist; only the admin API. Brand header spec'd (26 §15, 20). | Build with ADM work. |
+| ~~GAP-CONSOLE-UI~~ | — | Closed 2026-11-03: Console built (merchants, webhooks, outbox, AI providers, flags, audit). Still missing: plan editor (ADM-008), routing editor (ADM-009), support tickets. | — |
 | GAP-EMAIL-DOMAIN | Low | The sender address domain is undecided (`no-reply@nivaro.invalid` placeholder in config). There is no HTML email template. | Owner: domain + DNS (SPF/DKIM/DMARC). |
 | GAP-BRAND-LEGACY-DOCS | Low | `docs/Autonomous_Commerce_OS_Business_Partner_Brief.pdf` predates the brand. Technical identifiers keep `commerce-os` (intentional, ADR-028). | Regenerate the partner brief as Nivaro. |
 | GAP-NE-TAGLINE | Low | The Nepali tagline "तपाईंको पसल, अटोपाइलटमा।" and module copy need native-speaker review (with GAP-NE-COPY). | Native review. |

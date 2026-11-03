@@ -150,5 +150,5 @@ listing.
 | A | 5 | 3 | 4 | 5 | 4 | Staff speed and risk visibility; visually distinct from the seller app, so no confusion about context |
 | B | 3 | 2 | 3 | 4 | 3 | Too close to the seller UI; cards waste density |
 
-**Status:** UI not built (GAP-CONSOLE-UI). Backend admin API exists. The brand header spec is in
+**Status:** built at /console (2026-11-03). The brand header spec is in
 26 §15.

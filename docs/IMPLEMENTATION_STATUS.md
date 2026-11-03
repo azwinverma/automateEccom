@@ -45,6 +45,12 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
 
+## Phase 1 completion (2026-11-03)
+- **CHN-012 reconciliation, BIL-009 alert notifications, Nivaro Console UI** built and tested
+  (backend, web unit, real-backend E2E desktop + 360px).
+- Phase 1 exit is still externally blocked (live channel, live AI key, image AI provider). Phase 2
+  proceeds per the owner's instruction (2026-11-03).
+
 ## QA cycle (2026-11-03): verified stable, NOT production ready
 - **Found and fixed:** 1 BLOCKER, 1 CRITICAL, 5 HIGH, 6 MEDIUM and the LOW items, each with a
   regression test.
@@ -148,7 +154,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BIL-006 | aggregation | P0 | TESTED | BIL-005 | apps/backend/app/domains/billing/service.py | test_entitlements | Row-locked counters per window (billing month / merchant-local day); gauge counter registry |
 | BIL-007 | credit wallet | P0 | TESTED | BIL-004 | apps/backend/app/domains/billing/service.py | test_entitlements::test_monthly_overrun_uses_credits… | Wallet + ledger (hold/release/consume). No purchase flow (needs PAY) |
 | BIL-008 | reserve/finalize usage | P0 | TESTED | BIL-006 | apps/backend/app/domains/billing/service.py | test_entitlements::test_concurrent_reservations… | 12 concurrent reservations vs limit 4 → exactly 4 |
-| BIL-009 | quota alerts | P0 | IMPLEMENTED | FND-012 | apps/backend/app/domains/billing/service.py | test_entitlements::test_usage_alerts… | 70/85/100 events emitted once; no notification handler yet |
+| BIL-009 | quota alerts | P0 | TESTED | FND-012 | apps/backend/app/domains/billing/service.py, domains/handlers.py, exceptions/service.py | test_entitlements::test_usage_alerts… (2) | 70/85/100 emitted once; owners/admins emailed in their language; Exception Inbox usage_limit (≥85%, billing roles only) on web + mobile |
 | BIL-010 | trials | P0 | IMPLEMENTED | BIL-002 | apps/backend/app/domains/billing/plans.py | test_tenancy_rbac (trialing on signup) | Trial start only; trial expiry/conversion job not built |
 | BIL-011 | upgrade/downgrade | P0 | NOT_STARTED | PAY-001 | — | — | Upgrade/downgrade needs payment provider + proration rules (GAP-SPEC-21) |
 | BIL-012 | overage | P0 | IN_PROGRESS | BIL-011 | apps/backend/app/domains/billing/service.py | test_entitlements | 'overage' funding recorded; invoicing not built |
@@ -214,7 +220,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CHN-009 | WooCommerce | P1 | IMPLEMENTED | CHN-001 | apps/backend/app/domains/integrations/woocommerce.py | test_woocommerce (REST v3 contract, mocked HTTP) | Real adapter: API-key connect with live verification + currency guard, variable products/variations by SKU, stock, orders fetch, webhook HMAC. **Not yet run against a live store**; per-store webhook registration not built |
 | CHN-010 | webhook gateway | P1 | TESTED | CHN-001 | apps/backend/app/domains/channels/ | test_channels::test_webhook… | Verify→record→dedupe→fast 200→async; unverified never stored |
 | CHN-011 | dedupe | P1 | TESTED | CHN-010 | apps/backend/app/domains/channels/models.py | test_channels | Unique (provider, event id); duplicate counter |
-| CHN-012 | reconciliation | P1 | NOT_STARTED | CHN-008 | — | — | Periodic listing/inventory reconciliation against provider |
+| CHN-012 | reconciliation | P1 | TESTED | CHN-009 | apps/backend/app/domains/channels/service.py, integrations/woocommerce.py | test_reconciliation (8), test_woocommerce::test_fetch_listings… | Every 6h + on demand (Channels → Check). Drift (missing/hidden/price/variants) reported, never auto-overwritten; seller pushes Nivaro's or keeps channel's version; self-clears. Stock and order drift wait for INV/ORD (Phase 2). WooCommerce path not yet run against a live store |
 | CHN-013 | health UI | P1 | TESTED | CHN-003 | apps/backend/app/domains/channels/ | test_channels | Health API + web Channels settings (status, reconnect, health check, disconnect) |
 | CRM-001 | Customer | P2 | NOT_STARTED | — | — | — |  |
 | CRM-002 | identities | P2 | NOT_STARTED | — | — | — |  |
@@ -321,17 +327,17 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | PRO-005 | receiving | P8 | NOT_STARTED | — | — | — |  |
 | PRO-006 | landed cost | P8 | NOT_STARTED | — | — | — |  |
 | PRO-007 | reorder recommendations | P8 | NOT_STARTED | — | — | — |  |
-| ADM-001 | merchant lookup | P0+ | IMPLEMENTED | IAM-005 | apps/backend/app/domains/admin/router.py | test_platform::test_admin_requires_staff_with_mfa | API only; admin UI not built |
-| ADM-002 | usage/credits | P0+ | IMPLEMENTED | BIL-006 | apps/backend/app/domains/admin/router.py | — | Usage + credit balance in merchant detail API |
-| ADM-003 | provider health | P0+ | IMPLEMENTED | AIG-008 | apps/backend/app/domains/admin/router.py | — | Provider/circuit health API |
-| ADM-004 | channel health | P0+ | IMPLEMENTED | CHN-013 | apps/backend/app/domains/channels/router.py | — | Connection health per merchant via API; admin UI pending |
-| ADM-005 | webhook explorer | P0+ | TESTED | CHN-010 | apps/backend/app/domains/channels/router.py | test_channels::test_webhook_unknown… | Admin webhook explorer + replay (audited) |
-| ADM-006 | replay | P0+ | IMPLEMENTED | FND-012 | apps/backend/app/domains/admin/router.py | test_idempotency_outbox (requeue) | Outbox replay (audited) |
-| ADM-007 | DLQ | P0+ | IMPLEMENTED | FND-012 | apps/backend/app/domains/admin/router.py | — | Dead outbox events listing |
+| ADM-001 | merchant lookup | P0+ | TESTED | IAM-005 | apps/backend/app/domains/admin/router.py, apps/web/src/features/console | test_admin_console, Console.test.tsx, e2e console-real-backend | Console UI: search + detail drawer (team, usage, channels, overrides, credits); suspend/reactivate with reason |
+| ADM-002 | usage/credits | P0+ | TESTED | BIL-006 | apps/backend/app/domains/admin/router.py | test_admin_console | Usage + balance; idempotent goodwill credit grants; limit overrides (validated, end keeps record) |
+| ADM-003 | provider health | P0+ | TESTED | AIG-008 | apps/backend/app/domains/admin/router.py, features/console/OpsViews.tsx | e2e console-real-backend | Console AI providers: key configured, circuit state, 1h success, latency |
+| ADM-004 | channel health | P0+ | TESTED | CHN-013 | apps/backend/app/domains/admin/router.py | test_admin_console | Per-merchant connection health in Console merchant drawer |
+| ADM-005 | webhook explorer | P0+ | TESTED | CHN-010 | apps/backend/app/domains/channels/router.py, features/console/OpsViews.tsx | test_channels::test_webhook_unknown… | API + Console screen with status/provider filters and replay (audited) |
+| ADM-006 | replay | P0+ | TESTED | FND-012 | apps/backend/app/domains/admin/router.py, features/console/OpsViews.tsx | test_idempotency_outbox (requeue) | Outbox retry from the Console (audited) |
+| ADM-007 | DLQ | P0+ | TESTED | FND-012 | apps/backend/app/domains/admin/router.py, features/console/OpsViews.tsx | e2e console-real-backend | Console Outbox: dead/pending/dispatched |
 | ADM-008 | plan editor | P0+ | NOT_STARTED | — | — | — |  |
 | ADM-009 | routing editor | P0+ | NOT_STARTED | — | — | — |  |
 | ADM-010 | refund review | P0+ | NOT_STARTED | — | — | — |  |
-| ADM-011 | feature flags | P0+ | IMPLEMENTED | FND-011 | apps/backend/app/domains/admin/router.py | test_platform::test_feature_flags… | Upsert flags (audited) |
+| ADM-011 | feature flags | P0+ | TESTED | FND-011 | apps/backend/app/domains/admin/router.py, features/console/OpsViews.tsx | test_platform::test_feature_flags… | API + Console editor (audited) |
 | UX-001 | design tokens | P0 | TESTED | — | packages/design-system/ | CI diff check of generated outputs | JSON → CSS vars, TS, Dart |
 | UX-002 | web library | P0 | TESTED | UX-001 | apps/web/src/components | 95 vitest tests; E2E vs real backend | No 3rd-party visual library; Radix for behaviour only |
 | UX-003 | Flutter theme | P0 | TESTED | UX-001 | apps/mobile/lib/design | flutter test (51) | Theme from generated tokens; bundled Inter + Noto Sans Devanagari |
@@ -437,7 +443,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-002 | logo asset integration | BRD | TESTED | BRD-006 | Owner artwork extracted (extract_logo.py) → render.mjs; web NivaroMark/NivaroLogo (mask wordmark); Flutter Image.asset logo | Flutter widget test (light+dark); visual check web light/dark | Raster masters; vector master pending (GAP-BRAND-LOGO-VECTOR) |
 | BRD-003 | web metadata + theme | BRD | IMPLEMENTED | BRD-002 | app/layout.tsx (title, OG, Twitter, theme from cookie), app/manifest.ts, favicon.ico, icon.png, apple-icon.png, opengraph-image.png; light default (ADR-033) | Manifest + icon served 200 on the dev server (manual) | `NEXT_PUBLIC_SITE_URL` needed for absolute OG URLs in prod |
 | BRD-004 | Flutter branding | BRD | TESTED | BRD-002 | Display name, launcher icons (Android + iOS), NivaroMark/NivaroLogo, automation colour → brand blue | flutter analyze; nivaro_brand_test (2) + full suite | Never run on a device (GAP-MOBILE-TOOLCHAIN) |
-| BRD-005 | Nivaro Console branding | BRD | NOT_STARTED | ADM | specs/26 §15, specs/20, layout direction A | — | Console UI does not exist (GAP-CONSOLE-UI) |
+| BRD-005 | Nivaro Console branding | BRD | TESTED | ADM | apps/web/src/features/console | e2e console-real-backend (desktop + 360) | Navy top bar, white lockup + Console suffix, environment badge, dense tables, no accents (26 §14) |
 | BRD-006 | design-token migration | BRD | TESTED | — | design-tokens.json v1.0 semantic layer; generator emits light/dark CSS, TS, Dart AppColorsLight/Dark | Brand guard (no hex/indigo); all CSS vars resolve (checked) | Legacy aliases kept |
 | BRD-007 | banner system | BRD | IN_PROGRESS | BRD-008 | Grammar + variants in specs/26 §10; og-default; sign-in panel | — | Campaign set pending (GAP-BRAND-BANNERS) |
 | BRD-008 | graphic motif library | BRD | IN_PROGRESS | BRD-002 | N-trail, commerce loop, outlined-trail empty state, active ribbon, 4 hand accents | Visual review | Sync stream + order route motifs pending |
