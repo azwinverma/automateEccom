@@ -336,6 +336,15 @@
   width: 120px;
 }
 
+.gridScroll {
+  position: relative; /* contains the cells' absolutely-positioned (sr-only) labels inside the scroller */
+  max-width: 100%;
+  overflow-x: auto;
+}
+.gridScroll:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
 .grid {
   width: 100%;
   border-collapse: collapse;

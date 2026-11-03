@@ -1293,4 +1293,25 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get themeSystem => 'फोनकै थिम';
+
+  @override
+  String get loginForgotPassword => 'पासवर्ड बिर्सनुभयो?';
+
+  @override
+  String get forgotTitle => 'पासवर्ड रिसेट गर्नुहोस्';
+
+  @override
+  String get forgotSubtitle => 'आफ्नो खाताको इमेल लेख्नुहोस्, नयाँ पासवर्ड राख्ने लिंक पठाउँछौं।';
+
+  @override
+  String get forgotAction => 'रिसेट लिंक पठाउनुहोस्';
+
+  @override
+  String get forgotSentTitle => 'इमेल हेर्नुहोस्';
+
+  @override
+  String get forgotSentBody => 'त्यो इमेलको खाता छ भने रिसेट लिंक आउँदैछ। यही फोन वा कम्प्युटरमा खोल्नुहोस्। यो एक पटक मात्र र ३० मिनेटसम्म चल्छ।';
+
+  @override
+  String get forgotBack => 'साइन इनमा फर्कनुहोस्';
 }

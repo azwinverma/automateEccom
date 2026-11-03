@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/auth/session_controller.dart';
 import '../core/l10n/gen/app_localizations.dart';
+import '../features/auth/presentation/forgot_password_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
 import '../features/catalog/presentation/product_screen.dart';
@@ -24,6 +25,7 @@ abstract final class Routes {
   static const splash = '/splash';
   static const login = '/login';
   static const register = '/register';
+  static const forgotPassword = '/forgot-password';
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const settings = '/settings';
@@ -31,7 +33,7 @@ abstract final class Routes {
 
 /// Pure redirect rule, unit-testable without widgets.
 String? authRedirect(SessionState session, String location) {
-  const publicRoutes = {Routes.login, Routes.register};
+  const publicRoutes = {Routes.login, Routes.register, Routes.forgotPassword};
   switch (session) {
     case SessionLoading():
     case SessionUnavailable():
@@ -74,6 +76,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.register,
         builder: (_, __) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: Routes.forgotPassword,
+        builder: (_, __) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: Routes.onboarding,

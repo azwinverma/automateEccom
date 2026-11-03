@@ -1311,4 +1311,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeSystem => 'Same as phone';
+
+  @override
+  String get loginForgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotTitle => 'Reset your password';
+
+  @override
+  String get forgotSubtitle => 'Enter your account email and we\'ll send you a link to set a new password.';
+
+  @override
+  String get forgotAction => 'Send reset link';
+
+  @override
+  String get forgotSentTitle => 'Check your email';
+
+  @override
+  String get forgotSentBody => 'If an account exists for that email, a reset link is on its way. Open it on this phone or a computer. It works once and expires in 30 minutes.';
+
+  @override
+  String get forgotBack => 'Back to sign in';
 }

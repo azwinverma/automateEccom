@@ -2,7 +2,7 @@
 
 import { isApiError } from "@commerce-os/api-client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import styles from "@/app/(auth)/auth.module.css";
 import { Button } from "@/components/ui/Button";
@@ -10,6 +10,7 @@ import { TextField } from "@/components/ui/Field";
 import { InlineAlert, RequestId } from "@/components/ui/misc";
 import { errorMessage, fieldErrorMessages } from "@/i18n/errors";
 import { useI18n } from "@/i18n/I18nProvider";
+import { safeNext } from "@/lib/auth/bff";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { bffLogin, isBrowserSession } from "@/lib/auth/bff";
 import { EMAIL_RE, MIN_PASSWORD } from "@/lib/validation";
@@ -20,6 +21,9 @@ export function RegisterForm() {
   const { t, locale } = useI18n();
   const { api, establishSession } = useAuth();
   const router = useRouter();
+  // Invitees sign up to accept an invitation, not to create a business (QA-008).
+  const nextParam = safeNext(useSearchParams().get("next"), "/onboarding");
+  const afterSignup = nextParam.startsWith("/invite") ? nextParam : "/onboarding";
   const [values, setValues] = useState<Record<Fields, string>>({ full_name: "", email: "", phone: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<Fields, string>>>({});
   const [error, setError] = useState<unknown>(null);
@@ -68,12 +72,12 @@ export function RegisterForm() {
       const result = await bffLogin(email, values.password);
       if (isBrowserSession(result)) {
         await establishSession(result);
-        router.replace("/onboarding");
+        router.replace(afterSignup);
       } else {
-        router.replace("/login?next=/onboarding");
+        router.replace(`/login?next=${encodeURIComponent(afterSignup)}`);
       }
     } catch {
-      router.replace("/login?next=/onboarding");
+      router.replace(`/login?next=${encodeURIComponent(afterSignup)}`);
     } finally {
       setPending(false);
     }
@@ -120,7 +124,7 @@ export function RegisterForm() {
         {pending ? t("auth.register.submitting") : t("auth.register.submit")}
       </Button>
       <p className={styles.alt}>
-        {t("auth.register.haveAccount")} <Link href="/login">{t("auth.register.signIn")}</Link>
+        {t("auth.register.haveAccount")} <Link href={afterSignup === "/onboarding" ? "/login" : `/login?next=${encodeURIComponent(afterSignup)}`}>{t("auth.register.signIn")}</Link>
       </p>
     </form>
   );

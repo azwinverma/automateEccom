@@ -34,7 +34,9 @@ export function LoginForm() {
   const finish = async (session: BrowserSession) => {
     const me = await establishSession(session);
     const hasBusiness = me.memberships.some((m) => m.status === "active" || !m.status);
-    router.replace(hasBusiness ? safeNext(params.get("next")) : "/onboarding");
+    const next = safeNext(params.get("next"));
+    // An invitee may not have a business yet: the invitation itself is where they're going (QA-008).
+    router.replace(hasBusiness || next.startsWith("/invite") ? next : "/onboarding");
   };
 
   const submitCredentials = async (e: FormEvent) => {
@@ -178,6 +180,9 @@ export function LoginForm() {
         error={fieldErrors.password}
         required
       />
+      <Link href="/forgot-password" className={styles.forgot}>
+        {t("auth.login.forgot")}
+      </Link>
       <Button type="submit" variant="primary" className={styles.submit} loading={pending}>
         {pending ? t("auth.login.submitting") : t("auth.login.submit")}
       </Button>

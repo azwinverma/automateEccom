@@ -2482,6 +2482,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Same as phone'**
   String get themeSystem;
+
+  /// No description provided for @loginForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get loginForgotPassword;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account email and we\'ll send you a link to set a new password.'**
+  String get forgotSubtitle;
+
+  /// No description provided for @forgotAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotAction;
+
+  /// No description provided for @forgotSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get forgotSentTitle;
+
+  /// No description provided for @forgotSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for that email, a reset link is on its way. Open it on this phone or a computer. It works once and expires in 30 minutes.'**
+  String get forgotSentBody;
+
+  /// No description provided for @forgotBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get forgotBack;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -15,5 +15,10 @@
     "dev:prod": "bash scripts/dev.sh --prod",
     "mobile": "bash scripts/mobile.sh",
     "make-admin": "bash scripts/make-admin.sh"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.23"
+    }
   }
 }

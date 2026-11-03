@@ -49,6 +49,7 @@
 }
 .topRow {
   display: flex;
+  flex-wrap: wrap; /* logo + theme + language must fit a 320px phone (QA-018) */
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
@@ -131,6 +132,12 @@
   cursor: pointer;
   font-size: var(--font-size-sm);
 }
+.forgot {
+  align-self: flex-end;
+  margin-top: calc(-1 * var(--space-2));
+  font-size: var(--font-size-sm);
+  color: var(--color-text-brand);
+}
 .meta {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
@@ -145,6 +152,9 @@
   }
   .mobileLogo {
     display: block;
+  }
+  .topRow {
+    padding: var(--space-3) var(--space-4);
   }
   .formWrap {
     padding: var(--space-6) var(--space-4) var(--space-12);

@@ -84,7 +84,12 @@ export function createApi(client: ApiClient) {
         client.request<void>("/auth/mfa/totp/disable", { method: "POST", body: { code, password } }),
       requestEmailVerification: () => client.request<void>("/auth/verify-email/request", { method: "POST" }),
       confirmEmailVerification: (token: string) =>
-        client.request<void>("/auth/verify-email/confirm", { method: "POST", body: { token } }),
+        client.request<void>("/auth/verify-email/confirm", { method: "POST", body: { token }, auth: false }),
+      /** Always 202: the response never says whether the account exists. */
+      requestPasswordReset: (email: string) =>
+        client.request<void>("/auth/password/forgot", { method: "POST", body: { email }, auth: false }),
+      resetPassword: (token: string, password: string) =>
+        client.request<void>("/auth/password/reset", { method: "POST", body: { token, password }, auth: false }),
     },
     me: {
       get: () => client.request<Me>("/me"),

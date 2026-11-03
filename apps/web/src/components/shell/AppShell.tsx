@@ -48,7 +48,9 @@ function MerchantSwitcher() {
   return (
     <MenuRoot>
       <MenuTrigger asChild>
-        <button type="button" className={styles.switcher} aria-label={`${t("shell.switchBusiness")}: ${name}`}>
+        {/* Accessible name = visible text + a hidden prefix, so voice users can say what they see (WCAG 2.5.3). */}
+        <button type="button" className={styles.switcher}>
+          <span className="srOnly">{t("shell.switchBusiness")}: </span>
           <span className={styles.monogram} aria-hidden="true">
             {initials(name)}
           </span>
@@ -95,7 +97,8 @@ function UserMenu() {
   return (
     <MenuRoot>
       <MenuTrigger asChild>
-        <button type="button" className={styles.userButton} aria-label={`${t("shell.accountMenu")}: ${me.user.full_name}`}>
+        <button type="button" className={styles.userButton}>
+          <span className="srOnly">{t("shell.accountMenu")}: </span>
           <span className={styles.avatar} aria-hidden="true">
             {initials(me.user.full_name || me.user.email)}
           </span>

@@ -165,6 +165,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 validator: (v) => Validators.loginPassword(l, v),
                 onSubmitted: (_) => _submitCredentials(),
               ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  key: const Key('forgot-password'),
+                  onPressed:
+                      _busy ? null : () => context.push('/forgot-password'),
+                  child: Text(l.loginForgotPassword),
+                ),
+              ),
               const SizedBox(height: AppSpace.s4),
               if (_error != null) ...[
                 InlineError(error: _error!),

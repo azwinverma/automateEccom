@@ -124,6 +124,15 @@ class AuthApi {
     );
   });
 
+  /// Always 202: the API never reveals whether the account exists (QA-001).
+  Future<void> requestPasswordReset(String email) => _call(() async {
+    await _dio.post<Object?>(
+      '/auth/password/forgot',
+      data: {'email': email},
+      options: Options(extra: _public),
+    );
+  });
+
   Future<void> logout(String refreshToken) => _call(() async {
     await _dio.post<Object?>(
       '/auth/logout',

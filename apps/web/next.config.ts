@@ -10,6 +10,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Separate build folders let a QA/production build run beside a `next dev` session without clobbering it.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // Trace workspace packages from the monorepo root so the standalone bundle includes them.
   outputFileTracingRoot: path.join(import.meta.dirname, "../.."),
   transpilePackages: ["@commerce-os/api-client", "@commerce-os/design-system"],

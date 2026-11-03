@@ -607,5 +607,12 @@
   "settingsTheme": "Theme",
   "themeLight": "Light",
   "themeDark": "Dark",
-  "themeSystem": "Same as phone"
+  "themeSystem": "Same as phone",
+  "loginForgotPassword": "Forgot password?",
+  "forgotTitle": "Reset your password",
+  "forgotSubtitle": "Enter your account email and we'll send you a link to set a new password.",
+  "forgotAction": "Send reset link",
+  "forgotSentTitle": "Check your email",
+  "forgotSentBody": "If an account exists for that email, a reset link is on its way. Open it on this phone or a computer. It works once and expires in 30 minutes.",
+  "forgotBack": "Back to sign in"
 }

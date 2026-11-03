@@ -28,6 +28,7 @@ void main() {
     expect(authRedirect(s, '/home'), Routes.login);
     expect(authRedirect(s, '/settings/plan'), Routes.login);
     expect(authRedirect(s, '/register'), isNull);
+    expect(authRedirect(s, '/forgot-password'), isNull); // QA-001
   });
 
   test('signed in without merchant must onboard', () {

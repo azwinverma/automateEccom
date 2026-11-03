@@ -291,6 +291,11 @@
   padding: clamp(64px, 9vw, 112px) var(--site-pad);
 }
 /* Full-bleed tinted band; content stays on the site grid via inline padding. */
+/* On tinted surfaces Slate 500 drops to 4.3:1; muted text there uses Slate 700 instead (QA-017). */
+.sunken,
+.frameBar {
+  --color-text-muted: var(--color-text-secondary);
+}
 .sunken {
   max-width: none;
   padding-inline: max(var(--site-pad), calc((100% - var(--site-max)) / 2 + var(--site-pad)));
@@ -495,7 +500,7 @@
   font-variant-numeric: tabular-nums;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary); /* muted fails 4.5:1 on the sunken band (QA-017) */
   padding-top: 3px;
 }
 .pains h3 {
@@ -844,7 +849,7 @@
   padding: 2px 8px;
   border-radius: var(--radius-sm);
   background: var(--color-brand-accent);
-  color: var(--color-neutral-white);
+  color: var(--color-neutral-ink); /* white on coral is 2.8:1; ink is ~6.9:1 (QA-017) */
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-sm);
 }
