@@ -15,6 +15,7 @@ export type ExceptionActionLabel =
   | "retry_draft"
   | "confirm_attributes"
   | "resolve_drift"
+  | "view_plan"
   | "remove_file";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
@@ -46,6 +47,8 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
       return { kind: "command", command: "retry_draft", label: "retry_draft" };
     case "resolve_drift":
       return { kind: "link", href: `/products/${enc(id)}#channels`, label: "resolve_drift" };
+    case "view_plan":
+      return { kind: "link", href: "/settings/plan", label: "view_plan" };
     case "confirm_attributes":
       return { kind: "link", href: `/products/${enc(id)}#attributes`, label: "confirm_attributes" };
     case "dismiss":
@@ -62,6 +65,11 @@ export function exceptionSummaryKey(item: ExceptionRecord): { key: string; vars:
   const r = item.resource.type;
   if (item.type === "channel_expired") return { key: "channelExpired", vars: { name } };
   if (item.type === "publish_failed" && r === "product") return { key: "listingFailed", vars: { name } };
+  if (item.type === "usage_limit") {
+    // `resource` is a code; the caller swaps it for the localized name (usage.resource.*).
+    const vars = { resource: str(d.resource) ?? "", used: Number(d.used ?? 0), limit: Number(d.limit ?? 0) };
+    return { key: Number(d.level) >= 100 ? "usageLimitReached" : "usageLimitNear", vars };
+  }
   if (item.type === "listing_drift") return { key: "listingDrift", vars: { name, channel: str(d.name) ?? "" } };
   if (item.type === "publish_failed" && r === "content_post") return { key: "postFailed", vars: {} };
   if (item.type === "low_confidence_ai" && r === "content_post") return { key: "postNeedsApproval", vars: { count: Number(d.issues ?? 0) } };

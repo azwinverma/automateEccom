@@ -16,6 +16,7 @@ enum ExceptionType {
   inventoryMismatch('inventory_mismatch'),
   publishFailed('publish_failed'),
   listingDrift('listing_drift'),
+  usageLimit('usage_limit'),
   ambiguousVariant('ambiguous_variant'),
   customerEscalation('customer_escalation'),
   providerFailure('provider_failure');
@@ -48,6 +49,7 @@ enum ExceptionType {
     inventoryMismatch => Icons.inventory_2_outlined,
     publishFailed => Icons.cloud_off_outlined,
     listingDrift => Icons.sync_problem_outlined,
+    usageLimit => Icons.data_usage_outlined,
     ambiguousVariant => Icons.straighten_outlined,
     customerEscalation => Icons.support_agent_outlined,
     providerFailure => Icons.report_problem_outlined,
@@ -62,6 +64,7 @@ enum ExceptionType {
     inventoryMismatch => l.exInventoryMismatch,
     publishFailed => l.exPublishFailed,
     listingDrift => l.exListingDrift,
+    usageLimit => l.exUsageLimit,
     ambiguousVariant => l.exAmbiguousVariant,
     customerEscalation => l.exCustomerEscalation,
     providerFailure => l.exProviderFailure,

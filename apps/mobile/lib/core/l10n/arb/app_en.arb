@@ -616,5 +616,17 @@
   "forgotAction": "Send reset link",
   "forgotSentTitle": "Check your email",
   "forgotSentBody": "If an account exists for that email, a reset link is on its way. Open it on this phone or a computer. It works once and expires in 30 minutes.",
-  "forgotBack": "Back to sign in"
+  "forgotBack": "Back to sign in",
+  "exUsageLimit": "Plan limit",
+  "exSubjectUsage": "{used} of {limit} used this month (see Plan on the web)",
+  "@exSubjectUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  }
 }

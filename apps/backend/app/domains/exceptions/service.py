@@ -46,8 +46,43 @@ def _item(
     }
 
 
-def open_exceptions(db: Session, merchant_id: uuid.UUID, limit: int = 200) -> list[dict[str, Any]]:
-    items: list[dict[str, Any]] = []
+def _usage_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """BIL-009: a monthly plan allowance that's reached (high) or nearly reached (normal).
+
+    Derived from live usage, so it disappears when the month resets, credits are added or the plan
+    changes."""
+    from app.domains.billing.service import entitlements
+
+    out = []
+    for u in entitlements.usage_summary(db, merchant_id):
+        level, limit = u.get("alert_level"), u.get("limit")
+        # Monthly allowances only: a gauge at capacity (1 of 1 store) is the plan's shape, not a problem.
+        if u.get("kind") != "consumable" or not u.get("included") or not limit or level not in ("85", "100"):
+            continue
+        out.append(
+            {
+                "id": f"usage_limit:{u['resource']}",
+                "type": "usage_limit",
+                "severity": "high" if level == "100" else "normal",
+                "resource": {"type": "plan_resource", "id": u["resource"]},
+                "occurred_at": None,
+                "action": "view_plan",
+                "details": {
+                    "resource": u["resource"],
+                    "used": u.get("used"),
+                    "limit": limit,
+                    "level": int(str(level)),
+                    "period": u.get("period"),
+                },
+            }
+        )
+    return out
+
+
+def open_exceptions(
+    db: Session, merchant_id: uuid.UUID, limit: int = 200, *, include_usage: bool = True
+) -> list[dict[str, Any]]:
+    items: list[dict[str, Any]] = _usage_items(db, merchant_id) if include_usage else []
 
     for c in db.scalars(
         select(ChannelConnection).where(

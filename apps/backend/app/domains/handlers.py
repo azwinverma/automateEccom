@@ -99,6 +99,50 @@ def send_invitation(db: Session, ev: OutboxEvent) -> None:
     mailer().send_email(inv.email, subject, body, idempotency_key=f"invite:{ev.id}", locale=locale)
 
 
+@handler("billing.usage_threshold_reached")
+def send_usage_alert(db: Session, ev: OutboxEvent) -> None:
+    """BIL-009: tell the people who decide on money (owner, admins) once per threshold per period."""
+    from sqlalchemy import select
+
+    from app.domains.integrations.registry import mailer
+    from app.domains.merchants.models import Membership
+    from app.integrations_i18n import resource_name
+
+    merchant = db.get(Merchant, ev.merchant_id) if ev.merchant_id else None
+    if merchant is None:
+        return
+    p = ev.payload
+    threshold = int(p["threshold"])
+    key = "usage_limit_reached" if threshold >= 100 else "usage_warning"
+    recipients = db.execute(
+        select(User)
+        .join(Membership, Membership.user_id == User.id)
+        .where(
+            Membership.merchant_id == merchant.id,
+            Membership.status == "active",
+            Membership.role.in_(("owner", "admin")),
+            User.status == "active",
+        )
+        .execution_options(skip_tenant_filter=True)
+    ).scalars()
+    for user in recipients:
+        locale = user.locale or merchant.default_locale or "en"
+        subject, body = email_copy(
+            key,
+            locale,
+            name=user.full_name,
+            shop=merchant.name,
+            resource=resource_name(p["resource"], locale),
+            threshold=str(threshold),
+            used=str(p["used"]),
+            limit=str(p["limit"]),
+            link=f"{_web_base()}/settings/plan",
+        )
+        mailer().send_email(
+            user.email, subject, body, idempotency_key=f"usage:{ev.id}:{user.id}", locale=locale
+        )
+
+
 @handler("platform.ping")
 def ping(db: Session, ev: OutboxEvent) -> None:
     return None

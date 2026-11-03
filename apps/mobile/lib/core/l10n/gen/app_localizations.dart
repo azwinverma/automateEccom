@@ -2536,6 +2536,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to sign in'**
   String get forgotBack;
+
+  /// No description provided for @exUsageLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan limit'**
+  String get exUsageLimit;
+
+  /// No description provided for @exSubjectUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} used this month (see Plan on the web)'**
+  String exSubjectUsage(int used, int limit);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

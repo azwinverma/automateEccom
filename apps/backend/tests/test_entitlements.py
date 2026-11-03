@@ -13,6 +13,8 @@ from app.domains.billing.service import entitlements, window
 from app.domains.platform.models import OutboxEvent
 from tests.conftest import onboard, set_plan
 
+API = "/api/v1"
+
 
 def _mid(s) -> uuid.UUID:
     return uuid.UUID(s.merchant_id)
@@ -164,3 +166,72 @@ def test_gauge_counters_are_tenant_scoped_without_bound_session(client):
 
     with session_scope() as db:  # admin-style session, no tenant bound
         assert team_size(db, _mid(a)) == 1
+
+
+def test_usage_alerts_email_owner_and_show_in_inbox_for_billing_roles(client, seller):
+    """BIL-009: 70/85/100% alerts reach the owner by email (once each); the inbox shows ≥85% to people who
+    can see billing, and the item disappears once usage drops back (new month, credits, plan change)."""
+    import app.domains.handlers  # noqa: F401
+    from app.core.config import REPO_ROOT
+    from app.domains.merchants.models import Membership
+    from app.domains.platform.outbox import dispatch_batch
+    from tests.conftest import register_and_login
+
+    mailbox = REPO_ROOT / ".data" / "mailbox"
+    before = set(mailbox.glob("*.txt")) if mailbox.exists() else set()
+    m = _mid(seller)  # starter: ai_text 300/month
+    set_plan(seller.merchant_id, "growth")
+    limit = next(
+        u["limit"]
+        for u in client.get(f"{API}/billing/entitlements", headers=seller.h()).json()["limits"]
+        if u["resource"] == "ai_text_generations"
+    )
+    with session_scope() as db:
+        entitlements.record(db, m, "ai_text_generations", int(limit * 0.9), "a")
+    for _ in range(3):
+        dispatch_batch()
+    mails = [p.read_text() for p in mailbox.glob("*.txt") if p not in before]
+    mine = [t for t in mails if seller.email in t and "/settings/plan" in t]  # not the signup email
+    assert len(mine) == 2 and any("85%" in t for t in mine) and any("70%" in t for t in mine)
+    assert all("AI लेखन" in t for t in mine)  # resource named in the user's language (ne here)
+
+    items = [
+        e
+        for e in client.get(f"{API}/exceptions", headers=seller.h()).json()["items"]
+        if e["type"] == "usage_limit"
+    ]
+    assert len(items) == 1 and items[0]["severity"] == "normal" and items[0]["action"] == "view_plan"
+    assert items[0]["details"]["resource"] == "ai_text_generations" and items[0]["details"]["level"] == 85
+
+    with session_scope() as db:
+        entitlements.record(db, m, "ai_text_generations", limit - int(limit * 0.9), "b")
+    for _ in range(3):
+        dispatch_batch()
+    mails = [
+        t
+        for t in (p.read_text() for p in mailbox.glob("*.txt") if p not in before)
+        if seller.email in t and "/settings/plan" in t
+    ]
+    assert len(mails) == 3 and any("सीमा पुग्यो" in t for t in mails)
+    items = [
+        e
+        for e in client.get(f"{API}/exceptions", headers=seller.h()).json()["items"]
+        if e["type"] == "usage_limit"
+    ]
+    assert items[0]["severity"] == "high"
+
+    # A staff member (no billing.read) gets neither the email nor the inbox item.
+    staff = register_and_login(client, "staffer@example.com")
+    uid = client.get(f"{API}/me", headers=staff.h()).json()["user"]["id"]
+    with session_scope(m) as db:
+        db.add(Membership(merchant_id=m, user_id=uuid.UUID(uid), role="staff"))
+    staff_items = client.get(f"{API}/exceptions", headers=staff.h(merchant=seller.merchant_id)).json()[
+        "items"
+    ]
+    assert not [e for e in staff_items if e["type"] == "usage_limit"]
+    assert not [
+        p for p in mailbox.glob("*.txt") if p not in before and "staffer@example.com" in p.read_text()
+    ]
+    for p in mailbox.glob("*.txt"):
+        if p not in before:
+            p.unlink()

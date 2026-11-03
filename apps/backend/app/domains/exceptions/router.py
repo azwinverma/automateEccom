@@ -17,5 +17,6 @@ router = APIRouter(tags=["exceptions"])
 def list_exceptions(
     ctx: TenantContext = Depends(get_tenant), db: Session = Depends(get_db, scope="function")
 ) -> dict[str, Any]:
-    items = open_exceptions(db, ctx.merchant_id)
+    # Plan limits are only shown to people who can see billing (and so can act on them).
+    items = open_exceptions(db, ctx.merchant_id, include_usage=ctx.has("billing.read"))
     return {"items": items, "counts": dict(Counter(i["severity"] for i in items)), "total": len(items)}

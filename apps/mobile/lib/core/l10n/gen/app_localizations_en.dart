@@ -1338,4 +1338,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotBack => 'Back to sign in';
+
+  @override
+  String get exUsageLimit => 'Plan limit';
+
+  @override
+  String exSubjectUsage(int used, int limit) {
+    return '$used of $limit used this month (see Plan on the web)';
+  }
 }

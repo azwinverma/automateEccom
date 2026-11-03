@@ -55,7 +55,63 @@ _COPY: dict[str, dict[str, tuple[str, str]]] = {
             "निम्तो स्वीकार गर्नुहोस्:\n{link}\n\nयो निम्तो ७ दिनपछि सकिन्छ।\n\n— Nivaro",
         ),
     },
+    "usage_warning": {
+        "en": (
+            "{shop}: {threshold}% of your {resource} used this month",
+            "Hi {name},\n\n{shop} has used {used} of {limit} {resource} this month ({threshold}%).\n\n"
+            "When you reach the limit, new ones pause until next month unless you add credits or change "
+            "plan. See your usage:\n{link}\n\n— Nivaro",
+        ),
+        "ne": (
+            "{shop}: यो महिनाको {resource} {threshold}% प्रयोग भयो",
+            "नमस्ते {name},\n\n{shop} ले यो महिना {limit} मध्ये {used} {resource} प्रयोग गरिसक्यो "
+            "({threshold}%)।\n\nसीमा पुगेपछि क्रेडिट थप्नुभएन वा प्लान बदल्नुभएन भने अर्को महिनासम्म नयाँ रोकिन्छ। "
+            "प्रयोग हेर्नुहोस्:\n{link}\n\n— Nivaro",
+        ),
+    },
+    "usage_limit_reached": {
+        "en": (
+            "{shop}: monthly {resource} limit reached",
+            "Hi {name},\n\n{shop} has used all {limit} {resource} included this month. New ones are "
+            "paused until the month resets, unless you add credits or change plan:\n{link}\n\n"
+            "Everything already made keeps working.\n\n— Nivaro",
+        ),
+        "ne": (
+            "{shop}: यो महिनाको {resource} सीमा पुग्यो",
+            "नमस्ते {name},\n\n{shop} ले यो महिनामा समावेश भएका सबै {limit} {resource} प्रयोग गर्‍यो। "
+            "क्रेडिट थप्नुभएन वा प्लान बदल्नुभएन भने महिना नफेरिउन्जेल नयाँ रोकिन्छ:\n{link}\n\n"
+            "पहिले बनेका सबै चलिरहन्छन्।\n\n— Nivaro",
+        ),
+    },
 }
+
+# Seller-facing names for metered resources in emails (the web/mobile apps carry their own copies).
+RESOURCE_NAMES: dict[str, dict[str, str]] = {
+    "en": {
+        "orders": "orders",
+        "ai_text_generations": "AI writing credits",
+        "ai_inbox_replies": "AI inbox replies",
+        "ai_images": "AI images",
+        "auto_reels": "Auto Reels",
+        "premium_video_clips": "premium video clips",
+        "automation_runs": "automation runs",
+        "api_requests": "API requests",
+    },
+    "ne": {
+        "orders": "अर्डर",
+        "ai_text_generations": "AI लेखन",
+        "ai_inbox_replies": "AI इनबक्स जवाफ",
+        "ai_images": "AI तस्बिर",
+        "auto_reels": "अटो रिल",
+        "premium_video_clips": "प्रिमियम भिडियो क्लिप",
+        "automation_runs": "अटोमेसन रन",
+        "api_requests": "API अनुरोध",
+    },
+}
+
+
+def resource_name(code: str, locale: str) -> str:
+    return RESOURCE_NAMES.get(locale, RESOURCE_NAMES["en"]).get(code) or RESOURCE_NAMES["en"].get(code, code)
 
 
 def email_copy(key: str, locale: str, **params: str) -> tuple[str, str]:

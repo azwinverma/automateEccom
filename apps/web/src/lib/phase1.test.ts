@@ -116,6 +116,7 @@ describe("exception action routing", () => {
     [{ action: "confirm_attributes" }, { kind: "link", href: "/products/p1#attributes" }],
     [{ action: "dismiss", resource: { type: "media", id: "m1" } }, { kind: "command", command: "remove_file" }],
     [{ action: "resolve_drift", type: "listing_drift" }, { kind: "link", href: "/products/p1#channels", label: "resolve_drift" }],
+    [{ action: "view_plan", type: "usage_limit", resource: { type: "plan_resource", id: "ai_text_generations" } }, { kind: "link", href: "/settings/plan" }],
     [{ action: "something_new" }, { kind: "none" }],
   ] as [Partial<ExceptionRecord>, object][])("%o", (over, expected) => {
     expect(exceptionTarget(ex(over))).toMatchObject(expected);
@@ -133,6 +134,11 @@ describe("exception action routing", () => {
       key: "listingDrift",
       vars: { name: "Pashmina", channel: "Thamel Woo" },
     });
+    expect(exceptionSummaryKey(ex({ type: "usage_limit", details: { resource: "ai_text_generations", used: 270, limit: 300, level: 85 } }))).toEqual({
+      key: "usageLimitNear",
+      vars: { resource: "ai_text_generations", used: 270, limit: 300 },
+    });
+    expect(exceptionSummaryKey(ex({ type: "usage_limit", details: { resource: "auto_reels", used: 10, limit: 10, level: 100 } })).key).toBe("usageLimitReached");
     expect(exceptionSummaryKey(ex({ type: "mystery" })).key).toBe("generic");
   });
 });

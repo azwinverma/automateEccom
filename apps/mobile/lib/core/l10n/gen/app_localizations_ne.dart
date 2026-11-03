@@ -1320,4 +1320,12 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get forgotBack => 'साइन इनमा फर्कनुहोस्';
+
+  @override
+  String get exUsageLimit => 'प्लान सीमा';
+
+  @override
+  String exSubjectUsage(int used, int limit) {
+    return 'यो महिना $limit मध्ये $used प्रयोग भयो (वेबमा प्लान हेर्नुहोस्)';
+  }
 }

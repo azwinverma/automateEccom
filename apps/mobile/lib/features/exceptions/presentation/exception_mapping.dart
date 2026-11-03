@@ -29,6 +29,10 @@ String exceptionSubject(AppLocalizations l, ApiException e) {
     'content_post' => l.exSubjectPost,
     'studio_job' => l.exSubjectDraft,
     'media' => d('file_name') ?? l.exSubjectProduct,
+    'plan_resource' => l.exSubjectUsage(
+      (e.details['used'] as num?)?.toInt() ?? 0,
+      (e.details['limit'] as num?)?.toInt() ?? 0,
+    ),
     _ => e.resourceType,
   };
 }
