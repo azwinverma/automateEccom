@@ -302,12 +302,35 @@ def merge(
     return target
 
 
+SEGMENTS = ("new", "repeat", "inactive")
+INACTIVE_AFTER_DAYS = 90
+
+
 def search(
-    db: Session, ctx: TenantContext, q: str | None, limit: int, cursor: str | None
+    db: Session, ctx: TenantContext, q: str | None, limit: int, cursor: str | None, segment: str | None = None
 ) -> tuple[list[Customer], str | None]:
+    """CRM-013 segments (rule-based, from real orders): new = at most one non-cancelled order;
+    repeat = 2+ orders; inactive = has ordered but nothing in the last 90 days."""
+    from datetime import timedelta
+
     from app.core.pagination import build_page, paginate_desc
+    from app.domains.orders.models import Order
 
     stmt = select(Customer).where(Customer.status == "active")
+    if segment in SEGMENTS:
+        live = (
+            select(Order.customer_id, func.count().label("n"), func.max(Order.placed_at).label("last"))
+            .where(Order.merchant_id == ctx.merchant_id, Order.status != "cancelled")
+            .group_by(Order.customer_id)
+            .subquery()
+        )
+        stmt = stmt.outerjoin(live, live.c.customer_id == Customer.id)
+        if segment == "new":
+            stmt = stmt.where(func.coalesce(live.c.n, 0) <= 1)
+        elif segment == "repeat":
+            stmt = stmt.where(live.c.n >= 2)
+        else:
+            stmt = stmt.where(live.c.last < utcnow() - timedelta(days=INACTIVE_AFTER_DAYS))
     if q:
         like = f"%{q.strip().lower()}%"
         digits = "".join(ch for ch in q if ch.isdigit())

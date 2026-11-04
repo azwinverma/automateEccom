@@ -408,3 +408,37 @@ def test_woocommerce_order_mapping():
     paid = a.normalize_order({**raw, "payment_method": "esewa", "date_paid_gmt": "2026-11-03T08:16:00"})
     assert paid.payment_method == "prepaid" and paid.paid
     assert a.normalize_order({**raw, "status": "refunded"}).status == "cancelled"
+
+
+def test_customer_segments_come_from_real_orders(client, seller):
+    from sqlalchemy import update as sql_update
+
+    from app.core.db import utcnow
+    from app.domains.orders.models import Order
+
+    _, vid = item(client, seller, stock=10)
+    a = order(client, seller, vid, customer_phone="9800000011").json()["customer"]["id"]
+    order(client, seller, vid, customer_phone="9800000011")
+    b = order(client, seller, vid, customer_phone="9800000012").json()["customer"]["id"]
+    c = order(client, seller, vid, customer_phone="9800000013").json()
+    with session_scope() as db:
+        from datetime import timedelta
+
+        db.execute(
+            sql_update(Order)
+            .where(Order.id == uuid.UUID(c["id"]))
+            .values(placed_at=utcnow() - timedelta(days=120))
+        )
+
+    def seg(name):
+        return {
+            x["id"]
+            for x in client.get(f"{API}/customers", params={"segment": name}, headers=seller.h()).json()[
+                "items"
+            ]
+        }
+
+    assert seg("repeat") == {a}
+    assert seg("new") == {b, c["customer"]["id"]}
+    assert seg("inactive") == {c["customer"]["id"]}
+    assert client.get(f"{API}/customers", params={"segment": "vip"}, headers=seller.h()).status_code == 400

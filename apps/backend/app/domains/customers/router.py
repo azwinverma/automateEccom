@@ -61,12 +61,13 @@ def nepal_reference() -> dict[str, Any]:
 @router.get("/customers")
 def list_customers(
     q: str | None = Query(None, max_length=100),
+    segment: str | None = Query(None, pattern="^(new|repeat|inactive)$"),
     limit: int = Query(50, ge=1, le=200),
     cursor: str | None = None,
     ctx: TenantContext = Depends(require("customers.read")),
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
-    items, nxt = service.search(db, ctx, q, limit, cursor)
+    items, nxt = service.search(db, ctx, q, limit, cursor, segment)
     return {"items": [service.customer_view(db, c) for c in items], "next_cursor": nxt}
 
 
