@@ -18,6 +18,8 @@ import '../features/inbox/presentation/thread_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/orders/presentation/order_screen.dart';
 import '../features/orders/presentation/orders_screen.dart';
+import '../features/returns/presentation/return_detail_screen.dart';
+import '../features/returns/presentation/returns_list_screen.dart';
 import '../features/settings/presentation/plan_usage_screen.dart';
 import '../features/settings/presentation/security_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
@@ -144,6 +146,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, s) => OrderScreen(orderId: s.pathParameters['id']!),
       ),
       GoRoute(path: '/cod', builder: (_, __) => const CodScreen()),
+      GoRoute(path: '/returns', builder: (_, __) => const ReturnsListScreen()),
+      GoRoute(
+        path: '/returns/:id',
+        builder:
+            (_, s) => ReturnDetailScreen(returnId: s.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/inbox/:id',
         builder:

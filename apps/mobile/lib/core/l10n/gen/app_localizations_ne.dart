@@ -2008,4 +2008,410 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get codConfirmed => 'प्राप्त भनी जनाइयो';
+
+  @override
+  String get returnsTitle => 'फिर्ता';
+
+  @override
+  String get returnsStart => 'फिर्ता सुरु गर्नुहोस्';
+
+  @override
+  String get returnsNone => 'यो अर्डरको फिर्ता छैन।';
+
+  @override
+  String get returnStatusRequested => 'निर्णय बाँकी';
+
+  @override
+  String get returnStatusApproved => 'स्वीकृत';
+
+  @override
+  String get returnStatusRejected => 'अस्वीकृत';
+
+  @override
+  String get returnStatusInTransit => 'फिर्ता आउँदै';
+
+  @override
+  String get returnStatusReceived => 'आइपुग्यो';
+
+  @override
+  String get returnStatusInspected => 'जाँचियो';
+
+  @override
+  String get returnStatusRefunded => 'रकम फिर्ता भयो';
+
+  @override
+  String get returnStatusExchanged => 'साटियो';
+
+  @override
+  String get returnStatusClosed => 'बन्द';
+
+  @override
+  String get returnStatusCancelled => 'रद्द';
+
+  @override
+  String get returnResolutionRefund => 'रकम फिर्ता';
+
+  @override
+  String get returnResolutionExchange => 'साट्ने';
+
+  @override
+  String returnRefundDue(String amount) {
+    return 'फिर्ता गर्नुपर्ने: $amount';
+  }
+
+  @override
+  String get returnReasonSizeSmall => 'सानो भयो';
+
+  @override
+  String get returnReasonSizeLarge => 'ठूलो भयो';
+
+  @override
+  String get returnReasonColourDifferent => 'रङ फरक देखियो';
+
+  @override
+  String get returnReasonQualityDefect => 'गुणस्तरमा खोट';
+
+  @override
+  String get returnReasonDamagedInTransit => 'ढुवानीमा बिग्रियो';
+
+  @override
+  String get returnReasonNotAsDescribed => 'विवरण अनुसार होइन';
+
+  @override
+  String get returnReasonChangedMind => 'मन परिवर्तन भयो';
+
+  @override
+  String get returnReasonLateDelivery => 'ढिलो आइपुग्यो';
+
+  @override
+  String get returnReasonWrongItem => 'गलत सामान पठाइयो';
+
+  @override
+  String get returnReasonOther => 'अन्य';
+
+  @override
+  String get returnConditionResellable => 'फेरि बेच्न मिल्ने';
+
+  @override
+  String get returnConditionDamaged => 'बिग्रिएको';
+
+  @override
+  String get returnConditionMissing => 'हराएको';
+
+  @override
+  String get returnConditionUsed => 'प्रयोग गरिएको';
+
+  @override
+  String returnLineItem(int qty, String title) {
+    return '$qty × $title';
+  }
+
+  @override
+  String returnLineCondition(String condition) {
+    return 'जाँच: $condition';
+  }
+
+  @override
+  String returnLineExchange(String title) {
+    return '$title सँग साट्ने';
+  }
+
+  @override
+  String returnSheetTitle(int number) {
+    return 'अर्डर #$number बाट फिर्ता';
+  }
+
+  @override
+  String get returnPickItems => 'कुन सामान फिर्ता आउँदैछ?';
+
+  @override
+  String get returnQty => 'संख्या';
+
+  @override
+  String get returnReason => 'कारण';
+
+  @override
+  String get returnResolution => 'ग्राहक के चाहन्छन्?';
+
+  @override
+  String get returnExchangeFor => 'सट्टामा';
+
+  @override
+  String get returnNoExchangeOption => 'उही मूल्यमा अर्को विकल्प छैन';
+
+  @override
+  String returnOutOfStock(String title) {
+    return '$title (स्टक छैन)';
+  }
+
+  @override
+  String get returnCheck => 'नीति अनुसार जाँच्नुहोस्';
+
+  @override
+  String get returnSubmit => 'फिर्ता बनाउनुहोस्';
+
+  @override
+  String get returnCreated => 'फिर्ता बन्यो';
+
+  @override
+  String get returnNothingLeft => 'यो अर्डरका सबै सामान पहिल्यै फिर्ता हुँदैछन्।';
+
+  @override
+  String get returnPickReason => 'हरेक सामानको कारण छान्नुहोस्';
+
+  @override
+  String get returnPickExchange => 'हरेक सामान केसँग साट्ने छान्नुहोस्';
+
+  @override
+  String get returnCheckOrderDelivered => 'अर्डर अझै डेलिभर भएको छैन';
+
+  @override
+  String returnCheckWindow(int days) {
+    return '$days दिने फिर्ता अवधि नाघ्यो';
+  }
+
+  @override
+  String get returnCheckWindowPlain => 'फिर्ता अवधि नाघ्यो';
+
+  @override
+  String get returnCheckFinalSale => 'फिर्ता नहुने (फाइनल सेल) सामान';
+
+  @override
+  String get returnCheckEvidence => 'यो कारणका लागि फोटो चाहिन्छ';
+
+  @override
+  String get returnCheckQuantity => 'फिर्ता गर्न मिल्ने भन्दा बढी';
+
+  @override
+  String get returnCheckResolution => 'तपाईंको फिर्ता नीतिले यो दिँदैन';
+
+  @override
+  String get returnCheckExchangeProduct => 'साट्दा उही सामान, उही मूल्यको हुनुपर्छ';
+
+  @override
+  String get returnCheckExchangeStock => 'सट्टाको सामान स्टकमा छैन';
+
+  @override
+  String get returnCheckGeneric => 'नीति अनुसार छैन';
+
+  @override
+  String get returnWarningsTitle => 'नीतिभन्दा बाहिर। बनाउन सकिन्छ, स्वीकृत गर्दा कारण चाहिन्छ।';
+
+  @override
+  String get returnBlockedTitle => 'यो फिर्ता बनाउन मिल्दैन';
+
+  @override
+  String get returnAllOk => 'फिर्ता नीतिभित्र';
+
+  @override
+  String returnDetailTitle(String number) {
+    return 'फिर्ता $number';
+  }
+
+  @override
+  String get returnChecksTitle => 'नीति जाँच';
+
+  @override
+  String get returnSignalsTitle => 'थाहा पाउनुपर्ने';
+
+  @override
+  String returnSignalFrequent(int count, int days) {
+    return 'पछिल्लो $days दिनमा $count फिर्ता';
+  }
+
+  @override
+  String returnSignalRate(int returned, int orders, int days) {
+    return '$days दिनमा $orders मध्ये $returned अर्डर फिर्ता';
+  }
+
+  @override
+  String get returnSignalValue => 'पसलको सामान्य अर्डरभन्दा बढी मूल्य';
+
+  @override
+  String get returnSignalGeneric => 'यो पसलको लागि असामान्य';
+
+  @override
+  String get returnItemsTitle => 'सामान';
+
+  @override
+  String get returnPickupTitle => 'सामान लिने';
+
+  @override
+  String get returnRefundsTitle => 'रकम फिर्ता';
+
+  @override
+  String returnOverrideNote(String reason) {
+    return 'नीतिबाहिर स्वीकृत: $reason';
+  }
+
+  @override
+  String returnRejectedNote(String reason) {
+    return 'अस्वीकृत: $reason';
+  }
+
+  @override
+  String get refundPending => 'व्यवस्थापकको स्वीकृति कुर्दै';
+
+  @override
+  String get refundStatusSucceeded => 'पठाइयो';
+
+  @override
+  String get refundStatusFailed => 'असफल';
+
+  @override
+  String get refundStatusRejected => 'स्वीकृत भएन';
+
+  @override
+  String get refundStatusProcessing => 'प्रक्रियामा';
+
+  @override
+  String refundLine(String amount, String method) {
+    return '$amount · $method';
+  }
+
+  @override
+  String get refundMethodOriginal => 'मूल भुक्तानीमै फिर्ता';
+
+  @override
+  String get refundMethodEsewa => 'eSewa';
+
+  @override
+  String get refundMethodKhalti => 'Khalti';
+
+  @override
+  String get refundMethodFonepay => 'Fonepay';
+
+  @override
+  String get refundMethodBank => 'बैंक ट्रान्सफर';
+
+  @override
+  String get refundMethodCash => 'नगद';
+
+  @override
+  String get refundMethodOther => 'अन्य';
+
+  @override
+  String get returnActionApprove => 'स्वीकृत गर्नुहोस्';
+
+  @override
+  String get returnActionReject => 'अस्वीकार गर्नुहोस्';
+
+  @override
+  String get returnActionCancel => 'फिर्ता रद्द गर्नुहोस्';
+
+  @override
+  String get returnActionReceived => 'आइपुग्यो भनी चिनो लगाउनुहोस्';
+
+  @override
+  String get returnActionInspect => 'सामान जाँच्नुहोस्';
+
+  @override
+  String get returnActionRefund => 'रकम फिर्ता गर्नुहोस्';
+
+  @override
+  String get returnPickupOnWeb => 'सामान लिने बुकिङ वेबबाट गर्नुहोस्।';
+
+  @override
+  String get returnApproveTitle => 'यो फिर्ता स्वीकृत गर्ने?';
+
+  @override
+  String get returnOverrideHint => 'यो फिर्ता नीतिबाहिर छ। किन स्वीकृत गर्दै हुनुहुन्छ लेख्नुहोस्।';
+
+  @override
+  String get returnReasonLabel => 'कारण';
+
+  @override
+  String get returnReasonRequired => 'कारण चाहिन्छ';
+
+  @override
+  String get returnRejectTitle => 'यो फिर्ता अस्वीकार गर्ने?';
+
+  @override
+  String get returnRejectLabel => 'कारण (ग्राहकले देख्छन्)';
+
+  @override
+  String get returnCancelTitle => 'यो फिर्ता रद्द गर्ने?';
+
+  @override
+  String get returnCancelBody => 'यसका लागि राखिएको सट्टाको सामान फेरि बिक्रीमा जान्छ।';
+
+  @override
+  String get returnReceivedTitle => 'सामान आइपुग्यो?';
+
+  @override
+  String get returnReceivedBody => 'अब जाँचेर फिर्ता रकम तय गर्नुहोस्।';
+
+  @override
+  String get returnInspectTitle => 'फिर्ता आएका सामान जाँच्नुहोस्';
+
+  @override
+  String get returnRestock => 'फेरि बिक्रीमा राख्ने';
+
+  @override
+  String get returnRestockOnlyResellable => 'फेरि बेच्न मिल्ने सामान मात्र बिक्रीमा फर्किन्छ';
+
+  @override
+  String get returnInspectSave => 'जाँच सेभ गर्नुहोस्';
+
+  @override
+  String get returnPickCondition => 'हरेक सामानको अवस्था छान्नुहोस्';
+
+  @override
+  String get refundTitle => 'ग्राहकलाई रकम फिर्ता';
+
+  @override
+  String get refundAmount => 'रकम (रु)';
+
+  @override
+  String refundMax(String amount) {
+    return 'बढीमा $amount';
+  }
+
+  @override
+  String get refundTooMuch => 'ग्राहकले तिरेको भन्दा बढी';
+
+  @override
+  String get refundMethod => 'कसरी';
+
+  @override
+  String get refundReference => 'सन्दर्भ (ऐच्छिक)';
+
+  @override
+  String get refundSend => 'फिर्ता गर्नुहोस्';
+
+  @override
+  String get returnDone => 'फिर्ता अपडेट भयो';
+
+  @override
+  String get returnsTabToDecide => 'निर्णय बाँकी';
+
+  @override
+  String get returnsTabInProgress => 'प्रक्रियामा';
+
+  @override
+  String get returnsTabToRefund => 'रकम फिर्ता गर्न बाँकी';
+
+  @override
+  String get returnsTabDone => 'सकियो';
+
+  @override
+  String returnsTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get returnsEmpty => 'यहाँ केही छैन।';
+
+  @override
+  String returnsListItem(String number, int order) {
+    return '$number · अर्डर #$order';
+  }
+
+  @override
+  String returnsHomeCard(int count) {
+    return '$count फिर्तामा निर्णय बाँकी';
+  }
+
+  @override
+  String get returnsHomeCardBody => 'ग्राहकका फिर्ता स्वीकृत वा अस्वीकार गर्नुहोस्।';
 }

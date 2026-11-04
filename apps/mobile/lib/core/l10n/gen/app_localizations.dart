@@ -3820,6 +3820,750 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Marked as received'**
   String get codConfirmed;
+
+  /// No description provided for @returnsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns'**
+  String get returnsTitle;
+
+  /// No description provided for @returnsStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a return'**
+  String get returnsStart;
+
+  /// No description provided for @returnsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No returns for this order yet.'**
+  String get returnsNone;
+
+  /// No description provided for @returnStatusRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'To decide'**
+  String get returnStatusRequested;
+
+  /// No description provided for @returnStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get returnStatusApproved;
+
+  /// No description provided for @returnStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get returnStatusRejected;
+
+  /// No description provided for @returnStatusInTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way back'**
+  String get returnStatusInTransit;
+
+  /// No description provided for @returnStatusReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get returnStatusReceived;
+
+  /// No description provided for @returnStatusInspected.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked'**
+  String get returnStatusInspected;
+
+  /// No description provided for @returnStatusRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get returnStatusRefunded;
+
+  /// No description provided for @returnStatusExchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchanged'**
+  String get returnStatusExchanged;
+
+  /// No description provided for @returnStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get returnStatusClosed;
+
+  /// No description provided for @returnStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get returnStatusCancelled;
+
+  /// No description provided for @returnResolutionRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get returnResolutionRefund;
+
+  /// No description provided for @returnResolutionExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange'**
+  String get returnResolutionExchange;
+
+  /// No description provided for @returnRefundDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund due: {amount}'**
+  String returnRefundDue(String amount);
+
+  /// No description provided for @returnReasonSizeSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Too small'**
+  String get returnReasonSizeSmall;
+
+  /// No description provided for @returnReasonSizeLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Too large'**
+  String get returnReasonSizeLarge;
+
+  /// No description provided for @returnReasonColourDifferent.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour looks different'**
+  String get returnReasonColourDifferent;
+
+  /// No description provided for @returnReasonQualityDefect.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality defect'**
+  String get returnReasonQualityDefect;
+
+  /// No description provided for @returnReasonDamagedInTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged in delivery'**
+  String get returnReasonDamagedInTransit;
+
+  /// No description provided for @returnReasonNotAsDescribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not as described'**
+  String get returnReasonNotAsDescribed;
+
+  /// No description provided for @returnReasonChangedMind.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed their mind'**
+  String get returnReasonChangedMind;
+
+  /// No description provided for @returnReasonLateDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived late'**
+  String get returnReasonLateDelivery;
+
+  /// No description provided for @returnReasonWrongItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong item sent'**
+  String get returnReasonWrongItem;
+
+  /// No description provided for @returnReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get returnReasonOther;
+
+  /// No description provided for @returnConditionResellable.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be sold again'**
+  String get returnConditionResellable;
+
+  /// No description provided for @returnConditionDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged'**
+  String get returnConditionDamaged;
+
+  /// No description provided for @returnConditionMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get returnConditionMissing;
+
+  /// No description provided for @returnConditionUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get returnConditionUsed;
+
+  /// No description provided for @returnLineItem.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} × {title}'**
+  String returnLineItem(int qty, String title);
+
+  /// No description provided for @returnLineCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked: {condition}'**
+  String returnLineCondition(String condition);
+
+  /// No description provided for @returnLineExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange for {title}'**
+  String returnLineExchange(String title);
+
+  /// No description provided for @returnSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Return from order #{number}'**
+  String returnSheetTitle(int number);
+
+  /// No description provided for @returnPickItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Which items are coming back?'**
+  String get returnPickItems;
+
+  /// No description provided for @returnQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get returnQty;
+
+  /// No description provided for @returnReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get returnReason;
+
+  /// No description provided for @returnResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'What does the customer want?'**
+  String get returnResolution;
+
+  /// No description provided for @returnExchangeFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange for'**
+  String get returnExchangeFor;
+
+  /// No description provided for @returnNoExchangeOption.
+  ///
+  /// In en, this message translates to:
+  /// **'No other option at the same price'**
+  String get returnNoExchangeOption;
+
+  /// No description provided for @returnOutOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} (out of stock)'**
+  String returnOutOfStock(String title);
+
+  /// No description provided for @returnCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check against policy'**
+  String get returnCheck;
+
+  /// No description provided for @returnSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create return'**
+  String get returnSubmit;
+
+  /// No description provided for @returnCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Return created'**
+  String get returnCreated;
+
+  /// No description provided for @returnNothingLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything from this order is already being returned.'**
+  String get returnNothingLeft;
+
+  /// No description provided for @returnPickReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a reason for each item'**
+  String get returnPickReason;
+
+  /// No description provided for @returnPickExchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick what to exchange each item for'**
+  String get returnPickExchange;
+
+  /// No description provided for @returnCheckOrderDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'The order hasn\'t been delivered yet'**
+  String get returnCheckOrderDelivered;
+
+  /// No description provided for @returnCheckWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the {days}-day return window'**
+  String returnCheckWindow(int days);
+
+  /// No description provided for @returnCheckWindowPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the return window'**
+  String get returnCheckWindowPlain;
+
+  /// No description provided for @returnCheckFinalSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Final sale item'**
+  String get returnCheckFinalSale;
+
+  /// No description provided for @returnCheckEvidence.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo is needed for this reason'**
+  String get returnCheckEvidence;
+
+  /// No description provided for @returnCheckQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'More than can be returned'**
+  String get returnCheckQuantity;
+
+  /// No description provided for @returnCheckResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Your return policy doesn\'t allow this'**
+  String get returnCheckResolution;
+
+  /// No description provided for @returnCheckExchangeProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'An exchange must be the same product at the same price'**
+  String get returnCheckExchangeProduct;
+
+  /// No description provided for @returnCheckExchangeStock.
+  ///
+  /// In en, this message translates to:
+  /// **'The replacement is out of stock'**
+  String get returnCheckExchangeStock;
+
+  /// No description provided for @returnCheckGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t meet your policy'**
+  String get returnCheckGeneric;
+
+  /// No description provided for @returnWarningsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside your policy. You can still create it; approving will need a reason.'**
+  String get returnWarningsTitle;
+
+  /// No description provided for @returnBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This return can\'t be created'**
+  String get returnBlockedTitle;
+
+  /// No description provided for @returnAllOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Within your return policy'**
+  String get returnAllOk;
+
+  /// No description provided for @returnDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Return {number}'**
+  String returnDetailTitle(String number);
+
+  /// No description provided for @returnChecksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy checks'**
+  String get returnChecksTitle;
+
+  /// No description provided for @returnSignalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth knowing'**
+  String get returnSignalsTitle;
+
+  /// No description provided for @returnSignalFrequent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} returns in the last {days} days'**
+  String returnSignalFrequent(int count, int days);
+
+  /// No description provided for @returnSignalRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {returned} of {orders} orders in {days} days'**
+  String returnSignalRate(int returned, int orders, int days);
+
+  /// No description provided for @returnSignalValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher value than this shop\'s usual orders'**
+  String get returnSignalValue;
+
+  /// No description provided for @returnSignalGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Unusual for this shop'**
+  String get returnSignalGeneric;
+
+  /// No description provided for @returnItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get returnItemsTitle;
+
+  /// No description provided for @returnPickupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get returnPickupTitle;
+
+  /// No description provided for @returnRefundsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds'**
+  String get returnRefundsTitle;
+
+  /// No description provided for @returnOverrideNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved outside policy: {reason}'**
+  String returnOverrideNote(String reason);
+
+  /// No description provided for @returnRejectedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected: {reason}'**
+  String returnRejectedNote(String reason);
+
+  /// No description provided for @refundPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a manager\'s approval'**
+  String get refundPending;
+
+  /// No description provided for @refundStatusSucceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get refundStatusSucceeded;
+
+  /// No description provided for @refundStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get refundStatusFailed;
+
+  /// No description provided for @refundStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved'**
+  String get refundStatusRejected;
+
+  /// No description provided for @refundStatusProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get refundStatusProcessing;
+
+  /// No description provided for @refundLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} · {method}'**
+  String refundLine(String amount, String method);
+
+  /// No description provided for @refundMethodOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the original payment'**
+  String get refundMethodOriginal;
+
+  /// No description provided for @refundMethodEsewa.
+  ///
+  /// In en, this message translates to:
+  /// **'eSewa'**
+  String get refundMethodEsewa;
+
+  /// No description provided for @refundMethodKhalti.
+  ///
+  /// In en, this message translates to:
+  /// **'Khalti'**
+  String get refundMethodKhalti;
+
+  /// No description provided for @refundMethodFonepay.
+  ///
+  /// In en, this message translates to:
+  /// **'Fonepay'**
+  String get refundMethodFonepay;
+
+  /// No description provided for @refundMethodBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get refundMethodBank;
+
+  /// No description provided for @refundMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get refundMethodCash;
+
+  /// No description provided for @refundMethodOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get refundMethodOther;
+
+  /// No description provided for @returnActionApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get returnActionApprove;
+
+  /// No description provided for @returnActionReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get returnActionReject;
+
+  /// No description provided for @returnActionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel return'**
+  String get returnActionCancel;
+
+  /// No description provided for @returnActionReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as received'**
+  String get returnActionReceived;
+
+  /// No description provided for @returnActionInspect.
+  ///
+  /// In en, this message translates to:
+  /// **'Check items'**
+  String get returnActionInspect;
+
+  /// No description provided for @returnActionRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get returnActionRefund;
+
+  /// No description provided for @returnPickupOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Book the pickup from the web app.'**
+  String get returnPickupOnWeb;
+
+  /// No description provided for @returnApproveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this return?'**
+  String get returnApproveTitle;
+
+  /// No description provided for @returnOverrideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This return is outside your policy. Say why you\'re approving it.'**
+  String get returnOverrideHint;
+
+  /// No description provided for @returnReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get returnReasonLabel;
+
+  /// No description provided for @returnReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A reason is needed'**
+  String get returnReasonRequired;
+
+  /// No description provided for @returnRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this return?'**
+  String get returnRejectTitle;
+
+  /// No description provided for @returnRejectLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (the customer sees this)'**
+  String get returnRejectLabel;
+
+  /// No description provided for @returnCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this return?'**
+  String get returnCancelTitle;
+
+  /// No description provided for @returnCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Any replacement held for it goes back on sale.'**
+  String get returnCancelBody;
+
+  /// No description provided for @returnReceivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Has the item reached you?'**
+  String get returnReceivedTitle;
+
+  /// No description provided for @returnReceivedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check it next to decide the refund.'**
+  String get returnReceivedBody;
+
+  /// No description provided for @returnInspectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check returned items'**
+  String get returnInspectTitle;
+
+  /// No description provided for @returnRestock.
+  ///
+  /// In en, this message translates to:
+  /// **'Put back on sale'**
+  String get returnRestock;
+
+  /// No description provided for @returnRestockOnlyResellable.
+  ///
+  /// In en, this message translates to:
+  /// **'Only items that can be sold again go back on sale'**
+  String get returnRestockOnlyResellable;
+
+  /// No description provided for @returnInspectSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save check'**
+  String get returnInspectSave;
+
+  /// No description provided for @returnPickCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a condition for each item'**
+  String get returnPickCondition;
+
+  /// No description provided for @refundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund the customer'**
+  String get refundTitle;
+
+  /// No description provided for @refundAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (Rs)'**
+  String get refundAmount;
+
+  /// No description provided for @refundMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {amount}'**
+  String refundMax(String amount);
+
+  /// No description provided for @refundTooMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'More than the customer paid'**
+  String get refundTooMuch;
+
+  /// No description provided for @refundMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'How'**
+  String get refundMethod;
+
+  /// No description provided for @refundReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference (optional)'**
+  String get refundReference;
+
+  /// No description provided for @refundSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get refundSend;
+
+  /// No description provided for @returnDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Return updated'**
+  String get returnDone;
+
+  /// No description provided for @returnsTabToDecide.
+  ///
+  /// In en, this message translates to:
+  /// **'To decide'**
+  String get returnsTabToDecide;
+
+  /// No description provided for @returnsTabInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get returnsTabInProgress;
+
+  /// No description provided for @returnsTabToRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'To refund'**
+  String get returnsTabToRefund;
+
+  /// No description provided for @returnsTabDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get returnsTabDone;
+
+  /// No description provided for @returnsTabCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} ({count})'**
+  String returnsTabCount(String label, int count);
+
+  /// No description provided for @returnsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here.'**
+  String get returnsEmpty;
+
+  /// No description provided for @returnsListItem.
+  ///
+  /// In en, this message translates to:
+  /// **'{number} · Order #{order}'**
+  String returnsListItem(String number, int order);
+
+  /// No description provided for @returnsHomeCard.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 return to decide} other{{count} returns to decide}}'**
+  String returnsHomeCard(int count);
+
+  /// No description provided for @returnsHomeCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve or reject customer returns.'**
+  String get returnsHomeCardBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

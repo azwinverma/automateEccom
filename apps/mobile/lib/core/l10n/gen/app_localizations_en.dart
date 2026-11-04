@@ -2026,4 +2026,416 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get codConfirmed => 'Marked as received';
+
+  @override
+  String get returnsTitle => 'Returns';
+
+  @override
+  String get returnsStart => 'Start a return';
+
+  @override
+  String get returnsNone => 'No returns for this order yet.';
+
+  @override
+  String get returnStatusRequested => 'To decide';
+
+  @override
+  String get returnStatusApproved => 'Approved';
+
+  @override
+  String get returnStatusRejected => 'Rejected';
+
+  @override
+  String get returnStatusInTransit => 'On its way back';
+
+  @override
+  String get returnStatusReceived => 'Received';
+
+  @override
+  String get returnStatusInspected => 'Checked';
+
+  @override
+  String get returnStatusRefunded => 'Refunded';
+
+  @override
+  String get returnStatusExchanged => 'Exchanged';
+
+  @override
+  String get returnStatusClosed => 'Closed';
+
+  @override
+  String get returnStatusCancelled => 'Cancelled';
+
+  @override
+  String get returnResolutionRefund => 'Refund';
+
+  @override
+  String get returnResolutionExchange => 'Exchange';
+
+  @override
+  String returnRefundDue(String amount) {
+    return 'Refund due: $amount';
+  }
+
+  @override
+  String get returnReasonSizeSmall => 'Too small';
+
+  @override
+  String get returnReasonSizeLarge => 'Too large';
+
+  @override
+  String get returnReasonColourDifferent => 'Colour looks different';
+
+  @override
+  String get returnReasonQualityDefect => 'Quality defect';
+
+  @override
+  String get returnReasonDamagedInTransit => 'Damaged in delivery';
+
+  @override
+  String get returnReasonNotAsDescribed => 'Not as described';
+
+  @override
+  String get returnReasonChangedMind => 'Changed their mind';
+
+  @override
+  String get returnReasonLateDelivery => 'Arrived late';
+
+  @override
+  String get returnReasonWrongItem => 'Wrong item sent';
+
+  @override
+  String get returnReasonOther => 'Other';
+
+  @override
+  String get returnConditionResellable => 'Can be sold again';
+
+  @override
+  String get returnConditionDamaged => 'Damaged';
+
+  @override
+  String get returnConditionMissing => 'Missing';
+
+  @override
+  String get returnConditionUsed => 'Used';
+
+  @override
+  String returnLineItem(int qty, String title) {
+    return '$qty × $title';
+  }
+
+  @override
+  String returnLineCondition(String condition) {
+    return 'Checked: $condition';
+  }
+
+  @override
+  String returnLineExchange(String title) {
+    return 'Exchange for $title';
+  }
+
+  @override
+  String returnSheetTitle(int number) {
+    return 'Return from order #$number';
+  }
+
+  @override
+  String get returnPickItems => 'Which items are coming back?';
+
+  @override
+  String get returnQty => 'Quantity';
+
+  @override
+  String get returnReason => 'Reason';
+
+  @override
+  String get returnResolution => 'What does the customer want?';
+
+  @override
+  String get returnExchangeFor => 'Exchange for';
+
+  @override
+  String get returnNoExchangeOption => 'No other option at the same price';
+
+  @override
+  String returnOutOfStock(String title) {
+    return '$title (out of stock)';
+  }
+
+  @override
+  String get returnCheck => 'Check against policy';
+
+  @override
+  String get returnSubmit => 'Create return';
+
+  @override
+  String get returnCreated => 'Return created';
+
+  @override
+  String get returnNothingLeft => 'Everything from this order is already being returned.';
+
+  @override
+  String get returnPickReason => 'Pick a reason for each item';
+
+  @override
+  String get returnPickExchange => 'Pick what to exchange each item for';
+
+  @override
+  String get returnCheckOrderDelivered => 'The order hasn\'t been delivered yet';
+
+  @override
+  String returnCheckWindow(int days) {
+    return 'Outside the $days-day return window';
+  }
+
+  @override
+  String get returnCheckWindowPlain => 'Outside the return window';
+
+  @override
+  String get returnCheckFinalSale => 'Final sale item';
+
+  @override
+  String get returnCheckEvidence => 'A photo is needed for this reason';
+
+  @override
+  String get returnCheckQuantity => 'More than can be returned';
+
+  @override
+  String get returnCheckResolution => 'Your return policy doesn\'t allow this';
+
+  @override
+  String get returnCheckExchangeProduct => 'An exchange must be the same product at the same price';
+
+  @override
+  String get returnCheckExchangeStock => 'The replacement is out of stock';
+
+  @override
+  String get returnCheckGeneric => 'Doesn\'t meet your policy';
+
+  @override
+  String get returnWarningsTitle => 'Outside your policy. You can still create it; approving will need a reason.';
+
+  @override
+  String get returnBlockedTitle => 'This return can\'t be created';
+
+  @override
+  String get returnAllOk => 'Within your return policy';
+
+  @override
+  String returnDetailTitle(String number) {
+    return 'Return $number';
+  }
+
+  @override
+  String get returnChecksTitle => 'Policy checks';
+
+  @override
+  String get returnSignalsTitle => 'Worth knowing';
+
+  @override
+  String returnSignalFrequent(int count, int days) {
+    return '$count returns in the last $days days';
+  }
+
+  @override
+  String returnSignalRate(int returned, int orders, int days) {
+    return 'Returned $returned of $orders orders in $days days';
+  }
+
+  @override
+  String get returnSignalValue => 'Higher value than this shop\'s usual orders';
+
+  @override
+  String get returnSignalGeneric => 'Unusual for this shop';
+
+  @override
+  String get returnItemsTitle => 'Items';
+
+  @override
+  String get returnPickupTitle => 'Pickup';
+
+  @override
+  String get returnRefundsTitle => 'Refunds';
+
+  @override
+  String returnOverrideNote(String reason) {
+    return 'Approved outside policy: $reason';
+  }
+
+  @override
+  String returnRejectedNote(String reason) {
+    return 'Rejected: $reason';
+  }
+
+  @override
+  String get refundPending => 'Waiting for a manager\'s approval';
+
+  @override
+  String get refundStatusSucceeded => 'Sent';
+
+  @override
+  String get refundStatusFailed => 'Failed';
+
+  @override
+  String get refundStatusRejected => 'Not approved';
+
+  @override
+  String get refundStatusProcessing => 'Processing';
+
+  @override
+  String refundLine(String amount, String method) {
+    return '$amount · $method';
+  }
+
+  @override
+  String get refundMethodOriginal => 'Back to the original payment';
+
+  @override
+  String get refundMethodEsewa => 'eSewa';
+
+  @override
+  String get refundMethodKhalti => 'Khalti';
+
+  @override
+  String get refundMethodFonepay => 'Fonepay';
+
+  @override
+  String get refundMethodBank => 'Bank transfer';
+
+  @override
+  String get refundMethodCash => 'Cash';
+
+  @override
+  String get refundMethodOther => 'Other';
+
+  @override
+  String get returnActionApprove => 'Approve';
+
+  @override
+  String get returnActionReject => 'Reject';
+
+  @override
+  String get returnActionCancel => 'Cancel return';
+
+  @override
+  String get returnActionReceived => 'Mark as received';
+
+  @override
+  String get returnActionInspect => 'Check items';
+
+  @override
+  String get returnActionRefund => 'Refund';
+
+  @override
+  String get returnPickupOnWeb => 'Book the pickup from the web app.';
+
+  @override
+  String get returnApproveTitle => 'Approve this return?';
+
+  @override
+  String get returnOverrideHint => 'This return is outside your policy. Say why you\'re approving it.';
+
+  @override
+  String get returnReasonLabel => 'Reason';
+
+  @override
+  String get returnReasonRequired => 'A reason is needed';
+
+  @override
+  String get returnRejectTitle => 'Reject this return?';
+
+  @override
+  String get returnRejectLabel => 'Reason (the customer sees this)';
+
+  @override
+  String get returnCancelTitle => 'Cancel this return?';
+
+  @override
+  String get returnCancelBody => 'Any replacement held for it goes back on sale.';
+
+  @override
+  String get returnReceivedTitle => 'Has the item reached you?';
+
+  @override
+  String get returnReceivedBody => 'Check it next to decide the refund.';
+
+  @override
+  String get returnInspectTitle => 'Check returned items';
+
+  @override
+  String get returnRestock => 'Put back on sale';
+
+  @override
+  String get returnRestockOnlyResellable => 'Only items that can be sold again go back on sale';
+
+  @override
+  String get returnInspectSave => 'Save check';
+
+  @override
+  String get returnPickCondition => 'Pick a condition for each item';
+
+  @override
+  String get refundTitle => 'Refund the customer';
+
+  @override
+  String get refundAmount => 'Amount (Rs)';
+
+  @override
+  String refundMax(String amount) {
+    return 'Up to $amount';
+  }
+
+  @override
+  String get refundTooMuch => 'More than the customer paid';
+
+  @override
+  String get refundMethod => 'How';
+
+  @override
+  String get refundReference => 'Reference (optional)';
+
+  @override
+  String get refundSend => 'Refund';
+
+  @override
+  String get returnDone => 'Return updated';
+
+  @override
+  String get returnsTabToDecide => 'To decide';
+
+  @override
+  String get returnsTabInProgress => 'In progress';
+
+  @override
+  String get returnsTabToRefund => 'To refund';
+
+  @override
+  String get returnsTabDone => 'Done';
+
+  @override
+  String returnsTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get returnsEmpty => 'Nothing here.';
+
+  @override
+  String returnsListItem(String number, int order) {
+    return '$number · Order #$order';
+  }
+
+  @override
+  String returnsHomeCard(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count returns to decide',
+      one: '1 return to decide',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get returnsHomeCardBody => 'Approve or reject customer returns.';
 }

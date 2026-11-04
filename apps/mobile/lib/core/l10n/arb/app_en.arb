@@ -1006,5 +1006,269 @@
     }
   },
   "codConfirmReceived": "Confirm money received",
-  "codConfirmed": "Marked as received"
+  "codConfirmed": "Marked as received",
+  "returnsTitle": "Returns",
+  "returnsStart": "Start a return",
+  "returnsNone": "No returns for this order yet.",
+  "returnStatusRequested": "To decide",
+  "returnStatusApproved": "Approved",
+  "returnStatusRejected": "Rejected",
+  "returnStatusInTransit": "On its way back",
+  "returnStatusReceived": "Received",
+  "returnStatusInspected": "Checked",
+  "returnStatusRefunded": "Refunded",
+  "returnStatusExchanged": "Exchanged",
+  "returnStatusClosed": "Closed",
+  "returnStatusCancelled": "Cancelled",
+  "returnResolutionRefund": "Refund",
+  "returnResolutionExchange": "Exchange",
+  "returnRefundDue": "Refund due: {amount}",
+  "@returnRefundDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "returnReasonSizeSmall": "Too small",
+  "returnReasonSizeLarge": "Too large",
+  "returnReasonColourDifferent": "Colour looks different",
+  "returnReasonQualityDefect": "Quality defect",
+  "returnReasonDamagedInTransit": "Damaged in delivery",
+  "returnReasonNotAsDescribed": "Not as described",
+  "returnReasonChangedMind": "Changed their mind",
+  "returnReasonLateDelivery": "Arrived late",
+  "returnReasonWrongItem": "Wrong item sent",
+  "returnReasonOther": "Other",
+  "returnConditionResellable": "Can be sold again",
+  "returnConditionDamaged": "Damaged",
+  "returnConditionMissing": "Missing",
+  "returnConditionUsed": "Used",
+  "returnLineItem": "{qty} × {title}",
+  "@returnLineItem": {
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "returnLineCondition": "Checked: {condition}",
+  "@returnLineCondition": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "returnLineExchange": "Exchange for {title}",
+  "@returnLineExchange": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "returnSheetTitle": "Return from order #{number}",
+  "@returnSheetTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "returnPickItems": "Which items are coming back?",
+  "returnQty": "Quantity",
+  "returnReason": "Reason",
+  "returnResolution": "What does the customer want?",
+  "returnExchangeFor": "Exchange for",
+  "returnNoExchangeOption": "No other option at the same price",
+  "returnOutOfStock": "{title} (out of stock)",
+  "@returnOutOfStock": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "returnCheck": "Check against policy",
+  "returnSubmit": "Create return",
+  "returnCreated": "Return created",
+  "returnNothingLeft": "Everything from this order is already being returned.",
+  "returnPickReason": "Pick a reason for each item",
+  "returnPickExchange": "Pick what to exchange each item for",
+  "returnCheckOrderDelivered": "The order hasn't been delivered yet",
+  "returnCheckWindow": "Outside the {days}-day return window",
+  "@returnCheckWindow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "returnCheckWindowPlain": "Outside the return window",
+  "returnCheckFinalSale": "Final sale item",
+  "returnCheckEvidence": "A photo is needed for this reason",
+  "returnCheckQuantity": "More than can be returned",
+  "returnCheckResolution": "Your return policy doesn't allow this",
+  "returnCheckExchangeProduct": "An exchange must be the same product at the same price",
+  "returnCheckExchangeStock": "The replacement is out of stock",
+  "returnCheckGeneric": "Doesn't meet your policy",
+  "returnWarningsTitle": "Outside your policy. You can still create it; approving will need a reason.",
+  "returnBlockedTitle": "This return can't be created",
+  "returnAllOk": "Within your return policy",
+  "returnDetailTitle": "Return {number}",
+  "@returnDetailTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "returnChecksTitle": "Policy checks",
+  "returnSignalsTitle": "Worth knowing",
+  "returnSignalFrequent": "{count} returns in the last {days} days",
+  "@returnSignalFrequent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "returnSignalRate": "Returned {returned} of {orders} orders in {days} days",
+  "@returnSignalRate": {
+    "placeholders": {
+      "returned": {
+        "type": "int"
+      },
+      "orders": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "returnSignalValue": "Higher value than this shop's usual orders",
+  "returnSignalGeneric": "Unusual for this shop",
+  "returnItemsTitle": "Items",
+  "returnPickupTitle": "Pickup",
+  "returnRefundsTitle": "Refunds",
+  "returnOverrideNote": "Approved outside policy: {reason}",
+  "@returnOverrideNote": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "returnRejectedNote": "Rejected: {reason}",
+  "@returnRejectedNote": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "refundPending": "Waiting for a manager's approval",
+  "refundStatusSucceeded": "Sent",
+  "refundStatusFailed": "Failed",
+  "refundStatusRejected": "Not approved",
+  "refundStatusProcessing": "Processing",
+  "refundLine": "{amount} · {method}",
+  "@refundLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "refundMethodOriginal": "Back to the original payment",
+  "refundMethodEsewa": "eSewa",
+  "refundMethodKhalti": "Khalti",
+  "refundMethodFonepay": "Fonepay",
+  "refundMethodBank": "Bank transfer",
+  "refundMethodCash": "Cash",
+  "refundMethodOther": "Other",
+  "returnActionApprove": "Approve",
+  "returnActionReject": "Reject",
+  "returnActionCancel": "Cancel return",
+  "returnActionReceived": "Mark as received",
+  "returnActionInspect": "Check items",
+  "returnActionRefund": "Refund",
+  "returnPickupOnWeb": "Book the pickup from the web app.",
+  "returnApproveTitle": "Approve this return?",
+  "returnOverrideHint": "This return is outside your policy. Say why you're approving it.",
+  "returnReasonLabel": "Reason",
+  "returnReasonRequired": "A reason is needed",
+  "returnRejectTitle": "Reject this return?",
+  "returnRejectLabel": "Reason (the customer sees this)",
+  "returnCancelTitle": "Cancel this return?",
+  "returnCancelBody": "Any replacement held for it goes back on sale.",
+  "returnReceivedTitle": "Has the item reached you?",
+  "returnReceivedBody": "Check it next to decide the refund.",
+  "returnInspectTitle": "Check returned items",
+  "returnRestock": "Put back on sale",
+  "returnRestockOnlyResellable": "Only items that can be sold again go back on sale",
+  "returnInspectSave": "Save check",
+  "returnPickCondition": "Pick a condition for each item",
+  "refundTitle": "Refund the customer",
+  "refundAmount": "Amount (Rs)",
+  "refundMax": "Up to {amount}",
+  "@refundMax": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundTooMuch": "More than the customer paid",
+  "refundMethod": "How",
+  "refundReference": "Reference (optional)",
+  "refundSend": "Refund",
+  "returnDone": "Return updated",
+  "returnsTabToDecide": "To decide",
+  "returnsTabInProgress": "In progress",
+  "returnsTabToRefund": "To refund",
+  "returnsTabDone": "Done",
+  "returnsTabCount": "{label} ({count})",
+  "@returnsTabCount": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "returnsEmpty": "Nothing here.",
+  "returnsListItem": "{number} · Order #{order}",
+  "@returnsListItem": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "order": {
+        "type": "int"
+      }
+    }
+  },
+  "returnsHomeCard": "{count, plural, =1{1 return to decide} other{{count} returns to decide}}",
+  "@returnsHomeCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "returnsHomeCardBody": "Approve or reject customer returns."
 }
