@@ -16,6 +16,10 @@ export type ExceptionActionLabel =
   | "confirm_attributes"
   | "resolve_drift"
   | "view_plan"
+  | "reply"
+  | "check_payment"
+  | "fix_stock"
+  | "review_order"
   | "remove_file";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
@@ -47,6 +51,12 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
       return { kind: "command", command: "retry_draft", label: "retry_draft" };
     case "resolve_drift":
       return { kind: "link", href: `/products/${enc(id)}#channels`, label: "resolve_drift" };
+    case "reply":
+      return { kind: "link", href: `/inbox?c=${enc(id)}`, label: "reply" };
+    case "check_payment":
+    case "fix_stock":
+    case "review_order":
+      return { kind: "link", href: `/orders/${enc(id)}`, label: item.action as "check_payment" | "fix_stock" | "review_order" };
     case "view_plan":
       return { kind: "link", href: "/settings/plan", label: "view_plan" };
     case "confirm_attributes":
@@ -65,6 +75,11 @@ export function exceptionSummaryKey(item: ExceptionRecord): { key: string; vars:
   const r = item.resource.type;
   if (item.type === "channel_expired") return { key: "channelExpired", vars: { name } };
   if (item.type === "publish_failed" && r === "product") return { key: "listingFailed", vars: { name } };
+  if (item.type === "customer_escalation") {
+    const reason = str(d.reason);
+    return { key: "escalation", vars: { name: str(d.name) ?? "", reason: reason ?? "" } };
+  }
+  if (r === "order") return { key: "orderReview", vars: { number: Number(d.number ?? 0), reason: str(d.reason) ?? "" } };
   if (item.type === "usage_limit") {
     // `resource` is a code; the caller swaps it for the localized name (usage.resource.*).
     const vars = { resource: str(d.resource) ?? "", used: Number(d.used ?? 0), limit: Number(d.limit ?? 0) };

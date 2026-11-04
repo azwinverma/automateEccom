@@ -117,6 +117,9 @@ describe("exception action routing", () => {
     [{ action: "dismiss", resource: { type: "media", id: "m1" } }, { kind: "command", command: "remove_file" }],
     [{ action: "resolve_drift", type: "listing_drift" }, { kind: "link", href: "/products/p1#channels", label: "resolve_drift" }],
     [{ action: "view_plan", type: "usage_limit", resource: { type: "plan_resource", id: "ai_text_generations" } }, { kind: "link", href: "/settings/plan" }],
+    [{ action: "reply", type: "customer_escalation", resource: { type: "conversation", id: "cv1" } }, { kind: "link", href: "/inbox?c=cv1" }],
+    [{ action: "check_payment", type: "payment_mismatch", resource: { type: "order", id: "o1" } }, { kind: "link", href: "/orders/o1", label: "check_payment" }],
+    [{ action: "fix_stock", type: "inventory_mismatch", resource: { type: "order", id: "o2" } }, { kind: "link", href: "/orders/o2" }],
     [{ action: "something_new" }, { kind: "none" }],
   ] as [Partial<ExceptionRecord>, object][])("%o", (over, expected) => {
     expect(exceptionTarget(ex(over))).toMatchObject(expected);
@@ -139,6 +142,14 @@ describe("exception action routing", () => {
       vars: { resource: "ai_text_generations", used: 270, limit: 300 },
     });
     expect(exceptionSummaryKey(ex({ type: "usage_limit", details: { resource: "auto_reels", used: 10, limit: 10, level: 100 } })).key).toBe("usageLimitReached");
+    expect(exceptionSummaryKey(ex({ type: "customer_escalation", resource: { type: "conversation", id: "c" }, details: { name: "Bikash", reason: "complaint" } }))).toEqual({
+      key: "escalation",
+      vars: { name: "Bikash", reason: "complaint" },
+    });
+    expect(exceptionSummaryKey(ex({ type: "payment_mismatch", resource: { type: "order", id: "o" }, details: { number: 1007, reason: "payment_mismatch" } }))).toEqual({
+      key: "orderReview",
+      vars: { number: 1007, reason: "payment_mismatch" },
+    });
     expect(exceptionSummaryKey(ex({ type: "mystery" })).key).toBe("generic");
   });
 });

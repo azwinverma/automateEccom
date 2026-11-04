@@ -29,6 +29,8 @@ export function useExceptions() {
     () =>
       [...records.values()].map((r) => {
         const { key, vars } = exceptionSummaryKey(r);
+        if (key === "escalation" && typeof vars.reason === "string") vars.reason = t.dynamic(`inbox.reason.${vars.reason}`) ?? vars.reason;
+        if (key === "orderReview" && typeof vars.reason === "string") vars.reason = t.dynamic(`orders.review.${vars.reason}`) ?? vars.reason;
         if (r.type === "usage_limit" && typeof vars.resource === "string") {
           vars.resource = t.dynamic(`usage.resource.${vars.resource}`) ?? vars.resource;
         }

@@ -59,6 +59,28 @@ import type {
   AdminOverrideInput,
   AdminProviderHealth,
   AdminWebhookEvent,
+  AddressInput,
+  CodSummary,
+  ConversationDetail,
+  ConversationSummary,
+  Customer,
+  CustomerAddress,
+  CustomerDetail,
+  CustomerSegment,
+  InboxMessage,
+  InventoryLocation,
+  LedgerEntry,
+  LowStockItem,
+  ManualPaymentMethod,
+  NepalReference,
+  OrderDetail,
+  OrderEvent,
+  OrderInput,
+  OrderStatus,
+  OrderSummary,
+  Payment,
+  ProductStock,
+  StockLevel,
 } from "./types";
 
 /** Options for idem endpoints: pass a stable key to make retries safe. */
@@ -325,6 +347,86 @@ export function createApi(client: ApiClient) {
     },
     featureFlags: {
       get: () => client.request<{ flags: Record<string, boolean> }>("/feature-flags", { tenant: true }),
+    },
+    reference: {
+      nepal: () => client.request<NepalReference>("/reference/nepal", { auth: false }),
+    },
+    customers: {
+      list: (q: { q?: string; segment?: CustomerSegment; limit?: number; cursor?: string } = {}) =>
+        client.request<Page<Customer>>("/customers", { tenant: true, query: { ...q } }),
+      get: (id: string) => client.request<CustomerDetail>(`/customers/${encodeURIComponent(id)}`, { tenant: true }),
+      create: (body: { display_name: string; phone?: string | null; email?: string | null; notes?: string | null }) =>
+        client.request<CustomerDetail>("/customers", { method: "POST", body, tenant: true }),
+      update: (id: string, body: { display_name?: string; phone?: string | null; email?: string | null; notes?: string | null; tags?: string[] }) =>
+        client.request<CustomerDetail>(`/customers/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      addAddress: (id: string, body: AddressInput) =>
+        client.request<CustomerAddress>(`/customers/${encodeURIComponent(id)}/addresses`, { method: "POST", body, tenant: true }),
+      removeAddress: (id: string, addressId: string) =>
+        client.request<void>(`/customers/${encodeURIComponent(id)}/addresses/${encodeURIComponent(addressId)}`, { method: "DELETE", tenant: true }),
+      /** Merge `sourceId` into `id` (identities, addresses, orders and chats move to `id`). */
+      merge: (id: string, sourceId: string) =>
+        client.request<CustomerDetail>(`/customers/${encodeURIComponent(id)}/merge`, { method: "POST", body: { source_id: sourceId }, tenant: true }),
+    },
+    inventory: {
+      locations: () => client.request<{ items: InventoryLocation[] }>("/inventory/locations", { tenant: true }),
+      createLocation: (body: { name: string; district?: string | null }) =>
+        client.request<InventoryLocation>("/inventory/locations", { method: "POST", body, tenant: true }),
+      productStock: (productId: string) =>
+        client.request<ProductStock>(`/catalog/products/${encodeURIComponent(productId)}/stock`, { tenant: true }),
+      receive: (variantId: string, body: { quantity: number; location_id?: string | null; reason?: string | null }, o?: IdemOptions) =>
+        client.request<StockLevel>(`/inventory/variants/${encodeURIComponent(variantId)}/receive`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      adjust: (variantId: string, body: { delta: number; reason: string; location_id?: string | null }, o?: IdemOptions) =>
+        client.request<StockLevel>(`/inventory/variants/${encodeURIComponent(variantId)}/adjust`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      count: (variantId: string, body: { counted: number; location_id?: string | null }) =>
+        client.request<StockLevel>(`/inventory/variants/${encodeURIComponent(variantId)}/count`, { method: "POST", body, tenant: true }),
+      setThreshold: (variantId: string, threshold: number | null, locationId?: string | null) =>
+        client.request<StockLevel>(`/inventory/variants/${encodeURIComponent(variantId)}/threshold`, { method: "PUT", body: { threshold, location_id: locationId ?? null }, tenant: true }),
+      ledger: (variantId: string, q: { limit?: number; cursor?: string } = {}) =>
+        client.request<Page<LedgerEntry>>(`/inventory/variants/${encodeURIComponent(variantId)}/ledger`, { tenant: true, query: { ...q } }),
+      lowStock: () => client.request<{ items: LowStockItem[] }>("/inventory/low-stock", { tenant: true }),
+    },
+    orders: {
+      list: (q: { status?: string; q?: string; customer_id?: string; needs_review?: boolean; limit?: number; cursor?: string } = {}) =>
+        client.request<Page<OrderSummary>>("/orders", { tenant: true, query: { ...q } }),
+      get: (id: string) => client.request<OrderDetail>(`/orders/${encodeURIComponent(id)}`, { tenant: true }),
+      create: (body: OrderInput, o?: IdemOptions) =>
+        client.request<OrderDetail>("/orders", { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      transition: (id: string, to: OrderStatus, opts: { reason?: string; expected_version?: number } = {}) =>
+        client.request<OrderDetail>(`/orders/${encodeURIComponent(id)}/transition`, { method: "POST", body: { to, ...opts }, tenant: true }),
+      cancelLines: (id: string, items: { line_id: string; quantity: number }[], reason: string) =>
+        client.request<OrderDetail>(`/orders/${encodeURIComponent(id)}/cancel-lines`, { method: "POST", body: { items, reason }, tenant: true }),
+      addNote: (id: string, note: string) =>
+        client.request<{ id: string }>(`/orders/${encodeURIComponent(id)}/notes`, { method: "POST", body: { note }, tenant: true }),
+      timeline: (id: string) => client.request<{ items: OrderEvent[] }>(`/orders/${encodeURIComponent(id)}/timeline`, { tenant: true }),
+      payments: (id: string) => client.request<{ items: Payment[] }>(`/orders/${encodeURIComponent(id)}/payments`, { tenant: true }),
+      startOnlinePayment: (id: string) =>
+        client.request<Payment>(`/orders/${encodeURIComponent(id)}/payments/online`, { method: "POST", body: {}, tenant: true }),
+      /** Payment made outside Nivaro (bank transfer, eSewa/Khalti to the shop's own account). Needs the exact total. */
+      recordPayment: (id: string, body: { amount_minor: number; method: ManualPaymentMethod; reference?: string | null }, o?: IdemOptions) =>
+        client.request<Payment>(`/orders/${encodeURIComponent(id)}/payments/manual`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      switchToCod: (id: string) => client.request<OrderDetail>(`/orders/${encodeURIComponent(id)}/switch-to-cod`, { method: "POST", tenant: true }),
+      verifyPayment: (paymentId: string) =>
+        client.request<Payment>(`/payments/${encodeURIComponent(paymentId)}/verify`, { method: "POST", tenant: true }),
+      codSummary: () => client.request<CodSummary>("/payments/cod/summary", { tenant: true }),
+    },
+    inbox: {
+      conversations: (q: { status?: "open" | "snoozed" | "closed" | "all"; assigned?: "me" | "unassigned"; escalated?: boolean; limit?: number; cursor?: string } = {}) =>
+        client.request<Page<ConversationSummary>>("/conversations", { tenant: true, query: { ...q } }),
+      conversation: (id: string) => client.request<ConversationDetail>(`/conversations/${encodeURIComponent(id)}`, { tenant: true }),
+      messages: (id: string, q: { limit?: number; cursor?: string } = {}) =>
+        client.request<Page<InboxMessage>>(`/conversations/${encodeURIComponent(id)}/messages`, { tenant: true, query: { ...q } }),
+      reply: (id: string, text: string) =>
+        client.request<InboxMessage>(`/conversations/${encodeURIComponent(id)}/messages`, { method: "POST", body: { text }, tenant: true }),
+      approve: (messageId: string, text?: string | null) =>
+        client.request<InboxMessage>(`/messages/${encodeURIComponent(messageId)}/approve`, { method: "POST", body: { text: text ?? null }, tenant: true }),
+      discard: (messageId: string) => client.request<void>(`/messages/${encodeURIComponent(messageId)}/discard`, { method: "POST", tenant: true }),
+      retry: (messageId: string) => client.request<InboxMessage>(`/messages/${encodeURIComponent(messageId)}/retry`, { method: "POST", tenant: true }),
+      assign: (id: string, userId: string | null) =>
+        client.request<ConversationDetail>(`/conversations/${encodeURIComponent(id)}/assign`, { method: "POST", body: { user_id: userId }, tenant: true }),
+      update: (id: string, body: { status?: "open" | "snoozed" | "closed"; labels?: string[]; human_handoff?: boolean }) =>
+        client.request<ConversationDetail>(`/conversations/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      markRead: (id: string) => client.request<ConversationSummary>(`/conversations/${encodeURIComponent(id)}/read`, { method: "POST", tenant: true }),
+      summary: (id: string) => client.request<{ summary: string; at: string }>(`/conversations/${encodeURIComponent(id)}/summary`, { method: "POST", tenant: true }),
     },
     /** Nivaro Console. Staff + MFA-verified session only; never tenant-scoped; every write is audited. */
     admin: {

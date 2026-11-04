@@ -30,12 +30,12 @@ export interface SectionDef {
  */
 export const SECTIONS: SectionDef[] = [
   { key: "home", href: "/home", icon: "home", group: "none" },
-  { key: "inbox", href: "/inbox", icon: "inbox", group: "sell", phase: 2 },
-  { key: "orders", href: "/orders", icon: "orders", group: "sell", phase: 1 },
-  { key: "customers", href: "/customers", icon: "customers", group: "sell", phase: 1 },
+  { key: "inbox", href: "/inbox", icon: "inbox", group: "sell" },
+  { key: "orders", href: "/orders", icon: "orders", group: "sell" },
+  { key: "customers", href: "/customers", icon: "customers", group: "sell" },
   { key: "products", href: "/products", icon: "products", group: "catalog" },
   { key: "content", href: "/content", icon: "content", group: "catalog" },
-  { key: "inventory", href: "/inventory", icon: "inventory", group: "catalog", phase: 1 },
+  { key: "inventory", href: "/inventory", icon: "inventory", group: "catalog" },
   { key: "fulfillment", href: "/fulfillment", icon: "fulfillment", group: "deliver", phase: 2 },
   { key: "returns", href: "/returns", icon: "returns", group: "deliver", phase: 3 },
   { key: "automation", href: "/automation", icon: "automation", group: "grow", phase: 3 },

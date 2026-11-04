@@ -34,6 +34,7 @@ import { AttributesSection } from "./AttributesSection";
 import { CategoriesDrawer, categoryOptionLabel } from "./CategoriesDrawer";
 import { ChipInput } from "./ChipInput";
 import { CollectionsPicker } from "./CollectionsPicker";
+import { StockSection } from "../inventory/StockSection";
 import { ListingsPanel } from "./ListingsPanel";
 import { PublishChecklist, StatusControl } from "./StatusControl";
 import { VariantGrid } from "./VariantGrid";
@@ -316,6 +317,7 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
     { id: "organization", label: t("products.editor.organization") },
     { id: "shipping", label: t("products.editor.shipping") },
     { id: "attributes", label: t("products.editor.attributes") },
+    ...(server && can("inventory.read") ? [{ id: "stock", label: t("inventory.section") }] : []),
     ...(server ? [{ id: "channels", label: t("listings.title") }] : []),
   ];
 
@@ -518,6 +520,11 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
               <p className={styles.sectionHint}>{t("products.editor.attributesCreate")}</p>
             )}
           </Section>
+          {server && can("inventory.read") ? (
+            <Section id="stock" title={t("inventory.section")} hint={t("inventory.hint")}>
+              <StockSection productId={server.id} />
+            </Section>
+          ) : null}
           {server ? (
             <Section id="channels" title={t("listings.title")} hint={t("listings.hint")}>
               <ListingsPanel product={server} canPublish={canPublish} />

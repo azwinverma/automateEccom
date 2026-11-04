@@ -818,3 +818,288 @@ export interface AdminFeatureFlag {
   rollout_percentage: number;
   kill_switch: boolean;
 }
+
+/* ---------- Phase 2: customers ---------- */
+
+export interface NepalReference {
+  provinces: { code: string; name: string; name_ne: string }[];
+  districts: { code: string; name: string; province: string }[];
+  max_ward: number;
+}
+
+export interface AddressInput {
+  recipient_name: string;
+  phone: string;
+  province?: string;
+  district: string;
+  municipality: string;
+  ward: number;
+  area?: string | null;
+  landmark?: string | null;
+  label?: string | null;
+  is_default?: boolean;
+}
+
+export interface CustomerAddress extends Required<Omit<AddressInput, "label" | "is_default" | "province">> {
+  id: string;
+  label: string | null;
+  province: string;
+  district_name: string;
+  completeness: number;
+  is_default: boolean;
+}
+
+export interface Customer {
+  id: string;
+  display_name: string;
+  phone: string | null;
+  email: string | null;
+  locale: string | null;
+  tags: string[];
+  last_seen_at: string | null;
+  created_at: string;
+}
+
+export interface CustomerDetail extends Customer {
+  notes: string | null;
+  identities: { provider: string; external_id: string; display_name: string | null }[];
+  addresses: CustomerAddress[];
+}
+
+export type CustomerSegment = "new" | "repeat" | "inactive";
+
+/* ---------- Phase 2: inventory ---------- */
+
+export interface InventoryLocation {
+  id: string;
+  name: string;
+  code: string;
+  district: string | null;
+  is_default: boolean;
+}
+
+export interface StockLevel {
+  variant_id: string;
+  location_id: string;
+  on_hand: number;
+  reserved: number;
+  damaged: number;
+  available: number;
+  low_stock_threshold: number | null;
+}
+
+export interface VariantStock {
+  variant_id: string;
+  title: string;
+  sku: string | null;
+  /** False until stock is first recorded: untracked variants never block orders. */
+  tracked: boolean;
+  on_hand: number;
+  reserved: number;
+  available: number;
+  locations: (Omit<StockLevel, "variant_id"> & { location: string | null; low: boolean })[];
+}
+
+export interface ProductStock {
+  product_id: string;
+  variants: VariantStock[];
+}
+
+export interface LedgerEntry {
+  id: string;
+  kind: "receive" | "adjust" | "count" | "damage" | "reserve" | "release" | "commit" | "return_to_stock" | "transfer_out" | "transfer_in";
+  location_id: string;
+  on_hand_delta: number;
+  reserved_delta: number;
+  damaged_delta: number;
+  on_hand_after: number;
+  reserved_after: number;
+  reason: string | null;
+  reference: { type: string; id: string } | null;
+  actor_type: string;
+  created_at: string;
+}
+
+export interface LowStockItem extends StockLevel {
+  product_id: string;
+  product_title: string;
+  variant_title: string;
+  sku: string | null;
+}
+
+/* ---------- Phase 2: orders & payments ---------- */
+
+export type OrderStatus =
+  | "draft"
+  | "pending_confirmation"
+  | "confirmed"
+  | "payment_pending"
+  | "cod_pending"
+  | "ready_to_ship"
+  | "shipped"
+  | "delivered"
+  | "completed"
+  | "cancelled"
+  | "delivery_failed"
+  | "returned";
+
+export type PaymentStatusApi = "unpaid" | "pending" | "paid" | "failed" | "refunded" | "cod_pending" | "cod_collected";
+export type OrderReview = "unmatched_items" | "stock_short" | "address_incomplete" | "payment_mismatch" | "paid_after_cancel";
+
+export interface OrderSummary {
+  id: string;
+  number: number;
+  status: OrderStatus;
+  source: "chat" | "seller" | "channel" | "api";
+  external_number: string | null;
+  connection_id: string | null;
+  customer: { id: string; display_name: string; phone: string | null } | null;
+  currency: string;
+  total: Money;
+  payment_method: "cod" | "prepaid" | "none";
+  payment_status: PaymentStatusApi;
+  needs_review: OrderReview | (string & {}) | null;
+  placed_at: string;
+  updated_at: string;
+  version: number;
+  allowed_transitions: OrderStatus[];
+}
+
+export interface OrderLine {
+  id: string;
+  product_id: string | null;
+  variant_id: string | null;
+  sku: string | null;
+  title: string;
+  variant_title: string | null;
+  unit_price: Money;
+  quantity: number;
+  cancelled_quantity: number;
+  line_total: Money;
+  matched: boolean;
+}
+
+export interface OrderDetail extends OrderSummary {
+  lines: OrderLine[];
+  totals: { subtotal: Money; discount: Money; delivery_fee: Money; tax: Money; total: Money };
+  shipping: {
+    recipient_name: string | null;
+    phone: string | null;
+    province: string | null;
+    district: string | null;
+    district_name: string | null;
+    municipality: string | null;
+    ward: number | null;
+    area: string | null;
+    landmark: string | null;
+    text: string | null;
+    completeness: number;
+  };
+  notes: string | null;
+  cancel_reason: string | null;
+  conversation_id: string | null;
+  confirmed_at: string | null;
+  cancelled_at: string | null;
+}
+
+export interface OrderEvent {
+  id: string;
+  kind: string;
+  from_status: OrderStatus | null;
+  to_status: OrderStatus | null;
+  actor: { type: string; id: string | null; display: string | null };
+  automated: boolean;
+  source: string;
+  provider: string | null;
+  data: Record<string, unknown>;
+  at: string;
+}
+
+export interface OrderInput {
+  lines: { variant_id: string; quantity: number; unit_price_minor?: number | null }[];
+  customer_id?: string | null;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  address?: AddressInput | null;
+  address_id?: string | null;
+  payment_method?: "cod" | "prepaid";
+  delivery_fee_minor?: number;
+  discount_minor?: number;
+  notes?: string | null;
+  confirm?: boolean;
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  kind: "online" | "manual";
+  provider: string;
+  method: string | null;
+  status: "pending" | "paid" | "failed" | "cancelled" | "needs_review" | "refunded";
+  amount: Money;
+  paid_minor: number | null;
+  redirect_url: string | null;
+  reference: string | null;
+  failure_code: string | null;
+  created_at: string;
+  verified_at: string | null;
+}
+
+export type ManualPaymentMethod = "bank_transfer" | "esewa" | "khalti" | "fonepay" | "cash" | "other";
+
+export interface CodSummary {
+  outstanding: { count: number; amount_minor: number };
+  pending_settlement: { count: number; amount_minor: number };
+  settled: { count: number; amount_minor: number };
+  failed_delivery: { count: number; amount_minor: number };
+  return_exposure: { count: number; amount_minor: number };
+}
+
+/* ---------- Phase 2: inbox ---------- */
+
+export interface ConversationSummary {
+  id: string;
+  provider: string;
+  connection_id: string | null;
+  status: "open" | "snoozed" | "closed";
+  customer: { id: string; display_name: string; phone: string | null } | null;
+  assigned_user_id: string | null;
+  labels: string[];
+  last_intent: string | null;
+  human_handoff: boolean;
+  escalated: boolean;
+  escalation_reason: string | null;
+  unread_count: number;
+  locale: string;
+  last_message_at: string | null;
+  first_response_due_at: string | null;
+  last_message: { text: string; direction: "in" | "out"; status: string } | null;
+}
+
+export interface ConversationDetail extends ConversationSummary {
+  ai_summary: string | null;
+  ai_summary_at: string | null;
+  order_draft: {
+    id: string;
+    status: "collecting" | "awaiting_confirmation" | "confirmed" | "abandoned";
+    fields: Record<string, unknown>;
+    awaiting_field: string | null;
+    order_id: string | null;
+  } | null;
+}
+
+export interface InboxMessage {
+  id: string;
+  direction: "in" | "out";
+  author_type: "customer" | "seller" | "ai" | "system";
+  author_user_id: string | null;
+  text: string;
+  status: "received" | "suggested" | "queued" | "sent" | "failed" | "discarded";
+  intent: string | null;
+  confidence: number | null;
+  /** What the AI looked up to write this (get_price, get_inventory, get_order, create_order…). */
+  grounding: Record<string, unknown>;
+  error_code: string | null;
+  created_at: string;
+  sent_at: string | null;
+}
