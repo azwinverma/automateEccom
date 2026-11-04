@@ -1328,4 +1328,396 @@ class AppLocalizationsNe extends AppLocalizations {
   String exSubjectUsage(int used, int limit) {
     return 'यो महिना $limit मध्ये $used प्रयोग भयो (वेबमा प्लान हेर्नुहोस्)';
   }
+
+  @override
+  String get navOrders => 'अर्डर';
+
+  @override
+  String get navInbox => 'इनबक्स';
+
+  @override
+  String get ordersTitle => 'अर्डरहरू';
+
+  @override
+  String get ordersFilterNeedsAction => 'गर्न बाँकी';
+
+  @override
+  String get ordersFilterNeedsReview => 'जाँच्नुपर्ने';
+
+  @override
+  String get ordersFilterAll => 'सबै';
+
+  @override
+  String get ordersEmpty => 'यहाँ कुनै अर्डर छैन';
+
+  @override
+  String get ordersEmptyBody => 'च्याट, च्यानल र तपाईंले थपेका अर्डर यहाँ देखिन्छन्।';
+
+  @override
+  String orderNumber(int number) {
+    return 'अर्डर #$number';
+  }
+
+  @override
+  String get orderItems => 'सामान';
+
+  @override
+  String get orderTotals => 'जम्मा';
+
+  @override
+  String get orderSubtotal => 'उप-जम्मा';
+
+  @override
+  String get orderDelivery => 'डेलिभरी';
+
+  @override
+  String get orderDiscount => 'छुट';
+
+  @override
+  String get orderTotal => 'जम्मा';
+
+  @override
+  String get orderShipTo => 'डेलिभरी ठेगाना';
+
+  @override
+  String get orderPayment => 'भुक्तानी';
+
+  @override
+  String get orderTimeline => 'समयरेखा';
+
+  @override
+  String get orderNotes => 'टिप्पणी';
+
+  @override
+  String get orderCancel => 'अर्डर रद्द गर्नुहोस्';
+
+  @override
+  String get orderCancelTitle => 'यो अर्डर रद्द गर्ने?';
+
+  @override
+  String get orderCancelBody => 'राखिएको स्टक फेरि बिक्रीमा जान्छ। ग्राहकलाई आफैं सन्देश जाँदैन।';
+
+  @override
+  String get orderCancelReason => 'कारण';
+
+  @override
+  String get orderCancelReasonHint => 'जस्तै: ग्राहकले मन बदले';
+
+  @override
+  String get orderCancelConfirm => 'रद्द गर्नुहोस्';
+
+  @override
+  String get orderCancelKeep => 'अर्डर राख्नुहोस्';
+
+  @override
+  String get orderUpdated => 'अर्डर अपडेट भयो';
+
+  @override
+  String orderCancelledQty(int count) {
+    return '$count रद्द';
+  }
+
+  @override
+  String get orderUnmatchedItem => 'तपाईंको क्याटलगमा भेटिएन';
+
+  @override
+  String get orderViewChat => 'च्याट खोल्नुहोस्';
+
+  @override
+  String get orderReviewPaymentMismatch => 'तिरेको रकम जम्मासँग मिलेन';
+
+  @override
+  String get orderReviewPaidAfterCancel => 'रद्द भएपछि भुक्तानी आयो';
+
+  @override
+  String get orderReviewStockShort => 'यो अर्डरका लागि स्टक पुगेन';
+
+  @override
+  String get orderReviewUnmatched => 'केही सामान क्याटलगमा छैनन्';
+
+  @override
+  String get orderReviewAddress => 'ठेगाना अधुरो छ';
+
+  @override
+  String get orderStatusDraft => 'ड्राफ्ट';
+
+  @override
+  String get orderStatusPendingConfirmation => 'पक्का हुन बाँकी';
+
+  @override
+  String get orderStatusConfirmed => 'पक्का';
+
+  @override
+  String get orderStatusPaymentPending => 'भुक्तानी बाँकी';
+
+  @override
+  String get orderStatusCodPending => 'प्याक गर्न बाँकी (COD)';
+
+  @override
+  String get orderStatusReadyToShip => 'पठाउन तयार';
+
+  @override
+  String get orderStatusShipped => 'पठाइयो';
+
+  @override
+  String get orderStatusDelivered => 'डेलिभर भयो';
+
+  @override
+  String get orderStatusCompleted => 'सम्पन्न';
+
+  @override
+  String get orderStatusCancelled => 'रद्द';
+
+  @override
+  String get orderStatusDeliveryFailed => 'डेलिभरी असफल';
+
+  @override
+  String get orderStatusReturned => 'फिर्ता';
+
+  @override
+  String get orderActionConfirm => 'अर्डर पक्का गर्नुहोस्';
+
+  @override
+  String get orderActionReadyToShip => 'प्याक भयो';
+
+  @override
+  String get orderActionShipped => 'पठाइयो';
+
+  @override
+  String get orderActionDelivered => 'डेलिभर भयो';
+
+  @override
+  String get orderActionCompleted => 'सम्पन्न गर्नुहोस्';
+
+  @override
+  String get orderActionDeliveryFailed => 'डेलिभरी असफल';
+
+  @override
+  String get orderActionReturned => 'फिर्ता आयो';
+
+  @override
+  String get paymentCod => 'डेलिभरीमा नगद';
+
+  @override
+  String get paymentPrepaid => 'अग्रिम भुक्तानी';
+
+  @override
+  String get payStatusUnpaid => 'नतिरेको';
+
+  @override
+  String get payStatusPending => 'भुक्तानी कुर्दै';
+
+  @override
+  String get payStatusPaid => 'तिरिसकेको';
+
+  @override
+  String get payStatusFailed => 'भुक्तानी असफल';
+
+  @override
+  String get payStatusRefunded => 'फिर्ता गरियो';
+
+  @override
+  String get payStatusCodPending => 'डेलिभरीमा उठाउने';
+
+  @override
+  String get payStatusCodCollected => 'कुरियरले उठायो';
+
+  @override
+  String get timelineCreated => 'अर्डर बन्यो';
+
+  @override
+  String timelineImported(String channel) {
+    return '$channel बाट आयो';
+  }
+
+  @override
+  String timelineStatus(String status) {
+    return 'अब: $status';
+  }
+
+  @override
+  String get timelineLinesCancelled => 'केही सामान रद्द';
+
+  @override
+  String timelineNote(String note) {
+    return 'टिप्पणी: $note';
+  }
+
+  @override
+  String get timelinePayment => 'भुक्तानी आयो';
+
+  @override
+  String get timelinePaymentFailed => 'भुक्तानी असफल';
+
+  @override
+  String get timelinePaymentMismatch => 'तिरेको रकम मिलेन';
+
+  @override
+  String get timelineOther => 'अपडेट';
+
+  @override
+  String get timelineByAi => 'AI बिक्री सहायक';
+
+  @override
+  String get timelineAutomatic => 'स्वचालित';
+
+  @override
+  String get inboxTitle => 'इनबक्स';
+
+  @override
+  String get inboxEmpty => 'खुला च्याट छैन';
+
+  @override
+  String get inboxEmptyBody => 'जोडिएका च्यानलबाट ग्राहकका सन्देश यहाँ आउँछन्।';
+
+  @override
+  String get inboxNeedsYou => 'तपाईं चाहियो';
+
+  @override
+  String inboxYou(String text) {
+    return 'तपाईं: $text';
+  }
+
+  @override
+  String get inboxCustomer => 'ग्राहक';
+
+  @override
+  String get threadReplyHint => 'जवाफ लेख्नुहोस्';
+
+  @override
+  String get threadSend => 'पठाउनुहोस्';
+
+  @override
+  String get threadSuggestion => 'AI सुझाव, अझै पठाइएको छैन';
+
+  @override
+  String get threadSuggestionSend => 'पठाउनुहोस्';
+
+  @override
+  String get threadSuggestionEdit => 'सम्पादन';
+
+  @override
+  String get threadSuggestionDiscard => 'हटाउनुहोस्';
+
+  @override
+  String get threadEditTitle => 'पठाउनुअघि सम्पादन';
+
+  @override
+  String get threadFailed => 'पठाइएन';
+
+  @override
+  String get threadRetry => 'फेरि प्रयास';
+
+  @override
+  String get threadSending => 'पठाउँदै…';
+
+  @override
+  String get threadByAi => 'AI';
+
+  @override
+  String get threadHandBack => 'AI लाई फिर्ता दिनुहोस्';
+
+  @override
+  String get threadHandedBack => 'नयाँ सन्देशको जवाफ फेरि AI ले दिनेछ।';
+
+  @override
+  String get threadHumanBanner => 'यो च्याट तपाईं हेर्दै हुनुहुन्छ। AI रोकिएको छ।';
+
+  @override
+  String get threadEscalatedBanner => 'AI ले यो च्याट तपाईंलाई दियो।';
+
+  @override
+  String draftCollecting(String field) {
+    return 'अर्डर लिँदै: $field कुर्दै';
+  }
+
+  @override
+  String get draftAwaitingConfirmation => 'अर्डर विवरण पठाइयो। ग्राहकको \'हो\' कुर्दै।';
+
+  @override
+  String get draftConfirmed => 'यो च्याटबाट अर्डर बन्यो';
+
+  @override
+  String get stockSection => 'स्टक';
+
+  @override
+  String stockAvailable(int count) {
+    return '$count उपलब्ध';
+  }
+
+  @override
+  String stockDetail(int onHand, int reserved) {
+    return '$onHand र्‍याकमा · $reserved राखिएको';
+  }
+
+  @override
+  String get stockUntracked => 'अझै ट्र्याक गरिएको छैन';
+
+  @override
+  String get stockLow => 'कम';
+
+  @override
+  String get stockReceive => 'स्टक थप्नुहोस्';
+
+  @override
+  String get stockQuantity => 'आएको संख्या';
+
+  @override
+  String get stockReceived => 'स्टक अपडेट भयो';
+
+  @override
+  String get stockSave => 'थप्नुहोस्';
+
+  @override
+  String get exActionReply => 'जवाफ दिनुहोस्';
+
+  @override
+  String get exActionCheckPayment => 'भुक्तानी जाँच्नुहोस्';
+
+  @override
+  String get exActionFixStock => 'स्टक मिलाउनुहोस्';
+
+  @override
+  String get exActionReviewOrder => 'अर्डर हेर्नुहोस्';
+
+  @override
+  String get exSubjectConversation => 'ग्राहकको च्याट';
+
+  @override
+  String exSubjectOrder(int number) {
+    return 'अर्डर #$number';
+  }
+
+  @override
+  String get commonCancel => 'रद्द';
+
+  @override
+  String get draftFieldProduct => 'सामान';
+
+  @override
+  String get draftFieldVariant => 'साइज/रङ';
+
+  @override
+  String get draftFieldQuantity => 'संख्या';
+
+  @override
+  String get draftFieldName => 'नाम';
+
+  @override
+  String get draftFieldPhone => 'फोन नम्बर';
+
+  @override
+  String get draftFieldDistrict => 'जिल्ला';
+
+  @override
+  String get draftFieldMunicipality => 'नगरपालिका';
+
+  @override
+  String get draftFieldWard => 'वडा';
+
+  @override
+  String get draftFieldArea => 'टोल';
+
+  @override
+  String get draftFieldPayment => 'भुक्तानी विधि';
 }

@@ -1346,4 +1346,396 @@ class AppLocalizationsEn extends AppLocalizations {
   String exSubjectUsage(int used, int limit) {
     return '$used of $limit used this month (see Plan on the web)';
   }
+
+  @override
+  String get navOrders => 'Orders';
+
+  @override
+  String get navInbox => 'Inbox';
+
+  @override
+  String get ordersTitle => 'Orders';
+
+  @override
+  String get ordersFilterNeedsAction => 'To do';
+
+  @override
+  String get ordersFilterNeedsReview => 'Needs review';
+
+  @override
+  String get ordersFilterAll => 'All';
+
+  @override
+  String get ordersEmpty => 'No orders here';
+
+  @override
+  String get ordersEmptyBody => 'Orders from chats, your channels and the ones you add appear here.';
+
+  @override
+  String orderNumber(int number) {
+    return 'Order #$number';
+  }
+
+  @override
+  String get orderItems => 'Items';
+
+  @override
+  String get orderTotals => 'Total';
+
+  @override
+  String get orderSubtotal => 'Subtotal';
+
+  @override
+  String get orderDelivery => 'Delivery';
+
+  @override
+  String get orderDiscount => 'Discount';
+
+  @override
+  String get orderTotal => 'Total';
+
+  @override
+  String get orderShipTo => 'Deliver to';
+
+  @override
+  String get orderPayment => 'Payment';
+
+  @override
+  String get orderTimeline => 'Timeline';
+
+  @override
+  String get orderNotes => 'Notes';
+
+  @override
+  String get orderCancel => 'Cancel order';
+
+  @override
+  String get orderCancelTitle => 'Cancel this order?';
+
+  @override
+  String get orderCancelBody => 'Reserved stock goes back on sale. The customer isn\'t messaged automatically.';
+
+  @override
+  String get orderCancelReason => 'Reason';
+
+  @override
+  String get orderCancelReasonHint => 'e.g. customer changed their mind';
+
+  @override
+  String get orderCancelConfirm => 'Cancel order';
+
+  @override
+  String get orderCancelKeep => 'Keep order';
+
+  @override
+  String get orderUpdated => 'Order updated';
+
+  @override
+  String orderCancelledQty(int count) {
+    return '$count cancelled';
+  }
+
+  @override
+  String get orderUnmatchedItem => 'Not found in your catalog';
+
+  @override
+  String get orderViewChat => 'Open chat';
+
+  @override
+  String get orderReviewPaymentMismatch => 'Paid amount doesn\'t match the total';
+
+  @override
+  String get orderReviewPaidAfterCancel => 'Paid after it was cancelled';
+
+  @override
+  String get orderReviewStockShort => 'Not enough stock for this order';
+
+  @override
+  String get orderReviewUnmatched => 'Some items aren\'t in your catalog';
+
+  @override
+  String get orderReviewAddress => 'Address is incomplete';
+
+  @override
+  String get orderStatusDraft => 'Draft';
+
+  @override
+  String get orderStatusPendingConfirmation => 'Awaiting confirmation';
+
+  @override
+  String get orderStatusConfirmed => 'Confirmed';
+
+  @override
+  String get orderStatusPaymentPending => 'Awaiting payment';
+
+  @override
+  String get orderStatusCodPending => 'To pack (COD)';
+
+  @override
+  String get orderStatusReadyToShip => 'Ready to ship';
+
+  @override
+  String get orderStatusShipped => 'Shipped';
+
+  @override
+  String get orderStatusDelivered => 'Delivered';
+
+  @override
+  String get orderStatusCompleted => 'Completed';
+
+  @override
+  String get orderStatusCancelled => 'Cancelled';
+
+  @override
+  String get orderStatusDeliveryFailed => 'Delivery failed';
+
+  @override
+  String get orderStatusReturned => 'Returned';
+
+  @override
+  String get orderActionConfirm => 'Confirm order';
+
+  @override
+  String get orderActionReadyToShip => 'Mark packed';
+
+  @override
+  String get orderActionShipped => 'Mark shipped';
+
+  @override
+  String get orderActionDelivered => 'Mark delivered';
+
+  @override
+  String get orderActionCompleted => 'Mark completed';
+
+  @override
+  String get orderActionDeliveryFailed => 'Delivery failed';
+
+  @override
+  String get orderActionReturned => 'Mark returned';
+
+  @override
+  String get paymentCod => 'Cash on delivery';
+
+  @override
+  String get paymentPrepaid => 'Prepaid';
+
+  @override
+  String get payStatusUnpaid => 'Unpaid';
+
+  @override
+  String get payStatusPending => 'Waiting for payment';
+
+  @override
+  String get payStatusPaid => 'Paid';
+
+  @override
+  String get payStatusFailed => 'Payment failed';
+
+  @override
+  String get payStatusRefunded => 'Refunded';
+
+  @override
+  String get payStatusCodPending => 'To collect on delivery';
+
+  @override
+  String get payStatusCodCollected => 'Collected by courier';
+
+  @override
+  String get timelineCreated => 'Order created';
+
+  @override
+  String timelineImported(String channel) {
+    return 'Imported from $channel';
+  }
+
+  @override
+  String timelineStatus(String status) {
+    return 'Now: $status';
+  }
+
+  @override
+  String get timelineLinesCancelled => 'Some items cancelled';
+
+  @override
+  String timelineNote(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String get timelinePayment => 'Payment received';
+
+  @override
+  String get timelinePaymentFailed => 'Payment failed';
+
+  @override
+  String get timelinePaymentMismatch => 'Paid amount didn\'t match';
+
+  @override
+  String get timelineOther => 'Update';
+
+  @override
+  String get timelineByAi => 'AI Sales Agent';
+
+  @override
+  String get timelineAutomatic => 'Automatic';
+
+  @override
+  String get inboxTitle => 'Inbox';
+
+  @override
+  String get inboxEmpty => 'No open chats';
+
+  @override
+  String get inboxEmptyBody => 'Customer messages from your connected channels arrive here.';
+
+  @override
+  String get inboxNeedsYou => 'Needs you';
+
+  @override
+  String inboxYou(String text) {
+    return 'You: $text';
+  }
+
+  @override
+  String get inboxCustomer => 'Customer';
+
+  @override
+  String get threadReplyHint => 'Write a reply';
+
+  @override
+  String get threadSend => 'Send';
+
+  @override
+  String get threadSuggestion => 'AI suggestion, not sent yet';
+
+  @override
+  String get threadSuggestionSend => 'Send';
+
+  @override
+  String get threadSuggestionEdit => 'Edit';
+
+  @override
+  String get threadSuggestionDiscard => 'Discard';
+
+  @override
+  String get threadEditTitle => 'Edit before sending';
+
+  @override
+  String get threadFailed => 'Not sent';
+
+  @override
+  String get threadRetry => 'Retry';
+
+  @override
+  String get threadSending => 'Sending…';
+
+  @override
+  String get threadByAi => 'AI';
+
+  @override
+  String get threadHandBack => 'Hand back to AI';
+
+  @override
+  String get threadHandedBack => 'The AI will answer new messages again.';
+
+  @override
+  String get threadHumanBanner => 'You\'re handling this chat. The AI is paused.';
+
+  @override
+  String get threadEscalatedBanner => 'The AI handed this chat to you.';
+
+  @override
+  String draftCollecting(String field) {
+    return 'Taking an order: waiting for $field';
+  }
+
+  @override
+  String get draftAwaitingConfirmation => 'Order summary sent. Waiting for the customer\'s yes.';
+
+  @override
+  String get draftConfirmed => 'Order created from this chat';
+
+  @override
+  String get stockSection => 'Stock';
+
+  @override
+  String stockAvailable(int count) {
+    return '$count available';
+  }
+
+  @override
+  String stockDetail(int onHand, int reserved) {
+    return '$onHand on shelf · $reserved reserved';
+  }
+
+  @override
+  String get stockUntracked => 'Not tracked yet';
+
+  @override
+  String get stockLow => 'Low';
+
+  @override
+  String get stockReceive => 'Receive stock';
+
+  @override
+  String get stockQuantity => 'Quantity received';
+
+  @override
+  String get stockReceived => 'Stock updated';
+
+  @override
+  String get stockSave => 'Add';
+
+  @override
+  String get exActionReply => 'Reply';
+
+  @override
+  String get exActionCheckPayment => 'Check payment';
+
+  @override
+  String get exActionFixStock => 'Fix stock';
+
+  @override
+  String get exActionReviewOrder => 'Review order';
+
+  @override
+  String get exSubjectConversation => 'A customer chat';
+
+  @override
+  String exSubjectOrder(int number) {
+    return 'Order #$number';
+  }
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get draftFieldProduct => 'product';
+
+  @override
+  String get draftFieldVariant => 'size/colour';
+
+  @override
+  String get draftFieldQuantity => 'quantity';
+
+  @override
+  String get draftFieldName => 'name';
+
+  @override
+  String get draftFieldPhone => 'phone number';
+
+  @override
+  String get draftFieldDistrict => 'district';
+
+  @override
+  String get draftFieldMunicipality => 'municipality';
+
+  @override
+  String get draftFieldWard => 'ward';
+
+  @override
+  String get draftFieldArea => 'area';
+
+  @override
+  String get draftFieldPayment => 'payment choice';
 }

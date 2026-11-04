@@ -2548,6 +2548,750 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{used} of {limit} used this month (see Plan on the web)'**
   String exSubjectUsage(int used, int limit);
+
+  /// No description provided for @navOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get navOrders;
+
+  /// No description provided for @navInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get navInbox;
+
+  /// No description provided for @ordersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get ordersTitle;
+
+  /// No description provided for @ordersFilterNeedsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'To do'**
+  String get ordersFilterNeedsAction;
+
+  /// No description provided for @ordersFilterNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get ordersFilterNeedsReview;
+
+  /// No description provided for @ordersFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get ordersFilterAll;
+
+  /// No description provided for @ordersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders here'**
+  String get ordersEmpty;
+
+  /// No description provided for @ordersEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders from chats, your channels and the ones you add appear here.'**
+  String get ordersEmptyBody;
+
+  /// No description provided for @orderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number}'**
+  String orderNumber(int number);
+
+  /// No description provided for @orderItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get orderItems;
+
+  /// No description provided for @orderTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get orderTotals;
+
+  /// No description provided for @orderSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get orderSubtotal;
+
+  /// No description provided for @orderDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get orderDelivery;
+
+  /// No description provided for @orderDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get orderDiscount;
+
+  /// No description provided for @orderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get orderTotal;
+
+  /// No description provided for @orderShipTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get orderShipTo;
+
+  /// No description provided for @orderPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get orderPayment;
+
+  /// No description provided for @orderTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline'**
+  String get orderTimeline;
+
+  /// No description provided for @orderNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get orderNotes;
+
+  /// No description provided for @orderCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get orderCancel;
+
+  /// No description provided for @orderCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get orderCancelTitle;
+
+  /// No description provided for @orderCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved stock goes back on sale. The customer isn\'t messaged automatically.'**
+  String get orderCancelBody;
+
+  /// No description provided for @orderCancelReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get orderCancelReason;
+
+  /// No description provided for @orderCancelReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. customer changed their mind'**
+  String get orderCancelReasonHint;
+
+  /// No description provided for @orderCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get orderCancelConfirm;
+
+  /// No description provided for @orderCancelKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep order'**
+  String get orderCancelKeep;
+
+  /// No description provided for @orderUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Order updated'**
+  String get orderUpdated;
+
+  /// No description provided for @orderCancelledQty.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} cancelled'**
+  String orderCancelledQty(int count);
+
+  /// No description provided for @orderUnmatchedItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found in your catalog'**
+  String get orderUnmatchedItem;
+
+  /// No description provided for @orderViewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open chat'**
+  String get orderViewChat;
+
+  /// No description provided for @orderReviewPaymentMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid amount doesn\'t match the total'**
+  String get orderReviewPaymentMismatch;
+
+  /// No description provided for @orderReviewPaidAfterCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid after it was cancelled'**
+  String get orderReviewPaidAfterCancel;
+
+  /// No description provided for @orderReviewStockShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough stock for this order'**
+  String get orderReviewStockShort;
+
+  /// No description provided for @orderReviewUnmatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items aren\'t in your catalog'**
+  String get orderReviewUnmatched;
+
+  /// No description provided for @orderReviewAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address is incomplete'**
+  String get orderReviewAddress;
+
+  /// No description provided for @orderStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get orderStatusDraft;
+
+  /// No description provided for @orderStatusPendingConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting confirmation'**
+  String get orderStatusPendingConfirmation;
+
+  /// No description provided for @orderStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get orderStatusConfirmed;
+
+  /// No description provided for @orderStatusPaymentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting payment'**
+  String get orderStatusPaymentPending;
+
+  /// No description provided for @orderStatusCodPending.
+  ///
+  /// In en, this message translates to:
+  /// **'To pack (COD)'**
+  String get orderStatusCodPending;
+
+  /// No description provided for @orderStatusReadyToShip.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to ship'**
+  String get orderStatusReadyToShip;
+
+  /// No description provided for @orderStatusShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipped'**
+  String get orderStatusShipped;
+
+  /// No description provided for @orderStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get orderStatusDelivered;
+
+  /// No description provided for @orderStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get orderStatusCompleted;
+
+  /// No description provided for @orderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get orderStatusCancelled;
+
+  /// No description provided for @orderStatusDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery failed'**
+  String get orderStatusDeliveryFailed;
+
+  /// No description provided for @orderStatusReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned'**
+  String get orderStatusReturned;
+
+  /// No description provided for @orderActionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm order'**
+  String get orderActionConfirm;
+
+  /// No description provided for @orderActionReadyToShip.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark packed'**
+  String get orderActionReadyToShip;
+
+  /// No description provided for @orderActionShipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark shipped'**
+  String get orderActionShipped;
+
+  /// No description provided for @orderActionDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark delivered'**
+  String get orderActionDelivered;
+
+  /// No description provided for @orderActionCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark completed'**
+  String get orderActionCompleted;
+
+  /// No description provided for @orderActionDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery failed'**
+  String get orderActionDeliveryFailed;
+
+  /// No description provided for @orderActionReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark returned'**
+  String get orderActionReturned;
+
+  /// No description provided for @paymentCod.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get paymentCod;
+
+  /// No description provided for @paymentPrepaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepaid'**
+  String get paymentPrepaid;
+
+  /// No description provided for @payStatusUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get payStatusUnpaid;
+
+  /// No description provided for @payStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get payStatusPending;
+
+  /// No description provided for @payStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payStatusPaid;
+
+  /// No description provided for @payStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed'**
+  String get payStatusFailed;
+
+  /// No description provided for @payStatusRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get payStatusRefunded;
+
+  /// No description provided for @payStatusCodPending.
+  ///
+  /// In en, this message translates to:
+  /// **'To collect on delivery'**
+  String get payStatusCodPending;
+
+  /// No description provided for @payStatusCodCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected by courier'**
+  String get payStatusCodCollected;
+
+  /// No description provided for @timelineCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Order created'**
+  String get timelineCreated;
+
+  /// No description provided for @timelineImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported from {channel}'**
+  String timelineImported(String channel);
+
+  /// No description provided for @timelineStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Now: {status}'**
+  String timelineStatus(String status);
+
+  /// No description provided for @timelineLinesCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items cancelled'**
+  String get timelineLinesCancelled;
+
+  /// No description provided for @timelineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: {note}'**
+  String timelineNote(String note);
+
+  /// No description provided for @timelinePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get timelinePayment;
+
+  /// No description provided for @timelinePaymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed'**
+  String get timelinePaymentFailed;
+
+  /// No description provided for @timelinePaymentMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid amount didn\'t match'**
+  String get timelinePaymentMismatch;
+
+  /// No description provided for @timelineOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get timelineOther;
+
+  /// No description provided for @timelineByAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Sales Agent'**
+  String get timelineByAi;
+
+  /// No description provided for @timelineAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get timelineAutomatic;
+
+  /// No description provided for @inboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get inboxTitle;
+
+  /// No description provided for @inboxEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No open chats'**
+  String get inboxEmpty;
+
+  /// No description provided for @inboxEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer messages from your connected channels arrive here.'**
+  String get inboxEmptyBody;
+
+  /// No description provided for @inboxNeedsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs you'**
+  String get inboxNeedsYou;
+
+  /// No description provided for @inboxYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You: {text}'**
+  String inboxYou(String text);
+
+  /// No description provided for @inboxCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get inboxCustomer;
+
+  /// No description provided for @threadReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply'**
+  String get threadReplyHint;
+
+  /// No description provided for @threadSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get threadSend;
+
+  /// No description provided for @threadSuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggestion, not sent yet'**
+  String get threadSuggestion;
+
+  /// No description provided for @threadSuggestionSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get threadSuggestionSend;
+
+  /// No description provided for @threadSuggestionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get threadSuggestionEdit;
+
+  /// No description provided for @threadSuggestionDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get threadSuggestionDiscard;
+
+  /// No description provided for @threadEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit before sending'**
+  String get threadEditTitle;
+
+  /// No description provided for @threadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent'**
+  String get threadFailed;
+
+  /// No description provided for @threadRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get threadRetry;
+
+  /// No description provided for @threadSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get threadSending;
+
+  /// No description provided for @threadByAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get threadByAi;
+
+  /// No description provided for @threadHandBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand back to AI'**
+  String get threadHandBack;
+
+  /// No description provided for @threadHandedBack.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI will answer new messages again.'**
+  String get threadHandedBack;
+
+  /// No description provided for @threadHumanBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re handling this chat. The AI is paused.'**
+  String get threadHumanBanner;
+
+  /// No description provided for @threadEscalatedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI handed this chat to you.'**
+  String get threadEscalatedBanner;
+
+  /// No description provided for @draftCollecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Taking an order: waiting for {field}'**
+  String draftCollecting(String field);
+
+  /// No description provided for @draftAwaitingConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Order summary sent. Waiting for the customer\'s yes.'**
+  String get draftAwaitingConfirmation;
+
+  /// No description provided for @draftConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Order created from this chat'**
+  String get draftConfirmed;
+
+  /// No description provided for @stockSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get stockSection;
+
+  /// No description provided for @stockAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} available'**
+  String stockAvailable(int count);
+
+  /// No description provided for @stockDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{onHand} on shelf · {reserved} reserved'**
+  String stockDetail(int onHand, int reserved);
+
+  /// No description provided for @stockUntracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tracked yet'**
+  String get stockUntracked;
+
+  /// No description provided for @stockLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get stockLow;
+
+  /// No description provided for @stockReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive stock'**
+  String get stockReceive;
+
+  /// No description provided for @stockQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity received'**
+  String get stockQuantity;
+
+  /// No description provided for @stockReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock updated'**
+  String get stockReceived;
+
+  /// No description provided for @stockSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get stockSave;
+
+  /// No description provided for @exActionReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get exActionReply;
+
+  /// No description provided for @exActionCheckPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Check payment'**
+  String get exActionCheckPayment;
+
+  /// No description provided for @exActionFixStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix stock'**
+  String get exActionFixStock;
+
+  /// No description provided for @exActionReviewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Review order'**
+  String get exActionReviewOrder;
+
+  /// No description provided for @exSubjectConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'A customer chat'**
+  String get exSubjectConversation;
+
+  /// No description provided for @exSubjectOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number}'**
+  String exSubjectOrder(int number);
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @draftFieldProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'product'**
+  String get draftFieldProduct;
+
+  /// No description provided for @draftFieldVariant.
+  ///
+  /// In en, this message translates to:
+  /// **'size/colour'**
+  String get draftFieldVariant;
+
+  /// No description provided for @draftFieldQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'quantity'**
+  String get draftFieldQuantity;
+
+  /// No description provided for @draftFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'name'**
+  String get draftFieldName;
+
+  /// No description provided for @draftFieldPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'phone number'**
+  String get draftFieldPhone;
+
+  /// No description provided for @draftFieldDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'district'**
+  String get draftFieldDistrict;
+
+  /// No description provided for @draftFieldMunicipality.
+  ///
+  /// In en, this message translates to:
+  /// **'municipality'**
+  String get draftFieldMunicipality;
+
+  /// No description provided for @draftFieldWard.
+  ///
+  /// In en, this message translates to:
+  /// **'ward'**
+  String get draftFieldWard;
+
+  /// No description provided for @draftFieldArea.
+  ///
+  /// In en, this message translates to:
+  /// **'area'**
+  String get draftFieldArea;
+
+  /// No description provided for @draftFieldPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'payment choice'**
+  String get draftFieldPayment;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

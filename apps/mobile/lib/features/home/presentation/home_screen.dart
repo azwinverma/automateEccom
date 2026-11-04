@@ -154,7 +154,11 @@ class HomeScreen extends ConsumerWidget {
                 },
               ),
               SectionHeader(l.quickActionsTitle),
-              QuickActionsGrid(onSelected: (a) => context.push(a.route)),
+              QuickActionsGrid(
+                onSelected:
+                    (a) =>
+                        a.isTab ? context.go(a.route) : context.push(a.route),
+              ),
               SectionHeader(l.homeSectionToday),
               const TodayMetrics(),
             ],

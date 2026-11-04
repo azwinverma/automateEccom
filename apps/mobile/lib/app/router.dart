@@ -12,7 +12,11 @@ import '../features/content/presentation/posts_screen.dart';
 import '../features/home/presentation/coming_soon_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/widgets/quick_actions.dart';
+import '../features/inbox/presentation/inbox_screen.dart';
+import '../features/inbox/presentation/thread_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
+import '../features/orders/presentation/order_screen.dart';
+import '../features/orders/presentation/orders_screen.dart';
 import '../features/settings/presentation/plan_usage_screen.dart';
 import '../features/settings/presentation/security_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
@@ -28,6 +32,8 @@ abstract final class Routes {
   static const forgotPassword = '/forgot-password';
   static const onboarding = '/onboarding';
   static const home = '/home';
+  static const orders = '/orders';
+  static const inbox = '/inbox';
   static const settings = '/settings';
 }
 
@@ -99,6 +105,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: Routes.orders,
+                builder: (_, __) => const OrdersScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.inbox,
+                builder: (_, __) => const InboxScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: Routes.settings,
                 builder: (_, __) => const SettingsScreen(),
                 routes: [
@@ -115,6 +137,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/orders/:id',
+        builder: (_, s) => OrderScreen(orderId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/inbox/:id',
+        builder:
+            (_, s) => ThreadScreen(conversationId: s.pathParameters['id']!),
       ),
       GoRoute(
         path: '/studio/capture',
@@ -189,6 +220,16 @@ class _HomeShell extends StatelessWidget {
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home),
             label: l.navHome,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.receipt_long_outlined),
+            selectedIcon: const Icon(Icons.receipt_long),
+            label: l.navOrders,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.chat_bubble_outline),
+            selectedIcon: const Icon(Icons.chat_bubble),
+            label: l.navInbox,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),

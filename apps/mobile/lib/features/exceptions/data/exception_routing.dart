@@ -59,6 +59,16 @@ ExceptionTarget resolveExceptionAction(ApiException e) {
                 : detail('connection_id'),
         provider: detail('provider'),
       );
+    case 'reply':
+      return e.resourceType == 'conversation'
+          ? OpenRoute('/inbox/$id')
+          : const NoAction();
+    case 'check_payment':
+    case 'fix_stock':
+    case 'review_order':
+      return e.resourceType == 'order'
+          ? OpenRoute('/orders/$id')
+          : const NoAction();
     case 'dismiss':
       return DismissLocally(e.id);
   }

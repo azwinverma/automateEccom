@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../design/tokens.g.dart';
 
-/// Phase 1 capabilities reachable from Home. Each routes to an honest
-/// "coming soon" explainer until the domain exists.
+/// Capabilities reachable from Home. Built ones open the real screen; the
+/// rest route to an honest "coming soon" explainer until the domain exists.
 enum QuickAction {
   addProduct('add-product', Icons.add_box_outlined),
   captureProduct('capture-product', Icons.photo_camera_outlined),
@@ -28,8 +28,13 @@ enum QuickAction {
   String get route => switch (this) {
     addProduct || captureProduct => '/studio/capture',
     generateContent => '/studio/drafts',
+    viewOrders => '/orders',
+    viewMessages => '/inbox',
     _ => '/soon/$slug',
   };
+
+  /// Bottom-navigation tabs are switched to (go), not pushed on top.
+  bool get isTab => this == viewOrders || this == viewMessages;
 
   String label(AppLocalizations l) => switch (this) {
     addProduct => l.qaAddProduct,

@@ -22,6 +22,8 @@ import '../../studio/presentation/review_view.dart'
 import '../../studio/presentation/widgets/attribute_review_row.dart'
     show humaniseKey;
 import '../data/catalog_api.dart';
+import '../data/stock_api.dart';
+import 'stock_section.dart';
 
 final productProvider = FutureProvider.autoDispose
     .family<ProductDetail, String>(
@@ -275,6 +277,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                   ref
                     ..invalidate(productProvider(widget.productId))
                     ..invalidate(listingsProvider(widget.productId))
+                    ..invalidate(productStockProvider(widget.productId))
                     ..invalidate(channelsProvider);
                   await ref.read(productProvider(widget.productId).future);
                 },
@@ -352,6 +355,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
               ],
             ),
           ),
+        StockSection(productId: widget.productId),
         if (p.unconfirmed.isNotEmpty) ...[
           SectionHeader(
             l.productConfirmSection,

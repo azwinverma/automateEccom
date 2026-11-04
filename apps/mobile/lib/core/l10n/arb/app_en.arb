@@ -628,5 +628,202 @@
         "type": "int"
       }
     }
-  }
+  },
+  "navOrders": "Orders",
+  "navInbox": "Inbox",
+  "ordersTitle": "Orders",
+  "ordersFilterNeedsAction": "To do",
+  "ordersFilterNeedsReview": "Needs review",
+  "ordersFilterAll": "All",
+  "ordersEmpty": "No orders here",
+  "ordersEmptyBody": "Orders from chats, your channels and the ones you add appear here.",
+  "orderNumber": "Order #{number}",
+  "@orderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "orderItems": "Items",
+  "orderTotals": "Total",
+  "orderSubtotal": "Subtotal",
+  "orderDelivery": "Delivery",
+  "orderDiscount": "Discount",
+  "orderTotal": "Total",
+  "orderShipTo": "Deliver to",
+  "orderPayment": "Payment",
+  "orderTimeline": "Timeline",
+  "orderNotes": "Notes",
+  "orderCancel": "Cancel order",
+  "orderCancelTitle": "Cancel this order?",
+  "orderCancelBody": "Reserved stock goes back on sale. The customer isn't messaged automatically.",
+  "orderCancelReason": "Reason",
+  "orderCancelReasonHint": "e.g. customer changed their mind",
+  "orderCancelConfirm": "Cancel order",
+  "orderCancelKeep": "Keep order",
+  "orderUpdated": "Order updated",
+  "orderCancelledQty": "{count} cancelled",
+  "@orderCancelledQty": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "orderUnmatchedItem": "Not found in your catalog",
+  "orderViewChat": "Open chat",
+  "orderReviewPaymentMismatch": "Paid amount doesn't match the total",
+  "orderReviewPaidAfterCancel": "Paid after it was cancelled",
+  "orderReviewStockShort": "Not enough stock for this order",
+  "orderReviewUnmatched": "Some items aren't in your catalog",
+  "orderReviewAddress": "Address is incomplete",
+  "orderStatusDraft": "Draft",
+  "orderStatusPendingConfirmation": "Awaiting confirmation",
+  "orderStatusConfirmed": "Confirmed",
+  "orderStatusPaymentPending": "Awaiting payment",
+  "orderStatusCodPending": "To pack (COD)",
+  "orderStatusReadyToShip": "Ready to ship",
+  "orderStatusShipped": "Shipped",
+  "orderStatusDelivered": "Delivered",
+  "orderStatusCompleted": "Completed",
+  "orderStatusCancelled": "Cancelled",
+  "orderStatusDeliveryFailed": "Delivery failed",
+  "orderStatusReturned": "Returned",
+  "orderActionConfirm": "Confirm order",
+  "orderActionReadyToShip": "Mark packed",
+  "orderActionShipped": "Mark shipped",
+  "orderActionDelivered": "Mark delivered",
+  "orderActionCompleted": "Mark completed",
+  "orderActionDeliveryFailed": "Delivery failed",
+  "orderActionReturned": "Mark returned",
+  "paymentCod": "Cash on delivery",
+  "paymentPrepaid": "Prepaid",
+  "payStatusUnpaid": "Unpaid",
+  "payStatusPending": "Waiting for payment",
+  "payStatusPaid": "Paid",
+  "payStatusFailed": "Payment failed",
+  "payStatusRefunded": "Refunded",
+  "payStatusCodPending": "To collect on delivery",
+  "payStatusCodCollected": "Collected by courier",
+  "timelineCreated": "Order created",
+  "timelineImported": "Imported from {channel}",
+  "@timelineImported": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineStatus": "Now: {status}",
+  "@timelineStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineLinesCancelled": "Some items cancelled",
+  "timelineNote": "Note: {note}",
+  "@timelineNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "timelinePayment": "Payment received",
+  "timelinePaymentFailed": "Payment failed",
+  "timelinePaymentMismatch": "Paid amount didn't match",
+  "timelineOther": "Update",
+  "timelineByAi": "AI Sales Agent",
+  "timelineAutomatic": "Automatic",
+  "inboxTitle": "Inbox",
+  "inboxEmpty": "No open chats",
+  "inboxEmptyBody": "Customer messages from your connected channels arrive here.",
+  "inboxNeedsYou": "Needs you",
+  "inboxYou": "You: {text}",
+  "@inboxYou": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "inboxCustomer": "Customer",
+  "threadReplyHint": "Write a reply",
+  "threadSend": "Send",
+  "threadSuggestion": "AI suggestion, not sent yet",
+  "threadSuggestionSend": "Send",
+  "threadSuggestionEdit": "Edit",
+  "threadSuggestionDiscard": "Discard",
+  "threadEditTitle": "Edit before sending",
+  "threadFailed": "Not sent",
+  "threadRetry": "Retry",
+  "threadSending": "Sending…",
+  "threadByAi": "AI",
+  "threadHandBack": "Hand back to AI",
+  "threadHandedBack": "The AI will answer new messages again.",
+  "threadHumanBanner": "You're handling this chat. The AI is paused.",
+  "threadEscalatedBanner": "The AI handed this chat to you.",
+  "draftCollecting": "Taking an order: waiting for {field}",
+  "@draftCollecting": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "draftAwaitingConfirmation": "Order summary sent. Waiting for the customer's yes.",
+  "draftConfirmed": "Order created from this chat",
+  "stockSection": "Stock",
+  "stockAvailable": "{count} available",
+  "@stockAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stockDetail": "{onHand} on shelf · {reserved} reserved",
+  "@stockDetail": {
+    "placeholders": {
+      "onHand": {
+        "type": "int"
+      },
+      "reserved": {
+        "type": "int"
+      }
+    }
+  },
+  "stockUntracked": "Not tracked yet",
+  "stockLow": "Low",
+  "stockReceive": "Receive stock",
+  "stockQuantity": "Quantity received",
+  "stockReceived": "Stock updated",
+  "stockSave": "Add",
+  "exActionReply": "Reply",
+  "exActionCheckPayment": "Check payment",
+  "exActionFixStock": "Fix stock",
+  "exActionReviewOrder": "Review order",
+  "exSubjectConversation": "A customer chat",
+  "exSubjectOrder": "Order #{number}",
+  "@exSubjectOrder": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "commonCancel": "Cancel",
+  "draftFieldProduct": "product",
+  "draftFieldVariant": "size/colour",
+  "draftFieldQuantity": "quantity",
+  "draftFieldName": "name",
+  "draftFieldPhone": "phone number",
+  "draftFieldDistrict": "district",
+  "draftFieldMunicipality": "municipality",
+  "draftFieldWard": "ward",
+  "draftFieldArea": "area",
+  "draftFieldPayment": "payment choice"
 }
