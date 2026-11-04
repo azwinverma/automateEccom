@@ -24,6 +24,7 @@ from app.domains.integrations.base import (
     CourierAdapter,
     CourierCapability,
     ExternalLine,
+    ExternalMessage,
     ExternalOrder,
     IntegrationError,
     Money,
@@ -190,9 +191,29 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
         self._fail()
         return "sbx-post-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
 
+    sent: ClassVar[list[dict[str, str]]] = []  # outbound messages (tests read what the customer got)
+
     def send_message(self, conversation_external_id: str, text: str, idempotency_key: str) -> str:
+        self._require(ChannelCapability.MESSAGES)
         self._fail()
-        return "sbx-msg-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
+        mid = "sbx-msg-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
+        if not any(m["id"] == mid for m in self.sent):  # provider-side idempotency
+            self.sent.append({"id": mid, "thread": conversation_external_id, "text": text})
+        return mid
+
+    def normalize_message(self, raw: dict[str, Any]) -> ExternalMessage | None:
+        text = str(raw.get("text") or "").strip()
+        if not text or raw.get("echo"):
+            return None
+        sender = raw.get("sender") or {}
+        return ExternalMessage(
+            thread_id=str(raw["thread_id"]),
+            message_id=str(raw["message_id"]),
+            sender_id=str(sender.get("id") or raw["thread_id"]),
+            sender_name=sender.get("name"),
+            text=text[:4000],
+            product_ref=raw.get("product_id"),
+        )
 
     orders: ClassVar[list[dict[str, Any]]] = []  # what fetch_orders returns (tests append raw orders)
 

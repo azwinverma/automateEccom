@@ -176,6 +176,18 @@ class ExternalOrder:
     extra: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass
+class ExternalMessage:
+    """An inbound customer message from a channel (Messenger, Instagram DM, WhatsApp…)."""
+
+    thread_id: str
+    message_id: str
+    sender_id: str
+    sender_name: str | None
+    text: str
+    product_ref: str | None = None  # the post/listing the customer wrote from, if the channel says
+
+
 class ChannelAdapter(Adapter):
     # Which generated caption style suits this channel (instagram | facebook | tiktok | marketplace).
     caption_style: ClassVar[str] = "instagram"
@@ -227,6 +239,11 @@ class ChannelAdapter(Adapter):
     def fetch_orders(self, since: datetime) -> list[dict[str, Any]]:
         self._require(ChannelCapability.ORDERS)
         raise NotImplementedError
+
+    def normalize_message(self, raw: dict[str, Any]) -> ExternalMessage | None:
+        """Channel webhook payload → ExternalMessage. None = not a customer text (echo, read receipt…)."""
+        self._require(ChannelCapability.MESSAGES)
+        raise CapabilityNotSupported(self.code, "normalize_message")
 
     def normalize_order(self, raw: dict[str, Any]) -> ExternalOrder | None:
         """Channel order → ExternalOrder. None = not a real order yet (e.g. a checkout draft)."""

@@ -51,6 +51,7 @@ def create_app() -> FastAPI:
     from app.domains.content.router import router as content
     from app.domains.customers.router import router as customers
     from app.domains.exceptions.router import router as exceptions
+    from app.domains.inbox.router import router as inbox
     from app.domains.inventory.router import router as inventory
     from app.domains.media.router import dev_router as media_dev
     from app.domains.media.router import router as media
@@ -82,6 +83,7 @@ def create_app() -> FastAPI:
         customers,
         inventory,
         orders,
+        inbox,
         payments,
         exceptions,
         audit,

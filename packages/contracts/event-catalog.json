@@ -1176,6 +1176,49 @@
           "from_status"
         ]
       }
+    },
+    {
+      "type": "inbox.message_received",
+      "version": 1,
+      "description": "A customer message arrived in a conversation; triggers the Sales Agent.",
+      "aggregate": "inbox",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "conversation_id",
+          "message_id"
+        ]
+      }
+    },
+    {
+      "type": "inbox.send_requested",
+      "version": 1,
+      "description": "An outbound message (seller or AI) is queued for delivery through the channel.",
+      "aggregate": "inbox",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "message_id"
+        ]
+      }
     }
   ],
   "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."

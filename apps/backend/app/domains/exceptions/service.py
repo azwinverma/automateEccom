@@ -154,6 +154,61 @@ def open_exceptions(
             )
         )
 
+    from app.domains.customers.models import Customer
+    from app.domains.inbox.models import Conversation
+    from app.domains.orders.models import Order
+
+    conv_rows = db.execute(
+        select(Conversation, Customer.display_name)
+        .join(Customer, Customer.id == Conversation.customer_id)
+        .where(
+            Conversation.merchant_id == merchant_id,
+            Conversation.escalated.is_(True),
+            Conversation.status != "closed",
+        )
+    ).all()
+    for conv, name in conv_rows:
+        items.append(
+            _item(
+                "customer_escalation",
+                "urgent" if conv.escalation_reason in ("complaint", "refund") else "high",
+                "conversation",
+                conv.id,
+                conv.last_inbound_at,
+                "reply",
+                name=name,
+                reason=conv.escalation_reason,
+            )
+        )
+    review_type = {
+        "payment_mismatch": ("payment_mismatch", "urgent", "check_payment"),
+        "paid_after_cancel": ("payment_mismatch", "urgent", "check_payment"),
+        "stock_short": ("inventory_mismatch", "high", "fix_stock"),
+        "unmatched_items": ("ambiguous_variant", "high", "review_order"),
+        "address_incomplete": ("ambiguous_variant", "normal", "review_order"),
+    }
+    for o in db.scalars(
+        select(Order).where(
+            Order.merchant_id == merchant_id, Order.needs_review.is_not(None), Order.status != "cancelled"
+        )
+    ):
+        typ, sev, action = review_type.get(
+            o.needs_review or "", ("ambiguous_variant", "normal", "review_order")
+        )
+        items.append(
+            _item(
+                typ,
+                sev,
+                "order",
+                o.id,
+                o.updated_at,
+                action,
+                number=o.number,
+                reason=o.needs_review,
+                name=o.ship_name,
+            )
+        )
+
     for p in db.scalars(
         select(ContentPost).where(ContentPost.merchant_id == merchant_id, ContentPost.status == "failed")
     ):
