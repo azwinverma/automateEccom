@@ -45,6 +45,19 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
 
+## Phase 4 (Returns, exchanges, refunds): built 2026-11-04
+- **Built and tested:** return policy, eligibility with audited overrides, abuse signals, return
+  pickups through the courier layer, inspection with restock, exchanges with reserved stock,
+  idempotent threshold-controlled refunds (original payment or recorded transfer), Sales Agent
+  return answers, customer return messages. Web: Returns list, return detail, order Returns panel,
+  Settings → Returns, final-sale flag. Mobile: returns on orders, return detail, returns list.
+- **Exit criterion met in E2E** (desktop + 360px, live API + worker): delivered → return requested →
+  approved → pickup → received → inspected (restocked) → refunded → order returned.
+- **Totals (2026-11-04):** backend 279 passed (19 migrations); web 259 + api-client 25; E2E 26/26;
+  mobile 123 passed + 1 live-only skipped; axe 0 violations on the 4 Phase 4 pages (light, dark, 360px).
+- **Not production-ready:** online refunds need a Nepal gateway (GAP-PAY-NP); no customer self-service
+  return link; no photo upload for evidence in the forms; exchanges only at the same price.
+
 ## Phase 3 (Order → Delivery): built 2026-11-04
 - **Built and tested:** couriers (sandbox courier + "own rider / other courier"), merchant delivery
   charges (used by chat orders and New order), rule-based courier options, idempotent booking,
@@ -293,7 +306,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | PAY-004 | verify | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Server-side verify + amount must equal total; mismatch held for seller |
 | PAY-005 | webhook | P2 | TESTED | — | apps/backend/app/domains/payments/ | test_payments | Signed payment webhooks, deduped, only trigger verify |
 | PAY-006 | reconcile | P3 | NOT_STARTED | — | — | — |  |
-| PAY-007 | refund | P4 | NOT_STARTED | — | — | — |  |
+| PAY-007 | refund | P4 | TESTED | PAY-001 | apps/backend/app/domains/returns/service.py | test_returns | Idempotent; never above paid minus earlier refunds; original payment via provider refund (provider id stored) or recorded manual transfer; failed refunds retry with the same provider key. No Nepal gateway yet (GAP-PAY-NP) |
 | PAY-008 | idempotency tests | P2 | TESTED | — | tests/test_payments.py | test_payments | Manual payment idempotent; link reuse; webhook dedupe |
 | PAY-009 | failed payment | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Failed payment recorded; retry; switch to COD |
 | PAY-010 | settlement dashboard | P3 | TESTED | — | apps/backend/app/domains/fulfillment/settlement.py; apps/web/src/features/fulfillment/CodView.tsx | test_fulfillment::test_courier_statement…, Fulfillment.test (CodView), e2e phase3 | Cash with couriers by age and by courier, statements to review, received in 30 days; awaiting list; mobile COD screen |
@@ -307,18 +320,18 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | FUL-008 | delivery failure | P3 | TESTED | FUL-006 | fulfillment/service.py (attempts, capture_customer_reply, escalate_stale) | test_fulfillment (3 recovery tests), e2e phase3 | Attempt record → customer asked → reply captured before the Sales Agent → auto reattempt only in smart/autopilot → escalation after the wait window; return to sender; restock on receipt |
 | FUL-009 | smart courier | P6 | NOT_STARTED | — | — | — |  |
 | FUL-010 | reconciliation | P3 | TESTED | FUL-006 | apps/backend/app/domains/fulfillment/settlement.py | test_fulfillment (4 settlement tests) | Statements from courier API, CSV import or own-rider cash; per-line matching (7 outcomes); accept with reason (audited); confirm settles COD records; idempotent per reference |
-| RET-001 | policy | P4 | NOT_STARTED | — | — | — |  |
-| RET-002 | eligibility | P4 | NOT_STARTED | — | — | — |  |
-| RET-003 | request | P4 | NOT_STARTED | — | — | — |  |
-| RET-004 | evidence | P4 | NOT_STARTED | — | — | — |  |
-| RET-005 | approval | P4 | NOT_STARTED | — | — | — |  |
-| RET-006 | reverse shipment | P4 | NOT_STARTED | — | — | — |  |
-| RET-007 | inspection | P4 | NOT_STARTED | — | — | — |  |
-| RET-008 | exchange | P4 | NOT_STARTED | — | — | — |  |
-| RET-009 | refund calculation | P4 | NOT_STARTED | — | — | — |  |
-| RET-010 | auto-refund threshold | P4 | NOT_STARTED | — | — | — |  |
-| RET-011 | abuse signals | P4 | NOT_STARTED | — | — | — |  |
-| RET-012 | controlled return-reason vocabulary + free text [pull-forward for RTI] | P4 | NOT_STARTED | RET-003 | — | — | Pull-forward (Phase 4): controlled return-reason vocabulary |
+| RET-001 | policy | P4 | TESTED | — | apps/backend/app/domains/returns/models.py, service.py; web Settings > Returns | test_returns::test_final_sale…, test_shop_fault… | Window, refund/exchange, evidence reasons, customer-pays return shipping, auto-approve, auto-refund threshold; final-sale products |
+| RET-002 | eligibility | P4 | TESTED | RET-001 | apps/backend/app/domains/returns/service.py::check_eligibility | test_returns::test_outside_window… | Recorded per request; hard checks refuse; soft checks need an audited override reason; live check in the web/mobile form |
+| RET-003 | request | P4 | TESTED | RET-002 | apps/backend/app/domains/returns/router.py | test_returns, e2e phase4 | Seller-created from the order (Idempotency-Key, order lock); Sales Agent answers return questions from the policy and hands over. No customer self-service link (GAP-RETURN-SELF-SERVE) |
+| RET-004 | evidence | P4 | IMPLEMENTED | RET-003 | apps/backend/app/domains/returns/models.py (evidence_asset_ids) | test_returns::test_final_sale… | Evidence media ids per line + policy check; the web/mobile forms don't upload photos yet (GAP-RETURN-EVIDENCE-UI) |
+| RET-005 | approval | P4 | TESTED | RET-002 | apps/backend/app/domains/returns/service.py | test_returns::test_refund_above_threshold…, test_frequent_returner… | returns.approve (manager+); auto-approve only within policy and with no abuse signal |
+| RET-006 | reverse shipment | P4 | TESTED | FUL-003 | apps/backend/app/domains/fulfillment/service.py::book_return | test_returns::test_delivered_cod…, e2e phase4 | Return pickups reuse couriers/tracking/webhooks (direction=return); never move the order or COD; or mark received for drop-offs |
+| RET-007 | inspection | P4 | TESTED | RET-006 | apps/backend/app/domains/returns/service.py::inspect | test_returns (inspection tests), e2e phase4 | Condition per line; only resellable items restock (idempotent ledger key); missing items aren't refunded |
+| RET-008 | exchange | P4 | TESTED | RET-005 | apps/backend/app/domains/returns/service.py::_create_exchange | test_returns::test_exchange…, test_cancelling… | Same product and price; replacement reserved at approval; free replacement order after inspection; cancel releases it. Price-difference exchanges not supported (GAP-EXCHANGE-PRICE) |
+| RET-009 | refund calculation | P4 | TESTED | — | apps/backend/app/domains/returns/service.py::_unit_refund, _compute_due | test_returns::test_shop_fault… | Paid per unit net of line and order discounts; delivery charge back when the shop's fault covers the whole order; customer-fault return shipping deducted |
+| RET-010 | auto-refund threshold | P4 | TESTED | PAY-007 | apps/backend/app/domains/returns/service.py | test_returns::test_prepaid_auto_refund…, test_refund_above_threshold… | Auto-refund only to the original online payment, within the threshold, without abuse signals; above it a manager approves (staff may raise refunds) |
+| RET-011 | abuse signals | P4 | TESTED | — | apps/backend/app/domains/returns/service.py::abuse_signals | test_returns::test_frequent_returner… | Merchant-scoped facts only (frequent returns, high return rate, high value vs usual order); shown neutrally; turn automation off. Never names/gender/caste/location traits or cross-merchant data |
+| RET-012 | controlled return-reason vocabulary + free text [pull-forward for RTI] | P4 | TESTED | RET-003 | apps/backend/app/domains/returns/models.py | test_returns | 10 controlled reasons (DB check) + customer's words; conditions at inspection |
 | AUT-001 | workflow schema | P5 | NOT_STARTED | — | — | — |  |
 | AUT-002 | triggers | P5 | NOT_STARTED | — | — | — |  |
 | AUT-003 | conditions | P5 | NOT_STARTED | — | — | — |  |

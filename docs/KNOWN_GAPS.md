@@ -136,3 +136,6 @@ are done. The items below remain.
 | GAP-LABEL-BARCODE | Low | Nivaro's printable label shows the tracking number as text; no barcode/QR. Couriers that supply their own label link to it. | Add Code-128/QR rendering once a courier confirms which format its scanners read. |
 | GAP-SETTLEMENT-XLSX | Low | Courier statements are imported as CSV; Excel files must be saved as CSV first. | Parse .xlsx server-side (with a vetted library) if sellers ask for it. |
 | GAP-COURIER-RATES-REAL | Med | Rates and ETAs come from the sandbox courier; own-rider bookings have no rate. Courier Brain (Phase 6) needs real courier data. | Integrate a Nepal courier API (GAP-COURIER-NP). |
+| GAP-RETURN-SELF-SERVE | Med | Returns are created by the seller (or prompted by the Sales Agent's hand-over); customers have no return link/portal. | A signed customer return link once a storefront/portal exists. |
+| GAP-RETURN-EVIDENCE-UI | Low | Return lines store evidence media ids and the policy checks them, but the web/mobile forms don't upload photos yet. | Reuse the media upload flow in the Start-a-return form. |
+| GAP-EXCHANGE-PRICE | Low | Exchanges are limited to the same product at the same price (no top-up or partial refund). | Price-difference exchanges with a payment link or partial refund. |

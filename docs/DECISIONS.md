@@ -397,3 +397,35 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 - **Decision:** couriers, shipments, recovery and COD settlement need no feature entitlement.
   Courier Brain (`intelligence.courier`) and COD Intelligence (`intelligence.cod`) stay Pro+ (Phase 6).
 - **Why:** delivering and getting paid is core to every seller; intelligence on top is the upsell.
+
+## ADR-052: Return eligibility is recorded; soft failures need an audited override (RET-002, 2026-11-04)
+- **Decision:** each request stores the checks against the policy at that moment. Not delivered,
+  nothing left to return, or a bad exchange choice refuse the request. Outside the window, final sale
+  or missing evidence can be approved by someone with returns.approve, with a reason in the audit log.
+- **Why:** sellers make goodwill exceptions every day; the exception must be visible and attributable.
+
+## ADR-053: Abuse signals are merchant-scoped facts that only switch automation off (RET-011, 2026-11-04)
+- **Decision:** frequent returns, high return rate and unusually high value are computed from this
+  merchant's own records, shown as neutral facts, and stop auto-approve/auto-refund. They never reject.
+  No personal attributes or cross-merchant data (same rule as COD Intelligence).
+- **Why:** fairness and privacy (spec 12); a human decides when something looks unusual.
+
+## ADR-054: Refunds never exceed what was paid; above the threshold a manager approves (PAY-007, RET-010, 2026-11-04)
+- **Decision:** refunds are idempotent, serialised per order and capped at paid minus earlier refunds.
+  Original-payment refunds go through the provider with the refund id as idempotency key; COD refunds
+  are recorded transfers with a reference. Amounts above the policy threshold (default 0) wait for
+  refunds.approve. Staff gained refunds.create so they can raise (not approve) refunds.
+- **Why:** money leaving the business must be bounded, attributable and approved per merchant policy.
+
+## ADR-055: Return pickups are shipments with direction=return (RET-006, 2026-11-04)
+- **Decision:** the courier layer books, tracks and dedupes return pickups like deliveries, but they
+  drive the return (in transit → received) and never the order status, COD record or customer
+  shipping messages.
+- **Why:** one tracking pipeline; no risk of a return parcel marking an order "delivered" or "failed".
+
+## ADR-056: Exchanges reserve the replacement at approval and ship it after inspection (RET-008, 2026-11-04)
+- **Decision:** same product, same price. Approval reserves the replacement (reference = the return);
+  after inspection the reservation moves to a zero-total replacement order that ships normally.
+- **Why:** the customer shouldn't lose their size while the parcel travels back, and the shop
+  shouldn't send the replacement before the original is back.
+

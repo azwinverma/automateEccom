@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-04 after Phase 1 completion, Phase 2 and Phase 3.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-04 after Phase 1 completion and Phases 2–4.
 
 ## Overall status: **NOT_READY**
 
@@ -13,8 +13,8 @@ Nivaro is still **not production ready**, for reasons outside the code that exis
 1. **The commerce loop is built up to delivery and cash, but only against sandboxes.** Phases 2–3
    (inbox, AI Sales Agent, chat-to-order, orders, inventory, payments, couriers, tracking,
    failed-delivery recovery, COD settlement) are built and tested end to end. No real Nepal courier
-   API is integrated (own-rider/manual deliveries do work). Returns/refunds (Phase 4) and automation
-   (Phase 5) are not built.
+   API is integrated (own-rider/manual deliveries do work). Returns, exchanges and refunds (Phase 4) are built; automation
+   (Phase 5) is not.
 2. **No staging or production environment, monitoring, alerting, runbooks or backup regime exists.** These are Definition of Done requirements (24).
 3. **No external integration has been exercised live:**
    - AI providers
@@ -155,3 +155,22 @@ rule broke the production build (moved to globals); the COD statements table was
 
 Overall status remains **NOT_READY** (real courier API, live channels, payment gateway, staging,
 backups, pentest).
+
+## Update 2026-11-04 (Phase 4: returns, exchanges, refunds)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 279 | 279 | 0 | 0 |
+| Web unit + API client | 284 | 284 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 26 | 26 | 0 | 0 |
+| Flutter | 124 | 123 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 4 pages (4 pages × 3 configs) | 12 | 12 | 0 | 0 |
+
+Exit flow verified in E2E: delivered → return → approved → pickup → received → inspected
+(restocked) → refunded → order returned.
+
+Fixed while building: abuse signals counted the request being created; refund status and the
+"order returned" check read stale data (sessions don't autoflush; explicit flushes added).
+
+Overall status remains **NOT_READY** (real courier API, Nepal payment gateway for online refunds,
+live channels, staging, backups, pentest).
+

@@ -302,8 +302,12 @@ export function ShipmentCard({ shipment: s, onChanged }: { shipment: Shipment; o
             "–"
           )}
         </dd>
-        <dt>{t("fulfillment.colCod")}</dt>
-        <dd>{s.cod_amount.amount_minor ? money(s.cod_amount.amount_minor, s.cod_amount.currency) : t("fulfillment.panel.noCollect")}</dd>
+        {s.direction !== "return" ? (
+          <>
+            <dt>{t("fulfillment.colCod")}</dt>
+            <dd>{s.cod_amount.amount_minor ? money(s.cod_amount.amount_minor, s.cod_amount.currency) : t("fulfillment.panel.noCollect")}</dd>
+          </>
+        ) : null}
         {s.charge ? (
           <>
             <dt>{t("fulfillment.panel.chargeLabel")}</dt>

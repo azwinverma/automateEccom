@@ -141,15 +141,14 @@ export function ReturnDetailView({ id }: { id: string }) {
               <dl className={styles.facts} style={{ marginTop: "var(--space-3)" }}>
                 <dt>{t("returns.refundDue")}</dt>
                 <dd className={styles.money}>{money(r.refund_due.amount_minor, r.refund_due.currency)}</dd>
-                <dt>–</dt>
-                <dd className={styles.muted}>
-                  {r.customer_pays_shipping && r.return_shipping_fee_minor
-                    ? t("returns.shippingFee", { amount: money(r.return_shipping_fee_minor, r.refund_due.currency) })
-                    : !r.customer_pays_shipping
-                      ? t("returns.shopPays")
-                      : ""}
-                </dd>
               </dl>
+            ) : null}
+            {r.resolution === "refund" && (!r.customer_pays_shipping || r.return_shipping_fee_minor) ? (
+              <p className={styles.muted} style={{ margin: "var(--space-1) 0 0" }}>
+                {r.customer_pays_shipping
+                  ? t("returns.shippingFee", { amount: money(r.return_shipping_fee_minor, r.refund_due.currency) })
+                  : t("returns.shopPays")}
+              </p>
             ) : r.exchange_order_id ? (
               <p style={{ marginTop: "var(--space-3)" }}>
                 <Link href={`/orders/${r.exchange_order_id}`}>{t("returns.openExchange")}</Link>
