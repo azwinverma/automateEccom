@@ -124,6 +124,7 @@ are done. The items below remain.
 | GAP-AI-REPLY-PHRASING | Med | Sales Agent replies are grounded bilingual templates; no LLM phrasing yet (ADR-043). AI intent classification only runs with a real key. | With a live key: LLM phrasing behind a numbers-must-match grounding guard + evals on real (consented) chats. |
 | GAP-DELIVERY-FEE | Med | Chat orders show "+ delivery charge confirmed by the shop"; no rate table or courier quotes yet. | Phase 3 courier rates (FUL) or a merchant delivery-fee table by district. |
 | GAP-MOBILE-ORDER-CREATE | Low | Mobile can't create orders, record payments, see draft field values, summarise or assign chats (web can). | Next mobile iteration. |
+| GAP-TEST-FLAKE-1104 | Low | One backend test failed once in a full run with coverage on 2026-11-04 (output not captured); it hasn't happened again in 4 more full runs or 6 repeats of the concurrency tests. | If CI shows a failure, capture `-rf` output and fix the root cause. |
 | GAP-NE-COPY-REVIEW | Low | New Phase 2 Nepali UI copy and chat templates need a native copy review. | Copy editor pass. |
 
 ## Security hardening still to do
