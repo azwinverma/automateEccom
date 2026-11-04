@@ -13,6 +13,8 @@ import '../../channels/presentation/reconnect_sheet.dart';
 import '../../exceptions/data/exception_routing.dart';
 import '../../exceptions/data/exceptions_api.dart';
 import '../../exceptions/presentation/exception_mapping.dart';
+import '../../fulfillment/data/fulfillment_api.dart';
+import '../../fulfillment/presentation/cod_screen.dart';
 import 'widgets/autopilot_status_strip.dart';
 import 'widgets/exception_list.dart';
 import 'widgets/quick_actions.dart';
@@ -81,7 +83,8 @@ class HomeScreen extends ConsumerWidget {
           onRefresh: () async {
             ref
               ..invalidate(exceptionsProvider)
-              ..invalidate(automationModeProvider);
+              ..invalidate(automationModeProvider)
+              ..invalidate(codOverviewProvider);
             await Future.wait<Object?>([
               ref.read(sessionControllerProvider.notifier).refreshMe(),
               ref
@@ -131,6 +134,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               AutopilotStatusStrip(status: autopilot),
+              const CodHomeCard(),
               SectionHeader(
                 l.homeSectionNeedsYou,
                 trailing:

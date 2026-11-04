@@ -1720,4 +1720,292 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get draftFieldPayment => 'भुक्तानी विधि';
+
+  @override
+  String get deliveryTitle => 'डेलिभरी';
+
+  @override
+  String get deliveryChooseCourier => 'कसरी पठाउने छान्नुहोस्';
+
+  @override
+  String get deliveryWhyDefault => 'सिफारिस: तपाईंको मुख्य कुरियर';
+
+  @override
+  String get deliveryWhyCheapest => 'सिफारिस: यो पार्सलका लागि सबैभन्दा सस्तो विकल्प';
+
+  @override
+  String get deliveryWhyOnly => 'यो पार्सल लैजान सक्ने एउटै विकल्प';
+
+  @override
+  String get deliveryRecommended => 'सिफारिस';
+
+  @override
+  String get deliveryOwnRider => 'तपाईं आफैं पठाउनुहुन्छ र अवस्था अद्यावधिक गर्नुहुन्छ';
+
+  @override
+  String deliveryEta(int min, int max) {
+    return '$min–$max दिन';
+  }
+
+  @override
+  String get deliveryNoCouriers => 'अहिलेसम्म कुरियर जोडिएको छैन। वेबको सेटिङमा थप्नुहोस्।';
+
+  @override
+  String deliveryCollectAmount(String amount) {
+    return 'कुरियरले ढोकामा $amount उठाउँछ';
+  }
+
+  @override
+  String get deliveryTrackingOptional => 'ट्र्याकिङ नम्बर (ऐच्छिक)';
+
+  @override
+  String get deliveryCourierNameOptional => 'कुरियर वा राइडरको नाम (ऐच्छिक)';
+
+  @override
+  String get deliveryBook => 'कुरियर बुक गर्नुहोस्';
+
+  @override
+  String get deliveryBooked => 'कुरियर बुक भयो';
+
+  @override
+  String deliveryTracking(String number) {
+    return 'ट्र्याकिङ $number';
+  }
+
+  @override
+  String get deliveryCopy => 'ट्र्याकिङ नम्बर कपी गर्नुहोस्';
+
+  @override
+  String get deliveryCopied => 'ट्र्याकिङ नम्बर कपी भयो';
+
+  @override
+  String deliveryCod(String amount) {
+    return 'उठाउने नगद: $amount';
+  }
+
+  @override
+  String get deliveryNothingToCollect => 'भुक्तानी भइसक्यो: उठाउनु पर्दैन';
+
+  @override
+  String get deliveryHistory => 'पार्सलको इतिहास';
+
+  @override
+  String get deliveryLateUpdate => 'कुरियरको ढिलो जानकारी (लागू गरिएन)';
+
+  @override
+  String deliveryAttempt(int n, String reason) {
+    return 'प्रयास $n: $reason';
+  }
+
+  @override
+  String deliveryCustomerReply(String text) {
+    return 'ग्राहकको जवाफ: “$text”';
+  }
+
+  @override
+  String get deliveryUpdated => 'डेलिभरी अद्यावधिक भयो';
+
+  @override
+  String get deliveryActionPickup => 'पिकअप माग्नुहोस्';
+
+  @override
+  String get deliveryActionCancel => 'बुकिङ रद्द गर्नुहोस्';
+
+  @override
+  String get deliveryActionReattempt => 'फेरि डेलिभर गर्न कुरियरलाई भन्नुहोस्';
+
+  @override
+  String get deliveryActionReturn => 'पसलमा फिर्ता ल्याउनुहोस्';
+
+  @override
+  String get deliveryActionReceivedBack => 'पार्सल फिर्ता आयो: स्टकमा थप्नुहोस्';
+
+  @override
+  String get deliveryActionUpdateStatus => 'अवस्था अद्यावधिक गर्नुहोस्';
+
+  @override
+  String get deliveryActionRefresh => 'कुरियरसँग नयाँ जानकारी हेर्नुहोस्';
+
+  @override
+  String get deliveryCancelTitle => 'यो बुकिङ रद्द गर्ने?';
+
+  @override
+  String get deliveryCancelBody => 'कुरियरले यो पार्सल लैजाँदैन। फेरि बुक गर्न सकिन्छ।';
+
+  @override
+  String get deliveryKeep => 'राख्नुहोस्';
+
+  @override
+  String get deliveryConfirm => 'पक्का गर्नुहोस्';
+
+  @override
+  String get deliveryReattemptTitle => 'फेरि डेलिभर गर्ने';
+
+  @override
+  String get deliveryReattemptNote => 'कुरियरका लागि टिपोट (समय, चिनारी)';
+
+  @override
+  String get deliverySend => 'पठाउनुहोस्';
+
+  @override
+  String get deliveryReturnTitle => 'पार्सल पसलमा फिर्ता ल्याउने?';
+
+  @override
+  String get deliveryReturnBody => 'कुरियरले फिर्ता ल्याउँछ र नगद उठ्दैन।';
+
+  @override
+  String get deliveryStatusTitle => 'पार्सललाई के भयो?';
+
+  @override
+  String get deliveryFailureReason => 'डेलिभरी किन भएन?';
+
+  @override
+  String get deliveryReasonRequired => 'अगाडि बढ्न कारण छान्नुहोस्';
+
+  @override
+  String get deliveryNote => 'टिपोट (ऐच्छिक)';
+
+  @override
+  String get deliverySave => 'सेभ गर्नुहोस्';
+
+  @override
+  String get shipStatusBooked => 'बुक भयो';
+
+  @override
+  String get shipStatusPickupRequested => 'पिकअप मागियो';
+
+  @override
+  String get shipStatusPickedUp => 'कुरियरले लग्यो';
+
+  @override
+  String get shipStatusInTransit => 'बाटोमा';
+
+  @override
+  String get shipStatusOutForDelivery => 'डेलिभरीमा निस्केको';
+
+  @override
+  String get shipStatusDelivered => 'डेलिभर भयो';
+
+  @override
+  String get shipStatusDeliveryFailed => 'डेलिभरी भएन';
+
+  @override
+  String get shipStatusReattemptRequested => 'फेरि प्रयास हुँदै';
+
+  @override
+  String get shipStatusReturning => 'पसलमा फर्कंदै';
+
+  @override
+  String get shipStatusReturnedToOrigin => 'पसलमा फिर्ता आयो';
+
+  @override
+  String get shipStatusCancelled => 'रद्द';
+
+  @override
+  String get shipStatusLost => 'कुरियरबाट हरायो';
+
+  @override
+  String get failReasonCustomerUnreachable => 'ग्राहकको फोनमा सम्पर्क भएन';
+
+  @override
+  String get failReasonCustomerUnavailable => 'बुझ्ने कोही थिएन';
+
+  @override
+  String get failReasonCustomerRefused => 'ग्राहकले पार्सल लिएनन्';
+
+  @override
+  String get failReasonAddressIncorrect => 'राइडरले ठेगाना भेटेनन्';
+
+  @override
+  String get failReasonCodNotReady => 'नगद तयार थिएन';
+
+  @override
+  String get failReasonRescheduled => 'ग्राहकले अर्को समय मागे';
+
+  @override
+  String get failReasonOther => 'अन्य समस्या';
+
+  @override
+  String get recoveryOpen => 'ग्राहकलाई फोन गर्नुहोस्';
+
+  @override
+  String get recoveryAwaitingCustomer => 'ग्राहकलाई सन्देश पठाइयो, जवाफ कुर्दै';
+
+  @override
+  String get recoveryCustomerReplied => 'ग्राहकले जवाफ दिए: कुरियरलाई फेरि पठाउन भन्नुहोस्';
+
+  @override
+  String get recoveryReattemptRequested => 'कुरियरलाई फेरि प्रयास गर्न भनियो';
+
+  @override
+  String get recoveryReturning => 'तपाईंको पसलमा फर्कंदै';
+
+  @override
+  String get recoveryResolved => 'समाधान भयो';
+
+  @override
+  String get recoveryEscalated => 'जवाफ आएन: ग्राहकलाई फोन गर्नुहोस्';
+
+  @override
+  String get codTitle => 'डेलिभरीमा नगद';
+
+  @override
+  String get codWithCouriers => 'कुरियरसँग';
+
+  @override
+  String codWithCouriersBody(int count) {
+    return 'डेलिभर भएका $count पार्सलको नगद आउन बाँकी';
+  }
+
+  @override
+  String codOverTwoWeeks(String amount) {
+    return '$amount दुई हप्ताभन्दा बढी देखि बाँकी';
+  }
+
+  @override
+  String codNeedsReview(int count) {
+    return '$count कुरियर विवरण जाँच्नुपर्ने';
+  }
+
+  @override
+  String get codAwaitingTitle => 'अझै कुरियरसँग रहेको नगद';
+
+  @override
+  String get codAwaitingEmpty => 'कुनै नगद बाँकी छैन: कुरियरले सबै डेलिभर भएका पार्सलको भुक्तानी गरे।';
+
+  @override
+  String codDaysWaiting(int days) {
+    return '$days दिनदेखि बाँकी';
+  }
+
+  @override
+  String codOrderCourier(int number, String courier) {
+    return 'अर्डर #$number · $courier';
+  }
+
+  @override
+  String get codSettlementsTitle => 'कुरियर विवरण';
+
+  @override
+  String get codSettlementsEmpty => 'अहिलेसम्म कुरियर विवरण छैन।';
+
+  @override
+  String get codStatusNeedsReview => 'जाँच्नुपर्ने';
+
+  @override
+  String get codStatusReconciled => 'मिल्यो: पैसा आएपछि पक्का गर्नुहोस्';
+
+  @override
+  String get codStatusConfirmed => 'प्राप्त भयो';
+
+  @override
+  String codIssues(int count) {
+    return '$count लाइन मिलेनन्। वेबमा जाँच्नुहोस्।';
+  }
+
+  @override
+  String get codConfirmReceived => 'पैसा आयो भनी पक्का गर्नुहोस्';
+
+  @override
+  String get codConfirmed => 'प्राप्त भनी जनाइयो';
 }

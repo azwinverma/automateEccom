@@ -9,6 +9,7 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
 import '../features/catalog/presentation/product_screen.dart';
 import '../features/content/presentation/posts_screen.dart';
+import '../features/fulfillment/presentation/cod_screen.dart';
 import '../features/home/presentation/coming_soon_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/widgets/quick_actions.dart';
@@ -142,6 +143,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/orders/:id',
         builder: (_, s) => OrderScreen(orderId: s.pathParameters['id']!),
       ),
+      GoRoute(path: '/cod', builder: (_, __) => const CodScreen()),
       GoRoute(
         path: '/inbox/:id',
         builder:

@@ -3292,6 +3292,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'payment choice'**
   String get draftFieldPayment;
+
+  /// No description provided for @deliveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get deliveryTitle;
+
+  /// No description provided for @deliveryChooseCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to send it'**
+  String get deliveryChooseCourier;
+
+  /// No description provided for @deliveryWhyDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended: your default courier'**
+  String get deliveryWhyDefault;
+
+  /// No description provided for @deliveryWhyCheapest.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended: the cheapest option that fits this parcel'**
+  String get deliveryWhyCheapest;
+
+  /// No description provided for @deliveryWhyOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The only option that can take this parcel'**
+  String get deliveryWhyOnly;
+
+  /// No description provided for @deliveryRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get deliveryRecommended;
+
+  /// No description provided for @deliveryOwnRider.
+  ///
+  /// In en, this message translates to:
+  /// **'You arrange it and record the updates'**
+  String get deliveryOwnRider;
+
+  /// No description provided for @deliveryEta.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max} days'**
+  String deliveryEta(int min, int max);
+
+  /// No description provided for @deliveryNoCouriers.
+  ///
+  /// In en, this message translates to:
+  /// **'No courier is set up yet. Add one in Settings on the web.'**
+  String get deliveryNoCouriers;
+
+  /// No description provided for @deliveryCollectAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'The courier collects {amount} at the door'**
+  String deliveryCollectAmount(String amount);
+
+  /// No description provided for @deliveryTrackingOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking number (optional)'**
+  String get deliveryTrackingOptional;
+
+  /// No description provided for @deliveryCourierNameOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier or rider name (optional)'**
+  String get deliveryCourierNameOptional;
+
+  /// No description provided for @deliveryBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Book courier'**
+  String get deliveryBook;
+
+  /// No description provided for @deliveryBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier booked'**
+  String get deliveryBooked;
+
+  /// No description provided for @deliveryTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking {number}'**
+  String deliveryTracking(String number);
+
+  /// No description provided for @deliveryCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy tracking number'**
+  String get deliveryCopy;
+
+  /// No description provided for @deliveryCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking number copied'**
+  String get deliveryCopied;
+
+  /// No description provided for @deliveryCod.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash to collect: {amount}'**
+  String deliveryCod(String amount);
+
+  /// No description provided for @deliveryNothingToCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid already: nothing to collect'**
+  String get deliveryNothingToCollect;
+
+  /// No description provided for @deliveryHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Parcel history'**
+  String get deliveryHistory;
+
+  /// No description provided for @deliveryLateUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late update from the courier (not applied)'**
+  String get deliveryLateUpdate;
+
+  /// No description provided for @deliveryAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempt {n}: {reason}'**
+  String deliveryAttempt(int n, String reason);
+
+  /// No description provided for @deliveryCustomerReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer replied: “{text}”'**
+  String deliveryCustomerReply(String text);
+
+  /// No description provided for @deliveryUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery updated'**
+  String get deliveryUpdated;
+
+  /// No description provided for @deliveryActionPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Request pickup'**
+  String get deliveryActionPickup;
+
+  /// No description provided for @deliveryActionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel booking'**
+  String get deliveryActionCancel;
+
+  /// No description provided for @deliveryActionReattempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the courier to try again'**
+  String get deliveryActionReattempt;
+
+  /// No description provided for @deliveryActionReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to my shop'**
+  String get deliveryActionReturn;
+
+  /// No description provided for @deliveryActionReceivedBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Parcel is back: restock items'**
+  String get deliveryActionReceivedBack;
+
+  /// No description provided for @deliveryActionUpdateStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update status'**
+  String get deliveryActionUpdateStatus;
+
+  /// No description provided for @deliveryActionRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the courier for updates'**
+  String get deliveryActionRefresh;
+
+  /// No description provided for @deliveryCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this booking?'**
+  String get deliveryCancelTitle;
+
+  /// No description provided for @deliveryCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The courier won\'t collect this parcel. You can book again.'**
+  String get deliveryCancelBody;
+
+  /// No description provided for @deliveryKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get deliveryKeep;
+
+  /// No description provided for @deliveryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get deliveryConfirm;
+
+  /// No description provided for @deliveryReattemptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try delivering again'**
+  String get deliveryReattemptTitle;
+
+  /// No description provided for @deliveryReattemptNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the courier (time, landmark)'**
+  String get deliveryReattemptNote;
+
+  /// No description provided for @deliverySend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deliverySend;
+
+  /// No description provided for @deliveryReturnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Return the parcel to your shop?'**
+  String get deliveryReturnTitle;
+
+  /// No description provided for @deliveryReturnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The courier brings it back and no cash is collected.'**
+  String get deliveryReturnBody;
+
+  /// No description provided for @deliveryStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened to the parcel?'**
+  String get deliveryStatusTitle;
+
+  /// No description provided for @deliveryFailureReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why did the delivery fail?'**
+  String get deliveryFailureReason;
+
+  /// No description provided for @deliveryReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a reason to continue'**
+  String get deliveryReasonRequired;
+
+  /// No description provided for @deliveryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get deliveryNote;
+
+  /// No description provided for @deliverySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get deliverySave;
+
+  /// No description provided for @shipStatusBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get shipStatusBooked;
+
+  /// No description provided for @shipStatusPickupRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup requested'**
+  String get shipStatusPickupRequested;
+
+  /// No description provided for @shipStatusPickedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get shipStatusPickedUp;
+
+  /// No description provided for @shipStatusInTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get shipStatusInTransit;
+
+  /// No description provided for @shipStatusOutForDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get shipStatusOutForDelivery;
+
+  /// No description provided for @shipStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get shipStatusDelivered;
+
+  /// No description provided for @shipStatusDeliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery failed'**
+  String get shipStatusDeliveryFailed;
+
+  /// No description provided for @shipStatusReattemptRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Trying again'**
+  String get shipStatusReattemptRequested;
+
+  /// No description provided for @shipStatusReturning.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming back to shop'**
+  String get shipStatusReturning;
+
+  /// No description provided for @shipStatusReturnedToOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back at shop'**
+  String get shipStatusReturnedToOrigin;
+
+  /// No description provided for @shipStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get shipStatusCancelled;
+
+  /// No description provided for @shipStatusLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost by courier'**
+  String get shipStatusLost;
+
+  /// No description provided for @failReasonCustomerUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the customer\'s phone'**
+  String get failReasonCustomerUnreachable;
+
+  /// No description provided for @failReasonCustomerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody was there to receive it'**
+  String get failReasonCustomerUnavailable;
+
+  /// No description provided for @failReasonCustomerRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer refused the parcel'**
+  String get failReasonCustomerRefused;
+
+  /// No description provided for @failReasonAddressIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider couldn\'t find the address'**
+  String get failReasonAddressIncorrect;
+
+  /// No description provided for @failReasonCodNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash wasn\'t ready'**
+  String get failReasonCodNotReady;
+
+  /// No description provided for @failReasonRescheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer asked for another time'**
+  String get failReasonRescheduled;
+
+  /// No description provided for @failReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other problem'**
+  String get failReasonOther;
+
+  /// No description provided for @recoveryOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Call the customer'**
+  String get recoveryOpen;
+
+  /// No description provided for @recoveryAwaitingCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'We messaged the customer, waiting for a reply'**
+  String get recoveryAwaitingCustomer;
+
+  /// No description provided for @recoveryCustomerReplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer replied: ask the courier to try again'**
+  String get recoveryCustomerReplied;
+
+  /// No description provided for @recoveryReattemptRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier asked to try again'**
+  String get recoveryReattemptRequested;
+
+  /// No description provided for @recoveryReturning.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming back to your shop'**
+  String get recoveryReturning;
+
+  /// No description provided for @recoveryResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get recoveryResolved;
+
+  /// No description provided for @recoveryEscalated.
+  ///
+  /// In en, this message translates to:
+  /// **'No reply: please call the customer'**
+  String get recoveryEscalated;
+
+  /// No description provided for @codTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get codTitle;
+
+  /// No description provided for @codWithCouriers.
+  ///
+  /// In en, this message translates to:
+  /// **'With couriers'**
+  String get codWithCouriers;
+
+  /// No description provided for @codWithCouriersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash from {count} delivered parcels not received yet'**
+  String codWithCouriersBody(int count);
+
+  /// No description provided for @codOverTwoWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} waiting more than 2 weeks'**
+  String codOverTwoWeeks(String amount);
+
+  /// No description provided for @codNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} courier statements need checking'**
+  String codNeedsReview(int count);
+
+  /// No description provided for @codAwaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash still with couriers'**
+  String get codAwaitingTitle;
+
+  /// No description provided for @codAwaitingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No cash waiting: couriers have paid for every delivered parcel.'**
+  String get codAwaitingEmpty;
+
+  /// No description provided for @codDaysWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days waiting'**
+  String codDaysWaiting(int days);
+
+  /// No description provided for @codOrderCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number} · {courier}'**
+  String codOrderCourier(int number, String courier);
+
+  /// No description provided for @codSettlementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier statements'**
+  String get codSettlementsTitle;
+
+  /// No description provided for @codSettlementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No courier statements yet.'**
+  String get codSettlementsEmpty;
+
+  /// No description provided for @codStatusNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs checking'**
+  String get codStatusNeedsReview;
+
+  /// No description provided for @codStatusReconciled.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches: confirm once paid'**
+  String get codStatusReconciled;
+
+  /// No description provided for @codStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get codStatusConfirmed;
+
+  /// No description provided for @codIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} lines don\'t match. Check them on the web.'**
+  String codIssues(int count);
+
+  /// No description provided for @codConfirmReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm money received'**
+  String get codConfirmReceived;
+
+  /// No description provided for @codConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as received'**
+  String get codConfirmed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

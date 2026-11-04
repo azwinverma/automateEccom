@@ -9,6 +9,8 @@ import '../../../design/app_theme.dart';
 import '../../../design/tokens.g.dart';
 import '../../../design/widgets/section_header.dart';
 import '../../../design/widgets/state_views.dart';
+import '../../fulfillment/data/fulfillment_api.dart';
+import '../../fulfillment/presentation/delivery_section.dart';
 import '../data/orders_api.dart';
 import 'order_labels.dart';
 
@@ -80,6 +82,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
         onRefresh: () async {
           ref
             ..invalidate(orderTimelineProvider(widget.orderId))
+            ..invalidate(orderShipmentsProvider(widget.orderId))
             ..invalidate(orderProvider(widget.orderId));
           await ref.read(orderProvider(widget.orderId).future);
         },
@@ -219,6 +222,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             ],
           ),
         ),
+        DeliverySection(order: o),
         if ((o.notes ?? '').isNotEmpty) ...[
           SectionHeader(l.orderNotes),
           Padding(padding: pad, child: Text(o.notes!)),

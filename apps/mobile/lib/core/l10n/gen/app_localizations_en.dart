@@ -1738,4 +1738,292 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get draftFieldPayment => 'payment choice';
+
+  @override
+  String get deliveryTitle => 'Delivery';
+
+  @override
+  String get deliveryChooseCourier => 'Choose how to send it';
+
+  @override
+  String get deliveryWhyDefault => 'Recommended: your default courier';
+
+  @override
+  String get deliveryWhyCheapest => 'Recommended: the cheapest option that fits this parcel';
+
+  @override
+  String get deliveryWhyOnly => 'The only option that can take this parcel';
+
+  @override
+  String get deliveryRecommended => 'Recommended';
+
+  @override
+  String get deliveryOwnRider => 'You arrange it and record the updates';
+
+  @override
+  String deliveryEta(int min, int max) {
+    return '$min–$max days';
+  }
+
+  @override
+  String get deliveryNoCouriers => 'No courier is set up yet. Add one in Settings on the web.';
+
+  @override
+  String deliveryCollectAmount(String amount) {
+    return 'The courier collects $amount at the door';
+  }
+
+  @override
+  String get deliveryTrackingOptional => 'Tracking number (optional)';
+
+  @override
+  String get deliveryCourierNameOptional => 'Courier or rider name (optional)';
+
+  @override
+  String get deliveryBook => 'Book courier';
+
+  @override
+  String get deliveryBooked => 'Courier booked';
+
+  @override
+  String deliveryTracking(String number) {
+    return 'Tracking $number';
+  }
+
+  @override
+  String get deliveryCopy => 'Copy tracking number';
+
+  @override
+  String get deliveryCopied => 'Tracking number copied';
+
+  @override
+  String deliveryCod(String amount) {
+    return 'Cash to collect: $amount';
+  }
+
+  @override
+  String get deliveryNothingToCollect => 'Paid already: nothing to collect';
+
+  @override
+  String get deliveryHistory => 'Parcel history';
+
+  @override
+  String get deliveryLateUpdate => 'Late update from the courier (not applied)';
+
+  @override
+  String deliveryAttempt(int n, String reason) {
+    return 'Attempt $n: $reason';
+  }
+
+  @override
+  String deliveryCustomerReply(String text) {
+    return 'Customer replied: “$text”';
+  }
+
+  @override
+  String get deliveryUpdated => 'Delivery updated';
+
+  @override
+  String get deliveryActionPickup => 'Request pickup';
+
+  @override
+  String get deliveryActionCancel => 'Cancel booking';
+
+  @override
+  String get deliveryActionReattempt => 'Ask the courier to try again';
+
+  @override
+  String get deliveryActionReturn => 'Return to my shop';
+
+  @override
+  String get deliveryActionReceivedBack => 'Parcel is back: restock items';
+
+  @override
+  String get deliveryActionUpdateStatus => 'Update status';
+
+  @override
+  String get deliveryActionRefresh => 'Check the courier for updates';
+
+  @override
+  String get deliveryCancelTitle => 'Cancel this booking?';
+
+  @override
+  String get deliveryCancelBody => 'The courier won\'t collect this parcel. You can book again.';
+
+  @override
+  String get deliveryKeep => 'Keep';
+
+  @override
+  String get deliveryConfirm => 'Confirm';
+
+  @override
+  String get deliveryReattemptTitle => 'Try delivering again';
+
+  @override
+  String get deliveryReattemptNote => 'Note for the courier (time, landmark)';
+
+  @override
+  String get deliverySend => 'Send';
+
+  @override
+  String get deliveryReturnTitle => 'Return the parcel to your shop?';
+
+  @override
+  String get deliveryReturnBody => 'The courier brings it back and no cash is collected.';
+
+  @override
+  String get deliveryStatusTitle => 'What happened to the parcel?';
+
+  @override
+  String get deliveryFailureReason => 'Why did the delivery fail?';
+
+  @override
+  String get deliveryReasonRequired => 'Choose a reason to continue';
+
+  @override
+  String get deliveryNote => 'Note (optional)';
+
+  @override
+  String get deliverySave => 'Save';
+
+  @override
+  String get shipStatusBooked => 'Booked';
+
+  @override
+  String get shipStatusPickupRequested => 'Pickup requested';
+
+  @override
+  String get shipStatusPickedUp => 'Picked up';
+
+  @override
+  String get shipStatusInTransit => 'On the way';
+
+  @override
+  String get shipStatusOutForDelivery => 'Out for delivery';
+
+  @override
+  String get shipStatusDelivered => 'Delivered';
+
+  @override
+  String get shipStatusDeliveryFailed => 'Delivery failed';
+
+  @override
+  String get shipStatusReattemptRequested => 'Trying again';
+
+  @override
+  String get shipStatusReturning => 'Coming back to shop';
+
+  @override
+  String get shipStatusReturnedToOrigin => 'Back at shop';
+
+  @override
+  String get shipStatusCancelled => 'Cancelled';
+
+  @override
+  String get shipStatusLost => 'Lost by courier';
+
+  @override
+  String get failReasonCustomerUnreachable => 'Couldn\'t reach the customer\'s phone';
+
+  @override
+  String get failReasonCustomerUnavailable => 'Nobody was there to receive it';
+
+  @override
+  String get failReasonCustomerRefused => 'Customer refused the parcel';
+
+  @override
+  String get failReasonAddressIncorrect => 'Rider couldn\'t find the address';
+
+  @override
+  String get failReasonCodNotReady => 'Cash wasn\'t ready';
+
+  @override
+  String get failReasonRescheduled => 'Customer asked for another time';
+
+  @override
+  String get failReasonOther => 'Other problem';
+
+  @override
+  String get recoveryOpen => 'Call the customer';
+
+  @override
+  String get recoveryAwaitingCustomer => 'We messaged the customer, waiting for a reply';
+
+  @override
+  String get recoveryCustomerReplied => 'Customer replied: ask the courier to try again';
+
+  @override
+  String get recoveryReattemptRequested => 'Courier asked to try again';
+
+  @override
+  String get recoveryReturning => 'Coming back to your shop';
+
+  @override
+  String get recoveryResolved => 'Resolved';
+
+  @override
+  String get recoveryEscalated => 'No reply: please call the customer';
+
+  @override
+  String get codTitle => 'Cash on delivery';
+
+  @override
+  String get codWithCouriers => 'With couriers';
+
+  @override
+  String codWithCouriersBody(int count) {
+    return 'Cash from $count delivered parcels not received yet';
+  }
+
+  @override
+  String codOverTwoWeeks(String amount) {
+    return '$amount waiting more than 2 weeks';
+  }
+
+  @override
+  String codNeedsReview(int count) {
+    return '$count courier statements need checking';
+  }
+
+  @override
+  String get codAwaitingTitle => 'Cash still with couriers';
+
+  @override
+  String get codAwaitingEmpty => 'No cash waiting: couriers have paid for every delivered parcel.';
+
+  @override
+  String codDaysWaiting(int days) {
+    return '$days days waiting';
+  }
+
+  @override
+  String codOrderCourier(int number, String courier) {
+    return 'Order #$number · $courier';
+  }
+
+  @override
+  String get codSettlementsTitle => 'Courier statements';
+
+  @override
+  String get codSettlementsEmpty => 'No courier statements yet.';
+
+  @override
+  String get codStatusNeedsReview => 'Needs checking';
+
+  @override
+  String get codStatusReconciled => 'Matches: confirm once paid';
+
+  @override
+  String get codStatusConfirmed => 'Received';
+
+  @override
+  String codIssues(int count) {
+    return '$count lines don\'t match. Check them on the web.';
+  }
+
+  @override
+  String get codConfirmReceived => 'Confirm money received';
+
+  @override
+  String get codConfirmed => 'Marked as received';
 }
