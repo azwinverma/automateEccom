@@ -38,6 +38,13 @@ celery.conf.update(
         "publish-due-content": {"task": "app.worker.tasks.publish_due_content", "schedule": 30.0},
         "release-expired-stock": {"task": "app.worker.tasks.release_expired_stock", "schedule": 120.0},
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
+        # FUL-006: polling is per-shipment rate limited (30 min, 6 h for webhook couriers).
+        "poll-shipments": {"task": "app.worker.tasks.poll_shipments", "schedule": 300.0},
+        "escalate-delivery-recoveries": {
+            "task": "app.worker.tasks.escalate_delivery_recoveries",
+            "schedule": 600.0,
+        },
+        "sync-cod-settlements": {"task": "app.worker.tasks.sync_cod_settlements", "schedule": 6 * 3600.0},
     },
 )
 

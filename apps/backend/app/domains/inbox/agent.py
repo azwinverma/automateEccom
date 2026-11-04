@@ -102,6 +102,11 @@ T: dict[str, dict[str, str]] = {
         "en": "Please confirm your order:\n{lines}\nTotal: {total} (+ delivery charge, confirmed by the shop)\nDeliver to: {name}, {phone}, {address}\nPayment: {payment}\nReply YES to confirm or NO to cancel.",
         "ne": "कृपया अर्डर पक्का गर्नुहोस्:\n{lines}\nजम्मा: {total} (+ डेलिभरी शुल्क, पसलले पक्का गर्नेछ)\nठेगाना: {name}, {phone}, {address}\nभुक्तानी: {payment}\nपक्का गर्न 'हो', रद्द गर्न 'होइन' लेख्नुहोस्।",
     },
+    "summary_fee": {
+        "en": "Please confirm your order:\n{lines}\nDelivery: {fee}\nTotal: {total}\nDeliver to: {name}, {phone}, {address}\nPayment: {payment}\nReply YES to confirm or NO to cancel.",
+        "ne": "कृपया अर्डर पक्का गर्नुहोस्:\n{lines}\nडेलिभरी शुल्क: {fee}\nजम्मा: {total}\nठेगाना: {name}, {phone}, {address}\nभुक्तानी: {payment}\nपक्का गर्न 'हो', रद्द गर्न 'होइन' लेख्नुहोस्।",
+    },
+    "free_delivery": {"en": "Free", "ne": "निःशुल्क"},
     "confirmed": {
         "en": "Order #{number} confirmed. Total {total}. We'll let you know when it ships. Thank you!",
         "ne": "अर्डर #{number} पक्का भयो। जम्मा {total}। पठाएपछि खबर गर्छौं। धन्यवाद!",
@@ -372,6 +377,10 @@ def _on_message(db: Session, ev: OutboxEvent) -> None:
 
 
 def handle(db: Session, conv: Conversation, msg: Message) -> None:
+    from app.domains.fulfillment.service import capture_customer_reply
+
+    if capture_customer_reply(db, conv, msg):
+        return  # a reply to our failed-delivery question: recorded on the delivery attempt (FUL-008)
     if conv.human_handoff or conv.escalated or conv.status == "closed":
         return  # a person is handling it
     ent = entitlements.resolve(db, conv.merchant_id)
@@ -761,6 +770,25 @@ def _summary(db: Session, draft: OrderDraft, locale: str) -> str:
     label = f"{title} ({v.title})" if v.title != "Default" else title
     district = nepal.DISTRICTS.get(f["district"], (f["district"],))[0]
     address = ", ".join(str(x) for x in (f.get("area"), f"{f['municipality']}-{f['ward']}", district) if x)
+    from app.domains.fulfillment.couriers import quote_fee
+
+    subtotal = v.price_minor * qty
+    quote = quote_fee(db, f["district"], subtotal)
+    # The fee shown is the fee charged: remember it on the draft for order creation.
+    draft.fields = {**f, "delivery_fee_minor": quote["fee_minor"] if quote else None}
+    if quote is not None:
+        fee = t("free_delivery", locale) if quote["fee_minor"] == 0 else money(quote["fee_minor"], locale)
+        return t(
+            "summary_fee",
+            locale,
+            lines=f"{qty} × {label} @ {money(v.price_minor, locale)}",
+            fee=fee,
+            total=money(subtotal + quote["fee_minor"], locale),
+            name=f["name"],
+            phone=f["phone"],
+            address=address,
+            payment=t(f.get("payment", "cod"), locale),
+        )
     return t(
         "summary",
         locale,
@@ -789,6 +817,7 @@ def _create_order(db: Session, conv: Conversation, msg: Message, draft: OrderDra
             area=f.get("area"),
         ),
         payment_method=f.get("payment", "cod"),
+        delivery_fee_minor=int(f.get("delivery_fee_minor") or 0),
         source="chat",
         source_key=f"chat:{conv.id}:{draft.version}",
         conversation_id=conv.id,

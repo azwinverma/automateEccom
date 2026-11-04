@@ -51,6 +51,9 @@ def create_app() -> FastAPI:
     from app.domains.content.router import router as content
     from app.domains.customers.router import router as customers
     from app.domains.exceptions.router import router as exceptions
+    from app.domains.fulfillment.router import dev_router as fulfillment_dev
+    from app.domains.fulfillment.router import router as fulfillment
+    from app.domains.fulfillment.router import webhooks_router as courier_webhooks
     from app.domains.inbox.router import router as inbox
     from app.domains.inventory.router import router as inventory
     from app.domains.media.router import dev_router as media_dev
@@ -69,6 +72,7 @@ def create_app() -> FastAPI:
     # Payment webhooks first: /webhooks/payments/{provider} must not be read as a channel's
     # /webhooks/{provider}/{connection_id}.
     app.include_router(payment_webhooks)
+    app.include_router(courier_webhooks)  # /webhooks/couriers/{provider}/{account_id}
     app.include_router(webhooks_router)  # public: signature-verified, no user auth
     for r in (
         accounts,
@@ -85,6 +89,8 @@ def create_app() -> FastAPI:
         orders,
         inbox,
         payments,
+        fulfillment,
+        fulfillment_dev,  # dev-only simulator; each route 404s in staging/production
         exceptions,
         audit,
         platform,

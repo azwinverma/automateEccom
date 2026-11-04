@@ -108,3 +108,33 @@ def release_expired_stock() -> int:
 
     with session_scope() as db:
         return release_expired(db)
+
+
+@celery.task(name="app.worker.tasks.poll_shipments", ignore_result=True)
+def poll_shipments() -> dict[str, int]:
+    from app.domains.fulfillment.service import poll_due
+
+    with session_scope() as db:
+        stats = poll_due(db)
+    if any(stats.values()):
+        log.info("shipments_polled", **stats)
+    return stats
+
+
+@celery.task(name="app.worker.tasks.escalate_delivery_recoveries", ignore_result=True)
+def escalate_delivery_recoveries() -> int:
+    from app.domains.fulfillment.service import escalate_stale
+
+    with session_scope() as db:
+        return escalate_stale(db)
+
+
+@celery.task(name="app.worker.tasks.sync_cod_settlements", ignore_result=True)
+def sync_cod_settlements() -> dict[str, int]:
+    from app.domains.fulfillment.settlement import sync_all
+
+    with session_scope() as db:
+        stats = sync_all(db)
+    if stats["imported"] or stats["failed"]:
+        log.info("cod_settlements_synced", **stats)
+    return stats

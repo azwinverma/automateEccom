@@ -64,7 +64,7 @@ class Payment(IdMixin, TimestampMixin, TenantScoped, Base):
 
 
 class CODRecord(IdMixin, TimestampMixin, TenantScoped, Base):
-    """Cash-on-delivery money trail per order: from request to settlement (settlement lands in Phase 3)."""
+    """Cash-on-delivery money trail per order: from request to settlement by the courier."""
 
     __tablename__ = "cod_records"
     __table_args__ = (
@@ -78,3 +78,9 @@ class CODRecord(IdMixin, TimestampMixin, TenantScoped, Base):
     amount_minor: Mapped[int] = mapped_column(BigInteger, nullable=False)
     collected_minor: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    # Phase 3: the courier statement that paid this cash to the merchant (FUL-010).
+    settlement_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("cod_settlements.id", ondelete="SET NULL")
+    )
+    fee_minor: Mapped[int] = mapped_column(BigInteger, default=0, server_default="0", nullable=False)
+    settled_at: Mapped[datetime | None]

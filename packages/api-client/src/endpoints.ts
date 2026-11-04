@@ -61,6 +61,22 @@ import type {
   AdminWebhookEvent,
   AddressInput,
   CodSummary,
+  BookShipmentInput,
+  CodAwaiting,
+  CodOverview,
+  CodSettlement,
+  CourierAccount,
+  CourierOptions,
+  CourierProvider,
+  DeliveryFeeQuote,
+  DeliveryFeeRule,
+  FailureReason,
+  FulfillmentSettings,
+  PickupAddress,
+  Shipment,
+  ShipmentBucket,
+  ShipmentLabel,
+  ShipmentStatus,
   ConversationDetail,
   ConversationSummary,
   Customer,
@@ -427,6 +443,79 @@ export function createApi(client: ApiClient) {
         client.request<ConversationDetail>(`/conversations/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
       markRead: (id: string) => client.request<ConversationSummary>(`/conversations/${encodeURIComponent(id)}/read`, { method: "POST", tenant: true }),
       summary: (id: string) => client.request<{ summary: string; at: string }>(`/conversations/${encodeURIComponent(id)}/summary`, { method: "POST", tenant: true }),
+    },
+    couriers: {
+      providers: () => client.request<{ items: CourierProvider[] }>("/couriers/providers", { tenant: true }),
+      list: () => client.request<{ items: CourierAccount[] }>("/couriers", { tenant: true }),
+      connect: (body: { provider: string; display_name?: string | null; credentials?: Record<string, string>; pickup?: Partial<PickupAddress>; is_default?: boolean }) =>
+        client.request<CourierAccount>("/couriers", { method: "POST", body, tenant: true }),
+      update: (id: string, body: { display_name?: string; pickup?: Partial<PickupAddress>; is_default?: boolean }) =>
+        client.request<CourierAccount>(`/couriers/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      disconnect: (id: string) => client.request<void>(`/couriers/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
+      /** Rule-based options for an order (default courier, else cheapest that can collect COD). */
+      rates: (orderId: string, weightGrams?: number | null) =>
+        client.request<CourierOptions>("/couriers/rates", { tenant: true, query: { order_id: orderId, weight_grams: weightGrams ?? undefined } }),
+      settings: () => client.request<FulfillmentSettings>("/fulfillment/settings", { tenant: true }),
+      updateSettings: (body: Partial<FulfillmentSettings>) =>
+        client.request<FulfillmentSettings>("/fulfillment/settings", { method: "PATCH", body, tenant: true }),
+      feeRules: () => client.request<{ items: DeliveryFeeRule[] }>("/fulfillment/delivery-fees", { tenant: true }),
+      saveFeeRules: (rules: DeliveryFeeRule[]) =>
+        client.request<{ items: DeliveryFeeRule[] }>("/fulfillment/delivery-fees", { method: "PUT", body: { rules }, tenant: true }),
+      quoteFee: (district: string, subtotalMinor = 0) =>
+        client.request<{ quote: DeliveryFeeQuote | null }>("/fulfillment/delivery-fee", { tenant: true, query: { district, subtotal_minor: subtotalMinor } }),
+    },
+    shipments: {
+      list: (q: { bucket?: ShipmentBucket; courier_account_id?: string; q?: string; limit?: number; cursor?: string } = {}) =>
+        client.request<Page<Shipment> & { counts: Record<ShipmentBucket, number> }>("/shipments", { tenant: true, query: { ...q } }),
+      get: (id: string) => client.request<Shipment>(`/shipments/${encodeURIComponent(id)}`, { tenant: true }),
+      forOrder: (orderId: string) => client.request<{ items: Shipment[] }>(`/orders/${encodeURIComponent(orderId)}/shipments`, { tenant: true }),
+      book: (orderId: string, body: BookShipmentInput, o?: IdemOptions) =>
+        client.request<Shipment>(`/orders/${encodeURIComponent(orderId)}/shipments`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      label: (id: string) => client.request<ShipmentLabel>(`/shipments/${encodeURIComponent(id)}/label`, { tenant: true }),
+      requestPickup: (shipmentIds: string[]) =>
+        client.request<{ items: Shipment[] }>("/shipments/pickup", { method: "POST", body: { shipment_ids: shipmentIds }, tenant: true }),
+      cancel: (id: string, reason?: string | null) =>
+        client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/cancel`, { method: "POST", body: { reason: reason ?? null }, tenant: true }),
+      refresh: (id: string) => client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/refresh`, { method: "POST", tenant: true }),
+      setStatus: (id: string, body: { status: ShipmentStatus; failure_reason?: FailureReason | null; note?: string | null }) =>
+        client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/status`, { method: "POST", body, tenant: true }),
+      setTracking: (id: string, body: { tracking_number: string; courier_name?: string | null }) =>
+        client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/tracking`, { method: "POST", body, tenant: true }),
+      reattempt: (id: string, body: { note?: string | null; address?: AddressInput | null }) =>
+        client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/reattempt`, { method: "POST", body, tenant: true }),
+      returnToSender: (id: string, reason?: string | null) =>
+        client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/return`, { method: "POST", body: { reason: reason ?? null }, tenant: true }),
+      receivedBack: (id: string) => client.request<Shipment>(`/shipments/${encodeURIComponent(id)}/received-back`, { method: "POST", tenant: true }),
+    },
+    cod: {
+      overview: () => client.request<CodOverview>("/cod/overview", { tenant: true }),
+      awaiting: (courierAccountId?: string) =>
+        client.request<{ items: CodAwaiting[] }>("/cod/awaiting", { tenant: true, query: { courier_account_id: courierAccountId } }),
+      settlements: (status?: CodSettlement["status"]) =>
+        client.request<{ items: CodSettlement[] }>("/cod/settlements", { tenant: true, query: { status } }),
+      settlement: (id: string) => client.request<CodSettlement>(`/cod/settlements/${encodeURIComponent(id)}`, { tenant: true }),
+      /** A courier statement saved as CSV (amounts in rupees). Same reference twice returns the first import. */
+      importFile: (courierAccountId: string, reference: string, file: Blob, fileName = "statement.csv") => {
+        const form = new FormData();
+        form.append("courier_account_id", courierAccountId);
+        form.append("reference", reference);
+        form.append("file", file, fileName);
+        return client.request<CodSettlement>("/cod/settlements/import", { method: "POST", body: form, tenant: true });
+      },
+      recordCash: (body: { courier_account_id: string; shipment_ids: string[]; reference?: string | null }) =>
+        client.request<CodSettlement>("/cod/settlements/cash", { method: "POST", body, tenant: true }),
+      recheck: (id: string) => client.request<CodSettlement>(`/cod/settlements/${encodeURIComponent(id)}/recheck`, { method: "POST", tenant: true }),
+      acceptLine: (lineId: string, reason: string) =>
+        client.request<CodSettlement>(`/cod/settlement-lines/${encodeURIComponent(lineId)}/accept`, { method: "POST", body: { reason }, tenant: true }),
+      confirm: (id: string, bankReference?: string | null) =>
+        client.request<CodSettlement>(`/cod/settlements/${encodeURIComponent(id)}/confirm`, { method: "POST", body: { bank_reference: bankReference ?? null }, tenant: true }),
+    },
+    /** Development only (404 in staging/production): drive the sandbox courier. */
+    devCourier: {
+      simulate: (accountId: string, body: { tracking_number: string; status: ShipmentStatus; failure_reason?: FailureReason | null }) =>
+        client.request<{ accepted: number }>(`/_dev/couriers/sandbox/${encodeURIComponent(accountId)}/simulate`, { method: "POST", body, tenant: true }),
+      settlement: (accountId: string, body: { fee_minor?: number; short_minor?: number; extra_unknown?: boolean } = {}) =>
+        client.request<{ imported: number; settlement: CodSettlement | null }>(`/_dev/couriers/sandbox/${encodeURIComponent(accountId)}/settlement`, { method: "POST", body, tenant: true }),
     },
     /** Nivaro Console. Staff + MFA-verified session only; never tenant-scoped; every write is audited. */
     admin: {

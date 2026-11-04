@@ -79,6 +79,121 @@ def _usage_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     return out
 
 
+def _fulfillment_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """FUL-008/010: failed deliveries a person must handle, stuck/lost parcels, returns to receive,
+    courier statements that don't match, couriers whose credentials stopped working."""
+
+    from app.core.db import utcnow
+    from app.domains.fulfillment.models import (
+        LIVE_STATUSES,
+        CODSettlement,
+        CourierAccount,
+        DeliveryAttempt,
+        Shipment,
+    )
+    from app.domains.fulfillment.service import STUCK_AFTER
+    from app.domains.orders.models import Order
+
+    out: list[dict[str, Any]] = []
+    rows = db.execute(
+        select(DeliveryAttempt, Order.number, Order.ship_name, Order.ship_phone)
+        .join(Order, Order.id == DeliveryAttempt.order_id)
+        .where(
+            DeliveryAttempt.merchant_id == merchant_id,
+            # awaiting_customer: we asked and are waiting; it becomes 'escalated' if nobody answers.
+            DeliveryAttempt.recovery_status.in_(("open", "customer_replied", "escalated")),
+        )
+    ).all()
+    for att, number, name, phone in rows:
+        replied = att.recovery_status == "customer_replied"
+        out.append(
+            _item(
+                "delivery_failed",
+                "urgent" if att.recovery_status == "escalated" else "high",
+                "shipment",
+                att.shipment_id,
+                att.customer_replied_at if replied else att.failed_at,
+                "request_reattempt" if replied else "call_customer",
+                number=number,
+                name=name,
+                phone=phone,
+                reason=att.failure_reason,
+                recovery_status=att.recovery_status,
+                customer_reply=att.customer_reply,
+                order_id=str(att.order_id),
+            )
+        )
+    now = utcnow()
+    for s, number in db.execute(
+        select(Shipment, Order.number)
+        .join(Order, Order.id == Shipment.order_id)
+        .where(
+            Shipment.merchant_id == merchant_id,
+            (Shipment.status.in_(LIVE_STATUSES) & (Shipment.last_event_at < now - STUCK_AFTER))
+            | (Shipment.status == "lost")
+            | ((Shipment.status == "returned_to_origin") & Shipment.return_received_at.is_(None)),
+        )
+    ).all():
+        typ, sev, action = {
+            "lost": ("shipment_lost", "urgent", "contact_courier"),
+            "returned_to_origin": ("return_to_receive", "normal", "confirm_received_back"),
+        }.get(s.status, ("shipment_stuck", "normal", "contact_courier"))
+        out.append(
+            _item(
+                typ,
+                sev,
+                "shipment",
+                s.id,
+                s.last_event_at,
+                action,
+                number=number,
+                courier=s.courier_name,
+                tracking_number=s.tracking_number,
+                status=s.status,
+                order_id=str(s.order_id),
+                days_since_update=(now - s.last_event_at).days if s.last_event_at else None,
+            )
+        )
+    for st in db.scalars(
+        select(CODSettlement).where(
+            CODSettlement.merchant_id == merchant_id, CODSettlement.status == "needs_review"
+        )
+    ):
+        out.append(
+            _item(
+                "cod_settlement_mismatch",
+                "high",
+                "cod_settlement",
+                st.id,
+                st.created_at,
+                "review_settlement",
+                reference=st.reference,
+                issues=st.issue_count,
+                net_minor=st.net_minor,
+                currency=st.currency,
+            )
+        )
+    for a in db.scalars(
+        select(CourierAccount).where(
+            CourierAccount.merchant_id == merchant_id, CourierAccount.status == "error"
+        )
+    ):
+        out.append(
+            _item(
+                "courier_error",
+                "urgent",
+                "courier_account",
+                a.id,
+                a.updated_at,
+                "reconnect_courier",
+                name=a.display_name,
+                provider=a.provider,
+                error_code=a.last_error_code,
+            )
+        )
+    return out
+
+
 def open_exceptions(
     db: Session, merchant_id: uuid.UUID, limit: int = 200, *, include_usage: bool = True
 ) -> list[dict[str, Any]]:
@@ -208,6 +323,8 @@ def open_exceptions(
                 name=o.ship_name,
             )
         )
+
+    items.extend(_fulfillment_items(db, merchant_id))
 
     for p in db.scalars(
         select(ContentPost).where(ContentPost.merchant_id == merchant_id, ContentPost.status == "failed")

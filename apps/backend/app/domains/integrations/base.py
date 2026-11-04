@@ -47,6 +47,10 @@ class CourierCapability(StrEnum):
     CANCEL = "cancel"
     COD_COLLECTION = "cod_collection"
     WEBHOOKS = "webhooks"
+    REATTEMPT = "reattempt"  # ask the courier to try delivering again (after a failed attempt)
+    RETURN_TO_ORIGIN = "return_to_origin"
+    COD_SETTLEMENT_REPORTS = "cod_settlement_reports"  # statements of cash collected, fetched by API
+    MANUAL_UPDATES = "manual_updates"  # no API: the seller records tracking and statuses
 
 
 class IntegrationError(Exception):
@@ -325,7 +329,79 @@ class ShipmentResult:
     status: str
 
 
+# Normalised shipment statuses (FUL-003). Adapters map provider statuses onto these.
+SHIPMENT_STATUSES = (
+    "booked",
+    "pickup_requested",
+    "picked_up",
+    "in_transit",
+    "out_for_delivery",
+    "delivered",
+    "delivery_failed",
+    "reattempt_requested",
+    "returning",
+    "returned_to_origin",
+    "cancelled",
+    "lost",
+)
+# Why a delivery attempt failed (controlled vocabulary; feeds Courier/COD intelligence later).
+FAILURE_REASONS = (
+    "customer_unreachable",
+    "customer_unavailable",
+    "customer_refused",
+    "address_incorrect",
+    "cod_not_ready",
+    "rescheduled_by_customer",
+    "other",
+)
+
+
+@dataclass
+class TrackingUpdate:
+    """One courier status event, normalised. ``event_id`` is the provider's stable key (dedupe)."""
+
+    event_id: str
+    status: str
+    occurred_at: datetime
+    raw_status: str | None = None
+    description: str | None = None
+    location: str | None = None
+    failure_reason: str | None = None
+    cod_collected_minor: int | None = None
+    tracking_number: str | None = None  # set by webhook parsing (polling already knows it)
+
+
+@dataclass
+class PickupResult:
+    reference: str
+    scheduled_for: datetime | None = None
+
+
+@dataclass
+class SettlementLineData:
+    tracking_number: str
+    collected_minor: int  # cash the courier collected at the door
+    fee_minor: int = 0  # what the courier deducted (delivery charge, COD fee)
+    note: str | None = None
+
+
+@dataclass
+class SettlementReport:
+    reference: str  # the courier's statement id (dedupe key per courier account)
+    currency: str
+    lines: list[SettlementLineData] = field(default_factory=list)
+    period_start: datetime | None = None
+    period_end: datetime | None = None
+
+
 class CourierAdapter(Adapter):
+    # Credential fields the seller fills in when connecting (empty = none needed).
+    auth_fields: ClassVar[tuple[str, ...]] = ()
+
+    def verify_credentials(self) -> None:
+        """Raise IntegrationError(auth=True) if the courier rejects the credentials."""
+        return None
+
     def get_rates(
         self, origin: Address, destination: Address, weight_grams: int, cod_amount: Money | None
     ) -> list[RateQuote]:
@@ -340,17 +416,42 @@ class CourierAdapter(Adapter):
         cod_amount: Money | None,
         reference: str,
         idempotency_key: str,
+        *,
+        service_code: str | None = None,
+        description: str | None = None,
     ) -> ShipmentResult:
         self._require(CourierCapability.CREATE_SHIPMENT)
         raise NotImplementedError
 
-    def track(self, tracking_number: str) -> list[dict[str, Any]]:
+    def request_pickup(self, provider_shipment_ids: list[str], idempotency_key: str) -> PickupResult:
+        self._require(CourierCapability.PICKUP)
+        raise NotImplementedError
+
+    def track(self, tracking_number: str) -> list[TrackingUpdate]:
         self._require(CourierCapability.TRACKING)
         raise NotImplementedError
 
     def cancel(self, provider_shipment_id: str, idempotency_key: str) -> None:
         self._require(CourierCapability.CANCEL)
         raise NotImplementedError
+
+    def request_reattempt(
+        self, provider_shipment_id: str, note: str | None, destination: Address | None, idempotency_key: str
+    ) -> None:
+        self._require(CourierCapability.REATTEMPT)
+        raise NotImplementedError
+
+    def request_return(self, provider_shipment_id: str, idempotency_key: str) -> None:
+        self._require(CourierCapability.RETURN_TO_ORIGIN)
+        raise NotImplementedError
+
+    def fetch_cod_settlements(self, since: datetime | None) -> list[SettlementReport]:
+        self._require(CourierCapability.COD_SETTLEMENT_REPORTS)
+        raise NotImplementedError
+
+    def parse_tracking_webhook(self, headers: dict[str, str], body: bytes) -> list[TrackingUpdate]:
+        """Courier push → normalised updates with ``tracking_number`` set. Default: no webhooks."""
+        raise CapabilityNotSupported(self.code, "webhooks")
 
 
 # ----------------------------------------------------------------------------- notifications

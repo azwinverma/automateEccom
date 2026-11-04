@@ -1219,6 +1219,35 @@
           "message_id"
         ]
       }
+    },
+    {
+      "type": "fulfillment.shipment_status_changed",
+      "version": 1,
+      "description": "A shipment moved (courier webhook/poll or seller action). Drives customer shipping messages and failed-delivery recovery.",
+      "aggregate": "fulfillment",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shipment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "from_status": {
+            "type": "string",
+            "maxLength": 24
+          }
+        },
+        "required": [
+          "shipment_id",
+          "status",
+          "from_status"
+        ]
+      }
     }
   ],
   "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."

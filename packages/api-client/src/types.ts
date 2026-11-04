@@ -1103,3 +1103,280 @@ export interface InboxMessage {
   created_at: string;
   sent_at: string | null;
 }
+
+/* ---------- Phase 3: couriers, shipments, COD settlement ---------- */
+
+export interface CourierProvider {
+  code: string;
+  name: string;
+  sandbox: boolean;
+  capabilities: string[];
+  auth_fields?: string[];
+}
+
+export interface PickupAddress {
+  name: string | null;
+  phone: string | null;
+  district: string | null;
+  municipality: string | null;
+  area: string | null;
+}
+
+export interface CourierAccount {
+  id: string;
+  provider: string;
+  display_name: string;
+  status: "connected" | "error" | "disconnected";
+  is_default: boolean;
+  capabilities: string[];
+  /** Own rider / courier without an API: the seller records tracking and statuses. */
+  manual: boolean;
+  pickup: PickupAddress & { district_name: string | null };
+  pickup_complete: boolean;
+  webhook_path: string | null;
+  last_error_code: string | null;
+  created_at: string;
+}
+
+export interface FulfillmentSettings {
+  notify_customers: boolean;
+  default_weight_grams: number;
+  recovery_wait_hours: number;
+}
+
+export type FeeScope = "default" | "inside_valley" | "district";
+
+export interface DeliveryFeeRule {
+  scope: FeeScope;
+  district: string | null;
+  district_name?: string | null;
+  fee_minor: number;
+  free_over_minor: number | null;
+  currency?: string;
+}
+
+export interface DeliveryFeeQuote {
+  fee_minor: number;
+  currency: string;
+  rule: FeeScope;
+  district: string | null;
+  free_delivery: boolean;
+  free_over_minor: number | null;
+}
+
+export interface CourierOption {
+  courier_account_id: string;
+  provider: string;
+  display_name: string;
+  is_default: boolean;
+  service_code: string | null;
+  price: Money | null;
+  eta_days_min: number | null;
+  eta_days_max: number | null;
+  cod_supported: boolean;
+  manual: boolean;
+  recommended: boolean;
+}
+
+export interface CourierOptions {
+  weight_grams: number;
+  cod_amount_minor: number;
+  options: CourierOption[];
+  unavailable: { courier_account_id: string; display_name: string; provider: string; reason: "pickup_address_missing" | "address_incomplete" | "courier_unavailable" }[];
+  recommendation: {
+    courier_account_id: string;
+    service_code: string | null;
+    reason: "default_courier" | "cheapest" | "only_option";
+    method: "rules" | (string & {});
+  } | null;
+}
+
+export type ShipmentStatus =
+  | "booked"
+  | "pickup_requested"
+  | "picked_up"
+  | "in_transit"
+  | "out_for_delivery"
+  | "delivered"
+  | "delivery_failed"
+  | "reattempt_requested"
+  | "returning"
+  | "returned_to_origin"
+  | "cancelled"
+  | "lost";
+
+export type FailureReason =
+  | "customer_unreachable"
+  | "customer_unavailable"
+  | "customer_refused"
+  | "address_incorrect"
+  | "cod_not_ready"
+  | "rescheduled_by_customer"
+  | "other";
+
+export type ShipmentAction =
+  | "request_pickup"
+  | "cancel"
+  | "reattempt"
+  | "return_to_sender"
+  | "confirm_received_back"
+  | "update_status"
+  | "set_tracking"
+  | "refresh";
+
+export interface ShipmentEvent {
+  id: string;
+  status: ShipmentStatus;
+  raw_status: string | null;
+  description: string | null;
+  location: string | null;
+  failure_reason: FailureReason | null;
+  source: "courier_webhook" | "courier_poll" | "seller" | "system";
+  /** False when the courier's event arrived late (older than the current state): kept as history only. */
+  applied: boolean;
+  occurred_at: string;
+}
+
+export interface DeliveryAttempt {
+  id: string;
+  attempt_no: number;
+  failure_reason: FailureReason;
+  failed_at: string;
+  recovery_status: "open" | "awaiting_customer" | "customer_replied" | "reattempt_requested" | "returning" | "resolved" | "escalated";
+  customer_contacted_at: string | null;
+  customer_reply: string | null;
+  customer_replied_at: string | null;
+  reattempt_requested_at: string | null;
+  reattempt_note: string | null;
+  reattempt_by: "seller" | "automation" | null;
+  escalated_at: string | null;
+  resolved_at: string | null;
+  resolution: "delivered" | "returned" | "failed_again" | "cancelled" | null;
+}
+
+export interface Shipment {
+  id: string;
+  order_id: string;
+  order_number: number | null;
+  customer_name: string | null;
+  destination_district: string | null;
+  destination_district_name: string | null;
+  courier_account_id: string;
+  provider: string;
+  courier_name: string;
+  manual: boolean;
+  service_code: string | null;
+  status: ShipmentStatus;
+  tracking_number: string | null;
+  has_provider_label: boolean;
+  weight_grams: number;
+  cod_amount: Money;
+  charge: Money | null;
+  eta_days_min: number | null;
+  eta_days_max: number | null;
+  attempt_count: number;
+  pickup_reference: string | null;
+  created_at: string;
+  pickup_requested_at: string | null;
+  picked_up_at: string | null;
+  delivered_at: string | null;
+  returned_at: string | null;
+  return_received_at: string | null;
+  last_event_at: string | null;
+  stuck: boolean;
+  actions: ShipmentAction[];
+  events?: ShipmentEvent[];
+  attempts?: DeliveryAttempt[];
+}
+
+export type ShipmentBucket = "to_pickup" | "in_transit" | "attention" | "delivered" | "returned" | "cancelled";
+
+export interface ShipmentLabel {
+  shipment_id: string;
+  provider_label_url: string | null;
+  courier: string;
+  service_code: string | null;
+  tracking_number: string | null;
+  order_number: number;
+  shop: string;
+  from: { name: string; phone: string | null; address: string };
+  to: { name: string; phone: string; address: string; landmark: string | null };
+  cod_amount: Money;
+  weight_grams: number;
+  contents: string;
+  booked_at: string;
+}
+
+export interface BookShipmentInput {
+  courier_account_id: string;
+  weight_grams?: number | null;
+  service_code?: string | null;
+  tracking_number?: string | null;
+  courier_name?: string | null;
+  notes?: string | null;
+}
+
+export type SettlementLineMatch =
+  | "matched"
+  | "amount_mismatch"
+  | "unknown_shipment"
+  | "not_delivered"
+  | "already_settled"
+  | "duplicate_in_report"
+  | "not_cod";
+
+export interface CodSettlement {
+  id: string;
+  courier_account_id: string;
+  courier_name: string;
+  provider: string;
+  source: "courier_api" | "file_import" | "manual";
+  reference: string;
+  status: "needs_review" | "reconciled" | "confirmed";
+  currency: string;
+  collected_minor: number;
+  fees_minor: number;
+  net_minor: number;
+  expected_minor: number;
+  line_count: number;
+  issue_count: number;
+  period_start: string | null;
+  period_end: string | null;
+  created_at: string;
+  confirmed_at: string | null;
+  bank_reference: string | null;
+  lines?: {
+    id: string;
+    tracking_number: string;
+    shipment_id: string | null;
+    order_id: string | null;
+    order_number: number | null;
+    collected_minor: number;
+    fee_minor: number;
+    expected_minor: number | null;
+    match_status: SettlementLineMatch;
+    accepted: boolean;
+    accept_reason: string | null;
+    note: string | null;
+  }[];
+}
+
+export interface CodAwaiting {
+  shipment_id: string;
+  order_id: string;
+  order_number: number;
+  customer_name: string | null;
+  courier_account_id: string;
+  courier_name: string;
+  tracking_number: string | null;
+  cod_amount: Money;
+  delivered_at: string | null;
+  days_waiting: number | null;
+}
+
+export interface CodOverview extends CodSummary {
+  awaiting_by_age: Record<"d0_7" | "d8_14" | "d15_plus", { count: number; amount_minor: number }>;
+  awaiting_by_courier: { courier_account_id: string; courier_name: string; count: number; amount_minor: number }[];
+  settlements_needing_review: number;
+  received_last_30_days: { count: number; amount_minor: number };
+}

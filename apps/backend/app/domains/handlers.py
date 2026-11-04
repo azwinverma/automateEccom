@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 import app.domains.catalog.imports
 import app.domains.channels.service
+import app.domains.fulfillment.service
 import app.domains.inbox.agent
 import app.domains.inbox.service
 import app.domains.media.service
@@ -28,6 +29,7 @@ from app.integrations_i18n import email_copy
 HANDLER_MODULES = (
     app.domains.catalog.imports,
     app.domains.channels.service,
+    app.domains.fulfillment.service,
     app.domains.inbox.agent,
     app.domains.inbox.service,
     app.domains.media.service,

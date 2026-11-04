@@ -103,6 +103,9 @@ def _clean() -> Iterator[None]:
 
     SandboxPaymentAdapter.paid_amounts.clear()
     SandboxChannelAdapter.revoked_refresh_tokens.clear()
+    from app.domains.integrations.sandbox import SandboxCourierAdapter
+
+    SandboxCourierAdapter.reset()
 
 
 @pytest.fixture

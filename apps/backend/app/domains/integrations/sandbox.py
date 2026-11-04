@@ -35,9 +35,12 @@ from app.domains.integrations.base import (
     PaymentCapability,
     PaymentIntentResult,
     PaymentStatus,
+    PickupResult,
     RateQuote,
     RemoteListing,
+    SettlementReport,
     ShipmentResult,
+    TrackingUpdate,
 )
 
 log = structlog.get_logger(__name__)
@@ -321,6 +324,12 @@ class CashOnDeliveryAdapter(PaymentAdapter):
 
 
 class SandboxCourierAdapter(_HmacWebhookMixin, CourierAdapter):
+    """A simulated Nepal courier: rates (inside/outside the valley), booking, pickup, tracking via
+    signed webhooks and polling, reattempt/return requests and COD settlement statements.
+
+    State lives on the class (per process) so tests and the dev simulator can drive deliveries.
+    Tariffs are sandbox values, not any real courier's prices."""
+
     code = "sandbox_courier"
     display_name = "Sandbox courier"
     is_sandbox = True
@@ -329,22 +338,41 @@ class SandboxCourierAdapter(_HmacWebhookMixin, CourierAdapter):
             CourierCapability.RATES,
             CourierCapability.CREATE_SHIPMENT,
             CourierCapability.LABEL,
+            CourierCapability.PICKUP,
             CourierCapability.TRACKING,
             CourierCapability.CANCEL,
             CourierCapability.COD_COLLECTION,
+            CourierCapability.WEBHOOKS,
+            CourierCapability.REATTEMPT,
+            CourierCapability.RETURN_TO_ORIGIN,
+            CourierCapability.COD_SETTLEMENT_REPORTS,
         }
     )
     INSIDE_VALLEY = frozenset({"kathmandu", "lalitpur", "bhaktapur"})
+    booked: ClassVar[dict[str, dict[str, Any]]] = {}  # provider_shipment_id → booking
+    events: ClassVar[dict[str, list[TrackingUpdate]]] = {}  # tracking number → history
+    requests: ClassVar[list[tuple[str, str, str | None]]] = []  # (kind, shipment id, note)
+    settlement_reports: ClassVar[dict[str, list[SettlementReport]]] = {}  # account id → pending
+    failures: ClassVar[_ScriptedFailures] = _ScriptedFailures()
+
+    def _maybe_fail(self) -> None:
+        if (err := self.failures.pop()) is not None:
+            raise err
+
+    def _inside(self, a: Address) -> bool:
+        return (a.district or "") in self.INSIDE_VALLEY or a.city.strip().lower() in self.INSIDE_VALLEY
 
     def get_rates(
         self, origin: Address, destination: Address, weight_grams: int, cod_amount: Money | None
     ) -> list[RateQuote]:
-        inside = destination.city.strip().lower() in self.INSIDE_VALLEY
-        base = 10000 if inside else 17500  # NPR 100 / 175 in paisa — sandbox values, not real tariffs
+        self._maybe_fail()
+        inside = self._inside(destination)
+        base = 10000 if inside else 17500  # NPR 100 / 175 in paisa
         extra = max(0, (weight_grams - 1000 + 999) // 1000) * 5000
-        return [
-            RateQuote("standard", Money(base + extra, "NPR"), 1 if inside else 3, 2 if inside else 5, True)
-        ]
+        quotes = [RateQuote("standard", Money(base + extra, "NPR"), *(1, 2) if inside else (3, 5), True)]
+        if inside:  # same-day service only inside the valley, and prepaid only
+            quotes.append(RateQuote("express", Money(base + extra + 7500, "NPR"), 0, 1, False))
+        return quotes
 
     def create_shipment(
         self,
@@ -354,15 +382,115 @@ class SandboxCourierAdapter(_HmacWebhookMixin, CourierAdapter):
         cod_amount: Money | None,
         reference: str,
         idempotency_key: str,
+        *,
+        service_code: str | None = None,
+        description: str | None = None,
     ) -> ShipmentResult:
+        self._maybe_fail()
         sid = "sbx-shp-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
-        return ShipmentResult(sid, sid.upper()[-10:], None, "created")
+        tracking = "SBX" + hashlib.sha256(sid.encode()).hexdigest()[:9].upper()
+        self.booked.setdefault(
+            sid,
+            {
+                "tracking": tracking,
+                "cod_minor": cod_amount.amount_minor if cod_amount else 0,
+                "reference": reference,
+                "destination": destination.district,
+                "service": service_code or "standard",
+            },
+        )
+        return ShipmentResult(sid, tracking, None, "booked")
 
-    def track(self, tracking_number: str) -> list[dict[str, Any]]:
-        return [{"status": "created", "at": datetime.now(UTC).isoformat()}]
+    def request_pickup(self, provider_shipment_ids: list[str], idempotency_key: str) -> PickupResult:
+        self._maybe_fail()
+        ref = "SBX-PU-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:8].upper()
+        return PickupResult(ref, datetime.now(UTC) + timedelta(hours=4))
+
+    def track(self, tracking_number: str) -> list[TrackingUpdate]:
+        self._maybe_fail()
+        return list(self.events.get(tracking_number, []))
 
     def cancel(self, provider_shipment_id: str, idempotency_key: str) -> None:
-        return None
+        self._maybe_fail()
+        b = self.booked.get(provider_shipment_id)
+        history = self.events.get(b["tracking"], []) if b else []
+        if any(u.status not in ("booked", "pickup_requested") for u in history):
+            raise IntegrationError("already_picked_up", "the parcel is already with the courier")
+
+    def request_reattempt(
+        self, provider_shipment_id: str, note: str | None, destination: Address | None, idempotency_key: str
+    ) -> None:
+        self._maybe_fail()
+        self.requests.append(("reattempt", provider_shipment_id, note))
+
+    def request_return(self, provider_shipment_id: str, idempotency_key: str) -> None:
+        self._maybe_fail()
+        self.requests.append(("return", provider_shipment_id, None))
+
+    def fetch_cod_settlements(self, since: datetime | None) -> list[SettlementReport]:
+        self._maybe_fail()
+        return self.settlement_reports.pop(str(self.config.get("account_id")), [])
+
+    def parse_tracking_webhook(self, headers: dict[str, str], body: bytes) -> list[TrackingUpdate]:
+        doc = json.loads(body)
+        return [self._update(e) for e in doc.get("events", [doc])]
+
+    @staticmethod
+    def _update(e: dict[str, Any]) -> TrackingUpdate:
+        return TrackingUpdate(
+            event_id=str(e["event_id"]),
+            status=str(e["status"]),
+            occurred_at=datetime.fromisoformat(str(e["occurred_at"])),
+            raw_status=e.get("raw_status") or str(e["status"]).upper(),
+            description=e.get("description"),
+            location=e.get("location"),
+            failure_reason=e.get("failure_reason"),
+            cod_collected_minor=e.get("cod_collected_minor"),
+            tracking_number=str(e["tracking_number"]),
+        )
+
+    @classmethod
+    def simulate(
+        cls,
+        tracking_number: str,
+        status: str,
+        *,
+        failure_reason: str | None = None,
+        cod_collected_minor: int | None = None,
+        location: str | None = None,
+    ) -> dict[str, Any]:
+        """Dev/test: the courier records a status. Returns the webhook body it would push."""
+        body = {
+            "event_id": f"sbx-ev-{secrets.token_hex(6)}",
+            "tracking_number": tracking_number,
+            "status": status,
+            "occurred_at": datetime.now(UTC).isoformat(),
+            "failure_reason": failure_reason,
+            "cod_collected_minor": cod_collected_minor,
+            "location": location,
+        }
+        cls.events.setdefault(tracking_number, []).append(cls._update(body))
+        return body
+
+    @classmethod
+    def reset(cls) -> None:
+        cls.booked.clear()
+        cls.events.clear()
+        cls.requests.clear()
+        cls.settlement_reports.clear()
+        cls.failures.clear()
+
+
+class ManualCourierAdapter(CourierAdapter):
+    """Own rider, or a courier without an API: the seller books outside Nivaro, then records the
+    tracking number and each status here. A real, production option, not a simulation."""
+
+    code = "manual"
+    display_name = "Own rider or other courier"
+    capabilities = frozenset({CourierCapability.MANUAL_UPDATES, CourierCapability.COD_COLLECTION})
+
+    def verify_webhook(self, headers: dict[str, str], body: bytes) -> bool:
+        return False
 
 
 class ConsoleEmailAdapter(NotificationAdapter):

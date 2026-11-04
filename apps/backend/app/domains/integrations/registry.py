@@ -13,6 +13,7 @@ from app.domains.integrations.base import (
 from app.domains.integrations.sandbox import (
     CashOnDeliveryAdapter,
     ConsoleEmailAdapter,
+    ManualCourierAdapter,
     SandboxChannelAdapter,
     SandboxCourierAdapter,
     SandboxPaymentAdapter,
@@ -28,7 +29,10 @@ _REGISTRY: dict[str, dict[str, type[Adapter]]] = {
         SandboxPaymentAdapter.code: SandboxPaymentAdapter,
         CashOnDeliveryAdapter.code: CashOnDeliveryAdapter,
     },
-    "courier": {SandboxCourierAdapter.code: SandboxCourierAdapter},
+    "courier": {
+        ManualCourierAdapter.code: ManualCourierAdapter,
+        SandboxCourierAdapter.code: SandboxCourierAdapter,
+    },
 }
 
 
@@ -48,6 +52,7 @@ def available(kind: str) -> list[dict[str, object]]:
             "name": c.display_name,
             "sandbox": c.is_sandbox,
             "capabilities": sorted(cap.value for cap in c.capabilities),
+            **({"auth_fields": list(c.auth_fields)} if issubclass(c, CourierAdapter) else {}),
         }
         for c in _REGISTRY.get(kind, {}).values()
         if not (prod and c.is_sandbox)
