@@ -82,6 +82,12 @@ class Settings(BaseSettings):
     public_api_base_url: str = "http://localhost:8000"
 
     # Channels: per-provider webhook signing secrets (app-level, from the secret manager in prod)
+    # Payment provider used for prepaid payment links. Sandbox in development; no real Nepal gateway
+    # is integrated yet (GAP-PAY-NP), so production leaves it unset and online payment links are refused.
+    payment_provider: str | None = "sandbox_wallet"
+    payment_webhook_secrets: dict[str, SecretStr] = Field(
+        default_factory=lambda: {"sandbox_wallet": SecretStr("dev-sandbox-payment-secret")}
+    )
     channel_webhook_secrets: dict[str, SecretStr] = Field(
         default_factory=lambda: {"sandbox_channel": SecretStr("dev-sandbox-webhook-secret")}
     )

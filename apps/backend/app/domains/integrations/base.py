@@ -251,6 +251,7 @@ class PaymentIntentResult:
     status: PaymentStatus
     redirect_url: str | None = None
     raw_status: str | None = None
+    amount: Money | None = None  # what the provider says was actually paid (checked against the order)
 
 
 class PaymentAdapter(Adapter):

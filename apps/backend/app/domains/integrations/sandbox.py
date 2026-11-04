@@ -251,6 +251,7 @@ class SandboxPaymentAdapter(_HmacWebhookMixin, PaymentAdapter):
     code = "sandbox_wallet"
     display_name = "Sandbox wallet"
     is_sandbox = True
+    paid_amounts: ClassVar[dict[str, int]] = {}  # tests: simulate a customer paying a different amount
     capabilities = frozenset(
         {
             PaymentCapability.REDIRECT_CHECKOUT,
@@ -270,7 +271,10 @@ class SandboxPaymentAdapter(_HmacWebhookMixin, PaymentAdapter):
 
     def verify_payment(self, provider_payment_id: str, expected: Money) -> PaymentIntentResult:
         status = PaymentStatus.FAILED if expected.amount_minor % 100 == 13 else PaymentStatus.CAPTURED
-        return PaymentIntentResult(provider_payment_id, status, raw_status=status.value)
+        paid = self.paid_amounts.get(provider_payment_id, expected.amount_minor)
+        return PaymentIntentResult(
+            provider_payment_id, status, raw_status=status.value, amount=Money(paid, expected.currency)
+        )
 
     def refund(self, provider_payment_id: str, amount: Money, idempotency_key: str) -> str:
         return "sbx-ref-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:12]
