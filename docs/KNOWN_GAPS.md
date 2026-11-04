@@ -115,6 +115,17 @@ are done. The items below remain.
 | GAP-RATELIMIT-FAILOPEN | Low | Rate limits fail open when Redis is down (DB lockout still applies). | Accepted; revisit with a local fallback bucket if abuse appears. |
 | GAP-PENTEST | Med (launch) | No external security review. | Before paid launch: auth, tenancy, uploads. |
 
+## Phase 2 (2026-11-04)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-NP-MUNICIPALITIES | Med | Municipality is free text; the 753 local levels aren't loaded (no verified source in repo). Province/district lists are embedded and need an owner check. | Load the official local-level list (federal affairs ministry) with Nepali names; validate municipality per district. |
+| GAP-PAY-NP | High (launch) | No real Nepal payment gateway (eSewa/Khalti/Fonepay). Online payment links are sandbox-only; production refuses them cleanly. Manual payments work. | Pick a gateway, get merchant credentials, implement the PaymentAdapter + webhook verification. |
+| GAP-MSG-CHANNELS | High (launch) | Customer messaging works with the sandbox channel only; Messenger/Instagram DM/WhatsApp need app review/BSP (GAP-CHANNEL-APPS). | Meta app review (pages_messaging, instagram_manage_messages) or a WhatsApp BSP. |
+| GAP-AI-REPLY-PHRASING | Med | Sales Agent replies are grounded bilingual templates; no LLM phrasing yet (ADR-043). AI intent classification only runs with a real key. | With a live key: LLM phrasing behind a numbers-must-match grounding guard + evals on real (consented) chats. |
+| GAP-DELIVERY-FEE | Med | Chat orders show "+ delivery charge confirmed by the shop"; no rate table or courier quotes yet. | Phase 3 courier rates (FUL) or a merchant delivery-fee table by district. |
+| GAP-MOBILE-ORDER-CREATE | Low | Mobile can't create orders, record payments, see draft field values, summarise or assign chats (web can). | Next mobile iteration. |
+| GAP-NE-COPY-REVIEW | Low | New Phase 2 Nepali UI copy and chat templates need a native copy review. | Copy editor pass. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.

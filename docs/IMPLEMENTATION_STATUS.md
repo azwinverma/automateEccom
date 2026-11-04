@@ -45,6 +45,20 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
 
+## Phase 2 (Conversation → Order): built 2026-11-04
+- **Built and tested:** customers (identity by phone, Nepal addresses, merge, segments), inventory
+  (ledger, reservations, transfers, low stock, channel stock sync), orders (state machine, imports,
+  partial cancel, timeline), payments (verified online, manual, COD trail), unified inbox and the
+  grounded AI Sales Agent with chat-to-order and escalation. Web: Inbox, Orders, Customers, Inventory.
+  Mobile: Orders, Inbox, stock.
+- **Exit criterion met in E2E** (desktop + 360px, live API + worker): customer message → AI answer
+  from real price/stock → details collected → YES → order with stock reserved → packed → shipped.
+- **Totals (2026-11-04):** backend 246 passed (88% coverage, 17 migrations); web 239 + api-client 25;
+  E2E 22/22; mobile 111 passed + 1 live-only skipped; axe 0 violations on Phase 2 pages.
+- **Not production-ready:** real messaging channels (Meta/WhatsApp) and a Nepal payment gateway are
+  blocked externally; AI replies use templates (LLM phrasing deferred); municipality list unverified;
+  delivery charges are manual until courier rates (Phase 3).
+
 ## Phase 1 completion (2026-11-03)
 - **CHN-012 reconciliation, BIL-009 alert notifications, Nivaro Console UI** built and tested
   (backend, web unit, real-backend E2E desktop + 360px).
@@ -222,51 +236,51 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CHN-011 | dedupe | P1 | TESTED | CHN-010 | apps/backend/app/domains/channels/models.py | test_channels | Unique (provider, event id); duplicate counter |
 | CHN-012 | reconciliation | P1 | TESTED | CHN-009 | apps/backend/app/domains/channels/service.py, integrations/woocommerce.py | test_reconciliation (8), test_woocommerce::test_fetch_listings… | Every 6h + on demand (Channels → Check). Drift (missing/hidden/price/variants) reported, never auto-overwritten; seller pushes Nivaro's or keeps channel's version; self-clears. Stock and order drift wait for INV/ORD (Phase 2). WooCommerce path not yet run against a live store |
 | CHN-013 | health UI | P1 | TESTED | CHN-003 | apps/backend/app/domains/channels/ | test_channels | Health API + web Channels settings (status, reconnect, health check, disconnect) |
-| CRM-001 | Customer | P2 | NOT_STARTED | — | — | — |  |
-| CRM-002 | identities | P2 | NOT_STARTED | — | — | — |  |
-| CRM-003 | addresses | P2 | NOT_STARTED | — | — | — |  |
-| CRM-004 | duplicate merge | P2 | NOT_STARTED | — | — | — |  |
-| CRM-005 | Conversation | P2 | NOT_STARTED | — | — | — |  |
-| CRM-006 | Message | P2 | NOT_STARTED | — | — | — |  |
-| CRM-007 | normalization | P2 | NOT_STARTED | — | — | — |  |
-| CRM-008 | assignment | P2 | NOT_STARTED | — | — | — |  |
-| CRM-009 | intent | P2 | NOT_STARTED | — | — | — |  |
-| CRM-010 | AI summary | P2 | NOT_STARTED | — | — | — |  |
-| CRM-011 | grounded reply | P2 | NOT_STARTED | — | — | — |  |
-| CRM-012 | escalation | P2 | NOT_STARTED | — | — | — |  |
-| CRM-013 | segments | P2 | NOT_STARTED | — | — | — |  |
-| ORD-001 | Order | P2 | NOT_STARTED | — | — | — |  |
-| ORD-002 | OrderLine | P2 | NOT_STARTED | — | — | — |  |
-| ORD-003 | totals snapshot | P2 | NOT_STARTED | — | — | — |  |
-| ORD-004 | state machine | P2 | NOT_STARTED | — | — | — |  |
-| ORD-005 | external import | P2 | NOT_STARTED | — | — | — |  |
-| ORD-006 | chat-to-order | P2 | NOT_STARTED | — | — | — |  |
-| ORD-007 | seller order | P2 | NOT_STARTED | — | — | — |  |
-| ORD-008 | idempotency | P2 | NOT_STARTED | — | — | — |  |
-| ORD-009 | cancel | P2 | NOT_STARTED | — | — | — |  |
-| ORD-010 | partial cancel | P2 | NOT_STARTED | — | — | — |  |
-| ORD-011 | timeline | P2 | NOT_STARTED | — | — | — |  |
-| ORD-012 | structured Nepal address model (province/district/municipality/ward/area/landmark) + validation [pull-forward for CRI/CODI] | P2 | NOT_STARTED | CRM-003 | — | — | Pull-forward (Phase 2): structured Nepal address model |
-| INV-001 | locations | P2 | NOT_STARTED | — | — | — |  |
-| INV-002 | ledger | P2 | NOT_STARTED | — | — | — |  |
-| INV-003 | reservations | P2 | NOT_STARTED | — | — | — |  |
-| INV-004 | reserve/release | P2 | NOT_STARTED | — | — | — |  |
-| INV-005 | concurrency tests | P2 | NOT_STARTED | — | — | — |  |
-| INV-006 | adjustment | P2 | NOT_STARTED | — | — | — |  |
-| INV-007 | transfer | P2 | NOT_STARTED | — | — | — |  |
-| INV-008 | low-stock | P2 | NOT_STARTED | — | — | — |  |
-| INV-009 | channel sync | P3 | NOT_STARTED | — | — | — |  |
+| CRM-001 | Customer | P2 | TESTED | — | apps/backend/app/domains/customers/ | test_customers | Customer with normalised Nepal mobile; one live customer per phone |
+| CRM-002 | identities | P2 | TESTED | — | apps/backend/app/domains/customers/service.py | test_customers, test_inbox | Channel identities; a phone typed in chat joins the existing customer |
+| CRM-003 | addresses | P2 | TESTED | — | apps/backend/app/domains/customers/ | test_customers | Structured addresses with completeness; default address |
+| CRM-004 | duplicate merge | P2 | TESTED | — | apps/backend/app/domains/customers/service.py | test_customers, test_orders | Audited merge; orders, chats, identities, addresses move via merge hooks |
+| CRM-005 | Conversation | P2 | TESTED | — | apps/backend/app/domains/inbox/ | test_inbox | Conversations per channel thread; open/snoozed/closed, labels, unread, first-response SLA |
+| CRM-006 | Message | P2 | TESTED | — | apps/backend/app/domains/inbox/ | test_inbox | Messages deduped on channel id; outbound queued and sent by worker with idempotency key |
+| CRM-007 | normalization | P2 | TESTED | — | apps/backend/app/domains/integrations/sandbox.py, inbox/service.py | test_inbox | ChannelAdapter.normalize_message; sandbox implemented. Meta/WhatsApp blocked (GAP-CHANNEL-APPS) |
+| CRM-008 | assignment | P2 | TESTED | — | apps/backend/app/domains/inbox/service.py | test_inbox (API) | Assign to team member (audited); seller reply auto-assigns |
+| CRM-009 | intent | P2 | TESTED | — | apps/backend/app/domains/inbox/extract.py, agent.py | test_inbox | Rules-first intent (en, Romanized ne, Devanagari) + AI gateway INTENT_CLASSIFICATION when confident (≥0.7). Live model unverified |
+| CRM-010 | AI summary | P2 | TESTED | — | apps/backend/app/domains/inbox/agent.py | test_inbox | Factual summary from conversation data; AI phrasing only with a real model |
+| CRM-011 | grounded reply | P2 | TESTED | — | apps/backend/app/domains/inbox/agent.py | test_inbox (10) + e2e phase2 | Replies are bilingual templates filled from tools (get_product/price/inventory/order); grounding recorded per reply. LLM phrasing deferred (ADR-043) |
+| CRM-012 | escalation | P2 | TESTED | — | apps/backend/app/domains/inbox/agent.py | test_inbox | Complaint/return/refund/exchange/cancel/person/unknown order escalate with holding message; seller reply takes over; hand back |
+| CRM-013 | segments | P2 | TESTED | — | apps/backend/app/domains/customers/service.py | test_orders::test_customer_segments… | new / repeat / inactive (90d) from real orders |
+| ORD-001 | Order | P2 | TESTED | — | apps/backend/app/domains/orders/ | test_orders (16) | One Order for chat/seller/channel/API; per-merchant numbers |
+| ORD-002 | OrderLine | P2 | TESTED | — | apps/backend/app/domains/orders/models.py | test_orders | Line snapshots: price, SKU, title, variant title |
+| ORD-003 | totals snapshot | P2 | TESTED | — | apps/backend/app/domains/orders/service.py | test_orders | Totals snapshot recomputed on partial cancel |
+| ORD-004 | state machine | P2 | TESTED | — | apps/backend/app/domains/orders/service.py | test_orders | Strict transitions; stock reserve on confirm, release on cancel, commit on ship; optimistic version |
+| ORD-005 | external import | P2 | TESTED | — | apps/backend/app/domains/orders/service.py, integrations/woocommerce.py | test_orders (import, catch-up, Woo mapping) | Webhooks + reconciliation catch-up; unmatched SKUs / stock gaps imported and flagged. WooCommerce not run against a live store |
+| ORD-006 | chat-to-order | P2 | TESTED | — | apps/backend/app/domains/inbox/agent.py | test_inbox::test_message_to_ai_to_order_end_to_end + e2e phase2 | Slot filling, sellable options only, summary + explicit YES, idempotent on (conversation, draft version) |
+| ORD-007 | seller order | P2 | TESTED | — | apps/backend/app/domains/orders/router.py, apps/web/src/features/orders | test_orders, OrderDetail.test, e2e | Seller order with variant picker and live stock (web) |
+| ORD-008 | idempotency | P2 | TESTED | — | apps/backend/app/domains/orders/service.py | test_orders | Idempotency-Key, source_key, (connection, external id) |
+| ORD-009 | cancel | P2 | TESTED | — | apps/backend/app/domains/orders/service.py | test_orders | Cancel with reason; needs orders.cancel |
+| ORD-010 | partial cancel | P2 | TESTED | — | apps/backend/app/domains/orders/service.py | test_orders | Partial cancel releases matching stock |
+| ORD-011 | timeline | P2 | TESTED | — | apps/backend/app/domains/orders/models.py | test_orders | Timeline: actor, automated, source, provider |
+| ORD-012 | structured Nepal address model (province/district/municipality/ward/area/landmark) + validation [pull-forward for CRI/CODI] | P2 | TESTED | — | apps/backend/app/domains/customers/nepal.py | test_customers | 7 provinces, 77 districts, ward 1-35; municipality free text (GAP-NP-MUNICIPALITIES) |
+| INV-001 | locations | P2 | TESTED | — | apps/backend/app/domains/inventory/ | test_inventory | Default location; more locations need inventory.multi_location |
+| INV-002 | ledger | P2 | TESTED | — | apps/backend/app/domains/inventory/ | test_inventory | Append-only ledger (DB trigger); levels equal ledger sums |
+| INV-003 | reservations | P2 | TESTED | — | apps/backend/app/domains/inventory/ | test_inventory | Reservations per order line, idempotent; expiry task |
+| INV-004 | reserve/release | P2 | TESTED | — | apps/backend/app/domains/inventory/service.py | test_inventory | Reserve / release / commit / return to stock |
+| INV-005 | concurrency tests | P2 | TESTED | — | tests/test_inventory.py, test_orders.py | 12-thread and 6-request races | No oversell |
+| INV-006 | adjustment | P2 | TESTED | — | apps/backend/app/domains/inventory/ | test_inventory | Adjust, count, damage |
+| INV-007 | transfer | P2 | TESTED | — | apps/backend/app/domains/inventory/service.py | test_inventory | Transfer with deadlock-safe lock order |
+| INV-008 | low-stock | P2 | TESTED | — | apps/backend/app/domains/inventory/ | test_inventory | Threshold; flagged once per crossing; low-stock page |
+| INV-009 | channel sync | P3 | TESTED | — | apps/backend/app/domains/channels/service.py | test_inventory::test_stock_syncs… | Pushes available - per-channel safety stock to inventory-sync channels |
 | INV-010 | reconciliation | P3 | NOT_STARTED | — | — | — |  |
 | PAY-001 | adapter | P0 | IMPLEMENTED | CHN-001 | apps/backend/app/domains/integrations/base.py, sandbox.py | test_platform | Interface + sandbox wallet + COD adapter; no Nepal gateway yet (GAP-PAY-NP) |
-| PAY-002 | COD | P2 | NOT_STARTED | — | — | — |  |
-| PAY-003 | payment intent | P2 | NOT_STARTED | — | — | — |  |
-| PAY-004 | verify | P2 | NOT_STARTED | — | — | — |  |
-| PAY-005 | webhook | P2 | NOT_STARTED | — | — | — |  |
+| PAY-002 | COD | P2 | TESTED | — | apps/backend/app/domains/payments/ | test_payments | COD record follows the order; COD summary. Courier settlement is Phase 3 |
+| PAY-003 | payment intent | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Payment intents via adapter; sandbox only (GAP-PAY-NP) |
+| PAY-004 | verify | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Server-side verify + amount must equal total; mismatch held for seller |
+| PAY-005 | webhook | P2 | TESTED | — | apps/backend/app/domains/payments/ | test_payments | Signed payment webhooks, deduped, only trigger verify |
 | PAY-006 | reconcile | P3 | NOT_STARTED | — | — | — |  |
 | PAY-007 | refund | P4 | NOT_STARTED | — | — | — |  |
-| PAY-008 | idempotency tests | P2 | NOT_STARTED | — | — | — |  |
-| PAY-009 | failed payment | P2 | NOT_STARTED | — | — | — |  |
-| PAY-010 | settlement dashboard | P3 | NOT_STARTED | — | — | — |  |
+| PAY-008 | idempotency tests | P2 | TESTED | — | tests/test_payments.py | test_payments | Manual payment idempotent; link reuse; webhook dedupe |
+| PAY-009 | failed payment | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Failed payment recorded; retry; switch to COD |
+| PAY-010 | settlement dashboard | P3 | IMPLEMENTED | — | apps/backend/app/domains/payments/service.py | test_payments::test_cod_record… | COD summary API (outstanding, pending settlement, failed, return exposure); dashboard UI and settlement in Phase 3 |
 | FUL-001 | courier adapter | P0 | IMPLEMENTED | CHN-001 | apps/backend/app/domains/integrations/base.py, sandbox.py | test_platform | Interface + sandbox courier; no Nepal courier yet (GAP-COURIER-NP) |
 | FUL-002 | rates | P3 | NOT_STARTED | — | — | — |  |
 | FUL-003 | shipment state | P3 | NOT_STARTED | — | — | — |  |
@@ -345,7 +359,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-005 | Channel Sync Rail | P1 | IMPLEMENTED | — | — | — | Web product listings panel = per-channel sync state (status, error, polling); not yet a standalone reusable rail component |
 | UX-006 | Autopilot Strip | P1 | IMPLEMENTED | UX-002 | apps/web/src/components/commerce, apps/mobile/lib/features/home | widget/component tests | Autopilot Status Strip (no data source until AUT) |
 | UX-007 | Exception Inbox | P1 | TESTED | UX-002 | apps/backend/app/domains/exceptions/, apps/web, apps/mobile | test_exceptions | Live Exception Inbox (web Home + mobile Home) from GET /exceptions; actions routed; E2E vs real backend |
-| UX-008 | Order Journey | P2 | NOT_STARTED | — | — | — | Order Journey: needs orders (Phase 2/3) |
+| UX-008 | Order Journey | P2 | TESTED | — | apps/web/src/features/orders/OrderDetail.tsx | OrderDetail.test, e2e phase2 | Order Journey on web; mobile order detail shows status + timeline |
 | UX-009 | AI Timeline | P5 | NOT_STARTED | — | — | — | AI Action Timeline: needs AutomationActionLog (Phase 5) |
 | UX-010 | Profit Card | P6 | NOT_STARTED | — | — | — | Profit Card: needs true-profit model (Phase 6) |
 | UX-011 | Video Credit Meter | P1 | TESTED | BIL-006 | apps/web …/settings/plan, apps/mobile …/settings | component tests | Video Credit Meter + plan-aware usage (not-in-plan, overage policy, gauges); verified against real backend |

@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03, after the QA cycle in `docs/QA_TEST_REPORT.md`.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-04 after Phase 1 completion and Phase 2.
 
 ## Overall status: **NOT_READY**
 
@@ -10,7 +10,10 @@ The code that exists is in a verified, stable state:
 - Production builds succeed and critical E2E flows pass.
 
 Nivaro is still **not production ready**, for reasons outside the code that exists today:
-1. **The core commerce loop isn't built yet.** Orders, inventory, payments/COD, couriers, returns, inbox and the AI sales agent are Phases 2–5. Today's product is Phase 0–1: catalog, AI Studio, media, content, channel publishing and accounts.
+1. **The commerce loop is half built.** Phase 2 (inbox, AI Sales Agent, chat-to-order, orders,
+   inventory, payments/COD records) is built and tested end to end. Shipping with couriers, COD
+   settlement and failed-delivery recovery (Phase 3), returns/refunds (Phase 4) and automation
+   (Phase 5) are not built.
 2. **No staging or production environment, monitoring, alerting, runbooks or backup regime exists.** These are Definition of Done requirements (24).
 3. **No external integration has been exercised live:**
    - AI providers
@@ -48,11 +51,13 @@ External checks that couldn't run are listed under "External tests pending".
 | AI image / video | Auto Reels **PASS**; AI image editing and premium AI video NOT_IMPLEMENTED |
 | Subscriptions / quotas | Enforcement **PASS** (after CRITICAL QA-015 fix); plan payment BLOCKED_EXTERNAL |
 | Channels / publishing | **PASS (sandbox + WooCommerce contract)**; live platforms BLOCKED_EXTERNAL |
-| Inbox / AI Sales Agent | NOT_IMPLEMENTED (Phase 2) |
-| Orders / inventory / payments / COD / fulfillment / returns | NOT_IMPLEMENTED (Phases 2–4) |
+| Inbox / AI Sales Agent / chat-to-order | **PASS** (sandbox channel; E2E message → AI → order). Live messaging channels BLOCKED_EXTERNAL; AI replies are grounded templates (ADR-043) |
+| Orders / inventory | **PASS** (state machine, no-oversell races, imports, partial cancel) |
+| Payments / COD | Verified online payments **PASS with sandbox wallet**; manual payments and COD trail **PASS**; Nepal gateway BLOCKED_EXTERNAL (GAP-PAY-NP); COD settlement Phase 3 |
+| Fulfillment / couriers / returns | NOT_IMPLEMENTED (Phases 3–4) |
 | Automation / Autopilot | NOT_IMPLEMENTED (Phase 5) |
 | Analytics / intelligence | NOT_IMPLEMENTED (Phases 6–10) |
-| Admin | API **PASS**; Console UI NOT_IMPLEMENTED |
+| Admin | API and Nivaro Console UI **PASS** (staff + MFA, E2E); plan/routing editors not built |
 
 ## Known risks
 - **CSP allows inline scripts** (Next.js bootstrap). A nonce-based CSP is a follow-up.
@@ -100,11 +105,32 @@ Production-like load testing needs staging.
 A local logical backup → restore drill passed: identical schema and row counts. There's **no production backup, PITR, object-storage backup or tested disaster-recovery runbook**. Not DR ready.
 
 ## Recommended launch blockers
-1. Build the order-to-delivery loop (Phases 2–3), at minimum orders, inventory, COD and a courier, before any paid launch. That's the product promise.
+1. Finish order-to-delivery (Phase 3): a Nepal courier integration, shipment tracking, COD settlement
+   and failed-delivery recovery. Phase 2 (chat → order) is done.
 2. Staging environment with CI running (remote plus hosting decision), alerts, dashboards and runbooks.
 3. Live AI provider key, with evaluation results above threshold.
-4. At least one live channel (WooCommerce store or an approved Meta app).
+4. At least one live channel (WooCommerce store or an approved Meta app), and a live messaging channel
+   (Messenger/Instagram/WhatsApp) for the Sales Agent.
+4b. A Nepal payment gateway (eSewa/Khalti/Fonepay) for prepaid orders (GAP-PAY-NP).
 5. Email provider and domain; object storage; malware scanning in staging.
 6. Production database with PITR plus a tested restore runbook; object-storage backup.
 7. Pricing and plan billing (GAP-SPEC-21).
 8. An external security review of auth, tenancy and uploads.
+
+## Update 2026-11-04 (Phase 1 completion + Phase 2)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 246 | 246 | 0 | 0 |
+| Web unit + API client | 264 | 264 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 22 | 22 | 0 | 0 |
+| Flutter | 112 | 111 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 2 pages (8 pages × 3 configs) | 24 | 24 | 0 | 0 |
+
+Bugs found and fixed while building: re-reserving after release discarded pending changes; same-ms
+IDs sorted out of order (uuid7 now monotonic); reconciliation continued after credentials were
+rejected; payment webhook path clashed with channel webhooks; order responses carried a stale
+version; two identical "Send" buttons in the inbox; message log not keyboard-reachable; order
+journey overflowed at 360px. Each has a regression test or E2E/axe coverage.
+
+Overall status remains **NOT_READY** (Phase 3 delivery, live channels, payment gateway, staging,
+backups, pentest).

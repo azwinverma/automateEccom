@@ -327,3 +327,36 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
   the connection instead of recording drift.
 - **Why:** spec 10 ("drift creates exceptions, never silent overwrites"); sellers edit directly in their
   stores, and overwriting would destroy their work.
+
+## ADR-042: A variant is stock-tracked once stock is first recorded (INV, 2026-11-04)
+- **Decision:** a variant has no inventory level row until the seller records stock. Untracked variants
+  never block orders or reservations, and the Sales Agent says "the shop will confirm stock" instead
+  of guessing. Recording any stock makes it tracked; from then on reservations can't oversell.
+- **Why:** existing shops have no stock data; blocking every order on day one would stop sales.
+  Made-to-order items stay untracked on purpose.
+
+## ADR-043: Sales Agent replies are grounded templates; AI enriches understanding (CRM-011, 2026-11-04)
+- **Decision:** understanding is rules-first (Nepal phones, districts, wards, quantities, COD/online,
+  yes/no in English, Romanized Nepali and Devanagari) plus the gateway intent model when confidence
+  ≥ 0.7. Replies are bilingual templates filled only with tool results, and each reply stores what was
+  looked up. Free-form LLM phrasing is deferred until a live model can be evaluated with a guard that
+  rejects any number not present in the tool results.
+- **Why:** spec 11 forbids model-generated transactional facts; no live key is available to evaluate
+  phrasing quality; templates make chat-to-order work and stay correct without a key.
+
+## ADR-044: A sale is never refused for a plan limit (BIL × ORD, 2026-11-04)
+- **Decision:** orders past the monthly allowance are recorded as `overage` funding (the plans'
+  `overage_policy`), and channel imports are always imported. Only stock can refuse an order.
+- **Why:** refusing a customer's order because of the seller's plan loses real revenue and trust.
+
+## ADR-045: Payments count only after server verification of the amount (PAY, 2026-11-04)
+- **Decision:** online payments are marked paid only when the provider's `verify_payment` confirms
+  capture *and* the amount equals the order total; webhooks only trigger verification. A different
+  amount is held for the seller (`payment_mismatch`). Sellers may record outside payments
+  (bank/eSewa/Khalti to their own account) for the exact total with an Idempotency-Key. A paid order
+  moves to ready-to-ship automatically (R1).
+
+## ADR-046: Order reservation happens at confirmation; channel imports keep short orders (ORD, 2026-11-04)
+- **Decision:** stock is reserved when an order is confirmed, released on cancel, committed on ship.
+  A channel order that can't be reserved is still imported (the sale happened on the channel) and
+  flagged `stock_short` in the Exception Inbox.
