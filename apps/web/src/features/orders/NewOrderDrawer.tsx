@@ -58,6 +58,8 @@ export function NewOrderDrawer({
   const [address, setAddress] = useState<AddressInput>(EMPTY_ADDRESS);
   const [payment, setPayment] = useState<"cod" | "prepaid">("cod");
   const [fee, setFee] = useState("");
+  const [feeTouched, setFeeTouched] = useState(false);
+  const [feeFromTable, setFeeFromTable] = useState(false);
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -106,6 +108,27 @@ export function NewOrderDrawer({
   };
 
   const itemsTotal = useMemo(() => lines.reduce((sum, l) => sum + chosen(l).price_minor * l.quantity, 0), [lines]);
+  const destDistrict = customer && addressId !== "new" ? (customer.addresses.find((a) => a.id === addressId)?.district ?? "") : address.district;
+
+  // The merchant's delivery-charge table fills the fee until the seller types their own.
+  useEffect(() => {
+    if (!open || feeTouched || !destDistrict) return;
+    let live = true;
+    const id = setTimeout(() => {
+      api.couriers.quoteFee(destDistrict, itemsTotal).then(
+        (r) => {
+          if (!live || !r.quote) return;
+          setFee(String(r.quote.fee_minor / 100));
+          setFeeFromTable(true);
+        },
+        () => undefined, // no table or no permission: the seller types the fee
+      );
+    }, 250);
+    return () => {
+      live = false;
+      clearTimeout(id);
+    };
+  }, [open, feeTouched, destDistrict, itemsTotal, api]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -262,7 +285,19 @@ export function NewOrderDrawer({
               <option value="cod">{t("orders.new.cod")}</option>
               <option value="prepaid">{t("orders.new.prepaid")}</option>
             </SelectField>
-            <TextField label={t("orders.new.deliveryFee")} type="number" inputMode="decimal" min={0} step="1" value={fee} onChange={(e) => setFee(e.target.value)} />
+            <TextField
+              label={t("orders.new.deliveryFee")}
+              hint={feeFromTable && !feeTouched ? t("orders.new.feeFromTable") : undefined}
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="1"
+              value={fee}
+              onChange={(e) => {
+                setFeeTouched(true);
+                setFee(e.target.value);
+              }}
+            />
           </div>
           <TextField label={t("orders.new.notes")} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} />
         </section>

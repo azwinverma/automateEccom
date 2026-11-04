@@ -45,6 +45,22 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
 
+## Phase 3 (Order → Delivery): built 2026-11-04
+- **Built and tested:** couriers (sandbox courier + "own rider / other courier"), merchant delivery
+  charges (used by chat orders and New order), rule-based courier options, idempotent booking,
+  labels, pickup, tracking by signed webhooks and polling, customer shipping messages, failed-delivery
+  recovery with the customer's reply, return to sender with restock, COD settlement (courier API,
+  CSV, own-rider cash) with line-by-line reconciliation. Web: Deliveries, COD cash, Settings →
+  Couriers, order Delivery panel, printable label. Mobile: order Delivery section, COD screen.
+- **Exit criterion met in E2E** (desktop + 360px, live API + worker): order → COD → courier booked →
+  pickup → failed attempt → reattempt → delivered → courier statement matched → money confirmed.
+- **Totals (2026-11-04):** backend 266 passed (88% coverage, 18 migrations); web 251 + api-client 25;
+  E2E 24/24 (desktop + 360px); mobile 117 passed + 1 live-only skipped; axe 0 violations on the 5
+  Phase 3 pages (light, dark, 360px).
+- **Not production-ready:** no Nepal courier API is integrated (GAP-COURIER-NP: needs courier API
+  access); shipping messages only reach customers on real channels after Meta/WhatsApp approval
+  (GAP-MSG-CHANNELS); settlement confirmation relies on the seller (no bank feed, GAP-COD-BANK).
+
 ## Phase 2 (Conversation → Order): built 2026-11-04
 - **Built and tested:** customers (identity by phone, Nepal addresses, merge, segments), inventory
   (ledger, reservations, transfers, low stock, channel stock sync), orders (state machine, imports,
@@ -272,7 +288,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | INV-009 | channel sync | P3 | TESTED | — | apps/backend/app/domains/channels/service.py | test_inventory::test_stock_syncs… | Pushes available - per-channel safety stock to inventory-sync channels |
 | INV-010 | reconciliation | P3 | NOT_STARTED | — | — | — |  |
 | PAY-001 | adapter | P0 | IMPLEMENTED | CHN-001 | apps/backend/app/domains/integrations/base.py, sandbox.py | test_platform | Interface + sandbox wallet + COD adapter; no Nepal gateway yet (GAP-PAY-NP) |
-| PAY-002 | COD | P2 | TESTED | — | apps/backend/app/domains/payments/ | test_payments | COD record follows the order; COD summary. Courier settlement is Phase 3 |
+| PAY-002 | COD | P2 | TESTED | — | apps/backend/app/domains/payments/, fulfillment/settlement.py | test_payments, test_fulfillment | COD record follows the order and the parcel; settled only when a courier statement (or own-rider cash) is confirmed |
 | PAY-003 | payment intent | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Payment intents via adapter; sandbox only (GAP-PAY-NP) |
 | PAY-004 | verify | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Server-side verify + amount must equal total; mismatch held for seller |
 | PAY-005 | webhook | P2 | TESTED | — | apps/backend/app/domains/payments/ | test_payments | Signed payment webhooks, deduped, only trigger verify |
@@ -280,17 +296,17 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | PAY-007 | refund | P4 | NOT_STARTED | — | — | — |  |
 | PAY-008 | idempotency tests | P2 | TESTED | — | tests/test_payments.py | test_payments | Manual payment idempotent; link reuse; webhook dedupe |
 | PAY-009 | failed payment | P2 | TESTED | — | apps/backend/app/domains/payments/service.py | test_payments | Failed payment recorded; retry; switch to COD |
-| PAY-010 | settlement dashboard | P3 | IMPLEMENTED | — | apps/backend/app/domains/payments/service.py | test_payments::test_cod_record… | COD summary API (outstanding, pending settlement, failed, return exposure); dashboard UI and settlement in Phase 3 |
-| FUL-001 | courier adapter | P0 | IMPLEMENTED | CHN-001 | apps/backend/app/domains/integrations/base.py, sandbox.py | test_platform | Interface + sandbox courier; no Nepal courier yet (GAP-COURIER-NP) |
-| FUL-002 | rates | P3 | NOT_STARTED | — | — | — |  |
-| FUL-003 | shipment state | P3 | NOT_STARTED | — | — | — |  |
-| FUL-004 | labels | P3 | NOT_STARTED | — | — | — |  |
-| FUL-005 | pickup | P3 | NOT_STARTED | — | — | — |  |
-| FUL-006 | tracking | P3 | NOT_STARTED | — | — | — |  |
-| FUL-007 | notify | P3 | NOT_STARTED | — | — | — |  |
-| FUL-008 | delivery failure | P3 | NOT_STARTED | — | — | — |  |
+| PAY-010 | settlement dashboard | P3 | TESTED | — | apps/backend/app/domains/fulfillment/settlement.py; apps/web/src/features/fulfillment/CodView.tsx | test_fulfillment::test_courier_statement…, Fulfillment.test (CodView), e2e phase3 | Cash with couriers by age and by courier, statements to review, received in 30 days; awaiting list; mobile COD screen |
+| FUL-001 | courier adapter | P0 | TESTED | CHN-001 | apps/backend/app/domains/integrations/base.py, sandbox.py | test_fulfillment | Normalised tracking, pickup, reattempt, return, COD statements; sandbox courier + real 'own rider / other courier' adapter. No Nepal courier API yet (GAP-COURIER-NP) |
+| FUL-002 | rates | P3 | TESTED | FUL-001 | apps/backend/app/domains/fulfillment/couriers.py | test_fulfillment::test_rates… | Options per courier, COD-capable only for COD; rule recommendation (default → cheapest → only), method=rules; merchant delivery-fee table (district > valley > default, free-over) |
+| FUL-003 | shipment state | P3 | TESTED | FUL-001 | apps/backend/app/domains/fulfillment/service.py, models.py | test_fulfillment | 12 normalised statuses; one live shipment per order; idempotent booking under an order lock; order follows the parcel through the order state machine |
+| FUL-004 | labels | P3 | TESTED | FUL-003 | fulfillment/service.py::label; apps/web/src/features/fulfillment/LabelView.tsx | test_fulfillment::test_booking…, e2e phase3 | Courier label when provided, else Nivaro printable label (tracking, COD to collect, addresses, contents). No barcode yet (GAP-LABEL-BARCODE) |
+| FUL-005 | pickup | P3 | TESTED | FUL-003 | fulfillment/service.py::request_pickup | test_fulfillment::test_cannot_book…, e2e phase3 | One pickup request per courier for selected booked parcels; bulk from the Deliveries list |
+| FUL-006 | tracking | P3 | TESTED | FUL-003 | fulfillment/service.py (webhooks + poll_due) | test_fulfillment::test_courier_webhooks…, test_late_webhook…, test_polling… | Signed per-account webhooks through the webhook inbox (dedupe, retry, dead-letter); polling every 30 min (6 h with webhooks); newest-event-wins, late events kept as history |
+| FUL-007 | notify | P3 | TESTED | FUL-006 | fulfillment/service.py::_notify_customer, notify.py | test_fulfillment::test_failed_delivery_asks… | en/ne templates into the customer's own chat only, once per parcel and kind, merchant toggle. Meta 24 h window applies on real channels (GAP-MSG-CHANNELS) |
+| FUL-008 | delivery failure | P3 | TESTED | FUL-006 | fulfillment/service.py (attempts, capture_customer_reply, escalate_stale) | test_fulfillment (3 recovery tests), e2e phase3 | Attempt record → customer asked → reply captured before the Sales Agent → auto reattempt only in smart/autopilot → escalation after the wait window; return to sender; restock on receipt |
 | FUL-009 | smart courier | P6 | NOT_STARTED | — | — | — |  |
-| FUL-010 | reconciliation | P3 | NOT_STARTED | — | — | — |  |
+| FUL-010 | reconciliation | P3 | TESTED | FUL-006 | apps/backend/app/domains/fulfillment/settlement.py | test_fulfillment (4 settlement tests) | Statements from courier API, CSV import or own-rider cash; per-line matching (7 outcomes); accept with reason (audited); confirm settles COD records; idempotent per reference |
 | RET-001 | policy | P4 | NOT_STARTED | — | — | — |  |
 | RET-002 | eligibility | P4 | NOT_STARTED | — | — | — |  |
 | RET-003 | request | P4 | NOT_STARTED | — | — | — |  |

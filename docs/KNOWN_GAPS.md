@@ -122,7 +122,7 @@ are done. The items below remain.
 | GAP-PAY-NP | High (launch) | No real Nepal payment gateway (eSewa/Khalti/Fonepay). Online payment links are sandbox-only; production refuses them cleanly. Manual payments work. | Pick a gateway, get merchant credentials, implement the PaymentAdapter + webhook verification. |
 | GAP-MSG-CHANNELS | High (launch) | Customer messaging works with the sandbox channel only; Messenger/Instagram DM/WhatsApp need app review/BSP (GAP-CHANNEL-APPS). | Meta app review (pages_messaging, instagram_manage_messages) or a WhatsApp BSP. |
 | GAP-AI-REPLY-PHRASING | Med | Sales Agent replies are grounded bilingual templates; no LLM phrasing yet (ADR-043). AI intent classification only runs with a real key. | With a live key: LLM phrasing behind a numbers-must-match grounding guard + evals on real (consented) chats. |
-| GAP-DELIVERY-FEE | Med | Chat orders show "+ delivery charge confirmed by the shop"; no rate table or courier quotes yet. | Phase 3 courier rates (FUL) or a merchant delivery-fee table by district. |
+| ~~GAP-DELIVERY-FEE~~ | Closed 2026-11-04 | Merchant delivery-charge table (district > inside valley > default, free over a subtotal) fills chat orders and New order. | — |
 | GAP-MOBILE-ORDER-CREATE | Low | Mobile can't create orders, record payments, see draft field values, summarise or assign chats (web can). | Next mobile iteration. |
 | GAP-TEST-FLAKE-1104 | Low | One backend test failed once in a full run with coverage on 2026-11-04 (output not captured); it hasn't happened again in 4 more full runs or 6 repeats of the concurrency tests. | If CI shows a failure, capture `-rf` output and fix the root cause. |
 | GAP-NE-COPY-REVIEW | Low | New Phase 2 Nepali UI copy and chat templates need a native copy review. | Copy editor pass. |
@@ -132,3 +132,7 @@ are done. The items below remain.
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.
 - No session/device anomaly notifications to users. A reuse-detection event exists, but nothing notifies the user yet.
 - Password breach check uses a small local deny-list, not HIBP k-anonymity.
+| GAP-COD-BANK | Med | "Money received" on a COD statement is the seller's confirmation; Nivaro doesn't see the bank or wallet credit. | Bank/wallet statement import or a payout API from the courier. |
+| GAP-LABEL-BARCODE | Low | Nivaro's printable label shows the tracking number as text; no barcode/QR. Couriers that supply their own label link to it. | Add Code-128/QR rendering once a courier confirms which format its scanners read. |
+| GAP-SETTLEMENT-XLSX | Low | Courier statements are imported as CSV; Excel files must be saved as CSV first. | Parse .xlsx server-side (with a vetted library) if sellers ask for it. |
+| GAP-COURIER-RATES-REAL | Med | Rates and ETAs come from the sandbox courier; own-rider bookings have no rate. Courier Brain (Phase 6) needs real courier data. | Integrate a Nepal courier API (GAP-COURIER-NP). |

@@ -13,6 +13,7 @@ import table from "@/components/ui/table.module.css";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAction, useApiQuery } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { DeliveryPanel } from "../fulfillment/DeliveryPanel";
 import products from "../products/products.module.css";
 import { ErrorAlert, OrderStatusBadge, PaymentBadge } from "./shared";
 import styles from "./orders.module.css";
@@ -245,6 +246,7 @@ export function OrderDetailView({ id }: { id: string }) {
               </div>
             ) : null}
           </section>
+          <DeliveryPanel order={o} onChanged={() => refresh()} />
           <PaymentPanel order={o} payments={payments.state.status === "success" ? payments.state.data.items : []} onChanged={refresh} />
         </aside>
       </div>

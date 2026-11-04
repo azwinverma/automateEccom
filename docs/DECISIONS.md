@@ -360,3 +360,40 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 - **Decision:** stock is reserved when an order is confirmed, released on cancel, committed on ship.
   A channel order that can't be reserved is still imported (the sale happened on the channel) and
   flagged `stock_short` in the Exception Inbox.
+
+## ADR-047: The order follows the parcel; parcel status is newest-event-wins (FUL-003/006, 2026-11-04)
+- **Decision:** every parcel update (courier webhook, poll, or seller for own-rider deliveries) goes
+  through one function: deduped per courier event, applied only if newer than the last applied event,
+  and terminal states (delivered, returned, cancelled, lost) are final. Late events are stored with
+  `applied=false`. The order is moved through the normal order state machine (picked up → shipped,
+  failed → delivery_failed, returned → returned), never written directly.
+- **Why:** couriers retry and reorder webhooks; a late "in transit" must never undo "out for
+  delivery", and the order's history must stay explainable.
+
+## ADR-048: Booking holds the order row lock across the courier call (FUL-003, 2026-11-04)
+- **Decision:** booking locks the order row, checks there's no live shipment, then calls the courier
+  with the Idempotency-Key. A partial unique index enforces one live shipment per order.
+- **Why:** a double tap or two staff booking at once must not create two courier consignments (and
+  two COD collections). A short lock during one HTTP call is cheaper than reconciling a duplicate.
+
+## ADR-049: Shipping messages are transactional, sent only into the customer's own chat (FUL-007/008, 2026-11-04)
+- **Decision:** on-its-way, out-for-delivery, delivered and failed-delivery messages are fixed en/ne
+  templates, sent only to a conversation the customer started, when the merchant's toggle is on (default
+  on), once per parcel and kind. A reply to the failed-delivery question is captured on the attempt
+  before the Sales Agent sees it. Reattempts are requested automatically only in smart/autopilot mode
+  (Decision Policy); in assisted mode the seller gets a "customer replied" exception.
+- **Why:** customers expect delivery updates; templates can't promise anything the data doesn't
+  support; asking the courier to go again costs money, so the merchant's automation mode decides.
+
+## ADR-050: COD is settled only when a statement line matches or is accepted (FUL-010, 2026-11-04)
+- **Decision:** courier statements (API, CSV, or seller-recorded own-rider cash) are matched line by
+  line: matched, amount differs, not our parcel, not delivered, already paid, listed twice, not COD.
+  Confirming "money received" requires every line matched or accepted with a reason (audited), and
+  only then marks those COD records settled. Re-importing a reference returns the first import.
+- **Why:** COD leakage is the top cash risk for Nepal social sellers; the seller must see exactly
+  which parcels a courier paid and decide consciously about every difference.
+
+## ADR-051: Fulfillment is on every plan (2026-11-04)
+- **Decision:** couriers, shipments, recovery and COD settlement need no feature entitlement.
+  Courier Brain (`intelligence.courier`) and COD Intelligence (`intelligence.cod`) stay Pro+ (Phase 6).
+- **Why:** delivering and getting paid is core to every seller; intelligence on top is the upsell.

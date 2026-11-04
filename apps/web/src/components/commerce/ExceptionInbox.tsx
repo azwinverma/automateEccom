@@ -21,6 +21,12 @@ export const EXCEPTION_TYPES = [
   "ambiguous_variant",
   "customer_escalation",
   "provider_failure",
+  "delivery_failed",
+  "shipment_stuck",
+  "shipment_lost",
+  "return_to_receive",
+  "cod_settlement_mismatch",
+  "courier_error",
 ] as const;
 
 export type ExceptionType = (typeof EXCEPTION_TYPES)[number];

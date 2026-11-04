@@ -1375,6 +1375,7 @@ export interface CodAwaiting {
 }
 
 export interface CodOverview extends CodSummary {
+  currency: string;
   awaiting_by_age: Record<"d0_7" | "d8_14" | "d15_plus", { count: number; amount_minor: number }>;
   awaiting_by_courier: { courier_account_id: string; courier_name: string; count: number; amount_minor: number }[];
   settlements_needing_review: number;

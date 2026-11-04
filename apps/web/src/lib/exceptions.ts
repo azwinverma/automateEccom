@@ -20,7 +20,13 @@ export type ExceptionActionLabel =
   | "check_payment"
   | "fix_stock"
   | "review_order"
-  | "remove_file";
+  | "remove_file"
+  | "call_customer"
+  | "request_reattempt"
+  | "contact_courier"
+  | "confirm_received_back"
+  | "review_settlement"
+  | "reconnect_courier";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
 const enc = encodeURIComponent;
@@ -57,6 +63,18 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
     case "fix_stock":
     case "review_order":
       return { kind: "link", href: `/orders/${enc(id)}`, label: item.action as "check_payment" | "fix_stock" | "review_order" };
+    case "call_customer":
+    case "request_reattempt":
+    case "contact_courier":
+    case "confirm_received_back": {
+      // Fixed on the order page, where the Delivery panel has the shipment's actions.
+      const order = str(details.order_id);
+      return { kind: "link", href: order ? `/orders/${enc(order)}#delivery` : "/fulfillment", label: item.action as ExceptionActionLabel };
+    }
+    case "review_settlement":
+      return { kind: "link", href: "/fulfillment/cod", label: "review_settlement" };
+    case "reconnect_courier":
+      return { kind: "link", href: "/settings/couriers", label: "reconnect_courier" };
     case "view_plan":
       return { kind: "link", href: "/settings/plan", label: "view_plan" };
     case "confirm_attributes":
@@ -85,6 +103,15 @@ export function exceptionSummaryKey(item: ExceptionRecord): { key: string; vars:
     const vars = { resource: str(d.resource) ?? "", used: Number(d.used ?? 0), limit: Number(d.limit ?? 0) };
     return { key: Number(d.level) >= 100 ? "usageLimitReached" : "usageLimitNear", vars };
   }
+  if (item.type === "delivery_failed") {
+    const replied = str(d.recovery_status) === "customer_replied";
+    return { key: replied ? "deliveryReplied" : "deliveryFailed", vars: { number: Number(d.number ?? 0), reason: str(d.reason) ?? "" } };
+  }
+  if (item.type === "shipment_stuck") return { key: "shipmentStuck", vars: { number: Number(d.number ?? 0), days: Number(d.days_since_update ?? 0) } };
+  if (item.type === "shipment_lost") return { key: "shipmentLost", vars: { number: Number(d.number ?? 0) } };
+  if (item.type === "return_to_receive") return { key: "returnToReceive", vars: { number: Number(d.number ?? 0) } };
+  if (item.type === "cod_settlement_mismatch") return { key: "settlementMismatch", vars: { reference: str(d.reference) ?? "", count: Number(d.issues ?? 0) } };
+  if (item.type === "courier_error") return { key: "courierError", vars: { name } };
   if (item.type === "listing_drift") return { key: "listingDrift", vars: { name, channel: str(d.name) ?? "" } };
   if (item.type === "publish_failed" && r === "content_post") return { key: "postFailed", vars: {} };
   if (item.type === "low_confidence_ai" && r === "content_post") return { key: "postNeedsApproval", vars: { count: Number(d.issues ?? 0) } };

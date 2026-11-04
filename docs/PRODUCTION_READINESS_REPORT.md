@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-04 after Phase 1 completion and Phase 2.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-04 after Phase 1 completion, Phase 2 and Phase 3.
 
 ## Overall status: **NOT_READY**
 
@@ -10,9 +10,10 @@ The code that exists is in a verified, stable state:
 - Production builds succeed and critical E2E flows pass.
 
 Nivaro is still **not production ready**, for reasons outside the code that exists today:
-1. **The commerce loop is half built.** Phase 2 (inbox, AI Sales Agent, chat-to-order, orders,
-   inventory, payments/COD records) is built and tested end to end. Shipping with couriers, COD
-   settlement and failed-delivery recovery (Phase 3), returns/refunds (Phase 4) and automation
+1. **The commerce loop is built up to delivery and cash, but only against sandboxes.** Phases 2–3
+   (inbox, AI Sales Agent, chat-to-order, orders, inventory, payments, couriers, tracking,
+   failed-delivery recovery, COD settlement) are built and tested end to end. No real Nepal courier
+   API is integrated (own-rider/manual deliveries do work). Returns/refunds (Phase 4) and automation
    (Phase 5) are not built.
 2. **No staging or production environment, monitoring, alerting, runbooks or backup regime exists.** These are Definition of Done requirements (24).
 3. **No external integration has been exercised live:**
@@ -105,8 +106,9 @@ Production-like load testing needs staging.
 A local logical backup → restore drill passed: identical schema and row counts. There's **no production backup, PITR, object-storage backup or tested disaster-recovery runbook**. Not DR ready.
 
 ## Recommended launch blockers
-1. Finish order-to-delivery (Phase 3): a Nepal courier integration, shipment tracking, COD settlement
-   and failed-delivery recovery. Phase 2 (chat → order) is done.
+1. A real Nepal courier integration (API access from a courier, GAP-COURIER-NP). Phase 3 flows
+   (tracking, failed-delivery recovery, COD settlement) are built and tested against the sandbox
+   courier and the own-rider option.
 2. Staging environment with CI running (remote plus hosting decision), alerts, dashboards and runbooks.
 3. Live AI provider key, with evaluation results above threshold.
 4. At least one live channel (WooCommerce store or an approved Meta app), and a live messaging channel
@@ -133,4 +135,23 @@ version; two identical "Send" buttons in the inbox; message log not keyboard-rea
 journey overflowed at 360px. Each has a regression test or E2E/axe coverage.
 
 Overall status remains **NOT_READY** (Phase 3 delivery, live channels, payment gateway, staging,
+backups, pentest).
+
+## Update 2026-11-04 (Phase 3: order → delivery → COD cash)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 266 | 266 | 0 | 0 |
+| Web unit + API client | 276 | 276 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 24 | 24 | 0 | 0 |
+| Flutter | 118 | 117 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 3 pages (5 pages × 3 configs) | 15 | 15 | 0 | 0 |
+
+Exit flow verified in E2E: order → COD → courier booked → pickup → failed attempt → reattempt →
+delivered → courier statement matched → money confirmed.
+
+Fixed while building: the listings panel stopped refreshing while a listing was "out of sync" (a
+resync is always queued then), which made a Phase 1 E2E fail under a busier worker; the CSS print
+rule broke the production build (moved to globals); the COD statements table was cut off at 360px.
+
+Overall status remains **NOT_READY** (real courier API, live channels, payment gateway, staging,
 backups, pentest).

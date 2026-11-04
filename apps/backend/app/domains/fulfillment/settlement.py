@@ -514,6 +514,7 @@ def overview(db: Session, ctx: TenantContext) -> dict[str, Any]:
     ).one()
     return {
         **summary,
+        "currency": _currency(db, ctx),
         "awaiting_by_age": {k: {"count": v[0], "amount_minor": v[1]} for k, v in aging.items()},
         "awaiting_by_courier": sorted(by_courier.values(), key=lambda c: -c["amount_minor"]),
         "settlements_needing_review": int(review or 0),

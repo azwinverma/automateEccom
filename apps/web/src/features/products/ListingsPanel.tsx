@@ -15,6 +15,8 @@ import wf from "../shared/workflow.module.css";
 
 const TONE: Record<string, Tone> = { published: "success", failed: "danger", out_of_sync: "warning", pending: "info", publishing: "info" };
 export const LISTING_IN_FLIGHT = new Set(["pending", "publishing"]);
+// out_of_sync always has a resync queued (or a retry scheduled): keep watching it, but still offer "update".
+const LISTING_WATCH = new Set([...LISTING_IN_FLIGHT, "out_of_sync", "unpublishing"]);
 
 /** Per-channel listing status for one product; polls while anything is queued or publishing. */
 export function ListingsPanel({ product, canPublish }: { product: ProductDetail; canPublish: boolean }) {
@@ -25,7 +27,7 @@ export function ListingsPanel({ product, canPublish }: { product: ProductDetail;
   const [round, setRound] = useState(0);
   const listings = usePolling(() => api.catalog.listings(product.id), {
     key: `${product.id}:${round}`,
-    isDone: (r) => !r.items.some((l) => LISTING_IN_FLIGHT.has(l.status)),
+    isDone: (r) => !r.items.some((l) => LISTING_WATCH.has(l.status)),
     delay: (n) => Math.min(4000, 1000 + n * 500),
   });
   const [busy, setBusy] = useState<string | null>(null);
