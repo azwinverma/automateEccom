@@ -25,7 +25,8 @@ export function DeliveryPanel({ order, onChanged }: { order: OrderDetail; onChan
   const { can } = useAuth();
   const allowed = can("fulfillment.read");
   const shipments = useApiQuery((a) => (allowed ? a.shipments.forOrder(order.id) : Promise.resolve({ items: [] as Shipment[] })), [order.id, order.version, allowed]);
-  const items = shipments.state.status === "success" ? shipments.state.data.items : [];
+  // Return pickups are shown on their return, not here.
+  const items = shipments.state.status === "success" ? shipments.state.data.items.filter((s) => s.direction !== "return") : [];
   const live = items.find((s) => s.status !== "cancelled");
   const earlier = items.filter((s) => s.status === "cancelled");
   const changed = () => {

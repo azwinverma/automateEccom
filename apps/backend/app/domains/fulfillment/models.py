@@ -154,9 +154,20 @@ class Shipment(IdMixin, TimestampMixin, TenantScoped, Base):
             "cod_amount_minor >= 0 and (charge_minor is null or charge_minor >= 0)", name="money"
         ),
         UniqueConstraint("merchant_id", "idempotency_key"),
-        # One live shipment per order; a cancelled booking can be replaced.
+        CheckConstraint("direction in ('outbound','return')", name="direction"),
+        CheckConstraint("(direction = 'return') = (return_id is not null)", name="return_link"),
+        # One live outbound shipment per order, one live pickup per return; cancelled ones can be replaced.
         Index(
-            "uq_shipment_live_order", "order_id", unique=True, postgresql_where=text("status <> 'cancelled'")
+            "uq_shipment_live_order",
+            "order_id",
+            unique=True,
+            postgresql_where=text("status <> 'cancelled' and direction = 'outbound'"),
+        ),
+        Index(
+            "uq_shipment_live_return",
+            "return_id",
+            unique=True,
+            postgresql_where=text("status <> 'cancelled' and direction = 'return'"),
         ),
         Index(
             "uq_shipment_tracking",
@@ -169,6 +180,11 @@ class Shipment(IdMixin, TimestampMixin, TenantScoped, Base):
     )
 
     order_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orders.id", ondelete="RESTRICT"), index=True)
+    # RET-006: a return pickup travels customer → shop and never moves the order or COD.
+    direction: Mapped[str] = mapped_column(
+        String(10), default="outbound", server_default="outbound", nullable=False
+    )
+    return_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("return_requests.id", ondelete="RESTRICT"))
     courier_account_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("courier_accounts.id", ondelete="RESTRICT")
     )

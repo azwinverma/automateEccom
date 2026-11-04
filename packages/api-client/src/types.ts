@@ -342,6 +342,8 @@ export interface ProductDetail {
   brand: string | null;
   product_type: string | null;
   tags: string[];
+  /** Final-sale items fail the return eligibility check (soft: a manager can override). */
+  final_sale?: boolean;
   seo_title: string | null;
   seo_description: string | null;
   version: number;
@@ -389,7 +391,7 @@ export type ProductPatchInput = Partial<
     ProductCreateInput,
     "title" | "handle" | "description" | "title_ne" | "description_ne" | "brand" | "product_type" | "tags" | "seo_title" | "seo_description"
   >
-> & { category_id?: string | null };
+> & { category_id?: string | null; final_sale?: boolean };
 
 export interface VariantPatchInput {
   price_minor?: number;
@@ -1257,6 +1259,9 @@ export interface DeliveryAttempt {
 export interface Shipment {
   id: string;
   order_id: string;
+  /** "return" = a pickup bringing a returned item back to the shop. */
+  direction: "outbound" | "return";
+  return_id: string | null;
   order_number: number | null;
   customer_name: string | null;
   destination_district: string | null;
@@ -1380,4 +1385,151 @@ export interface CodOverview extends CodSummary {
   awaiting_by_courier: { courier_account_id: string; courier_name: string; count: number; amount_minor: number }[];
   settlements_needing_review: number;
   received_last_30_days: { count: number; amount_minor: number };
+}
+
+/* ---------- Phase 4: returns, exchanges, refunds ---------- */
+
+export type ReturnReason =
+  | "size_small"
+  | "size_large"
+  | "colour_different"
+  | "quality_defect"
+  | "damaged_in_transit"
+  | "not_as_described"
+  | "changed_mind"
+  | "late_delivery"
+  | "wrong_item"
+  | "other";
+
+export type ReturnStatus = "requested" | "approved" | "rejected" | "in_transit" | "received" | "inspected" | "refunded" | "exchanged" | "closed" | "cancelled";
+export type ReturnCondition = "resellable" | "damaged" | "missing" | "used";
+export type RefundMethod = "original_payment" | "bank_transfer" | "esewa" | "khalti" | "fonepay" | "cash" | "other";
+export type ReturnBucket = "to_decide" | "in_progress" | "to_refund" | "done";
+export type ReturnAction = "approve" | "reject" | "cancel" | "book_pickup" | "mark_received" | "inspect" | "refund";
+
+export interface ReturnPolicy {
+  window_days: number;
+  allow_refund: boolean;
+  allow_exchange: boolean;
+  evidence_reasons: ReturnReason[];
+  return_shipping_fee_minor: number;
+  auto_approve: boolean;
+  auto_refund_max_minor: number;
+  notes: string | null;
+}
+
+export interface ReturnCheck {
+  code: "order_delivered" | "within_window" | "quantity_available" | "not_final_sale" | "evidence" | "resolution_allowed" | "exchange_same_product" | "exchange_in_stock" | (string & {});
+  ok: boolean;
+  /** Soft checks can be overridden with a reason by someone allowed to approve returns. */
+  soft: boolean;
+  deadline?: string;
+  window_days?: number;
+  items?: string[];
+  status?: string;
+}
+
+export interface ReturnSignal {
+  code: "frequent_returns" | "high_return_rate" | "high_value" | (string & {});
+  count?: number;
+  days?: number;
+  returned?: number;
+  orders?: number;
+  amount_minor?: number;
+  average_order_minor?: number;
+}
+
+export interface Returnable {
+  order_id: string;
+  order_status: OrderStatus;
+  delivered_at: string | null;
+  deadline: string | null;
+  currency: string;
+  refundable_minor: number;
+  policy: ReturnPolicy;
+  lines: {
+    order_line_id: string;
+    title: string;
+    variant_title: string | null;
+    sku: string | null;
+    returnable_quantity: number;
+    unit_refund_minor: number;
+    final_sale: boolean;
+    exchange_options: { variant_id: string; title: string; available: number | null }[];
+  }[];
+}
+
+export interface ReturnLineInput {
+  order_line_id: string;
+  quantity: number;
+  reason: ReturnReason;
+  reason_note?: string | null;
+  evidence_asset_ids?: string[];
+  exchange_variant_id?: string | null;
+}
+
+export interface RefundRecord {
+  id: string;
+  order_id: string;
+  return_id: string | null;
+  order_number?: number | null;
+  amount: Money;
+  method: RefundMethod;
+  provider: string | null;
+  provider_refund_id: string | null;
+  reference: string | null;
+  status: "pending_approval" | "processing" | "succeeded" | "failed" | "rejected";
+  reason: string | null;
+  failure_code: string | null;
+  created_at: string;
+  approved_at: string | null;
+  completed_at: string | null;
+}
+
+export interface ReturnSummary {
+  id: string;
+  number: string;
+  order_id: string;
+  order_number: number | null;
+  customer_name: string | null;
+  status: ReturnStatus;
+  resolution: "refund" | "exchange";
+  source: "seller" | "chat" | "customer";
+  eligible: boolean;
+  signals: ReturnSignal[];
+  refund_due: Money;
+  return_shipping_fee_minor: number;
+  customer_pays_shipping: boolean;
+  created_at: string;
+  decided_at: string | null;
+  received_at: string | null;
+  closed_at: string | null;
+  exchange_order_id: string | null;
+}
+
+export interface ReturnDetail extends ReturnSummary {
+  lines: {
+    id: string;
+    order_line_id: string;
+    title: string | null;
+    variant_title: string | null;
+    sku: string | null;
+    quantity: number;
+    unit_refund_minor: number;
+    reason: ReturnReason;
+    reason_note: string | null;
+    evidence_asset_ids: string[];
+    exchange: { variant_id: string; title: string | null } | null;
+    condition: ReturnCondition | null;
+    restocked_quantity: number;
+    inspection_note: string | null;
+  }[];
+  eligibility: { checks: ReturnCheck[]; policy_window_days: number };
+  override_reason: string | null;
+  rejection_reason: string | null;
+  note: string | null;
+  refunds: RefundRecord[];
+  pickup: Shipment | null;
+  refundable_minor: number;
+  actions: ReturnAction[];
 }

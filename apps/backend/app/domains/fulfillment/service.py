@@ -151,7 +151,11 @@ def book(
     if existing is not None:
         return existing
     o = orders.get_order(db, ctx, order_id, lock=True)  # serialises bookings for this order
-    live = db.scalar(select(Shipment).where(Shipment.order_id == o.id, Shipment.status != "cancelled"))
+    live = db.scalar(
+        select(Shipment).where(
+            Shipment.order_id == o.id, Shipment.status != "cancelled", Shipment.direction == "outbound"
+        )
+    )
     if live is not None:
         raise Conflict(
             "This order already has a shipment", code="shipment_exists", details={"shipment_id": str(live.id)}
@@ -261,6 +265,91 @@ def book(
     return s
 
 
+def book_return(
+    db: Session,
+    ctx: TenantContext,
+    r: Any,
+    account_id: uuid.UUID,
+    idempotency_key: str,
+    *,
+    tracking_number: str | None = None,
+    courier_name: str | None = None,
+) -> Shipment:
+    """RET-006: the courier collects the returned item from the customer and brings it to the shop."""
+    existing = db.scalar(select(Shipment).where(Shipment.idempotency_key == idempotency_key))
+    if existing is not None:
+        return existing
+    live = db.scalar(select(Shipment).where(Shipment.return_id == r.id, Shipment.status != "cancelled"))
+    if live is not None:
+        raise Conflict(
+            "This return already has a pickup", code="shipment_exists", details={"shipment_id": str(live.id)}
+        )
+    o = db.get(Order, r.order_id)
+    assert o is not None
+    a = couriers.get_account(db, ctx, account_id)
+    weight = couriers.get_settings_row(db, ctx.merchant_id).default_weight_grams
+    s = Shipment(
+        id=uuid7(),
+        merchant_id=ctx.merchant_id,
+        order_id=o.id,
+        direction="return",
+        return_id=r.id,
+        courier_account_id=a.id,
+        provider=a.provider,
+        status="booked",
+        weight_grams=weight,
+        cod_amount_minor=0,
+        currency=o.currency,
+        origin_district=o.ship_district,
+        destination_district=a.pickup_district,
+        idempotency_key=idempotency_key,
+        booked_by_user_id=ctx.actor.id if ctx.actor.type == "user" else None,
+        notes=f"Return {r.number}",
+    )
+    if _is_manual(a):
+        s.courier_name = (courier_name or a.display_name)[:80]
+        s.tracking_number = (tracking_number or "").strip()[:80] or None
+    else:
+        if not (a.pickup_name and a.pickup_phone and a.pickup_district):
+            raise ValidationFailed(
+                "Add a pickup address for this courier first", code="pickup_address_missing"
+            )
+        if not o.ship_district or not o.ship_phone:
+            raise ValidationFailed("The customer's address is incomplete", code="address_incomplete")
+        try:
+            res = couriers.adapter_for(a).create_shipment(
+                couriers.destination_address(o),  # from the customer…
+                couriers.origin_address(a),  # …back to the shop
+                weight,
+                None,
+                reference=r.number,
+                idempotency_key=f"shipment:{ctx.merchant_id}:{idempotency_key}",
+                description=f"Return {r.number}",
+            )
+        except IntegrationError as e:
+            raise _courier_error(e) from e
+        s.courier_name = a.display_name
+        s.provider_shipment_id, s.tracking_number, s.label_url = (
+            res.provider_shipment_id,
+            res.tracking_number,
+            res.label_url,
+        )
+    db.add(s)
+    db.flush()
+    _local_event(db, s, "booked", ctx, description=s.courier_name)
+    audit.record(
+        db,
+        action="fulfillment.return_pickup_booked",
+        resource_type="shipment",
+        resource_id=s.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"return": r.number, "provider": s.provider},
+    )
+    return s
+
+
 def _description(db: Session, o: Order) -> str:
     lines = db.scalars(select(OrderLine).where(OrderLine.order_id == o.id).order_by(OrderLine.position))
     return ", ".join(f"{ln.active_quantity} x {ln.title}" for ln in lines if ln.active_quantity)[:200]
@@ -322,27 +411,30 @@ def label(db: Session, ctx: TenantContext, shipment_id: uuid.UUID) -> dict[str, 
     m = db.get(Merchant, s.merchant_id)
     assert o is not None and m is not None
     dest = couriers.destination_address(o)
+    shop = {
+        "name": a.pickup_name or m.name,
+        "phone": a.pickup_phone,
+        "address": ", ".join(
+            x for x in (a.pickup_area, a.pickup_municipality, _district_name(a.pickup_district)) if x
+        ),
+    }
+    customer = {
+        "name": dest.name,
+        "phone": dest.phone,
+        "address": ", ".join(x for x in (dest.line1, _district_name(o.ship_district)) if x),
+        "landmark": o.ship_landmark,
+    }
     return {
         "shipment_id": s.id,
+        "direction": s.direction,
         "provider_label_url": s.label_url,
         "courier": s.courier_name or a.display_name,
         "service_code": s.service_code,
         "tracking_number": s.tracking_number,
         "order_number": o.number,
         "shop": m.name,
-        "from": {
-            "name": a.pickup_name or m.name,
-            "phone": a.pickup_phone,
-            "address": ", ".join(
-                x for x in (a.pickup_area, a.pickup_municipality, _district_name(a.pickup_district)) if x
-            ),
-        },
-        "to": {
-            "name": dest.name,
-            "phone": dest.phone,
-            "address": ", ".join(x for x in (dest.line1, _district_name(o.ship_district)) if x),
-            "landmark": o.ship_landmark,
-        },
+        "from": {**customer, "landmark": None} if s.direction == "return" else shop,
+        "to": {**shop, "landmark": None} if s.direction == "return" else customer,
         "cod_amount": {"amount_minor": s.cod_amount_minor, "currency": s.currency},
         "weight_grams": s.weight_grams,
         "contents": _description(db, o),
@@ -462,6 +554,11 @@ def _apply(db: Session, s: Shipment, u: TrackingUpdate, source: str, ctx: Tenant
 
 
 def _sync_order(db: Session, s: Shipment, ctx: TenantContext) -> None:
+    if s.direction == "return":
+        from app.domains.returns.service import on_return_parcel
+
+        on_return_parcel(db, s)
+        return
     target = ORDER_TARGET.get(s.status)
     if target is None:
         return
@@ -826,7 +923,11 @@ def _cancel_with_order(db: Session, ev: OutboxEvent) -> None:
         return
     s = db.scalar(
         select(Shipment)
-        .where(Shipment.order_id == uuid.UUID(ev.payload["order_id"]), Shipment.status.in_(CANCELLABLE))
+        .where(
+            Shipment.order_id == uuid.UUID(ev.payload["order_id"]),
+            Shipment.status.in_(CANCELLABLE),
+            Shipment.direction == "outbound",
+        )
         .with_for_update()
         .execution_options(skip_tenant_filter=True)
     )
@@ -885,8 +986,8 @@ def _notify_customer(db: Session, ev: OutboxEvent) -> None:
         .with_for_update()
         .execution_options(skip_tenant_filter=True)
     )
-    if s is None or s.status != ev.payload["status"]:
-        return  # already moved on; only the current state is worth telling the customer
+    if s is None or s.status != ev.payload["status"] or s.direction == "return":
+        return  # moved on (only the current state is worth telling), or a return pickup (returns notify)
     bind_tenant(db, s.merchant_id)
     o = db.get(Order, s.order_id)
     if o is None:
@@ -1027,6 +1128,8 @@ def shipment_view(
         "order_id": s.order_id,
         "order_number": o.number if o else None,
         "customer_name": o.ship_name if o else None,
+        "direction": s.direction,
+        "return_id": s.return_id,
         "destination_district": s.destination_district,
         "destination_district_name": _district_name(s.destination_district),
         "courier_account_id": s.courier_account_id,

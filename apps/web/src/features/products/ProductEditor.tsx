@@ -8,7 +8,7 @@ import { LimitActions } from "@/components/commerce/UsageMeter";
 import { PermissionDenied, QueryError, TableSkeleton } from "@/components/states/States";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/Drawer";
-import { SelectField, TextField } from "@/components/ui/Field";
+import { Checkbox, SelectField, TextField } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { InlineAlert, RequestId, Skeleton, useToast } from "@/components/ui/misc";
 import { errorMessage, fieldErrorMessages } from "@/i18n/errors";
@@ -431,6 +431,9 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
               <div className={styles.row2}>
                 <TextField label={t("products.editor.brand")} value={form.brand} onChange={(e) => set("brand", e.target.value)} maxLength={120} />
                 <TextField label={t("products.editor.productType")} value={form.product_type} onChange={(e) => set("product_type", e.target.value)} maxLength={120} />
+                {mode === "edit" ? (
+                  <Checkbox label={t("products.editor.finalSale")} checked={form.final_sale} onChange={(e) => set("final_sale", e.target.checked)} />
+                ) : null}
               </div>
               <fieldset className={styles.nepaliGroup} lang="ne">
                 <legend>

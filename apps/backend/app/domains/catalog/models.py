@@ -17,6 +17,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     CheckConstraint,
     ForeignKey,
     Index,
@@ -91,6 +92,8 @@ class Product(IdMixin, TimestampMixin, TenantScoped, Base):
     seo_description: Mapped[str | None] = mapped_column(String(320))
     published_at: Mapped[datetime | None]
     archived_at: Mapped[datetime | None]
+    # RET-002: final-sale items can't be returned (unless the seller overrides, audited).
+    final_sale: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 

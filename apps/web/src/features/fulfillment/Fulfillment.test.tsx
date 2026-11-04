@@ -30,7 +30,7 @@ const options: CourierOptions = {
 };
 
 const shipment = (over: Partial<Shipment> = {}): Shipment => ({
-  id: "s1", order_id: "o1", order_number: 1001, customer_name: "Bikash Rai", destination_district: "kaski", destination_district_name: "Kaski",
+  id: "s1", order_id: "o1", direction: "outbound", return_id: null, order_number: 1001, customer_name: "Bikash Rai", destination_district: "kaski", destination_district_name: "Kaski",
   courier_account_id: "sbx", provider: "sandbox_courier", courier_name: "Sandbox courier", manual: false, service_code: "standard",
   status: "booked", tracking_number: "SBX1234ABCD", has_provider_label: false, weight_grams: 500, cod_amount: M(260000), charge: M(17500),
   eta_days_min: 3, eta_days_max: 5, attempt_count: 0, pickup_reference: null, created_at: new Date().toISOString(), pickup_requested_at: null,

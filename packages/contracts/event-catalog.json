@@ -1248,6 +1248,35 @@
           "from_status"
         ]
       }
+    },
+    {
+      "type": "returns.status_changed",
+      "version": 1,
+      "description": "A return moved (requested, approved, rejected, in transit, received, inspected, refunded, exchanged, closed, cancelled). Drives customer return messages.",
+      "aggregate": "returns",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "return_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 16
+          },
+          "from_status": {
+            "type": "string",
+            "maxLength": 16
+          }
+        },
+        "required": [
+          "return_id",
+          "status",
+          "from_status"
+        ]
+      }
     }
   ],
   "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."

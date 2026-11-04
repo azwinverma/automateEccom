@@ -147,6 +147,8 @@ ROLE_PERMISSIONS: dict[Role, frozenset[str]] = {
         "returns.read",
         "returns.write",
         "refunds.read",
+        # Staff may raise refunds; above the merchant's threshold (default: all) a manager approves.
+        "refunds.create",
         "payments.read",
         "ai.use",
         "channels.read",

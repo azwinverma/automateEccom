@@ -15,6 +15,7 @@ import app.domains.media.service
 import app.domains.media.video
 import app.domains.orders.service
 import app.domains.payments.service
+import app.domains.returns.service
 import app.domains.studio.service
 from app.core.config import get_settings
 from app.core.crypto import SealedSecret
@@ -36,6 +37,7 @@ HANDLER_MODULES = (
     app.domains.media.video,
     app.domains.orders.service,
     app.domains.payments.service,
+    app.domains.returns.service,
     app.domains.studio.service,
 )
 

@@ -79,6 +79,75 @@ def _usage_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     return out
 
 
+def _return_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """RET/PAY-007: returns to decide, items back to inspect, refunds waiting for approval or failed."""
+    from app.domains.orders.models import Order
+    from app.domains.returns.models import Refund, ReturnRequest
+
+    out: list[dict[str, Any]] = []
+    for r, number in db.execute(
+        select(ReturnRequest, Order.number)
+        .join(Order, Order.id == ReturnRequest.order_id)
+        .where(
+            ReturnRequest.merchant_id == merchant_id,
+            ReturnRequest.status.in_(("requested", "received", "inspected")),
+        )
+    ).all():
+        if r.status == "inspected" and (r.resolution != "refund" or r.refund_due_minor == 0):
+            continue
+        typ, sev, action, at = {
+            "requested": (
+                "return_requested",
+                "high" if r.signals or not r.eligible else "normal",
+                "review_return",
+                r.created_at,
+            ),
+            "received": ("return_to_inspect", "normal", "inspect_return", r.received_at),
+            "inspected": ("refund_due", "high", "issue_refund", r.inspected_at),
+        }[r.status]
+        out.append(
+            _item(
+                typ,
+                sev,
+                "return",
+                r.id,
+                at,
+                action,
+                number=number,
+                return_number=r.number,
+                order_id=str(r.order_id),
+                resolution=r.resolution,
+                eligible=r.eligible,
+                signals=[s["code"] for s in r.signals],
+                amount_minor=r.refund_due_minor,
+                currency=r.currency,
+            )
+        )
+    for ref, number in db.execute(
+        select(Refund, Order.number)
+        .join(Order, Order.id == Refund.order_id)
+        .where(Refund.merchant_id == merchant_id, Refund.status.in_(("pending_approval", "failed")))
+    ).all():
+        pending = ref.status == "pending_approval"
+        out.append(
+            _item(
+                "refund_above_threshold" if pending else "refund_failed",
+                "high" if pending else "urgent",
+                "refund",
+                ref.id,
+                ref.created_at,
+                "approve_refund" if pending else "retry_refund",
+                number=number,
+                order_id=str(ref.order_id),
+                return_id=str(ref.return_id) if ref.return_id else None,
+                amount_minor=ref.amount_minor,
+                currency=ref.currency,
+                error_code=ref.failure_code if not pending else None,
+            )
+        )
+    return out
+
+
 def _fulfillment_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     """FUL-008/010: failed deliveries a person must handle, stuck/lost parcels, returns to receive,
     courier statements that don't match, couriers whose credentials stopped working."""
@@ -325,6 +394,7 @@ def open_exceptions(
         )
 
     items.extend(_fulfillment_items(db, merchant_id))
+    items.extend(_return_items(db, merchant_id))
 
     for p in db.scalars(
         select(ContentPost).where(ContentPost.merchant_id == merchant_id, ContentPost.status == "failed")

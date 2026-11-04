@@ -70,6 +70,7 @@ class ProductPatch(BaseModel):
     tags: list[str] | None = Field(default=None, max_length=30)
     seo_title: str | None = Field(default=None, max_length=70)
     seo_description: str | None = Field(default=None, max_length=320)
+    final_sale: bool | None = None
 
 
 class StatusIn(BaseModel):

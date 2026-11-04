@@ -61,6 +61,16 @@ import type {
   AdminWebhookEvent,
   AddressInput,
   CodSummary,
+  RefundMethod,
+  RefundRecord,
+  Returnable,
+  ReturnBucket,
+  ReturnCheck,
+  ReturnCondition,
+  ReturnDetail,
+  ReturnLineInput,
+  ReturnPolicy,
+  ReturnSummary,
   BookShipmentInput,
   CodAwaiting,
   CodOverview,
@@ -509,6 +519,38 @@ export function createApi(client: ApiClient) {
         client.request<CodSettlement>(`/cod/settlement-lines/${encodeURIComponent(lineId)}/accept`, { method: "POST", body: { reason }, tenant: true }),
       confirm: (id: string, bankReference?: string | null) =>
         client.request<CodSettlement>(`/cod/settlements/${encodeURIComponent(id)}/confirm`, { method: "POST", body: { bank_reference: bankReference ?? null }, tenant: true }),
+    },
+    returns: {
+      policy: () => client.request<ReturnPolicy>("/returns/policy", { tenant: true }),
+      updatePolicy: (body: Partial<ReturnPolicy>) => client.request<ReturnPolicy>("/returns/policy", { method: "PATCH", body, tenant: true }),
+      returnable: (orderId: string) => client.request<Returnable>(`/orders/${encodeURIComponent(orderId)}/returnable`, { tenant: true }),
+      check: (orderId: string, body: { resolution: "refund" | "exchange"; lines: ReturnLineInput[] }) =>
+        client.request<{ eligible: boolean; can_request: boolean; checks: ReturnCheck[] }>(`/orders/${encodeURIComponent(orderId)}/returns/check`, { method: "POST", body, tenant: true }),
+      create: (orderId: string, body: { resolution: "refund" | "exchange"; lines: ReturnLineInput[]; note?: string | null }, o?: IdemOptions) =>
+        client.request<ReturnDetail>(`/orders/${encodeURIComponent(orderId)}/returns`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      forOrder: (orderId: string) => client.request<{ items: ReturnDetail[] }>(`/orders/${encodeURIComponent(orderId)}/returns`, { tenant: true }),
+      list: (q: { bucket?: ReturnBucket; q?: string; limit?: number; cursor?: string } = {}) =>
+        client.request<Page<ReturnSummary> & { counts: Record<ReturnBucket, number> }>("/returns", { tenant: true, query: { ...q } }),
+      get: (id: string) => client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}`, { tenant: true }),
+      approve: (id: string, overrideReason?: string | null) =>
+        client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}/approve`, { method: "POST", body: { override_reason: overrideReason ?? null }, tenant: true }),
+      reject: (id: string, reason: string) => client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}/reject`, { method: "POST", body: { reason }, tenant: true }),
+      cancel: (id: string, reason?: string | null) =>
+        client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}/cancel`, { method: "POST", body: { reason: reason ?? null }, tenant: true }),
+      bookPickup: (id: string, body: { courier_account_id: string; tracking_number?: string | null; courier_name?: string | null }, o?: IdemOptions) =>
+        client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}/pickup`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      received: (id: string) => client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}/received`, { method: "POST", tenant: true }),
+      inspect: (id: string, items: { line_id: string; condition: ReturnCondition; restock?: number; note?: string | null }[]) =>
+        client.request<ReturnDetail>(`/returns/${encodeURIComponent(id)}/inspect`, { method: "POST", body: { items }, tenant: true }),
+    },
+    refunds: {
+      create: (orderId: string, body: { amount_minor: number; method: RefundMethod; return_id?: string | null; reference?: string | null; reason?: string | null }, o?: IdemOptions) =>
+        client.request<RefundRecord>(`/orders/${encodeURIComponent(orderId)}/refunds`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      forOrder: (orderId: string) => client.request<{ items: RefundRecord[] }>(`/orders/${encodeURIComponent(orderId)}/refunds`, { tenant: true }),
+      list: (status?: RefundRecord["status"]) => client.request<{ items: RefundRecord[] }>("/refunds", { tenant: true, query: { status } }),
+      approve: (id: string) => client.request<RefundRecord>(`/refunds/${encodeURIComponent(id)}/approve`, { method: "POST", tenant: true }),
+      reject: (id: string, reason: string) => client.request<RefundRecord>(`/refunds/${encodeURIComponent(id)}/reject`, { method: "POST", body: { reason }, tenant: true }),
+      retry: (id: string) => client.request<RefundRecord>(`/refunds/${encodeURIComponent(id)}/retry`, { method: "POST", tenant: true }),
     },
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {

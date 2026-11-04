@@ -64,6 +64,7 @@ def create_app() -> FastAPI:
     from app.domains.payments.router import webhooks_router as payment_webhooks
     from app.domains.platform.router import health_router
     from app.domains.platform.router import router as platform
+    from app.domains.returns.router import router as returns
     from app.domains.studio.router import router as studio
 
     app.include_router(health_router)
@@ -91,6 +92,7 @@ def create_app() -> FastAPI:
         payments,
         fulfillment,
         fulfillment_dev,  # dev-only simulator; each route 404s in staging/production
+        returns,
         exceptions,
         audit,
         platform,

@@ -1,0 +1,111 @@
+/* Returns: decisions first. The policy check reads like a receipt; warnings are facts, not alarms. */
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+.checks li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+.checks li > span:first-child {
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+.ok > span:first-child {
+  color: var(--color-status-success);
+}
+.warn > span:first-child {
+  color: var(--color-status-warning);
+}
+.warn {
+  color: var(--color-text-primary);
+}
+.bad > span:first-child {
+  color: var(--color-status-danger);
+}
+.signals {
+  border-left: 3px solid var(--color-status-warning);
+  background: var(--color-status-warning-soft);
+  border-radius: 0 8px 8px 0;
+  padding: var(--space-2) var(--space-3);
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+.signals ul {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+.muted {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+.lineGrid {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+}
+.lineGrid[data-picked="true"] {
+  border-color: var(--color-action-primary);
+  box-shadow: inset 3px 0 0 var(--color-action-primary);
+}
+.lineHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+.money {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-bold);
+}
+.compact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.compact li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+}
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+.facts dt {
+  color: var(--color-text-secondary);
+}
+.facts dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

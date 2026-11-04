@@ -11,9 +11,11 @@ import { useApiQuery } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { exceptionSummaryKey, exceptionTarget } from "@/lib/exceptions";
 
+const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
+
 /** Loads `GET /exceptions` and maps each record to an Exception Inbox item plus its fix-it control. */
 export function useExceptions() {
-  const { t } = useI18n();
+  const { t, money } = useI18n();
   const { api } = useAuth();
   const toast = useToast();
   const query = useApiQuery((a) => a.exceptions.list());
@@ -31,6 +33,7 @@ export function useExceptions() {
         const { key, vars } = exceptionSummaryKey(r);
         if (key === "escalation" && typeof vars.reason === "string") vars.reason = t.dynamic(`inbox.reason.${vars.reason}`) ?? vars.reason;
         if (key === "orderReview" && typeof vars.reason === "string") vars.reason = t.dynamic(`orders.review.${vars.reason}`) ?? vars.reason;
+        if ((key === "refundDue" || key === "refundToApprove") && typeof vars.amount === "number") vars.amount = money(vars.amount, str(r.details.currency) ?? "NPR");
         if (key === "deliveryFailed" && typeof vars.reason === "string") vars.reason = t.dynamic(`fulfillment.reason.${vars.reason}`) ?? vars.reason;
         if (r.type === "usage_limit" && typeof vars.resource === "string") {
           vars.resource = t.dynamic(`usage.resource.${vars.resource}`) ?? vars.resource;
@@ -45,7 +48,7 @@ export function useExceptions() {
           occurredAt: r.occurred_at,
         };
       }),
-    [records, t],
+    [records, t, money],
   );
 
   const run = useCallback(

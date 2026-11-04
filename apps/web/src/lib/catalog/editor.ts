@@ -34,6 +34,7 @@ export interface ProductForm {
   brand: string;
   product_type: string;
   tags: string[];
+  final_sale: boolean;
   options: OptionDraft[];
   variants: VariantRow[];
   /** Combination keys the seller removed from the grid (create mode). */
@@ -57,6 +58,7 @@ export function emptyForm(): ProductForm {
     handle: "",
     category_id: "",
     brand: "",
+    final_sale: false,
     product_type: "",
     tags: [],
     options: [],
@@ -83,6 +85,7 @@ export function formFromDetail(d: ProductDetail): ProductForm {
     handle: d.handle,
     category_id: str(d.category_id),
     brand: str(d.brand),
+    final_sale: Boolean(d.final_sale),
     product_type: str(d.product_type),
     tags: [...(d.tags ?? [])],
     options: d.options.map((o) => ({ name: o.name, values: [...o.values] })),
@@ -243,6 +246,7 @@ export function diffProduct(base: ProductForm, form: ProductForm): ProductPatchI
   }
   if (base.category_id !== form.category_id) patch.category_id = form.category_id || null;
   if (JSON.stringify(base.tags) !== JSON.stringify(form.tags)) patch.tags = form.tags;
+  if (base.final_sale !== form.final_sale) patch.final_sale = form.final_sale;
   return patch;
 }
 

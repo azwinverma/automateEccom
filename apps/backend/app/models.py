@@ -23,4 +23,5 @@ def import_all() -> None:
     from app.domains.orders import models as _orders  # noqa: F401
     from app.domains.payments import models as _payments  # noqa: F401
     from app.domains.platform import models as _platform  # noqa: F401
+    from app.domains.returns import models as _returns  # noqa: F401
     from app.domains.studio import models as _studio  # noqa: F401

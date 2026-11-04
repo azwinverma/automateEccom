@@ -130,6 +130,14 @@ T: dict[str, dict[str, str]] = {
         "en": "Thanks for letting us know. A team member will reply shortly.",
         "ne": "जानकारीको लागि धन्यवाद। हाम्रो टोलीले छिट्टै जवाफ दिनेछ।",
     },
+    "return_open": {
+        "en": "Order #{number} can be returned or exchanged until {date}. A team member will arrange it with you shortly.",
+        "ne": "अर्डर #{number} {date} सम्म फिर्ता वा साट्न मिल्छ। हाम्रो टोलीले छिट्टै व्यवस्था गर्नेछ।",
+    },
+    "return_closed": {
+        "en": "The return period for order #{number} ended on {date}. A team member will check what we can do.",
+        "ne": "अर्डर #{number} फिर्ता गर्ने समय {date} मा सकियो। हाम्रो टोलीले के गर्न सकिन्छ हेर्नेछ।",
+    },
     "cod": {"en": "Cash on delivery", "ne": "डेलिभरीमा नगद"},
     "prepaid": {"en": "Online payment", "ne": "अनलाइन भुक्तानी"},
 }
@@ -351,6 +359,44 @@ def _dispatch(
     )
 
 
+def _answer_return(db: Session, conv: Conversation, msg: Message, intent: str, locale: str) -> bool:
+    """check_return_eligibility(): say what the policy allows for their latest order, then hand over
+    (a person creates the return). Never promises a refund amount."""
+    from datetime import timedelta
+
+    from app.core.db import utcnow
+    from app.domains.returns import service as returns
+
+    assert conv.customer_id is not None
+    o = tool_latest_order(db, conv.customer_id)
+    if o is None or o.status not in returns.RETURNABLE_ORDER_STATUSES:
+        return False
+    at = returns.delivered_at(db, o)
+    if at is None:
+        return False
+    policy = returns.get_policy(db, conv.merchant_id)
+    deadline = at + timedelta(days=policy.window_days)
+    allowed = policy.allow_exchange if intent == "exchange" else policy.allow_refund
+    key = "return_open" if allowed and utcnow() <= deadline else "return_closed"
+    conv.escalated, conv.escalation_reason = True, intent
+    _dispatch(
+        db,
+        conv,
+        msg,
+        t(key, locale, number=o.number, date=deadline.strftime("%d %b")),
+        intent=intent,
+        confidence=0.9,
+        grounding={
+            "check_return_eligibility": {
+                "order_id": str(o.id),
+                "deadline": deadline.isoformat(),
+                "allowed": key == "return_open",
+            }
+        },
+    )
+    return True
+
+
 def _escalate(db: Session, conv: Conversation, msg: Message, reason: str, locale: str) -> None:
     conv.escalated, conv.escalation_reason = True, reason
     _dispatch(
@@ -422,6 +468,13 @@ def handle(db: Session, conv: Conversation, msg: Message) -> None:
             )
             return
         draft.status = "collecting"  # treat it as a correction to the draft
+    if (
+        intent in ("return", "exchange")
+        and draft is None
+        and conv.customer_id
+        and _answer_return(db, conv, msg, intent, locale)
+    ):
+        return
     if intent in ESCALATE:
         _escalate(db, conv, msg, intent, locale)
         return

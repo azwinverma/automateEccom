@@ -26,7 +26,12 @@ export type ExceptionActionLabel =
   | "contact_courier"
   | "confirm_received_back"
   | "review_settlement"
-  | "reconnect_courier";
+  | "reconnect_courier"
+  | "review_return"
+  | "inspect_return"
+  | "issue_refund"
+  | "approve_refund"
+  | "retry_refund";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
 const enc = encodeURIComponent;
@@ -73,6 +78,15 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
     }
     case "review_settlement":
       return { kind: "link", href: "/fulfillment/cod", label: "review_settlement" };
+    case "review_return":
+    case "inspect_return":
+    case "issue_refund":
+      return { kind: "link", href: `/returns/${enc(id)}`, label: item.action as ExceptionActionLabel };
+    case "approve_refund":
+    case "retry_refund": {
+      const ret = str(details.return_id);
+      return { kind: "link", href: ret ? `/returns/${enc(ret)}` : "/returns", label: item.action as ExceptionActionLabel };
+    }
     case "reconnect_courier":
       return { kind: "link", href: "/settings/couriers", label: "reconnect_courier" };
     case "view_plan":
@@ -112,6 +126,11 @@ export function exceptionSummaryKey(item: ExceptionRecord): { key: string; vars:
   if (item.type === "return_to_receive") return { key: "returnToReceive", vars: { number: Number(d.number ?? 0) } };
   if (item.type === "cod_settlement_mismatch") return { key: "settlementMismatch", vars: { reference: str(d.reference) ?? "", count: Number(d.issues ?? 0) } };
   if (item.type === "courier_error") return { key: "courierError", vars: { name } };
+  if (item.type === "return_requested") return { key: "returnRequested", vars: { number: str(d.return_number) ?? "", order: Number(d.number ?? 0) } };
+  if (item.type === "return_to_inspect") return { key: "returnToInspect", vars: { number: str(d.return_number) ?? "" } };
+  if (item.type === "refund_due") return { key: "refundDue", vars: { number: str(d.return_number) ?? "", amount: Number(d.amount_minor ?? 0) } };
+  if (item.type === "refund_above_threshold") return { key: "refundToApprove", vars: { order: Number(d.number ?? 0), amount: Number(d.amount_minor ?? 0) } };
+  if (item.type === "refund_failed") return { key: "refundFailed", vars: { order: Number(d.number ?? 0) } };
   if (item.type === "listing_drift") return { key: "listingDrift", vars: { name, channel: str(d.name) ?? "" } };
   if (item.type === "publish_failed" && r === "content_post") return { key: "postFailed", vars: {} };
   if (item.type === "low_confidence_ai" && r === "content_post") return { key: "postNeedsApproval", vars: { count: Number(d.issues ?? 0) } };
