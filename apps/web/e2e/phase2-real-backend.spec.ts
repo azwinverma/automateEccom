@@ -112,5 +112,8 @@ test("customer message → AI → order → packed and shipped", async ({ page }
   if (process.env.E2E_SCREENSHOTS) await page.screenshot({ path: path.join(process.env.E2E_SCREENSHOTS, `p2-order-${testInfo.project.name}.png`), fullPage: true });
 
   await page.goto(`/inbox?c=${(await call("/conversations?status=all", H)).json.items[0].id}`);
-  if (process.env.E2E_SCREENSHOTS) await page.waitForTimeout(500), await page.screenshot({ path: path.join(process.env.E2E_SCREENSHOTS, `p2-inbox-${testInfo.project.name}.png`), fullPage: true });
+  if (process.env.E2E_SCREENSHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(process.env.E2E_SCREENSHOTS, `p2-inbox-${testInfo.project.name}.png`), fullPage: true });
+  }
 });
