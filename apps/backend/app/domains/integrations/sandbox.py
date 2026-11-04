@@ -23,6 +23,8 @@ from app.domains.integrations.base import (
     ChannelCapability,
     CourierAdapter,
     CourierCapability,
+    ExternalLine,
+    ExternalOrder,
     IntegrationError,
     Money,
     NormalizedWebhook,
@@ -192,8 +194,42 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
         self._fail()
         return "sbx-msg-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
 
+    orders: ClassVar[list[dict[str, Any]]] = []  # what fetch_orders returns (tests append raw orders)
+
     def fetch_orders(self, since: datetime) -> list[dict[str, Any]]:
-        return []
+        self._fail()
+        return list(self.orders)
+
+    def normalize_order(self, raw: dict[str, Any]) -> ExternalOrder | None:
+        """Sandbox orders already use Nivaro's status words; amounts are minor units."""
+        if raw.get("status") == "draft":
+            return None
+        cust = raw.get("customer") or {}
+        return ExternalOrder(
+            external_id=str(raw["id"]),
+            number=str(raw.get("number") or raw["id"]),
+            status=str(raw.get("status", "confirmed")),
+            currency=str(raw.get("currency", "NPR")),
+            customer_name=str(cust.get("name") or "Customer"),
+            customer_phone=cust.get("phone"),
+            customer_email=cust.get("email"),
+            customer_external_id=str(cust["id"]) if cust.get("id") else None,
+            address_text=raw.get("address"),
+            district_hint=raw.get("district"),
+            lines=[
+                ExternalLine(
+                    sku=li.get("sku"),
+                    title=li.get("title", "Item"),
+                    quantity=int(li.get("quantity", 1)),
+                    unit_price_minor=int(li.get("price_minor", 0)),
+                )
+                for li in raw.get("lines", [])
+            ],
+            delivery_fee_minor=int(raw.get("delivery_fee_minor", 0)),
+            payment_method=raw.get("payment_method", "cod"),
+            paid=bool(raw.get("paid")),
+            raw_status=raw.get("status"),
+        )
 
     def parse_webhook(self, headers: dict[str, str], body: bytes) -> list[NormalizedWebhook]:
         doc = json.loads(body)

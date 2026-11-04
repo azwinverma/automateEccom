@@ -913,7 +913,7 @@ def reconcile_connection(db: Session, connection_id: uuid.UUID) -> dict[str, int
 
     New drift is recorded on the listing (and surfaces in the Exception Inbox); nothing is pushed or
     pulled automatically. Drift that disappears (the seller fixed it on the channel) clears itself."""
-    stats = {"checked": 0, "drift": 0, "cleared": 0, "skipped": 0}
+    stats = {"checked": 0, "drift": 0, "cleared": 0, "skipped": 0, "orders_imported": 0}
     c = db.scalar(
         select(ChannelConnection)
         .where(ChannelConnection.id == connection_id)
@@ -923,6 +923,11 @@ def reconcile_connection(db: Session, connection_id: uuid.UUID) -> dict[str, int
         stats["skipped"] = 1
         return stats
     bind_tenant(db, c.merchant_id)
+    if ChannelCapability.ORDERS.value in c.capabilities:
+        stats["orders_imported"] = _catch_up_orders(db, c)
+        if c.status != "connected":  # credentials rejected during catch-up: nothing more to check
+            stats["skipped"] += 1
+            return stats
     listings = list(
         db.scalars(
             select(ChannelListing).where(
@@ -972,8 +977,30 @@ def reconcile_connection(db: Session, connection_id: uuid.UUID) -> dict[str, int
     return stats
 
 
+ORDER_CATCH_UP = timedelta(days=3)
+
+
+def _catch_up_orders(db: Session, c: ChannelConnection) -> int:
+    """Orders whose webhook never arrived (outage, deleted hook) are imported here. Idempotent."""
+    from app.domains.orders.service import import_from_channel
+
+    try:
+        raws = adapter_for(c).fetch_orders(utcnow() - ORDER_CATCH_UP)
+    except IntegrationError as e:
+        if e.auth:
+            _mark_expired(db, c, e.code)
+        log.warning("order_catch_up_failed", provider=c.provider, error=e.code)
+        return 0
+    created = 0
+    for raw in raws:
+        with db.begin_nested():
+            res = import_from_channel(db, c.id, raw)
+        created += bool(res and res[1])
+    return created
+
+
 def reconcile_all(db: Session, limit: int = 500) -> dict[str, int]:
-    totals = {"connections": 0, "checked": 0, "drift": 0, "cleared": 0, "skipped": 0}
+    totals = {"connections": 0, "checked": 0, "drift": 0, "cleared": 0, "skipped": 0, "orders_imported": 0}
     ids = list(
         db.scalars(
             select(ChannelConnection.id)

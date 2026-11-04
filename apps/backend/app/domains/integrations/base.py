@@ -145,6 +145,37 @@ class RemoteListing:
     stock: dict[str, int | None] = field(default_factory=dict)
 
 
+# ----------------------------------------------------------------------------- channel orders (ORD-005)
+@dataclass
+class ExternalLine:
+    sku: str | None
+    title: str
+    quantity: int
+    unit_price_minor: int
+
+
+@dataclass
+class ExternalOrder:
+    external_id: str
+    number: str | None
+    status: str  # Nivaro status vocabulary (the adapter maps the channel's own)
+    currency: str
+    customer_name: str
+    customer_phone: str | None
+    customer_email: str | None
+    customer_external_id: str | None
+    address_text: str | None
+    district_hint: str | None
+    lines: list[ExternalLine]
+    delivery_fee_minor: int = 0
+    discount_minor: int = 0
+    payment_method: str = "cod"
+    paid: bool = False
+    placed_at: datetime | None = None
+    raw_status: str | None = None
+    extra: dict[str, Any] = field(default_factory=dict)
+
+
 class ChannelAdapter(Adapter):
     # Which generated caption style suits this channel (instagram | facebook | tiktok | marketplace).
     caption_style: ClassVar[str] = "instagram"
@@ -196,6 +227,11 @@ class ChannelAdapter(Adapter):
     def fetch_orders(self, since: datetime) -> list[dict[str, Any]]:
         self._require(ChannelCapability.ORDERS)
         raise NotImplementedError
+
+    def normalize_order(self, raw: dict[str, Any]) -> ExternalOrder | None:
+        """Channel order → ExternalOrder. None = not a real order yet (e.g. a checkout draft)."""
+        self._require(ChannelCapability.ORDERS)
+        raise CapabilityNotSupported(self.code, "normalize_order")
 
 
 # ----------------------------------------------------------------------------- payments

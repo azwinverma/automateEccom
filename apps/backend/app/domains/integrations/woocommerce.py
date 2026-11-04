@@ -26,6 +26,8 @@ import httpx
 from app.domains.integrations.base import (
     ChannelAdapter,
     ChannelCapability,
+    ExternalLine,
+    ExternalOrder,
     IntegrationError,
     NormalizedWebhook,
     RemoteListing,
@@ -258,6 +260,64 @@ class WooCommerceAdapter(ChannelAdapter):
                 params={"after": since.astimezone(UTC).isoformat(), "per_page": 100},
             )
             or []
+        )
+
+    # WooCommerce order status → Nivaro order status (checkout drafts aren't orders yet).
+    ORDER_STATUS: ClassVar[dict[str, str]] = {
+        "pending": "pending_confirmation",  # awaiting payment
+        "on-hold": "pending_confirmation",
+        "processing": "confirmed",
+        "completed": "completed",
+        "cancelled": "cancelled",
+        "refunded": "cancelled",
+        "failed": "cancelled",
+    }
+
+    def normalize_order(self, raw: dict[str, Any]) -> ExternalOrder | None:
+        status = self.ORDER_STATUS.get(str(raw.get("status", "")))
+        if status is None:
+            return None
+        billing, shipping = raw.get("billing") or {}, raw.get("shipping") or {}
+        name = " ".join(
+            p
+            for p in (
+                shipping.get("first_name") or billing.get("first_name"),
+                shipping.get("last_name") or billing.get("last_name"),
+            )
+            if p
+        )
+        addr = shipping if shipping.get("address_1") else billing
+        method = "cod" if raw.get("payment_method") == "cod" else "prepaid"
+        placed = raw.get("date_created_gmt")
+        return ExternalOrder(
+            external_id=str(raw["id"]),
+            number=str(raw.get("number") or raw["id"]),
+            status=status,
+            currency=str(raw.get("currency") or "NPR"),
+            customer_name=name or billing.get("email") or "Customer",
+            customer_phone=shipping.get("phone") or billing.get("phone"),
+            customer_email=billing.get("email") or None,
+            customer_external_id=str(raw["customer_id"]) if raw.get("customer_id") else None,
+            address_text=", ".join(
+                str(addr[k]) for k in ("address_1", "address_2", "city", "state") if addr.get(k)
+            )
+            or None,
+            district_hint=addr.get("city") or addr.get("state"),
+            lines=[
+                ExternalLine(
+                    sku=li.get("sku") or None,
+                    title=str(li.get("name") or "Item"),
+                    quantity=int(li.get("quantity") or 1),
+                    unit_price_minor=_minor(li.get("price")) or 0,
+                )
+                for li in raw.get("line_items") or []
+            ],
+            delivery_fee_minor=_minor(raw.get("shipping_total")) or 0,
+            discount_minor=_minor(raw.get("discount_total")) or 0,
+            payment_method=method,
+            paid=method == "prepaid" and bool(raw.get("date_paid_gmt") or raw.get("date_paid")),
+            placed_at=datetime.fromisoformat(placed).replace(tzinfo=UTC) if placed else None,
+            raw_status=str(raw.get("status")),
         )
 
     # ------------------------------------------------------------------ webhooks

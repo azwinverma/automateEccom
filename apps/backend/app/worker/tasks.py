@@ -100,3 +100,11 @@ def run_video_job(job_id: str) -> None:
 def purge_idempotency() -> int:
     with session_scope() as db:
         return idempotency.purge_expired(db)
+
+
+@celery.task(name="app.worker.tasks.release_expired_stock", ignore_result=True)
+def release_expired_stock() -> int:
+    from app.domains.inventory.service import release_expired
+
+    with session_scope() as db:
+        return release_expired(db)

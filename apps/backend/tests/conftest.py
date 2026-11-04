@@ -97,6 +97,7 @@ def _clean() -> Iterator[None]:
     SandboxChannelAdapter.failures.clear()
     SandboxChannelAdapter.published.clear()
     SandboxChannelAdapter.stock.clear()
+    SandboxChannelAdapter.orders.clear()
     SandboxChannelAdapter.revoked_refresh_tokens.clear()
 
 

@@ -228,3 +228,12 @@ def test_db_dependency_commits_before_response():
             checked += 1
             assert d.scope == "function", f"{r.path}: get_db must use scope='function'"
     assert checked > 50
+
+
+def test_uuid7_is_monotonic_within_a_millisecond():
+    """Rows created in one request (timeline events, ledger entries) must sort in creation order."""
+    from app.core.ids import uuid7
+
+    ids = [uuid7() for _ in range(5000)]
+    assert ids == sorted(ids) and len(set(ids)) == 5000
+    assert all(i.version == 7 for i in ids[:10])

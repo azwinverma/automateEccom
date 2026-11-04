@@ -18,5 +18,6 @@ def import_all() -> None:
     from app.domains.media import models as _media  # noqa: F401
     from app.domains.media import service as _media_service  # noqa: F401  (gauge, handler)
     from app.domains.merchants import models as _merchants  # noqa: F401
+    from app.domains.orders import models as _orders  # noqa: F401
     from app.domains.platform import models as _platform  # noqa: F401
     from app.domains.studio import models as _studio  # noqa: F401

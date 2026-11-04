@@ -1114,6 +1114,68 @@
           "low_stock"
         ]
       }
+    },
+    {
+      "type": "orders.created",
+      "version": 1,
+      "description": "An order was created (chat, seller, channel import or API).",
+      "aggregate": "orders",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "source": {
+            "enum": [
+              "chat",
+              "seller",
+              "channel",
+              "api"
+            ]
+          }
+        },
+        "required": [
+          "order_id",
+          "status",
+          "source"
+        ]
+      }
+    },
+    {
+      "type": "orders.status_changed",
+      "version": 1,
+      "description": "An order moved through the state machine (or had items cancelled).",
+      "aggregate": "orders",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 24
+          },
+          "from_status": {
+            "type": "string",
+            "maxLength": 24
+          }
+        },
+        "required": [
+          "order_id",
+          "status",
+          "from_status"
+        ]
+      }
     }
   ],
   "$naming": "Event types use '<domain>.<past_tense_snake_case>'. Events with status 'planned' are declared for upcoming phases; 'maps_to' records the name used in the 2026-11-02 strategy brief."
