@@ -230,7 +230,7 @@ function Thread({ id, onBack, onChanged }: { id: string; onBack: () => void; onC
         </div>
       </div>
       <ErrorAlert error={action.error} />
-      <div className={styles.messages} data-testid="messages" aria-live="polite">
+      <div className={styles.messages} data-testid="messages" role="log" aria-live="polite" aria-label={t("inbox.title")} tabIndex={0}>
         {messages.length === 0 ? <p className={styles.meta}>{t("inbox.noMessages")}</p> : null}
         {messages.map((m) => {
           const cls = [styles.msg, m.direction === "in" ? styles.in : styles.out, m.status === "suggested" ? styles.suggested : "", m.status === "failed" ? styles.failed : ""].join(" ");

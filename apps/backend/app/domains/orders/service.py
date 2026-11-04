@@ -647,6 +647,8 @@ def _follow_channel_status(
 def order_view(db: Session, o: Order, *, detail: bool = False) -> dict[str, Any]:
     from app.domains.customers.nepal import DISTRICTS
 
+    db.flush()  # the optimistic version increments on flush: the response must carry the new one
+
     c = db.get(Customer, o.customer_id) if o.customer_id else None
     out: dict[str, Any] = {
         "id": o.id,

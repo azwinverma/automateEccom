@@ -442,3 +442,14 @@ def test_customer_segments_come_from_real_orders(client, seller):
     assert seg("new") == {b, c["customer"]["id"]}
     assert seg("inactive") == {c["customer"]["id"]}
     assert client.get(f"{API}/customers", params={"segment": "vip"}, headers=seller.h()).status_code == 400
+
+
+def test_transition_response_carries_the_current_version(client, seller):
+    """Regression (E2E): the next step sends expected_version from the previous response."""
+    _, vid = item(client, seller)
+    o = order(client, seller, vid).json()
+    assert o["version"] == client.get(f"{API}/orders/{o['id']}", headers=seller.h()).json()["version"]
+    r1 = move(client, seller, o["id"], "ready_to_ship", expected_version=o["version"]).json()
+    assert r1["version"] == client.get(f"{API}/orders/{o['id']}", headers=seller.h()).json()["version"]
+    r2 = move(client, seller, o["id"], "shipped", expected_version=r1["version"])
+    assert r2.status_code == 200 and r2.json()["status"] == "shipped"
