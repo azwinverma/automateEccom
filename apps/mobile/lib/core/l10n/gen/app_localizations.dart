@@ -4564,6 +4564,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Approve or reject customer returns.'**
   String get returnsHomeCardBody;
+
+  /// No description provided for @ccStateRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Your store is running.'**
+  String get ccStateRunning;
+
+  /// No description provided for @ccStateWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'A few things are waiting for you.'**
+  String get ccStateWaiting;
+
+  /// No description provided for @ccStateAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Something needs you now.'**
+  String get ccStateAttention;
+
+  /// No description provided for @ccModeAssisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Assisted mode'**
+  String get ccModeAssisted;
+
+  /// No description provided for @ccModeSmart.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart mode'**
+  String get ccModeSmart;
+
+  /// No description provided for @ccModeAutopilot.
+  ///
+  /// In en, this message translates to:
+  /// **'Autopilot mode'**
+  String get ccModeAutopilot;
+
+  /// No description provided for @ccPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get ccPeriod;
+
+  /// No description provided for @ccOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get ccOrders;
+
+  /// No description provided for @ccRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get ccRevenue;
+
+  /// No description provided for @ccAiMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'AI replies'**
+  String get ccAiMessages;
+
+  /// No description provided for @ccDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get ccDelivered;
+
+  /// No description provided for @ccInTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get ccInTransit;
+
+  /// No description provided for @ccReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns'**
+  String get ccReturns;
+
+  /// No description provided for @ccFeedLink.
+  ///
+  /// In en, this message translates to:
+  /// **'See what ran automatically'**
+  String get ccFeedLink;
+
+  /// No description provided for @ccWorkflowsLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows'**
+  String get ccWorkflowsLink;
+
+  /// No description provided for @approvalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get approvalsTitle;
+
+  /// No description provided for @approvalsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is waiting for your approval.'**
+  String get approvalsEmpty;
+
+  /// No description provided for @approvalsApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approvalsApprove;
+
+  /// No description provided for @approvalsReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get approvalsReject;
+
+  /// No description provided for @approvalsRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this step?'**
+  String get approvalsRejectTitle;
+
+  /// No description provided for @approvalsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get approvalsNote;
+
+  /// No description provided for @approvalsCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get approvalsCancel;
+
+  /// No description provided for @approvalsManagersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only managers can approve automation.'**
+  String get approvalsManagersOnly;
+
+  /// No description provided for @approvalsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done.'**
+  String get approvalsDone;
+
+  /// No description provided for @autoActionNotifySeller.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell you'**
+  String get autoActionNotifySeller;
+
+  /// No description provided for @autoActionAddOrderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an order note'**
+  String get autoActionAddOrderNote;
+
+  /// No description provided for @autoActionSendCustomerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message the customer'**
+  String get autoActionSendCustomerMessage;
+
+  /// No description provided for @autoActionSendReviewRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a review'**
+  String get autoActionSendReviewRequest;
+
+  /// No description provided for @autoActionBookCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Book a courier'**
+  String get autoActionBookCourier;
+
+  /// No description provided for @autoActionRequestPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Request pickup'**
+  String get autoActionRequestPickup;
+
+  /// No description provided for @autoActionRequestReattempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the courier to try again'**
+  String get autoActionRequestReattempt;
+
+  /// No description provided for @autoActionApproveReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve a return'**
+  String get autoActionApproveReturn;
+
+  /// No description provided for @autoActionSendAiReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Send an AI reply'**
+  String get autoActionSendAiReply;
+
+  /// No description provided for @autoActionIssueRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund the customer'**
+  String get autoActionIssueRefund;
+
+  /// No description provided for @autoActionContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue the workflow'**
+  String get autoActionContinue;
+
+  /// No description provided for @autoActionOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated step'**
+  String get autoActionOther;
+
+  /// No description provided for @ruleAssisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop is in Assisted mode'**
+  String get ruleAssisted;
+
+  /// No description provided for @ruleR2Off.
+  ///
+  /// In en, this message translates to:
+  /// **'This kind of action isn\'t switched on'**
+  String get ruleR2Off;
+
+  /// No description provided for @ruleAboveLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Above your limit'**
+  String get ruleAboveLimit;
+
+  /// No description provided for @ruleNotSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sure enough'**
+  String get ruleNotSure;
+
+  /// No description provided for @ruleHighRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Always needs a person'**
+  String get ruleHighRisk;
+
+  /// No description provided for @ruleBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not possible right now'**
+  String get ruleBlocked;
+
+  /// No description provided for @ruleApprovalStep.
+  ///
+  /// In en, this message translates to:
+  /// **'The workflow asks for your OK'**
+  String get ruleApprovalStep;
+
+  /// No description provided for @ruleRanSmart.
+  ///
+  /// In en, this message translates to:
+  /// **'Ran automatically (Smart mode)'**
+  String get ruleRanSmart;
+
+  /// No description provided for @ruleRanAutopilot.
+  ///
+  /// In en, this message translates to:
+  /// **'Ran automatically (Autopilot mode)'**
+  String get ruleRanAutopilot;
+
+  /// No description provided for @ruleRanEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Ran automatically: you switched this on'**
+  String get ruleRanEnabled;
+
+  /// No description provided for @ruleNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Just a notice'**
+  String get ruleNotice;
+
+  /// No description provided for @feedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What ran automatically'**
+  String get feedTitle;
+
+  /// No description provided for @feedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing ran automatically in the last 7 days.'**
+  String get feedEmpty;
+
+  /// No description provided for @workflowsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflows'**
+  String get workflowsTitle;
+
+  /// No description provided for @workflowsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No workflows yet. Create one on the web.'**
+  String get workflowsEmpty;
+
+  /// No description provided for @wfStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get wfStatusDraft;
+
+  /// No description provided for @wfStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get wfStatusActive;
+
+  /// No description provided for @wfStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get wfStatusPaused;
+
+  /// No description provided for @wfBroke.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused after repeated failures'**
+  String get wfBroke;
+
+  /// No description provided for @wfTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get wfTurnOn;
+
+  /// No description provided for @wfTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get wfTurnOff;
+
+  /// No description provided for @wfEditOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit workflows on the web.'**
+  String get wfEditOnWeb;
+
+  /// No description provided for @wfManagersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only managers can turn workflows on or off.'**
+  String get wfManagersOnly;
+
+  /// No description provided for @ccDoneAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} done automatically'**
+  String ccDoneAuto(int count);
+
+  /// No description provided for @ccDoneTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} done by your team'**
+  String ccDoneTeam(int count);
+
+  /// No description provided for @ccShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} automatic'**
+  String ccShare(String percent);
+
+  /// No description provided for @ccNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing needs you} =1{1 thing needs you} other{{count} things need you}}'**
+  String ccNeedsAttention(int count);
+
+  /// No description provided for @approvalsOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number}'**
+  String approvalsOrder(int number);
+
+  /// No description provided for @approvalsWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting: {reason}'**
+  String approvalsWhy(String reason);
+
+  /// No description provided for @wfRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} done · {waiting} in progress · {failed} failed'**
+  String wfRuns(int done, int waiting, int failed);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

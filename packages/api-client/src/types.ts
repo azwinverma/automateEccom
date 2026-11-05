@@ -1533,3 +1533,134 @@ export interface ReturnDetail extends ReturnSummary {
   refundable_minor: number;
   actions: ReturnAction[];
 }
+
+/* ---------- Phase 5: automation, Decision Policy, Control Center ---------- */
+
+export type RiskClass = "R0" | "R1" | "R2" | "R3" | "R4";
+export type PolicyDecision = "AUTO_EXECUTE" | "REQUIRE_APPROVAL" | "BLOCK";
+export type TriggerCode = "order.created" | "order.status_changed" | "shipment.status_changed" | "inventory.low_stock" | "return.status_changed" | "channel.expired";
+export type ActionCode = "notify_seller" | "add_order_note" | "send_customer_message" | "send_review_request" | "book_courier" | "request_pickup" | "request_reattempt" | "approve_return";
+export type ConditionOp = "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "in" | "not_in" | "is_true" | "is_false";
+
+export type Condition =
+  | { all: Condition[] }
+  | { any: Condition[] }
+  | { field: string; op: ConditionOp; value?: string | number | boolean | (string | number)[] };
+
+export type WorkflowStep =
+  | { id: string; type: "condition"; when: Condition; else?: string; next?: string }
+  | { id: string; type: "branch"; when: Condition; then: string; else?: string; next?: string }
+  | { id: string; type: "wait"; hours: number; next?: string }
+  | { id: string; type: "action"; action: ActionCode; params?: Record<string, string>; next?: string }
+  | { id: string; type: "approval"; note?: string; next?: string };
+
+export interface WorkflowDefinition {
+  trigger: { event: TriggerCode; filter?: string[] };
+  steps: WorkflowStep[];
+}
+
+export interface AutomationCatalog {
+  triggers: { code: TriggerCode; subject: string; filter_values: string[]; fields: Record<string, "str" | "int" | "bool"> }[];
+  ops: ConditionOp[];
+  actions: { code: ActionCode; risk_class: RiskClass; subjects: string[]; params: string[]; required_params: string[] }[];
+  templates: { code: string; definition: WorkflowDefinition }[];
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string | null;
+  status: "draft" | "active" | "paused";
+  paused_reason: string | null;
+  template_code: string | null;
+  trigger_event: TriggerCode;
+  version: number | null;
+  runs: Partial<Record<"running" | "waiting" | "awaiting_approval" | "completed" | "failed" | "cancelled" | "skipped", number>>;
+  created_at: string;
+  updated_at: string;
+  definition?: WorkflowDefinition;
+}
+
+export interface DecisionRecordView {
+  id: string;
+  source: string;
+  action: string;
+  risk_class: RiskClass;
+  decision: PolicyDecision;
+  rule: string;
+  mode: "assisted" | "smart" | "autopilot";
+  confidence: number | null;
+  impact: Money | null;
+  inputs: Record<string, unknown>;
+  explanation: { rule: string; vars: Record<string, number | string> };
+  outcome: string | null;
+  created_at: string;
+  resolved_at: string | null;
+}
+
+export interface WorkflowRunView {
+  id: string;
+  workflow_id: string;
+  trigger_event: TriggerCode;
+  subject_type: string | null;
+  subject_id: string | null;
+  status: "running" | "waiting" | "awaiting_approval" | "completed" | "failed" | "cancelled" | "skipped";
+  current_step: string | null;
+  next_run_at: string | null;
+  error: string | null;
+  created_at: string;
+  finished_at: string | null;
+  steps?: {
+    id: string;
+    step_id: string;
+    kind: WorkflowStep["type"];
+    action: ActionCode | null;
+    status: "pending" | "running" | "done" | "skipped" | "awaiting_approval" | "approved" | "rejected" | "blocked" | "failed";
+    attempts: number;
+    output: Record<string, unknown>;
+    error: string | null;
+    decision: DecisionRecordView | null;
+    started_at: string;
+    finished_at: string | null;
+  }[];
+}
+
+export interface AutomationApproval {
+  id: string;
+  run_id: string;
+  workflow_id: string | null;
+  workflow_name: string | null;
+  step_id: string;
+  kind: string;
+  action: ActionCode | null;
+  note: string | null;
+  subject_type: string | null;
+  subject_id: string | null;
+  order_id: string | null;
+  order_number: number | null;
+  decision: DecisionRecordView | null;
+  requested_at: string;
+}
+
+export interface AutomationPolicy {
+  confidence_threshold: number;
+  thresholds: Record<string, number>;
+  enabled_r2: string[];
+  r2_actions: string[];
+}
+
+export interface DryRunResult {
+  facts: Record<string, unknown>;
+  trace: { step: string; type?: string; result?: boolean; note?: string; action?: string; decision?: PolicyDecision; rule?: string; risk_class?: RiskClass; impact_minor?: number | null }[];
+}
+
+export interface ControlCenter {
+  period_days: number;
+  mode: "assisted" | "smart" | "autopilot";
+  state: "running" | "waiting" | "attention";
+  currency: string;
+  metrics: { orders: number; revenue_minor: number | null; ai_messages: number; messages_sent: number; delivered: number; in_transit: number; returns: number };
+  automation: { done_automatically: number; done_by_team: number; share_automatic: number | null };
+  needs_attention: { approvals: number; exceptions: number; urgent: number };
+  feed: DecisionRecordView[];
+}

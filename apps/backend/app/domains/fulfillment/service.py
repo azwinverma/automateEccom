@@ -27,6 +27,7 @@ from app.core.db import bind_tenant, utcnow
 from app.core.errors import AppError, Conflict, NotFound, ValidationFailed
 from app.core.ids import uuid7
 from app.domains.audit import service as audit
+from app.domains.automation.policy import log_action
 from app.domains.channels.models import WebhookEvent
 from app.domains.customers import nepal
 from app.domains.customers import service as customers
@@ -252,6 +253,16 @@ def book(
         tracking_number=s.tracking_number,
         courier=s.courier_name,
     )
+    log_action(
+        db,
+        ctx.merchant_id,
+        "fulfillment",
+        "book_courier",
+        ctx.actor,
+        key=f"ship:{s.id}:book",
+        resource_type="shipment",
+        resource_id=s.id,
+    )
     audit.record(
         db,
         action="fulfillment.shipment_booked",
@@ -381,6 +392,16 @@ def request_pickup(db: Session, ctx: TenantContext, shipment_ids: list[uuid.UUID
             except IntegrationError as e:
                 raise _courier_error(e) from e
         for s in group:
+            log_action(
+                db,
+                ctx.merchant_id,
+                "fulfillment",
+                "request_pickup",
+                ctx.actor,
+                key=f"ship:{s.id}:pickup",
+                resource_type="shipment",
+                resource_id=s.id,
+            )
             s.pickup_reference, s.pickup_requested_at = reference, utcnow()
             _apply(db, s, _local_update(s, "pickup_requested"), "seller", ctx)
     return rows
@@ -675,6 +696,16 @@ def request_reattempt(
             )
         except IntegrationError as e:
             raise _courier_error(e) from e
+    log_action(
+        db,
+        ctx.merchant_id,
+        "delivery_recovery",
+        "request_reattempt",
+        ctx.actor,
+        key=f"ship:{s.id}:reattempt:{s.attempt_count}",
+        resource_type="shipment",
+        resource_id=s.id,
+    )
     for att in _open_attempts(db, s):
         att.recovery_status, att.reattempt_requested_at = "reattempt_requested", utcnow()
         att.reattempt_note, att.reattempt_by = (note or "")[:500] or None, by
@@ -1056,13 +1087,20 @@ def capture_customer_reply(db: Session, conv: Any, msg: Any) -> bool:
     o = db.get(Order, att.order_id)
     assert s is not None and o is not None
     a = _account(db, s)
-    merchant = db.get(Merchant, s.merchant_id)
-    auto = (
-        merchant is not None
-        and merchant.automation_mode in ("smart", "autopilot")
-        and CourierCapability.REATTEMPT.value in a.capabilities
-        and s.status == "delivery_failed"
+    from app.domains.automation import policy
+
+    rec = policy.decide(
+        db,
+        s.merchant_id,
+        policy.Proposal(
+            action="request_reattempt",
+            risk_class="R2",
+            source="recovery",
+            capable=CourierCapability.REATTEMPT.value in a.capabilities and s.status == "delivery_failed",
+            inputs={"shipment_id": str(s.id), "delivery_attempt_id": str(att.id)},
+        ),
     )
+    auto = rec.decision == "AUTO_EXECUTE"
     ctx = TenantContext(
         merchant_id=s.merchant_id, actor=Actor(type="automation", display="Delivery recovery")
     )
@@ -1073,9 +1111,11 @@ def capture_customer_reply(db: Session, conv: Any, msg: Any) -> bool:
                     db, ctx, s.id, note=f"Customer: {att.customer_reply}"[:500], by="automation"
                 )
             kind = "reattempt_requested"
+            policy.resolve(db, rec, "executed")
         except AppError as e:
             log.warning("auto_reattempt_failed", shipment_id=str(s.id), code=e.code)
             kind = "reply_noted"
+            policy.resolve(db, rec, "failed")
     else:
         kind = "reply_noted"
     inbox.queue_reply(

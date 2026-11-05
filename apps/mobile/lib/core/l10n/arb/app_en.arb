@@ -1270,5 +1270,126 @@
       }
     }
   },
-  "returnsHomeCardBody": "Approve or reject customer returns."
+  "returnsHomeCardBody": "Approve or reject customer returns.",
+  "ccStateRunning": "Your store is running.",
+  "ccStateWaiting": "A few things are waiting for you.",
+  "ccStateAttention": "Something needs you now.",
+  "ccModeAssisted": "Assisted mode",
+  "ccModeSmart": "Smart mode",
+  "ccModeAutopilot": "Autopilot mode",
+  "ccPeriod": "Last 7 days",
+  "ccOrders": "Orders",
+  "ccRevenue": "Sales",
+  "ccAiMessages": "AI replies",
+  "ccDelivered": "Delivered",
+  "ccInTransit": "On the way",
+  "ccReturns": "Returns",
+  "ccFeedLink": "See what ran automatically",
+  "ccWorkflowsLink": "Workflows",
+  "approvalsTitle": "Waiting for approval",
+  "approvalsEmpty": "Nothing is waiting for your approval.",
+  "approvalsApprove": "Approve",
+  "approvalsReject": "Reject",
+  "approvalsRejectTitle": "Reject this step?",
+  "approvalsNote": "Note (optional)",
+  "approvalsCancel": "Keep it",
+  "approvalsManagersOnly": "Only managers can approve automation.",
+  "approvalsDone": "Done.",
+  "autoActionNotifySeller": "Tell you",
+  "autoActionAddOrderNote": "Add an order note",
+  "autoActionSendCustomerMessage": "Message the customer",
+  "autoActionSendReviewRequest": "Ask for a review",
+  "autoActionBookCourier": "Book a courier",
+  "autoActionRequestPickup": "Request pickup",
+  "autoActionRequestReattempt": "Ask the courier to try again",
+  "autoActionApproveReturn": "Approve a return",
+  "autoActionSendAiReply": "Send an AI reply",
+  "autoActionIssueRefund": "Refund the customer",
+  "autoActionContinue": "Continue the workflow",
+  "autoActionOther": "Automated step",
+  "ruleAssisted": "Your shop is in Assisted mode",
+  "ruleR2Off": "This kind of action isn't switched on",
+  "ruleAboveLimit": "Above your limit",
+  "ruleNotSure": "Not sure enough",
+  "ruleHighRisk": "Always needs a person",
+  "ruleBlocked": "Not possible right now",
+  "ruleApprovalStep": "The workflow asks for your OK",
+  "ruleRanSmart": "Ran automatically (Smart mode)",
+  "ruleRanAutopilot": "Ran automatically (Autopilot mode)",
+  "ruleRanEnabled": "Ran automatically: you switched this on",
+  "ruleNotice": "Just a notice",
+  "feedTitle": "What ran automatically",
+  "feedEmpty": "Nothing ran automatically in the last 7 days.",
+  "workflowsTitle": "Workflows",
+  "workflowsEmpty": "No workflows yet. Create one on the web.",
+  "wfStatusDraft": "Off",
+  "wfStatusActive": "On",
+  "wfStatusPaused": "Paused",
+  "wfBroke": "Paused after repeated failures",
+  "wfTurnOn": "Turn on",
+  "wfTurnOff": "Pause",
+  "wfEditOnWeb": "Edit workflows on the web.",
+  "wfManagersOnly": "Only managers can turn workflows on or off.",
+  "ccDoneAuto": "{count} done automatically",
+  "@ccDoneAuto": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ccDoneTeam": "{count} done by your team",
+  "@ccDoneTeam": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ccShare": "{percent} automatic",
+  "@ccShare": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "ccNeedsAttention": "{count, plural, =0{Nothing needs you} =1{1 thing needs you} other{{count} things need you}}",
+  "@ccNeedsAttention": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "approvalsOrder": "Order #{number}",
+  "@approvalsOrder": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "approvalsWhy": "Waiting: {reason}",
+  "@approvalsWhy": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "wfRuns": "{done} done · {waiting} in progress · {failed} failed",
+  "@wfRuns": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "waiting": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  }
 }

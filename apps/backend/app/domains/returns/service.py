@@ -29,6 +29,7 @@ from app.core.db import bind_tenant, utcnow
 from app.core.errors import AppError, Conflict, NotFound, PermissionDenied, ValidationFailed
 from app.core.ids import uuid7
 from app.domains.audit import service as audit
+from app.domains.automation.policy import log_action
 from app.domains.catalog.models import Product, Variant
 from app.domains.customers import service as customers
 from app.domains.integrations import registry
@@ -467,11 +468,34 @@ def create(
         metadata={"order_number": o.number, "eligible": eligible, "signals": [s["code"] for s in r.signals]},
     )
     _publish(db, r, "none")
-    if policy.auto_approve and eligible and not r.signals:
-        auto = TenantContext(
-            merchant_id=ctx.merchant_id, actor=Actor(type="automation", display="Return policy")
+    if policy.auto_approve:
+        from app.domains.automation import policy as decision_policy
+
+        rec = decision_policy.decide(
+            db,
+            ctx.merchant_id,
+            decision_policy.Proposal(
+                action="approve_return",
+                risk_class="R2",
+                source="returns",
+                confidence=1.0 if eligible and not r.signals else 0.4,
+                impact_minor=r.refund_due_minor,
+                currency=r.currency,
+                threshold_key="return_approve_minor",
+                enabled=True,  # the returns policy's auto-approve is the merchant's opt-in
+                inputs={
+                    "return_id": str(r.id),
+                    "eligible": eligible,
+                    "signals": [x["code"] for x in r.signals],
+                },
+            ),
         )
-        _approve(db, auto, r, None, by="automation")
+        if rec.decision == "AUTO_EXECUTE":
+            auto = TenantContext(
+                merchant_id=ctx.merchant_id, actor=Actor(type="automation", display="Return policy")
+            )
+            _approve(db, auto, r, None, by="automation")
+            decision_policy.resolve(db, rec, "executed")
     return r
 
 
@@ -501,6 +525,16 @@ def _approve(
     r.status, r.decided_at, r.decided_by = "approved", utcnow(), by
     r.decided_by_user_id = ctx.actor.id if ctx.actor.type == "user" else None
     r.override_reason = override_reason
+    log_action(
+        db,
+        r.merchant_id,
+        "returns",
+        "approve_return",
+        ctx.actor,
+        key=f"ret:{r.id}:decision",
+        resource_type="return",
+        resource_id=r.id,
+    )
     _order_event(db, r, ctx.actor, "return_approved", override=bool(override_reason))
     audit.record(
         db,
@@ -540,6 +574,16 @@ def reject(db: Session, ctx: TenantContext, return_id: uuid.UUID, reason: str) -
     before = r.status
     r.status, r.rejection_reason, r.decided_at, r.decided_by = "rejected", reason[:300], utcnow(), "seller"
     r.decided_by_user_id = ctx.actor.id
+    log_action(
+        db,
+        r.merchant_id,
+        "returns",
+        "reject_return",
+        ctx.actor,
+        key=f"ret:{r.id}:decision",
+        resource_type="return",
+        resource_id=r.id,
+    )
     _order_event(db, r, ctx.actor, "return_rejected", reason=reason[:300])
     audit.record(
         db,
@@ -869,6 +913,17 @@ def _execute(db: Session, ctx: TenantContext, ref: Refund, o: Order) -> None:
             orders._event(db, o, ctx.actor, "refund_failed", refund_id=str(ref.id), error=ref.failure_code)
             return
     ref.status, ref.completed_at, ref.failure_code = "succeeded", utcnow(), None
+    log_action(
+        db,
+        ref.merchant_id,
+        "refunds",
+        "issue_refund",
+        ctx.actor,
+        key=f"refund:{ref.id}",
+        resource_type="refund",
+        resource_id=ref.id,
+        human_intervened=ref.approved_by_user_id is not None and ctx.actor.type != "user",
+    )
     db.flush()  # the sums below must include this refund (sessions don't autoflush)
     orders._event(
         db,
@@ -968,6 +1023,23 @@ def _maybe_auto_refund(db: Session, r: ReturnRequest, o: Order, policy: ReturnPo
         or _original_payment(db, o) is None
     ):
         return
+    from app.domains.automation import policy as decision_policy
+
+    rec = decision_policy.decide(
+        db,
+        r.merchant_id,
+        decision_policy.Proposal(
+            action="issue_refund",
+            risk_class="R2",
+            source="returns",
+            impact_minor=r.refund_due_minor,
+            currency=r.currency,
+            enabled=True,  # within the returns policy's own auto-refund limit (checked above)
+            inputs={"return_id": str(r.id), "order_id": str(o.id)},
+        ),
+    )
+    if rec.decision != "AUTO_EXECUTE":
+        return
     ctx = TenantContext(merchant_id=r.merchant_id, actor=Actor(type="automation", display="Return policy"))
     try:
         with db.begin_nested():
@@ -982,6 +1054,7 @@ def _maybe_auto_refund(db: Session, r: ReturnRequest, o: Order, policy: ReturnPo
                 reason="auto: within policy",
                 automated=True,
             )
+        decision_policy.resolve(db, rec, "executed")
     except AppError as e:
         log.warning("auto_refund_skipped", return_id=str(r.id), code=e.code)
 

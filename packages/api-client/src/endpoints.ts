@@ -61,6 +61,16 @@ import type {
   AdminWebhookEvent,
   AddressInput,
   CodSummary,
+  AutomationApproval,
+  AutomationCatalog,
+  AutomationPolicy,
+  ControlCenter,
+  DecisionRecordView,
+  DryRunResult,
+  PolicyDecision,
+  Workflow,
+  WorkflowDefinition,
+  WorkflowRunView,
   RefundMethod,
   RefundRecord,
   Returnable,
@@ -552,6 +562,30 @@ export function createApi(client: ApiClient) {
       reject: (id: string, reason: string) => client.request<RefundRecord>(`/refunds/${encodeURIComponent(id)}/reject`, { method: "POST", body: { reason }, tenant: true }),
       retry: (id: string) => client.request<RefundRecord>(`/refunds/${encodeURIComponent(id)}/retry`, { method: "POST", tenant: true }),
     },
+    automation: {
+      catalog: () => client.request<AutomationCatalog>("/automation/catalog", { tenant: true }),
+      workflows: () => client.request<{ items: Workflow[] }>("/automation/workflows", { tenant: true }),
+      workflow: (id: string) => client.request<Workflow>(`/automation/workflows/${encodeURIComponent(id)}`, { tenant: true }),
+      create: (body: { name: string; description?: string | null; template_code?: string | null; definition?: WorkflowDefinition | null }) =>
+        client.request<Workflow>("/automation/workflows", { method: "POST", body, tenant: true }),
+      update: (id: string, body: { name?: string; description?: string | null; definition?: WorkflowDefinition }) =>
+        client.request<Workflow>(`/automation/workflows/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      setStatus: (id: string, status: "active" | "paused") =>
+        client.request<Workflow>(`/automation/workflows/${encodeURIComponent(id)}/status`, { method: "POST", body: { status }, tenant: true }),
+      runs: (id: string) => client.request<{ items: WorkflowRunView[] }>(`/automation/workflows/${encodeURIComponent(id)}/runs`, { tenant: true }),
+      dryRun: (definition: WorkflowDefinition, subjectId?: string | null) =>
+        client.request<DryRunResult>("/automation/dry-run", { method: "POST", body: { definition, subject_id: subjectId ?? null }, tenant: true }),
+      approvals: () => client.request<{ items: AutomationApproval[] }>("/automation/approvals", { tenant: true }),
+      approve: (id: string, note?: string | null) =>
+        client.request<WorkflowRunView>(`/automation/approvals/${encodeURIComponent(id)}/approve`, { method: "POST", body: { note: note ?? null }, tenant: true }),
+      reject: (id: string, note?: string | null) =>
+        client.request<WorkflowRunView>(`/automation/approvals/${encodeURIComponent(id)}/reject`, { method: "POST", body: { note: note ?? null }, tenant: true }),
+      policy: () => client.request<AutomationPolicy>("/automation/policy", { tenant: true }),
+      updatePolicy: (body: { confidence_threshold?: number; thresholds?: Record<string, number>; enabled_r2?: string[] }) =>
+        client.request<AutomationPolicy>("/automation/policy", { method: "PATCH", body, tenant: true }),
+      decisions: (decision?: PolicyDecision) => client.request<{ items: DecisionRecordView[] }>("/automation/decisions", { tenant: true, query: { decision } }),
+    },
+    controlCenter: (days = 7) => client.request<ControlCenter>("/control-center", { tenant: true, query: { days } }),
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {
       simulate: (accountId: string, body: { tracking_number: string; status: ShipmentStatus; failure_reason?: FailureReason | null }) =>

@@ -31,6 +31,8 @@ export const EXCEPTION_TYPES = [
   "return_to_inspect",
   "refund_due",
   "refund_failed",
+  "automation_approval",
+  "automation_paused",
 ] as const;
 
 export type ExceptionType = (typeof EXCEPTION_TYPES)[number];

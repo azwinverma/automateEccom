@@ -6,6 +6,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+import app.domains.automation.engine
 import app.domains.catalog.imports
 import app.domains.channels.service
 import app.domains.fulfillment.service
@@ -28,6 +29,7 @@ from app.integrations_i18n import email_copy
 
 # Modules whose import registers outbox handlers (referenced so the import is explicit, not accidental).
 HANDLER_MODULES = (
+    app.domains.automation.engine,
     app.domains.catalog.imports,
     app.domains.channels.service,
     app.domains.fulfillment.service,

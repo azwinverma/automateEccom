@@ -39,6 +39,8 @@ celery.conf.update(
         "release-expired-stock": {"task": "app.worker.tasks.release_expired_stock", "schedule": 120.0},
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
         # FUL-006: polling is per-shipment rate limited (30 min, 6 h for webhook couriers).
+        # AUT-007/010: workflow waits and retries come due.
+        "resume-workflows": {"task": "app.worker.tasks.resume_workflows", "schedule": 60.0},
         "poll-shipments": {"task": "app.worker.tasks.poll_shipments", "schedule": 300.0},
         "escalate-delivery-recoveries": {
             "task": "app.worker.tasks.escalate_delivery_recoveries",

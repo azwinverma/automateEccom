@@ -2438,4 +2438,223 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get returnsHomeCardBody => 'Approve or reject customer returns.';
+
+  @override
+  String get ccStateRunning => 'Your store is running.';
+
+  @override
+  String get ccStateWaiting => 'A few things are waiting for you.';
+
+  @override
+  String get ccStateAttention => 'Something needs you now.';
+
+  @override
+  String get ccModeAssisted => 'Assisted mode';
+
+  @override
+  String get ccModeSmart => 'Smart mode';
+
+  @override
+  String get ccModeAutopilot => 'Autopilot mode';
+
+  @override
+  String get ccPeriod => 'Last 7 days';
+
+  @override
+  String get ccOrders => 'Orders';
+
+  @override
+  String get ccRevenue => 'Sales';
+
+  @override
+  String get ccAiMessages => 'AI replies';
+
+  @override
+  String get ccDelivered => 'Delivered';
+
+  @override
+  String get ccInTransit => 'On the way';
+
+  @override
+  String get ccReturns => 'Returns';
+
+  @override
+  String get ccFeedLink => 'See what ran automatically';
+
+  @override
+  String get ccWorkflowsLink => 'Workflows';
+
+  @override
+  String get approvalsTitle => 'Waiting for approval';
+
+  @override
+  String get approvalsEmpty => 'Nothing is waiting for your approval.';
+
+  @override
+  String get approvalsApprove => 'Approve';
+
+  @override
+  String get approvalsReject => 'Reject';
+
+  @override
+  String get approvalsRejectTitle => 'Reject this step?';
+
+  @override
+  String get approvalsNote => 'Note (optional)';
+
+  @override
+  String get approvalsCancel => 'Keep it';
+
+  @override
+  String get approvalsManagersOnly => 'Only managers can approve automation.';
+
+  @override
+  String get approvalsDone => 'Done.';
+
+  @override
+  String get autoActionNotifySeller => 'Tell you';
+
+  @override
+  String get autoActionAddOrderNote => 'Add an order note';
+
+  @override
+  String get autoActionSendCustomerMessage => 'Message the customer';
+
+  @override
+  String get autoActionSendReviewRequest => 'Ask for a review';
+
+  @override
+  String get autoActionBookCourier => 'Book a courier';
+
+  @override
+  String get autoActionRequestPickup => 'Request pickup';
+
+  @override
+  String get autoActionRequestReattempt => 'Ask the courier to try again';
+
+  @override
+  String get autoActionApproveReturn => 'Approve a return';
+
+  @override
+  String get autoActionSendAiReply => 'Send an AI reply';
+
+  @override
+  String get autoActionIssueRefund => 'Refund the customer';
+
+  @override
+  String get autoActionContinue => 'Continue the workflow';
+
+  @override
+  String get autoActionOther => 'Automated step';
+
+  @override
+  String get ruleAssisted => 'Your shop is in Assisted mode';
+
+  @override
+  String get ruleR2Off => 'This kind of action isn\'t switched on';
+
+  @override
+  String get ruleAboveLimit => 'Above your limit';
+
+  @override
+  String get ruleNotSure => 'Not sure enough';
+
+  @override
+  String get ruleHighRisk => 'Always needs a person';
+
+  @override
+  String get ruleBlocked => 'Not possible right now';
+
+  @override
+  String get ruleApprovalStep => 'The workflow asks for your OK';
+
+  @override
+  String get ruleRanSmart => 'Ran automatically (Smart mode)';
+
+  @override
+  String get ruleRanAutopilot => 'Ran automatically (Autopilot mode)';
+
+  @override
+  String get ruleRanEnabled => 'Ran automatically: you switched this on';
+
+  @override
+  String get ruleNotice => 'Just a notice';
+
+  @override
+  String get feedTitle => 'What ran automatically';
+
+  @override
+  String get feedEmpty => 'Nothing ran automatically in the last 7 days.';
+
+  @override
+  String get workflowsTitle => 'Workflows';
+
+  @override
+  String get workflowsEmpty => 'No workflows yet. Create one on the web.';
+
+  @override
+  String get wfStatusDraft => 'Off';
+
+  @override
+  String get wfStatusActive => 'On';
+
+  @override
+  String get wfStatusPaused => 'Paused';
+
+  @override
+  String get wfBroke => 'Paused after repeated failures';
+
+  @override
+  String get wfTurnOn => 'Turn on';
+
+  @override
+  String get wfTurnOff => 'Pause';
+
+  @override
+  String get wfEditOnWeb => 'Edit workflows on the web.';
+
+  @override
+  String get wfManagersOnly => 'Only managers can turn workflows on or off.';
+
+  @override
+  String ccDoneAuto(int count) {
+    return '$count done automatically';
+  }
+
+  @override
+  String ccDoneTeam(int count) {
+    return '$count done by your team';
+  }
+
+  @override
+  String ccShare(String percent) {
+    return '$percent automatic';
+  }
+
+  @override
+  String ccNeedsAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count things need you',
+      one: '1 thing needs you',
+      zero: 'Nothing needs you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String approvalsOrder(int number) {
+    return 'Order #$number';
+  }
+
+  @override
+  String approvalsWhy(String reason) {
+    return 'Waiting: $reason';
+  }
+
+  @override
+  String wfRuns(int done, int waiting, int failed) {
+    return '$done done · $waiting in progress · $failed failed';
+  }
 }

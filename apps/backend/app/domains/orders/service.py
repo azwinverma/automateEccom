@@ -22,6 +22,7 @@ from app.core.context import Actor, TenantContext
 from app.core.db import utcnow
 from app.core.errors import Conflict, NotFound, UsageLimitReached, ValidationFailed
 from app.domains.audit import service as audit
+from app.domains.automation.policy import log_action
 from app.domains.billing.service import entitlements
 from app.domains.catalog.models import Product, Variant
 from app.domains.customers import service as customers
@@ -336,6 +337,16 @@ def create_order(db: Session, ctx: TenantContext, data: OrderInput) -> Order:
         metadata={"number": order.number, "source": data.source, "total_minor": order.total_minor},
     )
     _publish(db, order, "orders.created", source=data.source)
+    log_action(
+        db,
+        ctx.merchant_id,
+        "order_capture",
+        "create_order",
+        ctx.actor,
+        key=f"order:{order.id}:created",
+        resource_type="order",
+        resource_id=order.id,
+    )
     if data.confirm:
         transition(db, ctx, order.id, "confirmed")
     return order
@@ -386,6 +397,16 @@ def transition(
         db, o, ctx.actor, "status_changed", from_status=before, to_status=to, provider=provider, reason=reason
     )
     _publish(db, o, "orders.status_changed", from_status=before)
+    log_action(
+        db,
+        o.merchant_id,
+        "order_processing",
+        f"order_{to}",
+        ctx.actor,
+        key=f"order:{o.id}:{to}:{o.version}",
+        resource_type="order",
+        resource_id=o.id,
+    )
     if to == "confirmed":
         # Payment track follows immediately: COD waits for delivery, prepaid waits for a verified payment.
         nxt = "cod_pending" if o.payment_method == "cod" else "payment_pending"

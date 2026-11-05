@@ -65,6 +65,8 @@ ignore = ["S101", "B008", "RUF012", "S105", "S106", "N818"]
 "app/domains/inbox/extract.py" = ["E501"]
 "app/domains/fulfillment/notify.py" = ["E501"]
 "app/domains/returns/notify.py" = ["E501"]
+# Bilingual message templates and readable condition tables.
+"app/domains/automation/*.py" = ["E501", "N812"]
 "migrations/**" = ["E501"]
 # QA probe is a CLI that reports to stdout.
 "qa/**" = ["T201", "E501", "S"]

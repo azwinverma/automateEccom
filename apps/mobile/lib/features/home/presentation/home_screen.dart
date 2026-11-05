@@ -9,6 +9,8 @@ import '../../../design/tokens.g.dart';
 import '../../../design/widgets/nivaro_brand.dart';
 import '../../../design/widgets/section_header.dart';
 import '../../../design/widgets/state_views.dart';
+import '../../automation/data/automation_api.dart';
+import '../../automation/presentation/control_center.dart';
 import '../../channels/presentation/reconnect_sheet.dart';
 import '../../exceptions/data/exception_routing.dart';
 import '../../exceptions/data/exceptions_api.dart';
@@ -86,6 +88,7 @@ class HomeScreen extends ConsumerWidget {
             ref
               ..invalidate(exceptionsProvider)
               ..invalidate(automationModeProvider)
+              ..invalidate(controlCenterProvider)
               ..invalidate(codOverviewProvider)
               ..invalidate(returnsPageProvider('to_decide'));
             await Future.wait<Object?>([
@@ -136,7 +139,10 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              AutopilotStatusStrip(status: autopilot),
+              const ControlCenterCard(),
+              // The Control Center replaces the strip once its summary has loaded.
+              if (!ref.watch(controlCenterProvider).hasValue)
+                AutopilotStatusStrip(status: autopilot),
               const CodHomeCard(),
               const ReturnsHomeCard(),
               SectionHeader(

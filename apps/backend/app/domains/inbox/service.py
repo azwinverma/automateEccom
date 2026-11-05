@@ -22,6 +22,7 @@ from app.core.context import Actor, TenantContext
 from app.core.db import bind_tenant, utcnow
 from app.core.errors import Conflict, NotFound, ValidationFailed
 from app.domains.audit import service as audit
+from app.domains.automation.policy import log_action
 from app.domains.channels.models import ChannelConnection, WebhookEvent
 from app.domains.customers import service as customers
 from app.domains.customers.models import Customer
@@ -177,6 +178,18 @@ def queue_reply(
     db.flush()
     if send:
         _queue_send(db, msg)
+        capability = "customer_notifications" if author == "system" else "customer_messaging"
+        performer = {"seller": "user", "ai": "ai", "system": "automation"}.get(author, "system")
+        log_action(
+            db,
+            conv.merchant_id,
+            capability,
+            "send_message",
+            performer,
+            key=f"msg:{msg.id}",
+            resource_type="conversation",
+            resource_id=conv.id,
+        )
     return msg
 
 
@@ -250,6 +263,17 @@ def approve_suggestion(db: Session, ctx: TenantContext, message_id: uuid.UUID, t
         msg.text = text.strip()[:4000]
     msg.status, msg.author_user_id = "queued", ctx.actor.id
     _queue_send(db, msg)
+    log_action(
+        db,
+        msg.merchant_id,
+        "customer_messaging",
+        "send_message",
+        "ai",
+        key=f"msg:{msg.id}",
+        resource_type="conversation",
+        resource_id=msg.conversation_id,
+        human_intervened=True,
+    )
     conv = db.get(Conversation, msg.conversation_id)
     if conv is not None:
         conv.unread_count = 0

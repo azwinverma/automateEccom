@@ -68,6 +68,14 @@ def member(client, owner, role, email):
     return u
 
 
+def automation_on(client, s, limit=300000):
+    """Return automation runs through the shared Decision Policy: smart mode and a high enough limit."""
+    client.patch(f"{API}/merchant", headers=s.h(), json={"automation_mode": "smart"})
+    client.patch(
+        f"{API}/automation/policy", headers=s.h(), json={"thresholds": {"return_approve_minor": limit}}
+    )
+
+
 # ----------------------------------------------------------------------------- the main path
 def test_delivered_cod_order_return_pickup_inspection_restock_and_refund(client, seller):
     a = sandbox_courier(client, seller)
@@ -163,6 +171,7 @@ def test_delivered_cod_order_return_pickup_inspection_restock_and_refund(client,
 
 
 def test_prepaid_auto_refund_within_threshold_goes_to_the_original_payment(client, seller):
+    automation_on(client, seller)
     client.patch(
         f"{API}/returns/policy",
         headers=seller.h(),
@@ -384,6 +393,7 @@ def test_cancelling_an_approved_exchange_releases_the_held_stock(client, seller)
 
 # ----------------------------------------------------------------------------- abuse signals + chat
 def test_frequent_returner_is_flagged_and_never_auto_approved(client, seller):
+    automation_on(client, seller)
     client.patch(f"{API}/returns/policy", headers=seller.h(), json={"auto_approve": True})
     statuses = []
     for i in range(3):
@@ -459,3 +469,10 @@ def test_customer_hears_about_the_return_in_their_chat(client, seller):
     last = [m["text"] for m in SandboxChannelAdapter.sent if m["thread"] == chat.thread][-1]
     assert f"Your return {rr['number']} for order #{o['number']} is approved" in last
     _ = book  # (pickup booking is covered in the main path)
+
+
+def test_assisted_mode_never_auto_approves_even_with_the_policy_flag(client, seller):
+    client.patch(f"{API}/returns/policy", headers=seller.h(), json={"auto_approve": True})
+    _, _, o = delivered_order(client, seller, price=100000)
+    rr = ret(client, seller, o["id"], [line_of(o)]).json()
+    assert rr["status"] == "requested"  # assisted: the Decision Policy asks a person

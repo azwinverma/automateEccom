@@ -79,6 +79,51 @@ def _usage_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     return out
 
 
+def _automation_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """AUT-009/011: workflow steps waiting for approval; workflows paused by the circuit breaker."""
+    from app.domains.automation.models import Workflow, WorkflowRun, WorkflowStepRun
+
+    out: list[dict[str, Any]] = []
+    for sr, name in db.execute(
+        select(WorkflowStepRun, Workflow.name)
+        .join(WorkflowRun, WorkflowRun.id == WorkflowStepRun.run_id)
+        .join(Workflow, Workflow.id == WorkflowRun.workflow_id)
+        .where(WorkflowStepRun.merchant_id == merchant_id, WorkflowStepRun.status == "awaiting_approval")
+    ).all():
+        out.append(
+            _item(
+                "automation_approval",
+                "high",
+                "workflow_step",
+                sr.id,
+                sr.started_at,
+                "review_automation",
+                name=name,
+                step_action=sr.action or "",
+            )
+        )
+    for w in db.scalars(
+        select(Workflow).where(
+            Workflow.merchant_id == merchant_id,
+            Workflow.status == "paused",
+            Workflow.paused_reason.like("circuit_breaker:%"),
+        )
+    ):
+        out.append(
+            _item(
+                "automation_paused",
+                "urgent",
+                "workflow",
+                w.id,
+                w.updated_at,
+                "open_workflow",
+                name=w.name,
+                step_action=(w.paused_reason or "").split(":", 1)[-1],
+            )
+        )
+    return out
+
+
 def _return_items(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     """RET/PAY-007: returns to decide, items back to inspect, refunds waiting for approval or failed."""
     from app.domains.orders.models import Order
@@ -395,6 +440,7 @@ def open_exceptions(
 
     items.extend(_fulfillment_items(db, merchant_id))
     items.extend(_return_items(db, merchant_id))
+    items.extend(_automation_items(db, merchant_id))
 
     for p in db.scalars(
         select(ContentPost).where(ContentPost.merchant_id == merchant_id, ContentPost.status == "failed")

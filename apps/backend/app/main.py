@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
     from app.domains.admin.router import router as admin
     from app.domains.ai.router import router as ai
     from app.domains.audit.router import router as audit
+    from app.domains.automation.router import router as automation
     from app.domains.billing.router import router as billing
     from app.domains.catalog.router import router as catalog
     from app.domains.channels.router import admin_router as webhooks_admin
@@ -93,6 +94,7 @@ def create_app() -> FastAPI:
         fulfillment,
         fulfillment_dev,  # dev-only simulator; each route 404s in staging/production
         returns,
+        automation,
         exceptions,
         audit,
         platform,

@@ -34,6 +34,7 @@ export function useExceptions() {
         if (key === "escalation" && typeof vars.reason === "string") vars.reason = t.dynamic(`inbox.reason.${vars.reason}`) ?? vars.reason;
         if (key === "orderReview" && typeof vars.reason === "string") vars.reason = t.dynamic(`orders.review.${vars.reason}`) ?? vars.reason;
         if ((key === "refundDue" || key === "refundToApprove") && typeof vars.amount === "number") vars.amount = money(vars.amount, str(r.details.currency) ?? "NPR");
+        if (key === "automationApproval" && typeof vars.action === "string") vars.action = t.dynamic(`automation.action.${vars.action}`) ?? vars.action;
         if (key === "deliveryFailed" && typeof vars.reason === "string") vars.reason = t.dynamic(`fulfillment.reason.${vars.reason}`) ?? vars.reason;
         if (r.type === "usage_limit" && typeof vars.resource === "string") {
           vars.resource = t.dynamic(`usage.resource.${vars.resource}`) ?? vars.resource;

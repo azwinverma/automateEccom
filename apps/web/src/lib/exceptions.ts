@@ -31,7 +31,9 @@ export type ExceptionActionLabel =
   | "inspect_return"
   | "issue_refund"
   | "approve_refund"
-  | "retry_refund";
+  | "retry_refund"
+  | "review_automation"
+  | "open_workflow";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
 const enc = encodeURIComponent;
@@ -87,6 +89,10 @@ export function exceptionTarget(item: ExceptionRecord): ExceptionTarget {
       const ret = str(details.return_id);
       return { kind: "link", href: ret ? `/returns/${enc(ret)}` : "/returns", label: item.action as ExceptionActionLabel };
     }
+    case "review_automation":
+      return { kind: "link", href: "/automation", label: "review_automation" };
+    case "open_workflow":
+      return { kind: "link", href: `/automation/${enc(id)}`, label: "open_workflow" };
     case "reconnect_courier":
       return { kind: "link", href: "/settings/couriers", label: "reconnect_courier" };
     case "view_plan":
@@ -126,6 +132,8 @@ export function exceptionSummaryKey(item: ExceptionRecord): { key: string; vars:
   if (item.type === "return_to_receive") return { key: "returnToReceive", vars: { number: Number(d.number ?? 0) } };
   if (item.type === "cod_settlement_mismatch") return { key: "settlementMismatch", vars: { reference: str(d.reference) ?? "", count: Number(d.issues ?? 0) } };
   if (item.type === "courier_error") return { key: "courierError", vars: { name } };
+  if (item.type === "automation_approval") return { key: "automationApproval", vars: { name, action: str(d.step_action) ?? "" } };
+  if (item.type === "automation_paused") return { key: "automationPaused", vars: { name } };
   if (item.type === "return_requested") return { key: "returnRequested", vars: { number: str(d.return_number) ?? "", order: Number(d.number ?? 0) } };
   if (item.type === "return_to_inspect") return { key: "returnToInspect", vars: { number: str(d.return_number) ?? "" } };
   if (item.type === "refund_due") return { key: "refundDue", vars: { number: str(d.return_number) ?? "", amount: Number(d.amount_minor ?? 0) } };

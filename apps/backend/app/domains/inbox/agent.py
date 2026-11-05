@@ -36,7 +36,6 @@ from app.domains.inbox import service as inbox
 from app.domains.inbox.extract import Extracted, option_match, understand
 from app.domains.inbox.models import INTENTS, Conversation, Message, OrderDraft
 from app.domains.inventory import service as inventory
-from app.domains.merchants.models import Merchant
 from app.domains.orders import service as orders
 from app.domains.orders.models import Order
 from app.domains.platform.models import OutboxEvent
@@ -332,14 +331,22 @@ def _dispatch(
     confidence: float,
     grounding: dict[str, Any],
 ) -> Message:
-    merchant = db.get(Merchant, conv.merchant_id)
+    from app.domains.automation import policy
+
     ent = entitlements.resolve(db, conv.merchant_id)
-    auto = (
-        merchant is not None
-        and merchant.automation_mode in ("smart", "autopilot")
-        and ent.has("inbox.ai_replies")
-        and confidence >= AUTO_SEND_MIN_CONFIDENCE
+    rec = policy.decide(
+        db,
+        conv.merchant_id,
+        policy.Proposal(
+            action="send_ai_reply",
+            risk_class="R1",
+            source="inbox",
+            confidence=confidence,
+            entitled=ent.has("inbox.ai_replies"),
+            inputs={"conversation_id": str(conv.id), "message_id": str(msg.id), "intent": intent},
+        ),
     )
+    auto = rec.decision == "AUTO_EXECUTE"
     if auto:
         try:
             entitlements.record(
@@ -354,6 +361,8 @@ def _dispatch(
         except UsageLimitReached:
             auto = False
             grounding = {**grounding, "held": "ai_reply_limit"}
+    policy.resolve(db, rec, "executed" if auto else ("blocked" if rec.decision == "BLOCK" else "suggested"))
+    grounding = {**grounding, "decision_id": str(rec.id), "decision_rule": rec.rule}
     return inbox.queue_reply(
         db, conv, text, author="ai", intent=intent, confidence=confidence, grounding=grounding, send=auto
     )

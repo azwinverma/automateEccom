@@ -7,6 +7,9 @@ import '../core/l10n/gen/app_localizations.dart';
 import '../features/auth/presentation/forgot_password_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
+import '../features/automation/presentation/approvals_screen.dart';
+import '../features/automation/presentation/autopilot_feed_screen.dart';
+import '../features/automation/presentation/workflows_screen.dart';
 import '../features/catalog/presentation/product_screen.dart';
 import '../features/content/presentation/posts_screen.dart';
 import '../features/fulfillment/presentation/cod_screen.dart';
@@ -147,6 +150,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/cod', builder: (_, __) => const CodScreen()),
       GoRoute(path: '/returns', builder: (_, __) => const ReturnsListScreen()),
+      GoRoute(path: '/automation', builder: (_, __) => const WorkflowsScreen()),
+      GoRoute(
+        path: '/automation/approvals',
+        builder: (_, __) => const ApprovalsScreen(),
+      ),
+      GoRoute(
+        path: '/automation/feed',
+        builder: (_, __) => const AutopilotFeedScreen(),
+      ),
       GoRoute(
         path: '/returns/:id',
         builder:

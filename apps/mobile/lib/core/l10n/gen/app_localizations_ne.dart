@@ -2414,4 +2414,223 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get returnsHomeCardBody => 'ग्राहकका फिर्ता स्वीकृत वा अस्वीकार गर्नुहोस्।';
+
+  @override
+  String get ccStateRunning => 'तपाईंको पसल चलिरहेको छ।';
+
+  @override
+  String get ccStateWaiting => 'केही कुरा तपाईंलाई कुरिरहेका छन्।';
+
+  @override
+  String get ccStateAttention => 'अहिले तपाईं चाहिने कुरा छ।';
+
+  @override
+  String get ccModeAssisted => 'सहायक मोड';
+
+  @override
+  String get ccModeSmart => 'स्मार्ट मोड';
+
+  @override
+  String get ccModeAutopilot => 'अटोपाइलट मोड';
+
+  @override
+  String get ccPeriod => 'पछिल्लो ७ दिन';
+
+  @override
+  String get ccOrders => 'अर्डर';
+
+  @override
+  String get ccRevenue => 'बिक्री';
+
+  @override
+  String get ccAiMessages => 'AI जवाफ';
+
+  @override
+  String get ccDelivered => 'डेलिभर भयो';
+
+  @override
+  String get ccInTransit => 'बाटोमा';
+
+  @override
+  String get ccReturns => 'फिर्ता';
+
+  @override
+  String get ccFeedLink => 'स्वचालित रूपमा भएका काम हेर्नुहोस्';
+
+  @override
+  String get ccWorkflowsLink => 'वर्कफ्लो';
+
+  @override
+  String get approvalsTitle => 'स्वीकृति कुर्दै';
+
+  @override
+  String get approvalsEmpty => 'स्वीकृति कुरिरहेको केही छैन।';
+
+  @override
+  String get approvalsApprove => 'स्वीकृत गर्नुहोस्';
+
+  @override
+  String get approvalsReject => 'अस्वीकार गर्नुहोस्';
+
+  @override
+  String get approvalsRejectTitle => 'यो चरण अस्वीकार गर्ने?';
+
+  @override
+  String get approvalsNote => 'टिपोट (ऐच्छिक)';
+
+  @override
+  String get approvalsCancel => 'राख्नुहोस्';
+
+  @override
+  String get approvalsManagersOnly => 'म्यानेजरले मात्र स्वचालन स्वीकृत गर्न सक्छन्।';
+
+  @override
+  String get approvalsDone => 'भयो।';
+
+  @override
+  String get autoActionNotifySeller => 'तपाईंलाई खबर गर्ने';
+
+  @override
+  String get autoActionAddOrderNote => 'अर्डरमा टिपोट थप्ने';
+
+  @override
+  String get autoActionSendCustomerMessage => 'ग्राहकलाई सन्देश पठाउने';
+
+  @override
+  String get autoActionSendReviewRequest => 'समीक्षा माग्ने';
+
+  @override
+  String get autoActionBookCourier => 'कुरियर बुक गर्ने';
+
+  @override
+  String get autoActionRequestPickup => 'पिकअप माग्ने';
+
+  @override
+  String get autoActionRequestReattempt => 'कुरियरलाई फेरि प्रयास गर्न भन्ने';
+
+  @override
+  String get autoActionApproveReturn => 'फिर्ता स्वीकृत गर्ने';
+
+  @override
+  String get autoActionSendAiReply => 'AI जवाफ पठाउने';
+
+  @override
+  String get autoActionIssueRefund => 'ग्राहकलाई रकम फिर्ता';
+
+  @override
+  String get autoActionContinue => 'वर्कफ्लो अगाडि बढाउने';
+
+  @override
+  String get autoActionOther => 'स्वचालित चरण';
+
+  @override
+  String get ruleAssisted => 'तपाईंको पसल सहायक मोडमा छ';
+
+  @override
+  String get ruleR2Off => 'यस्तो काम खोलिएको छैन';
+
+  @override
+  String get ruleAboveLimit => 'तपाईंको सीमाभन्दा माथि';
+
+  @override
+  String get ruleNotSure => 'पर्याप्त निश्चित छैन';
+
+  @override
+  String get ruleHighRisk => 'सधैं मान्छे चाहिन्छ';
+
+  @override
+  String get ruleBlocked => 'अहिले सम्भव छैन';
+
+  @override
+  String get ruleApprovalStep => 'वर्कफ्लोले तपाईंको अनुमति माग्छ';
+
+  @override
+  String get ruleRanSmart => 'स्वचालित रूपमा भयो (स्मार्ट मोड)';
+
+  @override
+  String get ruleRanAutopilot => 'स्वचालित रूपमा भयो (अटोपाइलट मोड)';
+
+  @override
+  String get ruleRanEnabled => 'स्वचालित रूपमा भयो: तपाईंले यो खोल्नुभएको छ';
+
+  @override
+  String get ruleNotice => 'सूचना मात्र';
+
+  @override
+  String get feedTitle => 'स्वचालित रूपमा भएका काम';
+
+  @override
+  String get feedEmpty => 'पछिल्लो ७ दिनमा केही स्वचालित भएन।';
+
+  @override
+  String get workflowsTitle => 'वर्कफ्लो';
+
+  @override
+  String get workflowsEmpty => 'अहिलेसम्म वर्कफ्लो छैन। वेबमा बनाउनुहोस्।';
+
+  @override
+  String get wfStatusDraft => 'बन्द';
+
+  @override
+  String get wfStatusActive => 'चालु';
+
+  @override
+  String get wfStatusPaused => 'रोकिएको';
+
+  @override
+  String get wfBroke => 'पटक-पटक असफल भएपछि रोकियो';
+
+  @override
+  String get wfTurnOn => 'चालु गर्नुहोस्';
+
+  @override
+  String get wfTurnOff => 'रोक्नुहोस्';
+
+  @override
+  String get wfEditOnWeb => 'वर्कफ्लो वेबमा सम्पादन गर्नुहोस्।';
+
+  @override
+  String get wfManagersOnly => 'म्यानेजरले मात्र वर्कफ्लो चालु वा बन्द गर्न सक्छन्।';
+
+  @override
+  String ccDoneAuto(int count) {
+    return '$count स्वचालित रूपमा';
+  }
+
+  @override
+  String ccDoneTeam(int count) {
+    return '$count तपाईंको टोलीले';
+  }
+
+  @override
+  String ccShare(String percent) {
+    return '$percent स्वचालित';
+  }
+
+  @override
+  String ccNeedsAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count कुरामा तपाईं चाहिन्छ',
+      one: '१ कुरामा तपाईं चाहिन्छ',
+      zero: 'तपाईं चाहिने केही छैन',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String approvalsOrder(int number) {
+    return 'अर्डर #$number';
+  }
+
+  @override
+  String approvalsWhy(String reason) {
+    return 'कुर्दै: $reason';
+  }
+
+  @override
+  String wfRuns(int done, int waiting, int failed) {
+    return '$done सकियो · $waiting चलिरहेको · $failed असफल';
+  }
 }

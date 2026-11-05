@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AutopilotStatusStrip } from "@/components/commerce/AutopilotStatusStrip";
 import { ExceptionInbox } from "@/components/commerce/ExceptionInbox";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -10,7 +9,7 @@ import { errorMessage } from "@/i18n/errors";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAction } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { AUTOMATION_PHASE } from "@/lib/sections";
+import { ControlCenter } from "../automation/ControlCenter";
 import styles from "./home.module.css";
 import { useExceptions } from "./useExceptions";
 
@@ -38,8 +37,7 @@ export function HomeView() {
         subtitle={t("home.subtitle", { business: membership?.merchant.name ?? "" })}
       />
 
-      {/* No automation engine yet: "handled automatically" is a real zero. Needs-you comes from GET /exceptions. */}
-      <AutopilotStatusStrip mode="assisted" automatedCount={0} needsAttentionCount={exceptions.total} lockedUntilPhase={AUTOMATION_PHASE} />
+      <ControlCenter onChanged={exceptions.query.reload} />
 
       {exceptions.commandError ? (
         <div style={{ marginTop: "var(--space-4)" }}>

@@ -138,3 +138,11 @@ def sync_cod_settlements() -> dict[str, int]:
     if stats["imported"] or stats["failed"]:
         log.info("cod_settlements_synced", **stats)
     return stats
+
+
+@celery.task(name="app.worker.tasks.resume_workflows", ignore_result=True)
+def resume_workflows() -> int:
+    from app.domains.automation.engine import resume_due
+
+    with session_scope() as db:
+        return resume_due(db)

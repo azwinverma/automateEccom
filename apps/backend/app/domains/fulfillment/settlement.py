@@ -28,6 +28,7 @@ from app.core.context import TenantContext
 from app.core.db import bind_tenant, utcnow
 from app.core.errors import Conflict, NotFound, ValidationFailed
 from app.domains.audit import service as audit
+from app.domains.automation.policy import log_action
 from app.domains.fulfillment import couriers
 from app.domains.fulfillment.models import CODSettlement, CODSettlementLine, CourierAccount, Shipment
 from app.domains.integrations.base import (
@@ -255,6 +256,16 @@ def confirm(
         rec.collected_minor, rec.fee_minor = line.collected_minor, line.fee_minor
         settled += 1
     st.status, st.confirmed_at, st.confirmed_by_user_id = "confirmed", now, ctx.actor.id
+    log_action(
+        db,
+        ctx.merchant_id,
+        "cod_settlement",
+        "confirm_settlement",
+        ctx.actor,
+        key=f"stl:{st.id}",
+        resource_type="cod_settlement",
+        resource_id=st.id,
+    )
     st.bank_reference = (bank_reference or "").strip()[:120] or None
     audit.record(
         db,
