@@ -10,6 +10,8 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { useAction } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { ControlCenter } from "../automation/ControlCenter";
+import { AutopilotScoreCard } from "../intelligence/AutopilotScoreCard";
+import { Recommendations } from "../intelligence/Recommendations";
 import styles from "./home.module.css";
 import { useExceptions } from "./useExceptions";
 
@@ -38,6 +40,8 @@ export function HomeView() {
       />
 
       <ControlCenter onChanged={exceptions.query.reload} />
+      <Recommendations />
+      <AutopilotScoreCard />
 
       {exceptions.commandError ? (
         <div style={{ marginTop: "var(--space-4)" }}>

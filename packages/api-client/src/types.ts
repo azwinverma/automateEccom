@@ -1144,6 +1144,7 @@ export interface FulfillmentSettings {
   notify_customers: boolean;
   default_weight_grams: number;
   recovery_wait_hours: number;
+  courier_selection: "rules" | "cheapest" | "fastest" | "smart" | "preferred";
 }
 
 export type FeeScope = "default" | "inside_valley" | "district";
@@ -1188,8 +1189,13 @@ export interface CourierOptions {
   recommendation: {
     courier_account_id: string;
     service_code: string | null;
-    reason: "default_courier" | "cheapest" | "only_option";
-    method: "rules" | (string & {});
+    reason: "default_courier" | "cheapest" | "only_option" | "route_history" | "preferred_only";
+    method: "rules" | "courier_brain" | (string & {});
+    /** Courier Brain: delivery record on this route behind the pick. */
+    evidence?: { success_pct: number; n: number; period_days: number; eta_p50_days: number | null; price_above_cheapest_minor: number };
+    /** Cold start: not enough finished parcels on this route yet, so the rules picked. */
+    note?: "not_enough_route_data";
+    min_sample?: number;
   } | null;
 }
 
@@ -1663,4 +1669,105 @@ export interface ControlCenter {
   automation: { done_automatically: number; done_by_team: number; share_automatic: number | null };
   needs_attention: { approvals: number; exceptions: number; urgent: number };
   feed: DecisionRecordView[];
+}
+
+/* ---------- Phase 6 (part A): Autopilot Score, recommendations, Courier Brain, COD Intelligence ---------- */
+
+export type ApsCapability = "customer_replies" | "order_capture" | "shipment_creation" | "pickup_requests" | "delivery_notifications" | "delivery_recovery" | "returns" | "refunds" | "marketing";
+
+export interface ApsCapabilityScore {
+  A: number;
+  F: number;
+  M: number;
+  X: number;
+  excluded: Record<string, number>;
+  eligible: number;
+  /** null = fewer than min_eligible operations: "not enough activity", never 0% or 100%. */
+  score: number | null;
+  status: "ok" | "not_enough_activity";
+  steps_saved: number;
+}
+
+export interface ApsLever {
+  capability: ApsCapability | (string & {});
+  gap: number;
+  current_score: number | null;
+  potential_score: number | null;
+  eligible: number;
+  lever: { type: "set_mode" | "plan_upgrade" | "activate_template" | "enable_r2" | "enable_return_auto_approve" | "enable_customer_notifications"; params: Record<string, string> };
+}
+
+export interface AutopilotScore {
+  window_days: number;
+  overall: number | null;
+  eligible: number;
+  capabilities: Record<string, ApsCapabilityScore>;
+  hours_saved_estimate: number;
+  method_version: string;
+  min_eligible: number;
+  levers: ApsLever[];
+  history: { date: string; overall: number | null; anomaly: string | null }[];
+}
+
+export interface RecommendationView {
+  id: string;
+  type: "autopilot_improvement" | "courier_selection" | "restock" | (string & {});
+  status: "open" | "accepted" | "rejected" | "expired" | "executed" | "failed";
+  subject_type: string | null;
+  subject_id: string | null;
+  explanation: { what: string; why: string; vars: Record<string, string | number | null> };
+  evidence: Record<string, unknown>[];
+  confidence: number;
+  estimated_impact: Record<string, number | string | null>;
+  action: { type: string; params?: Record<string, string> };
+  method_version: string;
+  created_at: string;
+  expires_at: string | null;
+  resolved_at: string | null;
+  reason: string | null;
+  outcome: Record<string, unknown> | null;
+  outcome_measured_at: string | null;
+}
+
+export interface CodRiskFactor {
+  code: "delivery_history" | "new_customer" | "return_history" | "address_completeness" | "order_value" | "route_failures";
+  contribution: number;
+  evidence: Record<string, number | string | boolean | null>;
+}
+
+export interface CodRiskAssessment {
+  order_id: string;
+  level: "LOW" | "MEDIUM" | "HIGHER";
+  model_level: "LOW" | "MEDIUM" | "HIGHER";
+  score: number;
+  factors: CodRiskFactor[];
+  recommended_action: "cod_ok" | "verify_phone" | "request_partial_advance" | "manual_review";
+  model_version: string;
+  data_completeness: number;
+  overridden: boolean;
+  override_reason: string | null;
+  disputed: boolean;
+  dispute_note: string | null;
+  outcome: "delivered" | "failed" | "returned" | "cancelled" | null;
+  created_at: string;
+}
+
+export interface CourierPerformanceRow {
+  courier_account_id: string;
+  courier_name: string | null;
+  origin: string;
+  destination: string;
+  weight_band: string;
+  cod: boolean;
+  n: number;
+  delivery_success: number | null;
+  first_attempt_success: number | null;
+  failed_rate: number | null;
+  eta_p50_days: number | null;
+  eta_p90_days: number | null;
+  avg_price_minor: number | null;
+  cod_settlement_days: number | null;
+  enough_data: boolean;
+  period_days: number;
+  computed_at: string;
 }

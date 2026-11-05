@@ -114,6 +114,7 @@ class SettingsIn(BaseModel):
     notify_customers: bool | None = None
     default_weight_grams: int | None = Field(default=None, ge=1, le=100000)
     recovery_wait_hours: int | None = Field(default=None, ge=1, le=168)
+    courier_selection: Literal["rules", "cheapest", "fastest", "smart", "preferred"] | None = None
 
 
 class FeeRuleIn(BaseModel):

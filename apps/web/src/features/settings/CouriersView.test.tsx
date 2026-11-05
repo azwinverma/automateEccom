@@ -9,6 +9,7 @@ vi.mock("next/navigation", async (orig) => ({ ...(await orig<typeof import("next
 
 const api = {
   couriers: { list: vi.fn(), providers: vi.fn(), connect: vi.fn(), update: vi.fn(), disconnect: vi.fn(), feeRules: vi.fn(), saveFeeRules: vi.fn(), settings: vi.fn(), updateSettings: vi.fn() },
+  intelligence: { courierPerformance: vi.fn(async () => ({ items: [], min_sample: 20, period_days: 90, method_version: "cri-1.0" })) },
   reference: { nepal: vi.fn(async () => ({ provinces: [], districts: [{ code: "kathmandu", name: "Kathmandu", province: "bagmati" }, { code: "kaski", name: "Kaski", province: "gandaki" }], max_ward: 35 })) },
 };
 let perms = new Set(["fulfillment.read", "settings.manage"]);
@@ -25,7 +26,7 @@ beforeEach(() => {
     ],
   });
   api.couriers.feeRules.mockResolvedValue({ items: [] });
-  api.couriers.settings.mockResolvedValue({ notify_customers: true, default_weight_grams: 500, recovery_wait_hours: 24 });
+  api.couriers.settings.mockResolvedValue({ notify_customers: true, default_weight_grams: 500, recovery_wait_hours: 24, courier_selection: "smart" });
 });
 
 describe("CouriersView", () => {

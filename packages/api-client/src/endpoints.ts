@@ -61,6 +61,10 @@ import type {
   AdminWebhookEvent,
   AddressInput,
   CodSummary,
+  AutopilotScore,
+  CodRiskAssessment,
+  CourierPerformanceRow,
+  RecommendationView,
   AutomationApproval,
   AutomationCatalog,
   AutomationPolicy,
@@ -586,6 +590,23 @@ export function createApi(client: ApiClient) {
       decisions: (decision?: PolicyDecision) => client.request<{ items: DecisionRecordView[] }>("/automation/decisions", { tenant: true, query: { decision } }),
     },
     controlCenter: (days = 7) => client.request<ControlCenter>("/control-center", { tenant: true, query: { days } }),
+    intelligence: {
+      autopilotScore: (windowDays = 30) => client.request<AutopilotScore>("/intelligence/autopilot-score", { tenant: true, query: { window_days: windowDays } }),
+      recommendations: (status: RecommendationView["status"] = "open") =>
+        client.request<{ items: RecommendationView[] }>("/intelligence/recommendations", { tenant: true, query: { status } }),
+      refreshRecommendations: () => client.request<{ created: number }>("/intelligence/recommendations/refresh", { method: "POST", tenant: true }),
+      accept: (id: string) => client.request<RecommendationView>(`/intelligence/recommendations/${encodeURIComponent(id)}/accept`, { method: "POST", tenant: true }),
+      reject: (id: string, reason: string) =>
+        client.request<RecommendationView>(`/intelligence/recommendations/${encodeURIComponent(id)}/reject`, { method: "POST", body: { reason }, tenant: true }),
+      codAssessment: (orderId: string) => client.request<CodRiskAssessment>(`/intelligence/cod/assessments/${encodeURIComponent(orderId)}`, { tenant: true }),
+      codAssess: (orderId: string) => client.request<CodRiskAssessment>(`/intelligence/cod/assessments/${encodeURIComponent(orderId)}/assess`, { method: "POST", tenant: true }),
+      codOverride: (orderId: string, level: CodRiskAssessment["level"], reason: string) =>
+        client.request<CodRiskAssessment>(`/intelligence/cod/assessments/${encodeURIComponent(orderId)}/override`, { method: "POST", body: { level, reason }, tenant: true }),
+      codDispute: (orderId: string, note: string) =>
+        client.request<CodRiskAssessment>(`/intelligence/cod/assessments/${encodeURIComponent(orderId)}/dispute`, { method: "POST", body: { note }, tenant: true }),
+      courierPerformance: (refresh = false) =>
+        client.request<{ items: CourierPerformanceRow[]; min_sample: number; period_days: number; method_version: string }>("/intelligence/couriers/performance", { tenant: true, query: { refresh } }),
+    },
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {
       simulate: (accountId: string, body: { tracking_number: string; status: ShipmentStatus; failure_reason?: FailureReason | null }) =>

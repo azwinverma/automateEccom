@@ -146,3 +146,21 @@ def resume_workflows() -> int:
 
     with session_scope() as db:
         return resume_due(db)
+
+
+@celery.task(name="app.worker.tasks.nightly_intelligence", ignore_result=True)
+def nightly_intelligence() -> dict[str, int]:
+    """Phase 6: Courier Brain metrics, Autopilot Score snapshots, recommendations and their outcomes."""
+    from app.domains.intelligence import aps, courier_brain, recommendations
+
+    stats: dict[str, int] = {}
+    with session_scope() as db:
+        stats["courier_merchants"] = courier_brain.recompute_all(db)
+    with session_scope() as db:
+        stats["aps_snapshots"] = aps.snapshot_all(db)
+    with session_scope() as db:
+        stats["recommendations"] = recommendations.generate_all(db)
+    with session_scope() as db:
+        stats.update(recommendations.measure(db))
+    log.info("nightly_intelligence", **stats)
+    return stats

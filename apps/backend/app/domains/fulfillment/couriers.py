@@ -254,6 +254,7 @@ def get_settings_row(db: Session, merchant_id: uuid.UUID) -> FulfillmentSettings
             notify_customers=True,
             default_weight_grams=500,
             recovery_wait_hours=24,
+            courier_selection="smart",
             created_at=utcnow(),
             updated_at=utcnow(),
         )
@@ -269,6 +270,7 @@ def settings_view(s: FulfillmentSettings) -> dict[str, Any]:
         "notify_customers": s.notify_customers,
         "default_weight_grams": s.default_weight_grams,
         "recovery_wait_hours": s.recovery_wait_hours,
+        "courier_selection": s.courier_selection,
     }
 
 
@@ -470,7 +472,7 @@ def courier_options(db: Session, ctx: TenantContext, o: Order, weight_grams: int
         pick, reason = options[0], "only_option" if len(options) == 1 else "default_courier"
     for x in options:
         x["recommended"] = x is pick
-    return {
+    result = {
         "weight_grams": weight_grams,
         "cod_amount_minor": cod_minor,
         "options": options,
@@ -486,3 +488,12 @@ def courier_options(db: Session, ctx: TenantContext, o: Order, weight_grams: int
             else None
         ),
     }
+    # Courier Brain (Pro+): re-rank by this shop's own route history; rules stay the cold-start answer.
+    from app.domains.billing.service import entitlements
+
+    mode = get_settings_row(db, ctx.merchant_id).courier_selection
+    if mode != "rules" and entitlements.resolve(db, ctx.merchant_id).has("intelligence.courier"):
+        from app.domains.intelligence import courier_brain
+
+        result = courier_brain.rank(db, ctx.merchant_id, o, result, mode)
+    return result

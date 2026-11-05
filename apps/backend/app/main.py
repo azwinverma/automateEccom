@@ -56,6 +56,7 @@ def create_app() -> FastAPI:
     from app.domains.fulfillment.router import router as fulfillment
     from app.domains.fulfillment.router import webhooks_router as courier_webhooks
     from app.domains.inbox.router import router as inbox
+    from app.domains.intelligence.router import router as intelligence
     from app.domains.inventory.router import router as inventory
     from app.domains.media.router import dev_router as media_dev
     from app.domains.media.router import router as media
@@ -95,6 +96,7 @@ def create_app() -> FastAPI:
         fulfillment_dev,  # dev-only simulator; each route 404s in staging/production
         returns,
         automation,
+        intelligence,
         exceptions,
         audit,
         platform,

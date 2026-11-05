@@ -14,6 +14,7 @@ import { useAction, useApiQuery } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { ErrorAlert, useNepalReference } from "../orders/shared";
 import fstyles from "../fulfillment/fulfillment.module.css";
+import { CourierPerformance } from "../intelligence/CourierPerformance";
 
 const EMPTY_PICKUP: PickupAddress = { name: "", phone: "", district: "", municipality: "", area: "" };
 const toRs = (minor: number | null | undefined) => (minor == null ? "" : String(minor / 100));
@@ -123,6 +124,7 @@ export function CouriersView() {
       )}
 
       <DeliveryFees manage={manage} />
+      <CourierPerformance />
       <NotifySettings manage={manage} />
 
       <AddCourier
@@ -450,6 +452,19 @@ function NotifySettings({ manage }: { manage: boolean }) {
               {t("couriers.notify.hint")}
             </p>
           </div>
+          <SelectField
+            label={t("intel.courier.selection")}
+            hint={t("intel.courier.selectionHint")}
+            value={form.courier_selection}
+            disabled={!manage}
+            onChange={(e) => setForm({ ...form, courier_selection: e.target.value as FulfillmentSettings["courier_selection"] })}
+          >
+            {(["smart", "cheapest", "fastest", "preferred", "rules"] as const).map((m) => (
+              <option key={m} value={m}>
+                {t(`intel.courier.mode.${m}`)}
+              </option>
+            ))}
+          </SelectField>
           <TextField
             label={t("couriers.notify.wait")}
             type="number"

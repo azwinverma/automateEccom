@@ -40,6 +40,7 @@ celery.conf.update(
         "purge-idempotency": {"task": "app.worker.tasks.purge_idempotency", "schedule": 3600.0},
         # FUL-006: polling is per-shipment rate limited (30 min, 6 h for webhook couriers).
         # AUT-007/010: workflow waits and retries come due.
+        "nightly-intelligence": {"task": "app.worker.tasks.nightly_intelligence", "schedule": 24 * 3600.0},
         "resume-workflows": {"task": "app.worker.tasks.resume_workflows", "schedule": 60.0},
         "poll-shipments": {"task": "app.worker.tasks.poll_shipments", "schedule": 300.0},
         "escalate-delivery-recoveries": {

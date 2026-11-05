@@ -415,6 +415,7 @@ def open_exceptions(
         "stock_short": ("inventory_mismatch", "high", "fix_stock"),
         "unmatched_items": ("ambiguous_variant", "high", "review_order"),
         "address_incomplete": ("ambiguous_variant", "normal", "review_order"),
+        "cod_risk": ("high_risk_cod", "high", "review_order"),
     }
     for o in db.scalars(
         select(Order).where(

@@ -102,6 +102,10 @@ class FulfillmentSettings(IdMixin, TimestampMixin, TenantScoped, Base):
         UniqueConstraint("merchant_id"),
         CheckConstraint("default_weight_grams between 1 and 100000", name="weight"),
         CheckConstraint("recovery_wait_hours between 1 and 168", name="recovery_wait"),
+        CheckConstraint(
+            "courier_selection in ('rules','cheapest','fastest','smart','preferred')",
+            name="courier_selection",
+        ),
     )
 
     # FUL-007: message customers about shipping where we're permitted (a conversation they started).
@@ -109,6 +113,10 @@ class FulfillmentSettings(IdMixin, TimestampMixin, TenantScoped, Base):
     default_weight_grams: Mapped[int] = mapped_column(Integer, default=500, nullable=False)
     # FUL-008: how long to wait for the customer after a failed delivery before escalating.
     recovery_wait_hours: Mapped[int] = mapped_column(Integer, default=24, nullable=False)
+    # FUL-009/CRI-003: how Courier Brain picks (rules | cheapest | fastest | smart | preferred). Pro+.
+    courier_selection: Mapped[str] = mapped_column(
+        String(10), default="smart", server_default="smart", nullable=False
+    )
 
 
 class DeliveryFeeRule(IdMixin, TimestampMixin, TenantScoped, Base):

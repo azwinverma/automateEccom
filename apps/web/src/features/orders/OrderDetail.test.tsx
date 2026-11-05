@@ -24,7 +24,8 @@ function order(over: Partial<OrderDetail> = {}): OrderDetail {
 const orders = { get: vi.fn(), timeline: vi.fn(async () => ({ items: [] })), payments: vi.fn(async () => ({ items: [] })), transition: vi.fn(), recordPayment: vi.fn(), addNote: vi.fn(), cancelLines: vi.fn(), startOnlinePayment: vi.fn(), switchToCod: vi.fn(), verifyPayment: vi.fn() };
 const shipments = { forOrder: vi.fn(async () => ({ items: [] })) };
 const couriers = { list: vi.fn(async () => ({ items: [] })), rates: vi.fn() };
-const api = { orders, shipments, couriers };
+const intelligence = { codAssessment: vi.fn(async () => Promise.reject(Object.assign(new Error("not in plan"), { status: 403 }))) };
+const api = { orders, shipments, couriers, intelligence };
 let perms = new Set(["orders.read", "orders.write", "orders.cancel", "payments.read", "payments.write"]);
 vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
 

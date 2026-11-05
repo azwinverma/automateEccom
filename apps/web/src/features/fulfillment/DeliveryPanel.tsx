@@ -175,7 +175,7 @@ function BookCourier({ order, onBooked }: { order: OrderDetail; onBooked: () => 
                       <Badge tone="automated" dot={false}>
                         {t("fulfillment.panel.recommended")}
                       </Badge>{" "}
-                      {t(`fulfillment.panel.why.${data.recommendation.reason}`)}
+                      {whyText(t, data.recommendation)}
                     </span>
                   ) : null}
                 </span>
@@ -188,7 +188,15 @@ function BookCourier({ order, onBooked }: { order: OrderDetail; onBooked: () => 
               {t(`fulfillment.panel.unavailable.${u.reason}`, { name: u.display_name })}
             </p>
           ))}
-          {data.recommendation ? <p className={styles.muted} style={{ margin: 0 }}>{t("fulfillment.panel.rulesNote")}</p> : null}
+          {data.recommendation?.note === "not_enough_route_data" ? (
+            <p className={styles.muted} style={{ margin: 0 }} data-testid="cold-start">
+              {t("intel.courier.coldStart")}
+            </p>
+          ) : data.recommendation && data.recommendation.method === "rules" ? (
+            <p className={styles.muted} style={{ margin: 0 }}>
+              {t("fulfillment.panel.rulesNote")}
+            </p>
+          ) : null}
           {chosen?.manual ? (
             <>
               <TextField label={t("fulfillment.panel.courierName")} value={courierName} onChange={(e) => setCourierName(e.target.value)} maxLength={80} placeholder={chosen.display_name} />
@@ -210,6 +218,16 @@ function BookCourier({ order, onBooked }: { order: OrderDetail; onBooked: () => 
       ) : null}
     </form>
   );
+}
+
+function whyText(t: ReturnType<typeof useI18n>["t"], rec: NonNullable<CourierOptions["recommendation"]>): string {
+  if (rec.reason === "route_history" && rec.evidence) {
+    const e = rec.evidence;
+    const base = t("intel.courier.brain", { pct: e.success_pct, n: e.n, days: e.period_days });
+    return e.price_above_cheapest_minor > 0 ? `${base} · ${t("intel.courier.brainPrice", { diff: Math.round(e.price_above_cheapest_minor / 100) })}` : base;
+  }
+  if (rec.reason === "preferred_only") return t("intel.courier.preferred");
+  return t.dynamic(`fulfillment.panel.why.${rec.reason}`) ?? "";
 }
 
 // ----------------------------------------------------------------------------- the parcel
