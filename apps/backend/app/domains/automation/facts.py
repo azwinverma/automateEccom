@@ -147,7 +147,10 @@ def _order_facts(db: Session, order_id: uuid.UUID) -> dict[str, Any]:
         "order.source": o.source,
         "order.district": o.ship_district,
         "order.inside_valley": o.ship_district in INSIDE_VALLEY if o.ship_district else None,
-        "order.address_complete": o.address_completeness >= 0.99,
+        # What a courier needs (landmark/area are helpful but optional).
+        "order.address_complete": all(
+            (o.ship_name, o.ship_phone, o.ship_district, o.ship_municipality, o.ship_ward)
+        ),
         "order.needs_review": o.needs_review is not None,
         "order.has_chat": _conversation_for(db, o) is not None,
         "order.customer_name": o.ship_name,

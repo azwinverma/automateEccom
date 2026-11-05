@@ -45,6 +45,20 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
 
+## Phase 5 (Automation + Control Center): built 2026-11-05
+- **Built and tested:** one Decision Policy for every automated action (workflows, Sales Agent auto-send,
+  delivery reattempts, return auto-approve/refund), merchant thresholds with audited loosening,
+  decision records, the operational action log (APS source), the workflow engine (versions, triggers,
+  conditions, waits, branches, approvals, retries, circuit breaker, dry-run, 6 templates), and the
+  Control Center with real numbers. Web: Home Control Center, Automation (workflows, templates, rules &
+  limits, activity), builder. Mobile: Control Center, approvals, feed, workflows on/off.
+- **Exit criterion met in E2E** (desktop + 360px, live API + worker): template workflow → approval in
+  Assisted → automatic in Smart → Control Center feed explains why; every decision on record.
+- **Totals (2026-11-05):** backend 303 passed (20 migrations); web 266 + api-client 25; E2E 28/28;
+  mobile 129 passed + 1 live-only skipped; axe 0 violations on 5 Phase 5 pages (light, dark, 360px).
+- **Not production-ready:** scheduled triggers and higher-risk actions (refunds, discounts, price
+  changes, POs) aren't workflow actions yet; seller email notices need a production email provider.
+
 ## Phase 4 (Returns, exchanges, refunds): built 2026-11-04
 - **Built and tested:** return policy, eligibility with audited overrides, abuse signals, return
   pickups through the courier layer, inspection with restock, exchanges with reserved stock,
@@ -332,25 +346,25 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | RET-010 | auto-refund threshold | P4 | TESTED | PAY-007 | apps/backend/app/domains/returns/service.py | test_returns::test_prepaid_auto_refund…, test_refund_above_threshold… | Auto-refund only to the original online payment, within the threshold, without abuse signals; above it a manager approves (staff may raise refunds) |
 | RET-011 | abuse signals | P4 | TESTED | — | apps/backend/app/domains/returns/service.py::abuse_signals | test_returns::test_frequent_returner… | Merchant-scoped facts only (frequent returns, high return rate, high value vs usual order); shown neutrally; turn automation off. Never names/gender/caste/location traits or cross-merchant data |
 | RET-012 | controlled return-reason vocabulary + free text [pull-forward for RTI] | P4 | TESTED | RET-003 | apps/backend/app/domains/returns/models.py | test_returns | 10 controlled reasons (DB check) + customer's words; conditions at inspection |
-| AUT-001 | workflow schema | P5 | NOT_STARTED | — | — | — |  |
-| AUT-002 | triggers | P5 | NOT_STARTED | — | — | — |  |
-| AUT-003 | conditions | P5 | NOT_STARTED | — | — | — |  |
-| AUT-004 | actions | P5 | NOT_STARTED | — | — | — |  |
-| AUT-005 | versions | P5 | NOT_STARTED | — | — | — |  |
-| AUT-006 | execution | P5 | NOT_STARTED | — | — | — |  |
-| AUT-007 | delay | P5 | NOT_STARTED | — | — | — |  |
-| AUT-008 | branch | P5 | NOT_STARTED | — | — | — |  |
-| AUT-009 | approval | P5 | NOT_STARTED | — | — | — |  |
-| AUT-010 | retry | P5 | NOT_STARTED | — | — | — |  |
-| AUT-011 | exceptions | P5 | NOT_STARTED | — | — | — |  |
-| AUT-012 | logs | P5 | NOT_STARTED | — | — | — |  |
-| AUT-013 | templates | P5 | NOT_STARTED | — | — | — |  |
-| AUT-014 | builder UI | P5 | NOT_STARTED | — | — | — |  |
-| AUT-015 | dry-run | P5 | NOT_STARTED | — | — | — |  |
-| AUT-016 | Autonomous Decision Policy: risk classes R0–R4, mode × class matrix, confidence + staleness gates | P5 | NOT_STARTED | — | — | — |  |
-| AUT-017 | merchant thresholds (refund, discount, PO, campaign budget, stock transfer, price-change band) with audit | P5 | NOT_STARTED | — | — | — |  |
-| AUT-018 | AutomationActionLog: actor/outcome/eligibility/exclusion for every operational action (APS source) | P5 | NOT_STARTED | ORD-001 | — | — | Instrument from Phase 2 onward; APS source |
-| AUT-019 | decision records (inputs refs, rule hit, confidence, impact) + seller-facing explanation | P5 | NOT_STARTED | — | — | — |  |
+| AUT-001 | workflow schema | P5 | TESTED | — | apps/backend/app/domains/automation/models.py, engine.py::validate | test_automation::test_workflows_need… | Trigger + steps (condition, branch, wait, action, approval), forward-only jumps, ≤20 steps, validated per subject |
+| AUT-002 | triggers | P5 | TESTED | — | apps/backend/app/domains/automation/facts.py::TRIGGERS | test_automation | Order created/status, parcel status, return status, low stock, channel expired; filter on the event's own status. Schedules not built (GAP-AUT-SCHEDULE) |
+| AUT-003 | conditions | P5 | TESTED | — | apps/backend/app/domains/automation/facts.py | test_automation | Typed fields per subject; all/any; facts re-read at every step; missing data never passes |
+| AUT-004 | actions | P5 | TESTED | — | apps/backend/app/domains/automation/actions.py | test_automation | 8 typed actions (notify, note, customer message, review request, book courier, pickup, reattempt, approve return) with risk class, impact, capability; idempotency key run+step |
+| AUT-005 | versions | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py | test_automation::test_editing_creates… | Immutable versions; runs pin theirs |
+| AUT-006 | execution | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py | test_automation, e2e phase5 | Outbox-triggered, one run per workflow per event |
+| AUT-007 | delay | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py::resume_due | test_automation::test_failed_delivery_followup… | Waits 1–720 h; worker resumes every minute |
+| AUT-008 | branch | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py | test_automation::test_failed_delivery_followup… | If/otherwise to forward steps or stop |
+| AUT-009 | approval | P5 | TESTED | AUT-016 | apps/backend/app/domains/automation/engine.py::resolve_approval | test_automation::test_assisted_mode…, e2e phase5 | Policy or explicit approval steps; automation.approve; facts re-checked at approval |
+| AUT-010 | retry | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py::_execute | test_automation::test_retries… | Retryable provider errors: 3 attempts with backoff, same idempotency key |
+| AUT-011 | exceptions | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py::_maybe_trip_breaker; exceptions/service.py | test_automation::test_retries… | Circuit breaker pauses workflows using a failing action and raises an urgent exception; approvals in the Exception Inbox |
+| AUT-012 | logs | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py::run_view | test_automation | Run + step trace with decisions in the builder |
+| AUT-013 | templates | P5 | TESTED | — | apps/backend/app/domains/automation/templates.py | test_automation | 6 commerce templates (en/ne messages) |
+| AUT-014 | builder UI | P5 | TESTED | — | apps/web/src/features/automation/WorkflowBuilder.tsx | Automation.test, e2e phase5 | Form-based builder: trigger + filters, step editor with conditions, branches, waits, actions, approvals |
+| AUT-015 | dry-run | P5 | TESTED | — | apps/backend/app/domains/automation/engine.py::dry_run | test_automation::test_dry_run…, e2e phase5 | Real facts, real policy decision, nothing recorded or executed |
+| AUT-016 | Autonomous Decision Policy: risk classes R0–R4, mode × class matrix, confidence + staleness gates | P5 | TESTED | — | apps/backend/app/domains/automation/policy.py::decide | test_automation::test_decision_matrix (9 cases) | One function for workflows, Sales Agent, delivery recovery and returns automation. Staleness gate waits for the Digital Twin (Phase 9) |
+| AUT-017 | merchant thresholds (refund, discount, PO, campaign budget, stock transfer, price-change band) with audit | P5 | TESTED | — | apps/backend/app/domains/automation/policy.py | test_automation::test_loosening… | Loosening needs automation.approve and is audited as high risk |
+| AUT-018 | AutomationActionLog: actor/outcome/eligibility/exclusion for every operational action (APS source) | P5 | TESTED | ORD-001 | apps/backend/app/domains/automation/policy.py::log_action (+ orders, inbox, fulfillment, returns, settlement) | test_automation | Idempotent per action; performed by automation/ai/user/system; human intervention flag |
+| AUT-019 | decision records (inputs refs, rule hit, confidence, impact) + seller-facing explanation | P5 | TESTED | — | apps/backend/app/domains/automation/models.py::DecisionRecord | test_automation | Rule → plain-words explanation in Control Center, approvals and Activity |
 | AUT-020 | intelligence-derived triggers and profit-aware conditions (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
 | AUT-021 | recommendation → policy → approval → idempotent execution path (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
 | ANA-001 | sales | P5 | NOT_STARTED | — | — | — |  |
@@ -396,7 +410,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-013 | real states | P1 | IN_PROGRESS | — | apps/web, apps/mobile | component tests | Loading/empty/error/offline/permission states for Phase 0 screens |
 | UX-014 | accessibility | P1 | IN_PROGRESS | — | apps/web, apps/mobile | — | Keyboard, focus, labels, 48dp; no full screen-reader audit yet |
 | UX-015 | bilingual review | P1 | IN_PROGRESS | — | apps/web/src/i18n, apps/mobile/lib/core/l10n/arb | key-parity tests | en/ne complete for Phase 0; Nepali not yet reviewed by a native copy editor |
-| UX-016 | Autopilot Control Center (home): "Your store is running." + Needs Your Attention (Phase 5) | P5 | NOT_STARTED | — | — | — |  |
+| UX-016 | Autopilot Control Center (home): "Your store is running." + Needs Your Attention (Phase 5) | P5 | TESTED | AUT-018 | apps/backend/app/domains/automation/control.py; apps/web/src/features/automation/ControlCenter.tsx; mobile control_center.dart | Automation.test, mobile tests, e2e phase5 | Real 7-day numbers, automatic vs team share, approvals, autopilot feed |
 | UX-017 | Autopilot Score component (breakdown, exclusions, thin-data state) (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
 | UX-018 | Product Brain card (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
 | UX-019 | Recommendation / Profit Recommendation Card with explanation pattern (Phase 6) | P6 | NOT_STARTED | — | — | — |  |

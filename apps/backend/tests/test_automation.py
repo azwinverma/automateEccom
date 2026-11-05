@@ -569,3 +569,22 @@ def test_workflows_are_tenant_isolated(client, seller):
         ).status_code
         == 404
     )
+
+
+def test_address_complete_means_what_a_courier_needs(client, seller):
+    from app.domains.automation.facts import facts_for
+
+    _, vid = item(client, seller)
+    body = {
+        "lines": [{"variant_id": vid, "quantity": 1}],
+        "address": {
+            "recipient_name": "Bimal",
+            "phone": "9841234567",
+            "district": "Lalitpur",
+            "municipality": "Lalitpur Metropolitan City",
+            "ward": 2,
+        },
+    }
+    o = client.post(f"{API}/orders", headers=seller.h(), json=body).json()  # no area, no landmark
+    with session_scope() as db:
+        assert facts_for(db, "order", o["id"])["order.address_complete"] is True

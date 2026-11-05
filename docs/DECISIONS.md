@@ -429,3 +429,28 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 - **Why:** the customer shouldn't lose their size while the parcel travels back, and the shop
   shouldn't send the replacement before the original is back.
 
+## ADR-057: One Decision Policy for every automated action (AUT-016, 2026-11-05)
+- **Decision:** workflows, the Sales Agent's auto-send, delivery reattempts and return auto-approve /
+  auto-refund all call `policy.decide()` and store a DecisionRecord (rule, risk, mode, confidence,
+  impact, inputs). Feature-specific opt-ins (the returns policy's auto-approve) count as the R2
+  enablement, but the shop's mode still applies: Assisted never auto-executes anything above R0.
+- **Why:** spec 06 requires a single, explainable policy; sellers need one mental model for "what
+  runs on its own". Behaviour change: return auto-approve no longer runs in Assisted mode.
+
+## ADR-058: Workflow triggers filter on the event's own status; facts are read live (AUT-002/003, 2026-11-05)
+- **Decision:** a status filter matches the status the event announced, not the record's current
+  status. Conditions and actions read facts from Commerce Core at each step and again at approval.
+- **Why:** queued events can be processed after the record moved on; acting on the current state
+  avoids double runs and stale decisions (found by tests: a "confirmed" event matched "packed").
+
+## ADR-059: Workflows can't loop; edits are new versions; new workflows start off (AUT-001/005, 2026-11-05)
+- **Decision:** jumps go forward only (max 20 steps), editing creates an immutable version that new
+  runs use, and turning a workflow on needs automation.approve.
+- **Why:** predictable, auditable automation; a draft can be built and dry-run safely.
+
+## ADR-060: The action log is the Autopilot Score source (AUT-018, 2026-11-05)
+- **Decision:** order capture/processing, courier booking/pickup, reattempts, customer messages,
+  return decisions, refunds, settlement confirmations and workflow actions log performer
+  (automation/ai/user/system), outcome and human intervention, idempotently.
+- **Why:** APS (Phase 6) needs a trustworthy numerator/denominator from Phase 5 onward.
+

@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-04 after Phase 1 completion and Phases 2–4.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-05 after Phase 1 completion and Phases 2–5.
 
 ## Overall status: **NOT_READY**
 
@@ -13,8 +13,8 @@ Nivaro is still **not production ready**, for reasons outside the code that exis
 1. **The commerce loop is built up to delivery and cash, but only against sandboxes.** Phases 2–3
    (inbox, AI Sales Agent, chat-to-order, orders, inventory, payments, couriers, tracking,
    failed-delivery recovery, COD settlement) are built and tested end to end. No real Nepal courier
-   API is integrated (own-rider/manual deliveries do work). Returns, exchanges and refunds (Phase 4) are built; automation
-   (Phase 5) is not.
+   API is integrated (own-rider/manual deliveries do work). Returns, exchanges and refunds (Phase 4) and automation with the
+   Decision Policy and Control Center (Phase 5) are built.
 2. **No staging or production environment, monitoring, alerting, runbooks or backup regime exists.** These are Definition of Done requirements (24).
 3. **No external integration has been exercised live:**
    - AI providers
@@ -173,4 +173,23 @@ Fixed while building: abuse signals counted the request being created; refund st
 
 Overall status remains **NOT_READY** (real courier API, Nepal payment gateway for online refunds,
 live channels, staging, backups, pentest).
+
+## Update 2026-11-05 (Phase 5: automation, Decision Policy, Control Center)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 303 | 303 | 0 | 0 |
+| Web unit + API client | 291 | 291 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 28 | 28 | 0 | 0 |
+| Flutter | 130 | 129 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 5 pages (5 pages × 3 configs) | 15 | 15 | 0 | 0 |
+
+Exit flow verified in E2E: template workflow → dry run → approval in Assisted → automatic in Smart →
+Control Center feed with the reason; all decisions recorded.
+
+Fixed while building: trigger filters matched the record's current status instead of the event's
+(double runs); the circuit breaker missed the failure just recorded; "address complete" required the
+optional landmark, which would have blocked courier booking for normal orders.
+
+Overall status remains **NOT_READY** (real courier API, Nepal payment gateway, live channels,
+production email, staging, backups, pentest).
 

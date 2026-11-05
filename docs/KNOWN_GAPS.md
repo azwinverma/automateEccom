@@ -139,3 +139,7 @@ are done. The items below remain.
 | GAP-RETURN-SELF-SERVE | Med | Returns are created by the seller (or prompted by the Sales Agent's hand-over); customers have no return link/portal. | A signed customer return link once a storefront/portal exists. |
 | GAP-RETURN-EVIDENCE-UI | Low | Return lines store evidence media ids and the policy checks them, but the web/mobile forms don't upload photos yet. | Reuse the media upload flow in the Start-a-return form. |
 | GAP-EXCHANGE-PRICE | Low | Exchanges are limited to the same product at the same price (no top-up or partial refund). | Price-difference exchanges with a payment link or partial refund. |
+| GAP-AUT-SCHEDULE | Low | Workflows start from events only; no time-of-day/schedule triggers yet. | Schedule trigger (daily/weekly in the merchant's timezone) on the existing resume worker. |
+| GAP-AUT-ACTIONS | Med | Workflow actions cover messaging, courier booking/pickup, reattempts and return approval. Refunds, discounts, price changes and purchase orders aren't workflow actions yet (the policy thresholds for them exist). | Add as R2/R3 actions when the pricing/procurement domains exist (Phase 6/8). |
+| GAP-AUT-STALENESS | Info | The Decision Policy's data-freshness gate has nothing to check until the Digital Store Twin exists; facts are always read live today. | Wire max-staleness when Twin sections land (Phase 9). |
+

@@ -89,10 +89,11 @@ export function WorkflowBuilder({ id }: { id: string }) {
           <Link href="/automation" className={products.backLink}>
             ← {t("automation.builder.back")}
           </Link>
-          <h1>
-            {w.name} <Badge tone={w.status === "active" ? "success" : w.status === "paused" ? "warning" : "neutral"}>{t(`automation.status.${w.status}`)}</Badge>
-          </h1>
-          <p className={styles.muted}>{t("automation.version", { n: w.version ?? 1 })}</p>
+          <h1>{w.name}</h1>
+          <p className={styles.row} style={{ margin: 0 }}>
+            <Badge tone={w.status === "active" ? "success" : w.status === "paused" ? "warning" : "neutral"}>{t(`automation.status.${w.status}`)}</Badge>
+            <span className={styles.muted}>{t("automation.version", { n: w.version ?? 1 })}</span>
+          </p>
         </div>
         <div className={styles.row}>
           {write ? (
