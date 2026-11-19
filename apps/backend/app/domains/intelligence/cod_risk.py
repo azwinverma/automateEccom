@@ -331,7 +331,12 @@ def view(a: CODRiskAssessment) -> dict[str, Any]:
         "model_level": a.level,
         "score": a.score,
         "factors": a.factors,
-        "recommended_action": a.recommended_action,
+        # After a seller override the advice follows the level they set.
+        "recommended_action": (
+            {"LOW": "cod_ok", "MEDIUM": "verify_phone"}.get(a.override_level, a.recommended_action)
+            if a.override_level
+            else a.recommended_action
+        ),
         "model_version": a.model_version,
         "data_completeness": a.data_completeness,
         "overridden": a.override_level is not None,

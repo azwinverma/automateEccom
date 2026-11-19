@@ -11,6 +11,8 @@ import '../../../design/widgets/section_header.dart';
 import '../../../design/widgets/state_views.dart';
 import '../../fulfillment/data/fulfillment_api.dart';
 import '../../fulfillment/presentation/delivery_section.dart';
+import '../../intelligence/data/intelligence_api.dart';
+import '../../intelligence/presentation/cod_risk_card.dart';
 import '../../returns/data/returns_api.dart';
 import '../../returns/presentation/returns_section.dart';
 import '../data/orders_api.dart';
@@ -86,6 +88,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             ..invalidate(orderTimelineProvider(widget.orderId))
             ..invalidate(orderShipmentsProvider(widget.orderId))
             ..invalidate(orderReturnsProvider(widget.orderId))
+            ..invalidate(codRiskProvider(widget.orderId))
             ..invalidate(orderProvider(widget.orderId));
           await ref.read(orderProvider(widget.orderId).future);
         },
@@ -225,6 +228,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
             ],
           ),
         ),
+        CodRiskCard(orderId: widget.orderId, paymentMethod: s.paymentMethod),
         DeliverySection(order: o),
         ReturnsSection(order: o),
         if ((o.notes ?? '').isNotEmpty) ...[

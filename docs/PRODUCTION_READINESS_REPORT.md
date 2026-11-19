@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-05 after Phase 1 completion and Phases 2–5.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion, Phases 2–5 and Phase 6 part A.
 
 ## Overall status: **NOT_READY**
 
@@ -14,7 +14,8 @@ Nivaro is still **not production ready**, for reasons outside the code that exis
    (inbox, AI Sales Agent, chat-to-order, orders, inventory, payments, couriers, tracking,
    failed-delivery recovery, COD settlement) are built and tested end to end. No real Nepal courier
    API is integrated (own-rider/manual deliveries do work). Returns, exchanges and refunds (Phase 4) and automation with the
-   Decision Policy and Control Center (Phase 5) are built.
+   Decision Policy and Control Center (Phase 5) are built, as are the Autopilot Score, suggestions,
+   Courier Brain and COD risk (Phase 6 part A), which only have sandbox courier data to learn from.
 2. **No staging or production environment, monitoring, alerting, runbooks or backup regime exists.** These are Definition of Done requirements (24).
 3. **No external integration has been exercised live:**
    - AI providers
@@ -55,9 +56,9 @@ External checks that couldn't run are listed under "External tests pending".
 | Inbox / AI Sales Agent / chat-to-order | **PASS** (sandbox channel; E2E message → AI → order). Live messaging channels BLOCKED_EXTERNAL; AI replies are grounded templates (ADR-043) |
 | Orders / inventory | **PASS** (state machine, no-oversell races, imports, partial cancel) |
 | Payments / COD | Verified online payments **PASS with sandbox wallet**; manual payments and COD trail **PASS**; Nepal gateway BLOCKED_EXTERNAL (GAP-PAY-NP); COD settlement Phase 3 |
-| Fulfillment / couriers / returns | NOT_IMPLEMENTED (Phases 3–4) |
-| Automation / Autopilot | NOT_IMPLEMENTED (Phase 5) |
-| Analytics / intelligence | NOT_IMPLEMENTED (Phases 6–10) |
+| Fulfillment / couriers / returns | **PASS with sandbox/manual couriers** (E2E COD → failed attempt → delivered → settled; return → pickup → inspection → refund). Real Nepal courier API BLOCKED_EXTERNAL |
+| Automation / Autopilot | **PASS** (Decision Policy, workflows, Control Center; E2E Assisted → Smart) |
+| Analytics / intelligence | Phase 6A **PASS** (Autopilot Score, suggestions, Courier Brain, COD risk; E2E). Courier Brain on sandbox data only; Part B and Phases 7–10 NOT_IMPLEMENTED |
 | Admin | API and Nivaro Console UI **PASS** (staff + MFA, E2E); plan/routing editors not built |
 
 ## Known risks
@@ -193,3 +194,24 @@ optional landmark, which would have blocked courier booking for normal orders.
 Overall status remains **NOT_READY** (real courier API, Nepal payment gateway, live channels,
 production email, staging, backups, pentest).
 
+## Update 2026-11-19 (Phase 6 part A: Autopilot Score, suggestions, Courier Brain, COD risk)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 313 | 313 | 0 | 0 |
+| Web unit + API client | 298 | 298 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 30 | 30 | 0 | 0 |
+| Flutter | 140 | 139 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 6A pages (3 pages × 3 configs) | 9 | 9 | 0 | 0 |
+
+E2E: 30/30 in the final run. In two earlier runs on a freshly started stack, the phase 2 desktop spec
+failed with a client-side "fetch failed" before any server error; it passed alone and in the final
+full run (GAP-E2E-COLDSTART).
+
+Fixed while building: after an override the COD card still advised "review before packing"; two notes
+on the risk card ran together; the raw `cod_risk` code showed on Home instead of a label.
+
+Fairness: COD risk uses an allow-list of the merchant's own facts, never rejects automatically, and a
+static test blocks reading names or adding factors (ADR-064).
+
+Overall status remains **NOT_READY** (real courier API, which Courier Brain needs to be useful; Nepal
+payment gateway; live channels; production email; staging; backups; pentest).

@@ -47,7 +47,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get permissionDeniedTitle => 'तपाईंलाई यो हेर्ने अनुमति छैन';
 
   @override
-  String get permissionDeniedBody => 'पसलको मालिकलाई तपाईंको भूमिकामा अनुमति थप्न भन्नुहोस्।';
+  String get permissionDeniedBody =>
+      'पसलको मालिकलाई तपाईंको भूमिकामा अनुमति थप्न भन्नुहोस्।';
 
   @override
   String get featureNotInPlanTitle => 'हालको प्लानमा यो छैन';
@@ -65,7 +66,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errInvalidCredentials => 'इमेल वा पासवर्ड मिलेन।';
 
   @override
-  String get errMfaInvalidCode => 'कोड मिलेन। Authenticator एप हेरेर फेरि हाल्नुहोस्।';
+  String get errMfaInvalidCode =>
+      'कोड मिलेन। Authenticator एप हेरेर फेरि हाल्नुहोस्।';
 
   @override
   String get errPermissionDenied => 'तपाईंलाई यो गर्ने अनुमति छैन।';
@@ -77,22 +79,27 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errNotFound => 'त्यो भेटिएन।';
 
   @override
-  String get errConflict => 'यो अर्को ठाउँबाट बदलियो। रिफ्रेस गरेर फेरि प्रयास गर्नुहोस्।';
+  String get errConflict =>
+      'यो अर्को ठाउँबाट बदलियो। रिफ्रेस गरेर फेरि प्रयास गर्नुहोस्।';
 
   @override
-  String get errIdempotencyInProgress => 'अघिल्लो काम अझै चल्दैछ। एकछिन पर्खनुहोस्।';
+  String get errIdempotencyInProgress =>
+      'अघिल्लो काम अझै चल्दैछ। एकछिन पर्खनुहोस्।';
 
   @override
-  String get errIdempotencyKeyReused => 'यो पहिले नै फरक विवरणसहित पठाइसकिएको छ। फेरि सुरुबाट गर्नुहोस्।';
+  String get errIdempotencyKeyReused =>
+      'यो पहिले नै फरक विवरणसहित पठाइसकिएको छ। फेरि सुरुबाट गर्नुहोस्।';
 
   @override
-  String get errSlugTaken => 'त्यो पसल लिंक अरूले लिइसके। अर्कै नाम राख्नुहोस्।';
+  String get errSlugTaken =>
+      'त्यो पसल लिंक अरूले लिइसके। अर्कै नाम राख्नुहोस्।';
 
   @override
   String get errEmailTaken => 'यो इमेलमा पहिल्यै खाता छ। लगइन गरेर हेर्नुहोस्।';
 
   @override
-  String get errUsageLimitReached => 'यो अवधिको सीमा सकियो। क्रेडिट किन्नुहोस्, अपग्रेड गर्नुहोस् वा नवीकरण पर्खनुहोस्।';
+  String get errUsageLimitReached =>
+      'यो अवधिको सीमा सकियो। क्रेडिट किन्नुहोस्, अपग्रेड गर्नुहोस् वा नवीकरण पर्खनुहोस्।';
 
   @override
   String get errInvalidStateTransition => 'अहिलेको अवस्थामा यो गर्न मिल्दैन।';
@@ -101,25 +108,31 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errRateLimited => 'धेरै पटक प्रयास भयो। अलि पछि फेरि गर्नुहोस्।';
 
   @override
-  String get errDependencyUnavailable => 'हामीले चलाउने एउटा सेवा अहिले बन्द छ। तपाईंको डाटा सुरक्षित छ, केहीबेरमा फेरि प्रयास गर्नुहोस्।';
+  String get errDependencyUnavailable =>
+      'हामीले चलाउने एउटा सेवा अहिले बन्द छ। तपाईंको डाटा सुरक्षित छ, केहीबेरमा फेरि प्रयास गर्नुहोस्।';
 
   @override
-  String get errSessionEnded => 'सुरक्षाका लागि लगआउट गरियो। फेरि लगइन गर्नुहोस्।';
+  String get errSessionEnded =>
+      'सुरक्षाका लागि लगआउट गरियो। फेरि लगइन गर्नुहोस्।';
 
   @override
-  String get errSessionReused => 'तपाईंको लगइन अर्को डिभाइसमा चलाइयो, त्यसैले सबैतिरबाट लगआउट गरियो। फेरि लगइन गर्नुहोस्; तपाईं होइन भने पासवर्ड बदल्नुहोस्।';
+  String get errSessionReused =>
+      'तपाईंको लगइन अर्को डिभाइसमा चलाइयो, त्यसैले सबैतिरबाट लगआउट गरियो। फेरि लगइन गर्नुहोस्; तपाईं होइन भने पासवर्ड बदल्नुहोस्।';
 
   @override
-  String get errSessionRevoked => 'अर्को डिभाइसबाट यो फोन लगआउट गरियो। फेरि लगइन गर्नुहोस्।';
+  String get errSessionRevoked =>
+      'अर्को डिभाइसबाट यो फोन लगआउट गरियो। फेरि लगइन गर्नुहोस्।';
 
   @override
   String get errNetwork => 'जडान भएन। इन्टरनेट हेरेर फेरि प्रयास गर्नुहोस्।';
 
   @override
-  String get errTimeout => 'इन्टरनेट ढिलो भएर धेरै समय लाग्यो। फेरि प्रयास गर्नुहोस्।';
+  String get errTimeout =>
+      'इन्टरनेट ढिलो भएर धेरै समय लाग्यो। फेरि प्रयास गर्नुहोस्।';
 
   @override
-  String get errServer => 'हाम्रो तर्फबाट गडबड भयो। केहीबेरमा फेरि प्रयास गर्नुहोस्।';
+  String get errServer =>
+      'हाम्रो तर्फबाट गडबड भयो। केहीबेरमा फेरि प्रयास गर्नुहोस्।';
 
   @override
   String get errUnknown => 'केही गडबड भयो। फेरि प्रयास गर्नुहोस्।';
@@ -156,7 +169,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String validationPasswordTooShort(int min) {
-    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
     final String minString = minNumberFormat.format(min);
 
     return 'कम्तीमा $minString अक्षर राख्नुहोस्';
@@ -173,7 +188,9 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String passwordHint(int min) {
-    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
     final String minString = minNumberFormat.format(min);
 
     return 'कम्तीमा $minString अक्षर। सजिलै अनुमान हुने पासवर्ड नराख्नुहोस्।';
@@ -252,7 +269,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get timezoneKathmandu => 'काठमाडौं (UTC+५:४५)';
 
   @override
-  String get onboardingFixedNote => 'अहिलेलाई NPR र नेपाली समय मात्र। अरू विकल्प पछि आउँछ।';
+  String get onboardingFixedNote =>
+      'अहिलेलाई NPR र नेपाली समय मात्र। अरू विकल्प पछि आउँछ।';
 
   @override
   String get fieldDefaultLanguage => 'ग्राहक र रसिदको भाषा';
@@ -296,7 +314,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get metricNotYet => 'अहिले गनिँदैन';
 
   @override
-  String get metricNotYetBody => 'अर्डर र म्यासेज जोडिएपछि यी अंक सुरु हुन्छन्। त्यतिबेलासम्म अड्कल होइन, खाली देखाउँछौं।';
+  String get metricNotYetBody =>
+      'अर्डर र म्यासेज जोडिएपछि यी अंक सुरु हुन्छन्। त्यतिबेलासम्म अड्कल होइन, खाली देखाउँछौं।';
 
   @override
   String metricUnavailableSemantics(String metric) {
@@ -310,11 +329,13 @@ class AppLocalizationsNe extends AppLocalizations {
   String get exceptionsEmptyTitle => 'अहिले तपाईंले हेर्नुपर्ने केही छैन';
 
   @override
-  String get exceptionsEmptyBody => 'पैसा नमिलेको, डेलिभरी असफल भएको वा AI पक्का नभएका कुरा सबैभन्दा पहिले यहीँ आउँछन्।';
+  String get exceptionsEmptyBody =>
+      'पैसा नमिलेको, डेलिभरी असफल भएको वा AI पक्का नभएका कुरा सबैभन्दा पहिले यहीँ आउँछन्।';
 
   @override
   String exceptionsCount(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -375,17 +396,20 @@ class AppLocalizationsNe extends AppLocalizations {
   String get autopilotModeAutopilot => 'अटोपाइलट';
 
   @override
-  String get autopilotModeAssistedHint => 'AI सुझाव दिन्छ, तपाईं स्वीकृत गर्नुहुन्छ';
+  String get autopilotModeAssistedHint =>
+      'AI सुझाव दिन्छ, तपाईं स्वीकृत गर्नुहुन्छ';
 
   @override
-  String get autopilotModeSmartHint => 'सामान्य काम आफैं हुन्छ, जोखिमको काम तपाईंलाई पर्खन्छ';
+  String get autopilotModeSmartHint =>
+      'सामान्य काम आफैं हुन्छ, जोखिमको काम तपाईंलाई पर्खन्छ';
 
   @override
   String get autopilotModeAutopilotHint => 'तपाईंका नियमभित्र आफैं चल्छ';
 
   @override
   String autopilotAutomated(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString आफैं भयो';
@@ -393,14 +417,16 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String autopilotNeedsAttention(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString तपाईंलाई पर्खँदै';
   }
 
   @override
-  String get autopilotNotActive => 'अहिले चालू छैन। अर्डर र म्यासेज जोडिएपछि सुरु हुन्छ।';
+  String get autopilotNotActive =>
+      'अहिले चालू छैन। अर्डर र म्यासेज जोडिएपछि सुरु हुन्छ।';
 
   @override
   String get quickActionsTitle => 'छिटो काम';
@@ -430,25 +456,32 @@ class AppLocalizationsNe extends AppLocalizations {
   String get comingSoonWhat => 'यसले के गर्छ';
 
   @override
-  String get comingSoonHonest => 'त्यतिबेलासम्म यहाँ नक्कली अर्डर वा बनावटी अंक देखाइँदैन।';
+  String get comingSoonHonest =>
+      'त्यतिबेलासम्म यहाँ नक्कली अर्डर वा बनावटी अंक देखाइँदैन।';
 
   @override
-  String get soonAddProductBody => 'मूल्य, स्टक र साइज/रङसहित एकपटक सामान थप्नुहोस्। Instagram, Facebook र TikTok मा आफैं मिलाएर राख्छौं।';
+  String get soonAddProductBody =>
+      'मूल्य, स्टक र साइज/रङसहित एकपटक सामान थप्नुहोस्। Instagram, Facebook र TikTok मा आफैं मिलाएर राख्छौं।';
 
   @override
-  String get soonCaptureProductBody => 'फोनमा केही फोटो खिच्नुहोस्। ब्याकग्राउन्ड सफा गरेर नाम र विवरण तयार गर्छौं, तपाईं जाँचेर राख्नुहोस्।';
+  String get soonCaptureProductBody =>
+      'फोनमा केही फोटो खिच्नुहोस्। ब्याकग्राउन्ड सफा गरेर नाम र विवरण तयार गर्छौं, तपाईं जाँचेर राख्नुहोस्।';
 
   @override
-  String get soonGenerateContentBody => 'सामानको विवरणबाट नेपाली वा अंग्रेजीमा क्याप्सन लेख्छौं। तपाईंले स्वीकृत नगरी केही पोस्ट हुँदैन।';
+  String get soonGenerateContentBody =>
+      'सामानको विवरणबाट नेपाली वा अंग्रेजीमा क्याप्सन लेख्छौं। तपाईंले स्वीकृत नगरी केही पोस्ट हुँदैन।';
 
   @override
-  String get soonCreateReelBody => 'सामानका फोटो र क्लिपबाट छोटो Reel बनाउँछौं। प्लानको भिडियो क्रेडिट लाग्छ।';
+  String get soonCreateReelBody =>
+      'सामानका फोटो र क्लिपबाट छोटो Reel बनाउँछौं। प्लानको भिडियो क्रेडिट लाग्छ।';
 
   @override
-  String get soonViewOrdersBody => 'च्याटदेखि ग्राहकको ढोकासम्म हरेक अर्डर: COD, कुरियरको अवस्था र फिर्ता।';
+  String get soonViewOrdersBody =>
+      'च्याटदेखि ग्राहकको ढोकासम्म हरेक अर्डर: COD, कुरियरको अवस्था र फिर्ता।';
 
   @override
-  String get soonViewMessagesBody => 'सबै ग्राहकका म्यासेज एउटै इनबक्समा। AI ले तपाईंकै स्टक र मूल्य हेरेर जवाफ तयार गर्छ।';
+  String get soonViewMessagesBody =>
+      'सबै ग्राहकका म्यासेज एउटै इनबक्समा। AI ले तपाईंकै स्टक र मूल्य हेरेर जवाफ तयार गर्छ।';
 
   @override
   String get settingsTitle => 'सेटिङ';
@@ -515,7 +548,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get sessionsRevokeOthers => 'अरू सबै डिभाइसबाट लगआउट';
 
   @override
-  String get sessionsRevokeOthersConfirm => 'यो फोनबाहेक सबै डिभाइसबाट लगआउट हुन्छ।';
+  String get sessionsRevokeOthersConfirm =>
+      'यो फोनबाहेक सबै डिभाइसबाट लगआउट हुन्छ।';
 
   @override
   String get sessionsRevokedToast => 'लगआउट भयो';
@@ -558,7 +592,8 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String usageReserved(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString प्रक्रियामा';
@@ -577,7 +612,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get usageLevelWarning => 'सीमा नजिक पुग्यो';
 
   @override
-  String get usageLevelReached => 'सीमा सकियो। जारी राख्न क्रेडिट किन्नुहोस् वा अपग्रेड गर्नुहोस्।';
+  String get usageLevelReached =>
+      'सीमा सकियो। जारी राख्न क्रेडिट किन्नुहोस् वा अपग्रेड गर्नुहोस्।';
 
   @override
   String get usageEmpty => 'तपाईंको प्लानमा अहिले केही नापिँदैन।';
@@ -609,7 +645,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get videoMeterDailyReached => 'आजको सीमा सकियो। भोलि फेरि खुल्छ।';
 
   @override
-  String get videoMeterHelp => 'महिनाको कोटा र दैनिक सीमा छुट्टाछुट्टै छन्, एकै दिनमा महिनाभरको नसकियोस् भनेर।';
+  String get videoMeterHelp =>
+      'महिनाको कोटा र दैनिक सीमा छुट्टाछुट्टै छन्, एकै दिनमा महिनाभरको नसकियोस् भनेर।';
 
   @override
   String get resAiTextGenerations => 'AI लेखन';
@@ -654,7 +691,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get captureTitle => 'सामानको फोटो';
 
   @override
-  String get captureIntro => '६ वटासम्म प्रस्ट फोटो थप्नुहोस्। अगाडि, पछाडि र कपडा वा लेबलको नजिकको फोटो सबैभन्दा राम्रो।';
+  String get captureIntro =>
+      '६ वटासम्म प्रस्ट फोटो थप्नुहोस्। अगाडि, पछाडि र कपडा वा लेबलको नजिकको फोटो सबैभन्दा राम्रो।';
 
   @override
   String get captureTakePhoto => 'फोटो खिच्नुहोस्';
@@ -664,20 +702,25 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String capturePhotoCount(int count, int max) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
-    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
     final String maxString = maxNumberFormat.format(max);
 
     return '$maxString मध्ये $countString फोटो';
   }
 
   @override
-  String get captureLimitReached => '६ वटा फोटो पुग्यो, एउटा ड्राफ्टमा यति नै मिल्छ।';
+  String get captureLimitReached =>
+      '६ वटा फोटो पुग्यो, एउटा ड्राफ्टमा यति नै मिल्छ।';
 
   @override
   String captureSkipped(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString वटा फोटो थपिएन, ६ वटा मात्र मिल्छ।';
@@ -702,13 +745,15 @@ class AppLocalizationsNe extends AppLocalizations {
   String get captureRemovePhoto => 'फोटो हटाउनुहोस्';
 
   @override
-  String get capturePickerError => 'क्यामेरा वा ग्यालरी खुलेन। फोनको सेटिङमा फोटो र क्यामेरा अनुमति हेर्नुहोस्।';
+  String get capturePickerError =>
+      'क्यामेरा वा ग्यालरी खुलेन। फोनको सेटिङमा फोटो र क्यामेरा अनुमति हेर्नुहोस्।';
 
   @override
   String get captureResumeAll => 'अपलोड फेरि सुरु गर्नुहोस्';
 
   @override
-  String get captureKeepsGoing => 'अर्को एप खोल्दा पनि अपलोड चलिरहन्छ। एप बन्द भए पनि रोकिएकै ठाउँबाट सुरु हुन्छ।';
+  String get captureKeepsGoing =>
+      'अर्को एप खोल्दा पनि अपलोड चलिरहन्छ। एप बन्द भए पनि रोकिएकै ठाउँबाट सुरु हुन्छ।';
 
   @override
   String get uploadQueued => 'पालो पर्खँदै';
@@ -743,16 +788,19 @@ class AppLocalizationsNe extends AppLocalizations {
   String get rejectNotAnImage => 'यो फाइल फोटो होइन।';
 
   @override
-  String get rejectTooLarge => 'फोटो धेरै ठूलो भयो। २० MB भन्दा सानो छान्नुहोस्।';
+  String get rejectTooLarge =>
+      'फोटो धेरै ठूलो भयो। २० MB भन्दा सानो छान्नुहोस्।';
 
   @override
-  String get rejectUnsupported => 'यो ढाँचा चल्दैन। JPEG, PNG, WebP वा HEIC प्रयोग गर्नुहोस्।';
+  String get rejectUnsupported =>
+      'यो ढाँचा चल्दैन। JPEG, PNG, WebP वा HEIC प्रयोग गर्नुहोस्।';
 
   @override
   String get rejectMalware => 'यो फाइल असुरक्षित देखियो, त्यसैले हटाइयो।';
 
   @override
-  String get tipLowResolution => 'फोटो सानो छ। नजिक गएर वा मुख्य क्यामेराले खिच्नुहोस्।';
+  String get tipLowResolution =>
+      'फोटो सानो छ। नजिक गएर वा मुख्य क्यामेराले खिच्नुहोस्।';
 
   @override
   String get tipBlurry => 'फोटो धमिलो देखियो। फोन स्थिर राखेर फोकस गर्नुहोस्।';
@@ -761,16 +809,19 @@ class AppLocalizationsNe extends AppLocalizations {
   String get tipTooDark => 'फोटो अँध्यारो देखियो। झ्यालनजिक खिचेर हेर्नुहोस्।';
 
   @override
-  String get tipOverexposed => 'फोटो धेरै चम्किलो भयो। सिधा घामबाट अलि पर सर्नुहोस्।';
+  String get tipOverexposed =>
+      'फोटो धेरै चम्किलो भयो। सिधा घामबाट अलि पर सर्नुहोस्।';
 
   @override
   String get errFileTooLarge => 'फोटो धेरै ठूलो भयो (बढीमा २० MB)।';
 
   @override
-  String get errUnsupportedMediaType => 'JPEG, PNG, WebP वा HEIC फोटो प्रयोग गर्नुहोस्।';
+  String get errUnsupportedMediaType =>
+      'JPEG, PNG, WebP वा HEIC फोटो प्रयोग गर्नुहोस्।';
 
   @override
-  String get errStorageFull => 'प्लानको फोटो स्टोरेज भरियो। पुराना फोटो हटाउनुहोस् वा अपग्रेड गर्नुहोस्।';
+  String get errStorageFull =>
+      'प्लानको फोटो स्टोरेज भरियो। पुराना फोटो हटाउनुहोस् वा अपग्रेड गर्नुहोस्।';
 
   @override
   String get errFileUnreadable => 'फोनबाट यो फोटो पढ्न सकिएन। फेरि छान्नुहोस्।';
@@ -779,10 +830,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errUploadMissing => 'फोटो हामीसम्म आइपुगेन। फेरि अपलोड गर्नुहोस्।';
 
   @override
-  String get errUploadExpired => 'अपलोडमा धेरै समय लाग्यो। फेरि सुरु गर्नुहोस्।';
+  String get errUploadExpired =>
+      'अपलोडमा धेरै समय लाग्यो। फेरि सुरु गर्नुहोस्।';
 
   @override
-  String get errMediaNotReady => 'केही फोटो अझै जाँच हुँदैछन्। एकछिनपछि फेरि गर्नुहोस्।';
+  String get errMediaNotReady =>
+      'केही फोटो अझै जाँच हुँदैछन्। एकछिनपछि फेरि गर्नुहोस्।';
 
   @override
   String get errMediaNotFound => 'केही फोटो अब भेटिँदैनन्। फेरि थप्नुहोस्।';
@@ -794,16 +847,19 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errNotPublishable => 'यो सामान अहिले लाइभ गर्न तयार छैन।';
 
   @override
-  String get errProductNotActive => 'पहिले सामान लाइभ गर्नुहोस्, अनि च्यानलमा पठाउनुहोस्।';
+  String get errProductNotActive =>
+      'पहिले सामान लाइभ गर्नुहोस्, अनि च्यानलमा पठाउनुहोस्।';
 
   @override
   String get errCapabilityNotSupported => 'यो च्यानलले त्यो गर्न सक्दैन।';
 
   @override
-  String get errVersionConflict => 'अरू कसैले यो बदल्नुभयो। नयाँ विवरण ल्याइयो, हेरेर फेरि गर्नुहोस्।';
+  String get errVersionConflict =>
+      'अरू कसैले यो बदल्नुभयो। नयाँ विवरण ल्याइयो, हेरेर फेरि गर्नुहोस्।';
 
   @override
-  String get errPostLocked => 'तालिका मिलाइएको पोस्ट बदल्न मिल्दैन। पहिले तालिका हटाउनुहोस्।';
+  String get errPostLocked =>
+      'तालिका मिलाइएको पोस्ट बदल्न मिल्दैन। पहिले तालिका हटाउनुहोस्।';
 
   @override
   String get errReconnectRequired => 'पहिले यो च्यानल फेरि जोड्नुहोस्।';
@@ -812,7 +868,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errScheduleInPast => 'आउने समय छान्नुहोस्।';
 
   @override
-  String get errScheduleTooFar => 'पोस्ट ९० दिनभित्र मात्र तालिकामा राख्न सकिन्छ।';
+  String get errScheduleTooFar =>
+      'पोस्ट ९० दिनभित्र मात्र तालिकामा राख्न सकिन्छ।';
 
   @override
   String get errCaptionRequired => 'क्याप्सन लेख्नुहोस्।';
@@ -827,13 +884,15 @@ class AppLocalizationsNe extends AppLocalizations {
   String get errNotFailed => 'असफल ड्राफ्ट मात्र फेरि चलाउन मिल्छ।';
 
   @override
-  String get errAiUnavailable => 'लेख्ने सेवा अहिले व्यस्त छ। केही मिनेटपछि फेरि प्रयास गर्नुहोस्।';
+  String get errAiUnavailable =>
+      'लेख्ने सेवा अहिले व्यस्त छ। केही मिनेटपछि फेरि प्रयास गर्नुहोस्।';
 
   @override
   String get draftWorkingTitle => 'विवरण तयार गर्दैछौं';
 
   @override
-  String get draftWorkingBody => 'तपाईंका फोटो हेरेर नेपाली र अंग्रेजीमा नाम, विवरण र क्याप्सन तयार गर्दैछौं। प्रायः एक मिनेटभित्र सकिन्छ।';
+  String get draftWorkingBody =>
+      'तपाईंका फोटो हेरेर नेपाली र अंग्रेजीमा नाम, विवरण र क्याप्सन तयार गर्दैछौं। प्रायः एक मिनेटभित्र सकिन्छ।';
 
   @override
   String get draftQueued => 'पालोमा';
@@ -842,13 +901,15 @@ class AppLocalizationsNe extends AppLocalizations {
   String get draftRunning => 'काम हुँदैछ';
 
   @override
-  String get draftLeaveOk => 'यो स्क्रिन छोड्न सक्नुहुन्छ, काम चलिरहन्छ। पछि \'ड्राफ्ट\' मा भेटिन्छ।';
+  String get draftLeaveOk =>
+      'यो स्क्रिन छोड्न सक्नुहुन्छ, काम चलिरहन्छ। पछि \'ड्राफ्ट\' मा भेटिन्छ।';
 
   @override
   String get draftFailedTitle => 'ड्राफ्ट तयार गर्न सकिएन';
 
   @override
-  String get draftFailedBody => 'लेख्ने सेवामा समस्या भयो। तपाईंका फोटो सुरक्षित छन्।';
+  String get draftFailedBody =>
+      'लेख्ने सेवामा समस्या भयो। तपाईंका फोटो सुरक्षित छन्।';
 
   @override
   String get draftAppliedTitle => 'यो पहिले नै सामानको रूपमा सेभ भइसक्यो';
@@ -863,7 +924,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get reviewTitle => 'विवरण जाँच्नुहोस्';
 
   @override
-  String get reviewAiNote => 'तपाईंका फोटो हेरेर AI ले लेखेको। नमिलेको कुरा बदल्नुहोस्।';
+  String get reviewAiNote =>
+      'तपाईंका फोटो हेरेर AI ले लेखेको। नमिलेको कुरा बदल्नुहोस्।';
 
   @override
   String get reviewSectionText => 'नाम र विवरण';
@@ -887,7 +949,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get reviewSectionCategory => 'श्रेणी';
 
   @override
-  String get fieldCategoryHint => 'तह छुट्याउन / राख्नुहोस्, जस्तै: लुगा / कुर्ता';
+  String get fieldCategoryHint =>
+      'तह छुट्याउन / राख्नुहोस्, जस्तै: लुगा / कुर्ता';
 
   @override
   String confidenceLabel(String percent) {
@@ -922,7 +985,8 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String attrUncheckedError(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString वटा विवरण अझै जाँच्न बाँकी';
@@ -932,7 +996,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get reviewSectionPrice => 'मूल्य र विकल्प';
 
   @override
-  String get reviewPriceNote => 'मूल्य सधैं तपाईंले नै राख्ने हो, AI ले राख्दैन।';
+  String get reviewPriceNote =>
+      'मूल्य सधैं तपाईंले नै राख्ने हो, AI ले राख्दैन।';
 
   @override
   String get fieldPrice => 'मूल्य (रू)';
@@ -973,11 +1038,13 @@ class AppLocalizationsNe extends AppLocalizations {
   String get optionRemove => 'विकल्प हटाउनुहोस्';
 
   @override
-  String get optionValuesRequired => 'हरेक विकल्पमा कम्तीमा एउटा मान राख्नुहोस्';
+  String get optionValuesRequired =>
+      'हरेक विकल्पमा कम्तीमा एउटा मान राख्नुहोस्';
 
   @override
   String variantsCount(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString वटा भेरियन्ट';
@@ -987,37 +1054,47 @@ class AppLocalizationsNe extends AppLocalizations {
   String get tooManyVariants => '१०० भन्दा बढी जोडी बने। केही मान हटाउनुहोस्।';
 
   @override
-  String get reviewSectionChecklist => 'AI ले थाहा पाएन, कृपया पुष्टि गर्नुहोस्';
+  String get reviewSectionChecklist =>
+      'AI ले थाहा पाएन, कृपया पुष्टि गर्नुहोस्';
 
   @override
   String get reviewSectionWarnings => 'जाँच्नुपर्ने कुरा';
 
   @override
-  String get issueClaimPrice => 'लेखाइमा मूल्य उल्लेख छ। मूल्य तपाईंले नै राख्ने हो, कृपया जाँच्नुहोस्।';
+  String get issueClaimPrice =>
+      'लेखाइमा मूल्य उल्लेख छ। मूल्य तपाईंले नै राख्ने हो, कृपया जाँच्नुहोस्।';
 
   @override
-  String get issueClaimDiscount => 'तपाईंले नभनेको छुटको कुरा लेखिएको छ। हटाउनुहोस् वा साँचो हो भने मात्र राख्नुहोस्।';
+  String get issueClaimDiscount =>
+      'तपाईंले नभनेको छुटको कुरा लेखिएको छ। हटाउनुहोस् वा साँचो हो भने मात्र राख्नुहोस्।';
 
   @override
-  String get issueClaimStock => 'लेखाइमा स्टकको कुरा छ। स्टक तपाईंको इन्भेन्टरीबाट आउँछ, कृपया जाँच्नुहोस्।';
+  String get issueClaimStock =>
+      'लेखाइमा स्टकको कुरा छ। स्टक तपाईंको इन्भेन्टरीबाट आउँछ, कृपया जाँच्नुहोस्।';
 
   @override
-  String get issueClaimDelivery => 'लेखाइमा डेलिभरीको वाचा छ। साँचो हो कि होइन जाँच्नुहोस्।';
+  String get issueClaimDelivery =>
+      'लेखाइमा डेलिभरीको वाचा छ। साँचो हो कि होइन जाँच्नुहोस्।';
 
   @override
-  String get issueClaimWarranty => 'लेखाइमा वारेन्टीको कुरा छ। तपाईं दिनुहुन्छ भने मात्र राख्नुहोस्।';
+  String get issueClaimWarranty =>
+      'लेखाइमा वारेन्टीको कुरा छ। तपाईं दिनुहुन्छ भने मात्र राख्नुहोस्।';
 
   @override
-  String get issueClaimAuthenticity => 'सक्कली/ओरिजिनल भनिएको छ। प्रमाण छ भने मात्र राख्नुहोस्।';
+  String get issueClaimAuthenticity =>
+      'सक्कली/ओरिजिनल भनिएको छ। प्रमाण छ भने मात्र राख्नुहोस्।';
 
   @override
-  String get issueClaimOther => 'प्रमाणित गर्न नसकिने कुरा लेखिएको छ। कृपया जाँच्नुहोस्।';
+  String get issueClaimOther =>
+      'प्रमाणित गर्न नसकिने कुरा लेखिएको छ। कृपया जाँच्नुहोस्।';
 
   @override
-  String get issueNotProductPhoto => 'यी फोटोमा सामान नदेखिन सक्छ। सेभ गर्नुअघि जाँच्नुहोस्।';
+  String get issueNotProductPhoto =>
+      'यी फोटोमा सामान नदेखिन सक्छ। सेभ गर्नुअघि जाँच्नुहोस्।';
 
   @override
-  String get issueTooLong => 'केही लेखाइ धेरै लामो भएकाले छोटो पारियो। एकपटक पढ्नुहोस्।';
+  String get issueTooLong =>
+      'केही लेखाइ धेरै लामो भएकाले छोटो पारियो। एकपटक पढ्नुहोस्।';
 
   @override
   String issueInField(String field) {
@@ -1064,7 +1141,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get productProblemAttributes => 'तलका AI विवरण पुष्टि गर्नुहोस्।';
 
   @override
-  String get productProblemVariant => 'कम्तीमा एउटा सक्रिय भेरियन्ट चाहिन्छ (अहिलेलाई वेब ड्यासबोर्डबाट)।';
+  String get productProblemVariant =>
+      'कम्तीमा एउटा सक्रिय भेरियन्ट चाहिन्छ (अहिलेलाई वेब ड्यासबोर्डबाट)।';
 
   @override
   String get productProblemTitle => 'सामानको नाम राख्नुहोस्।';
@@ -1091,7 +1169,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get publishNeedsLive => 'च्यानलमा पठाउन पहिले लाइभ गर्नुहोस्।';
 
   @override
-  String get publishNoChannels => 'अहिलेसम्म कुनै च्यानल जोडिएको छैन। वेब ड्यासबोर्डबाट Instagram, Facebook वा TikTok जोड्नुहोस्।';
+  String get publishNoChannels =>
+      'अहिलेसम्म कुनै च्यानल जोडिएको छैन। वेब ड्यासबोर्डबाट Instagram, Facebook वा TikTok जोड्नुहोस्।';
 
   @override
   String get publishAction => 'पठाउनुहोस्';
@@ -1137,7 +1216,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get reconnectChannelGeneric => 'च्यानल';
 
   @override
-  String get reconnectBody => 'अहिलेलाई ब्राउजरमा वेब ड्यासबोर्ड खोलेर च्यानल जोड्नुहोस्:';
+  String get reconnectBody =>
+      'अहिलेलाई ब्राउजरमा वेब ड्यासबोर्ड खोलेर च्यानल जोड्नुहोस्:';
 
   @override
   String get reconnectCopied => 'लिंक कपी भयो';
@@ -1149,7 +1229,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get postsSection => 'पोस्ट बनाउनुहोस्';
 
   @override
-  String get postsIntro => 'AI क्याप्सनबाट हरेक च्यानलका लागि पोस्ट बनाउँछौं। पठाउनुअघि तपाईं हेर्नुहुन्छ।';
+  String get postsIntro =>
+      'AI क्याप्सनबाट हरेक च्यानलका लागि पोस्ट बनाउँछौं। पठाउनुअघि तपाईं हेर्नुहुन्छ।';
 
   @override
   String get postsCreate => 'ड्राफ्ट बनाउनुहोस्';
@@ -1208,10 +1289,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get postSchedule => 'समय तोक्नुहोस्';
 
   @override
-  String get postNeedsApprovalNote => 'AI ले लेखेको पोस्ट पठाउनुअघि स्वीकृति चाहिन्छ।';
+  String get postNeedsApprovalNote =>
+      'AI ले लेखेको पोस्ट पठाउनुअघि स्वीकृति चाहिन्छ।';
 
   @override
-  String get postNoApprovePermission => 'पसल मालिक वा म्यानेजरलाई स्वीकृत गर्न भन्नुहोस्।';
+  String get postNoApprovePermission =>
+      'पसल मालिक वा म्यानेजरलाई स्वीकृत गर्न भन्नुहोस्।';
 
   @override
   String get postCaptionSaved => 'क्याप्सन सेभ भयो';
@@ -1229,10 +1312,12 @@ class AppLocalizationsNe extends AppLocalizations {
   String get draftsNew => 'फोटोबाट नयाँ';
 
   @override
-  String get draftsEmpty => 'अहिलेसम्म ड्राफ्ट छैन। सामानका केही फोटोबाट सुरु गर्नुहोस्।';
+  String get draftsEmpty =>
+      'अहिलेसम्म ड्राफ्ट छैन। सामानका केही फोटोबाट सुरु गर्नुहोस्।';
 
   @override
-  String get draftsIntro => 'पोस्ट बनाउन ड्राफ्ट छान्नुहोस् वा नयाँ फोटोबाट सुरु गर्नुहोस्।';
+  String get draftsIntro =>
+      'पोस्ट बनाउन ड्राफ्ट छान्नुहोस् वा नयाँ फोटोबाट सुरु गर्नुहोस्।';
 
   @override
   String get draftStatusWorking => 'लेख्दैछ…';
@@ -1307,7 +1392,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get forgotTitle => 'पासवर्ड रिसेट गर्नुहोस्';
 
   @override
-  String get forgotSubtitle => 'आफ्नो खाताको इमेल लेख्नुहोस्, नयाँ पासवर्ड राख्ने लिंक पठाउँछौं।';
+  String get forgotSubtitle =>
+      'आफ्नो खाताको इमेल लेख्नुहोस्, नयाँ पासवर्ड राख्ने लिंक पठाउँछौं।';
 
   @override
   String get forgotAction => 'रिसेट लिंक पठाउनुहोस्';
@@ -1316,7 +1402,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get forgotSentTitle => 'इमेल हेर्नुहोस्';
 
   @override
-  String get forgotSentBody => 'त्यो इमेलको खाता छ भने रिसेट लिंक आउँदैछ। यही फोन वा कम्प्युटरमा खोल्नुहोस्। यो एक पटक मात्र र ३० मिनेटसम्म चल्छ।';
+  String get forgotSentBody =>
+      'त्यो इमेलको खाता छ भने रिसेट लिंक आउँदैछ। यही फोन वा कम्प्युटरमा खोल्नुहोस्। यो एक पटक मात्र र ३० मिनेटसम्म चल्छ।';
 
   @override
   String get forgotBack => 'साइन इनमा फर्कनुहोस्';
@@ -1351,7 +1438,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get ordersEmpty => 'यहाँ कुनै अर्डर छैन';
 
   @override
-  String get ordersEmptyBody => 'च्याट, च्यानल र तपाईंले थपेका अर्डर यहाँ देखिन्छन्।';
+  String get ordersEmptyBody =>
+      'च्याट, च्यानल र तपाईंले थपेका अर्डर यहाँ देखिन्छन्।';
 
   @override
   String orderNumber(int number) {
@@ -1395,7 +1483,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get orderCancelTitle => 'यो अर्डर रद्द गर्ने?';
 
   @override
-  String get orderCancelBody => 'राखिएको स्टक फेरि बिक्रीमा जान्छ। ग्राहकलाई आफैं सन्देश जाँदैन।';
+  String get orderCancelBody =>
+      'राखिएको स्टक फेरि बिक्रीमा जान्छ। ग्राहकलाई आफैं सन्देश जाँदैन।';
 
   @override
   String get orderCancelReason => 'कारण';
@@ -1621,7 +1710,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get threadHandedBack => 'नयाँ सन्देशको जवाफ फेरि AI ले दिनेछ।';
 
   @override
-  String get threadHumanBanner => 'यो च्याट तपाईं हेर्दै हुनुहुन्छ। AI रोकिएको छ।';
+  String get threadHumanBanner =>
+      'यो च्याट तपाईं हेर्दै हुनुहुन्छ। AI रोकिएको छ।';
 
   @override
   String get threadEscalatedBanner => 'AI ले यो च्याट तपाईंलाई दियो।';
@@ -1632,7 +1722,8 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
-  String get draftAwaitingConfirmation => 'अर्डर विवरण पठाइयो। ग्राहकको \'हो\' कुर्दै।';
+  String get draftAwaitingConfirmation =>
+      'अर्डर विवरण पठाइयो। ग्राहकको \'हो\' कुर्दै।';
 
   @override
   String get draftConfirmed => 'यो च्याटबाट अर्डर बन्यो';
@@ -1731,7 +1822,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get deliveryWhyDefault => 'सिफारिस: तपाईंको मुख्य कुरियर';
 
   @override
-  String get deliveryWhyCheapest => 'सिफारिस: यो पार्सलका लागि सबैभन्दा सस्तो विकल्प';
+  String get deliveryWhyCheapest =>
+      'सिफारिस: यो पार्सलका लागि सबैभन्दा सस्तो विकल्प';
 
   @override
   String get deliveryWhyOnly => 'यो पार्सल लैजान सक्ने एउटै विकल्प';
@@ -1740,7 +1832,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get deliveryRecommended => 'सिफारिस';
 
   @override
-  String get deliveryOwnRider => 'तपाईं आफैं पठाउनुहुन्छ र अवस्था अद्यावधिक गर्नुहुन्छ';
+  String get deliveryOwnRider =>
+      'तपाईं आफैं पठाउनुहुन्छ र अवस्था अद्यावधिक गर्नुहुन्छ';
 
   @override
   String deliveryEta(int min, int max) {
@@ -1748,7 +1841,8 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
-  String get deliveryNoCouriers => 'अहिलेसम्म कुरियर जोडिएको छैन। वेबको सेटिङमा थप्नुहोस्।';
+  String get deliveryNoCouriers =>
+      'अहिलेसम्म कुरियर जोडिएको छैन। वेबको सेटिङमा थप्नुहोस्।';
 
   @override
   String deliveryCollectAmount(String amount) {
@@ -1818,7 +1912,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get deliveryActionReturn => 'पसलमा फिर्ता ल्याउनुहोस्';
 
   @override
-  String get deliveryActionReceivedBack => 'पार्सल फिर्ता आयो: स्टकमा थप्नुहोस्';
+  String get deliveryActionReceivedBack =>
+      'पार्सल फिर्ता आयो: स्टकमा थप्नुहोस्';
 
   @override
   String get deliveryActionUpdateStatus => 'अवस्था अद्यावधिक गर्नुहोस्';
@@ -1830,7 +1925,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get deliveryCancelTitle => 'यो बुकिङ रद्द गर्ने?';
 
   @override
-  String get deliveryCancelBody => 'कुरियरले यो पार्सल लैजाँदैन। फेरि बुक गर्न सकिन्छ।';
+  String get deliveryCancelBody =>
+      'कुरियरले यो पार्सल लैजाँदैन। फेरि बुक गर्न सकिन्छ।';
 
   @override
   String get deliveryKeep => 'राख्नुहोस्';
@@ -1932,7 +2028,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get recoveryAwaitingCustomer => 'ग्राहकलाई सन्देश पठाइयो, जवाफ कुर्दै';
 
   @override
-  String get recoveryCustomerReplied => 'ग्राहकले जवाफ दिए: कुरियरलाई फेरि पठाउन भन्नुहोस्';
+  String get recoveryCustomerReplied =>
+      'ग्राहकले जवाफ दिए: कुरियरलाई फेरि पठाउन भन्नुहोस्';
 
   @override
   String get recoveryReattemptRequested => 'कुरियरलाई फेरि प्रयास गर्न भनियो';
@@ -1971,7 +2068,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get codAwaitingTitle => 'अझै कुरियरसँग रहेको नगद';
 
   @override
-  String get codAwaitingEmpty => 'कुनै नगद बाँकी छैन: कुरियरले सबै डेलिभर भएका पार्सलको भुक्तानी गरे।';
+  String get codAwaitingEmpty =>
+      'कुनै नगद बाँकी छैन: कुरियरले सबै डेलिभर भएका पार्सलको भुक्तानी गरे।';
 
   @override
   String codDaysWaiting(int days) {
@@ -2154,7 +2252,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get returnCreated => 'फिर्ता बन्यो';
 
   @override
-  String get returnNothingLeft => 'यो अर्डरका सबै सामान पहिल्यै फिर्ता हुँदैछन्।';
+  String get returnNothingLeft =>
+      'यो अर्डरका सबै सामान पहिल्यै फिर्ता हुँदैछन्।';
 
   @override
   String get returnPickReason => 'हरेक सामानको कारण छान्नुहोस्';
@@ -2186,7 +2285,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get returnCheckResolution => 'तपाईंको फिर्ता नीतिले यो दिँदैन';
 
   @override
-  String get returnCheckExchangeProduct => 'साट्दा उही सामान, उही मूल्यको हुनुपर्छ';
+  String get returnCheckExchangeProduct =>
+      'साट्दा उही सामान, उही मूल्यको हुनुपर्छ';
 
   @override
   String get returnCheckExchangeStock => 'सट्टाको सामान स्टकमा छैन';
@@ -2195,7 +2295,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get returnCheckGeneric => 'नीति अनुसार छैन';
 
   @override
-  String get returnWarningsTitle => 'नीतिभन्दा बाहिर। बनाउन सकिन्छ, स्वीकृत गर्दा कारण चाहिन्छ।';
+  String get returnWarningsTitle =>
+      'नीतिभन्दा बाहिर। बनाउन सकिन्छ, स्वीकृत गर्दा कारण चाहिन्छ।';
 
   @override
   String get returnBlockedTitle => 'यो फिर्ता बनाउन मिल्दैन';
@@ -2315,7 +2416,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get returnApproveTitle => 'यो फिर्ता स्वीकृत गर्ने?';
 
   @override
-  String get returnOverrideHint => 'यो फिर्ता नीतिबाहिर छ। किन स्वीकृत गर्दै हुनुहुन्छ लेख्नुहोस्।';
+  String get returnOverrideHint =>
+      'यो फिर्ता नीतिबाहिर छ। किन स्वीकृत गर्दै हुनुहुन्छ लेख्नुहोस्।';
 
   @override
   String get returnReasonLabel => 'कारण';
@@ -2333,7 +2435,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get returnCancelTitle => 'यो फिर्ता रद्द गर्ने?';
 
   @override
-  String get returnCancelBody => 'यसका लागि राखिएको सट्टाको सामान फेरि बिक्रीमा जान्छ।';
+  String get returnCancelBody =>
+      'यसका लागि राखिएको सट्टाको सामान फेरि बिक्रीमा जान्छ।';
 
   @override
   String get returnReceivedTitle => 'सामान आइपुग्यो?';
@@ -2348,7 +2451,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get returnRestock => 'फेरि बिक्रीमा राख्ने';
 
   @override
-  String get returnRestockOnlyResellable => 'फेरि बेच्न मिल्ने सामान मात्र बिक्रीमा फर्किन्छ';
+  String get returnRestockOnlyResellable =>
+      'फेरि बेच्न मिल्ने सामान मात्र बिक्रीमा फर्किन्छ';
 
   @override
   String get returnInspectSave => 'जाँच सेभ गर्नुहोस्';
@@ -2413,7 +2517,8 @@ class AppLocalizationsNe extends AppLocalizations {
   }
 
   @override
-  String get returnsHomeCardBody => 'ग्राहकका फिर्ता स्वीकृत वा अस्वीकार गर्नुहोस्।';
+  String get returnsHomeCardBody =>
+      'ग्राहकका फिर्ता स्वीकृत वा अस्वीकार गर्नुहोस्।';
 
   @override
   String get ccStateRunning => 'तपाईंको पसल चलिरहेको छ।';
@@ -2482,7 +2587,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get approvalsCancel => 'राख्नुहोस्';
 
   @override
-  String get approvalsManagersOnly => 'म्यानेजरले मात्र स्वचालन स्वीकृत गर्न सक्छन्।';
+  String get approvalsManagersOnly =>
+      'म्यानेजरले मात्र स्वचालन स्वीकृत गर्न सक्छन्।';
 
   @override
   String get approvalsDone => 'भयो।';
@@ -2590,7 +2696,8 @@ class AppLocalizationsNe extends AppLocalizations {
   String get wfEditOnWeb => 'वर्कफ्लो वेबमा सम्पादन गर्नुहोस्।';
 
   @override
-  String get wfManagersOnly => 'म्यानेजरले मात्र वर्कफ्लो चालु वा बन्द गर्न सक्छन्।';
+  String get wfManagersOnly =>
+      'म्यानेजरले मात्र वर्कफ्लो चालु वा बन्द गर्न सक्छन्।';
 
   @override
   String ccDoneAuto(int count) {
@@ -2633,4 +2740,263 @@ class AppLocalizationsNe extends AppLocalizations {
   String wfRuns(int done, int waiting, int failed) {
     return '$done सकियो · $waiting चलिरहेको · $failed असफल';
   }
+
+  @override
+  String get apsTitle => 'अटोपाइलट स्कोर';
+
+  @override
+  String get apsNotEnough => 'अझै पर्याप्त गतिविधि छैन';
+
+  @override
+  String get apsCapNotEnough => 'पर्याप्त गतिविधि छैन';
+
+  @override
+  String apsWindow(int days) {
+    return 'पछिल्लो $days दिन';
+  }
+
+  @override
+  String apsCounts(int a, int f, int m) {
+    return 'स्वचालित $a · असफल $f · टोलीले $m';
+  }
+
+  @override
+  String apsExcluded(int count, String reason) {
+    return '$count गनिएन: $reason';
+  }
+
+  @override
+  String get apsExclAboveThreshold => 'तपाईंको नियमले स्वीकृति चाहियो';
+
+  @override
+  String get apsExclNotInPlan => 'तपाईंको योजनामा छैन';
+
+  @override
+  String get apsExclNoCapability => 'यो च्यानलमा सम्भव छैन';
+
+  @override
+  String get apsExclOther => 'अन्य कारण';
+
+  @override
+  String apsHoursSaved(String hours) {
+    return 'करिब $hours घण्टा बचत (अनुमानित)';
+  }
+
+  @override
+  String get apsCapCustomerReplies => 'ग्राहकलाई जवाफ';
+
+  @override
+  String get apsCapOrderCapture => 'अर्डर लिने';
+
+  @override
+  String get apsCapShipmentCreation => 'कुरियर बुकिङ';
+
+  @override
+  String get apsCapPickupRequests => 'पिकअप अनुरोध';
+
+  @override
+  String get apsCapDeliveryNotifications => 'डेलिभरी सन्देश';
+
+  @override
+  String get apsCapDeliveryRecovery => 'नभएको डेलिभरीको पछि लाग्ने';
+
+  @override
+  String get apsCapReturns => 'फिर्ता';
+
+  @override
+  String get apsCapRefunds => 'रकम फिर्ता';
+
+  @override
+  String get apsCapMarketing => 'मार्केटिङ';
+
+  @override
+  String get apsCapOther => 'अन्य काम';
+
+  @override
+  String get recsTitle => 'सुझाव';
+
+  @override
+  String get recSetMode => 'स्मार्ट मोडमा जानुहोस्';
+
+  @override
+  String get recActivateTemplate => '“प्याक भएपछि कुरियर बुक” चालु गर्नुहोस्';
+
+  @override
+  String get recEnableR2 => 'फेरि पठाउने काम आफैं चल्न दिनुहोस्';
+
+  @override
+  String get recEnableReturnAuto => 'साना फिर्ता आफैं स्वीकृत गर्नुहोस्';
+
+  @override
+  String get recEnableNotifications =>
+      'ग्राहकलाई डेलिभरीबारे सन्देश पठाउनुहोस्';
+
+  @override
+  String get recPlanUpgrade => 'माथिल्लो योजनामा उपलब्ध';
+
+  @override
+  String get recCourierSelection => 'कुरियर ब्रेनलाई कुरियर छान्न दिनुहोस्';
+
+  @override
+  String recRestock(String title) {
+    return '$title थप्नुहोस्';
+  }
+
+  @override
+  String get recOther => 'सुझाव';
+
+  @override
+  String recWhyManualGap(String manual, String eligible, String capability) {
+    return '३० दिनमा $eligible मध्ये $manual $capability टोलीले हातैले गर्‍यो';
+  }
+
+  @override
+  String recWhyCourier(
+    String theirs,
+    String ours,
+    String destination,
+    String n,
+  ) {
+    return 'अर्को कुरियरले $destination मा $theirs% डेलिभर गर्‍यो, तपाईंकोले $ours% ($n पार्सल)';
+  }
+
+  @override
+  String recWhyRestock(String sold, String available, String days) {
+    return '३० दिनमा $sold बिक्री, $available बाँकी (करिब $days दिन)';
+  }
+
+  @override
+  String get recConfidenceHigh => 'उच्च विश्वास';
+
+  @override
+  String get recConfidenceMedium => 'मध्यम विश्वास';
+
+  @override
+  String recImpactScore(String score) {
+    return 'यसलाई $score सम्म पुर्‍याउन सक्छ';
+  }
+
+  @override
+  String recImpactCourier(String points) {
+    return 'डेलिभरी सफलतामा +$points अंक';
+  }
+
+  @override
+  String get recAccept => 'लागू गर्नुहोस्';
+
+  @override
+  String get recDismiss => 'हटाउनुहोस्';
+
+  @override
+  String get recDismissTitle => 'किन हटाउने?';
+
+  @override
+  String get recDismissReason => 'कारण';
+
+  @override
+  String get recCancel => 'रद्द';
+
+  @override
+  String get recManagersOnly => 'म्यानेजरले मात्र यो लागू गर्न सक्छन्';
+
+  @override
+  String get recApplied => 'भयो';
+
+  @override
+  String get recDismissed => 'हटाइयो';
+
+  @override
+  String get riskTitle => 'डेलिभरी जोखिम';
+
+  @override
+  String get riskLevelLow => 'कम जोखिम';
+
+  @override
+  String get riskLevelMedium => 'पठाउनुअघि जाँच्नुहोस्';
+
+  @override
+  String get riskLevelHigher => 'डेलिभरी जोखिम बढी';
+
+  @override
+  String get riskActionOk => 'डेलिभरीमा नगदको रूपमा पठाउन ठिक छ';
+
+  @override
+  String get riskActionVerifyPhone => 'अर्डर पक्का गर्न फोन गर्नुहोस्';
+
+  @override
+  String get riskActionPartialAdvance =>
+      'पहिले केही अग्रिम भुक्तानी माग्नुहोस्';
+
+  @override
+  String get riskActionManualReview => 'प्याक गर्नुअघि जाँच्नुहोस्';
+
+  @override
+  String riskFactorHistory(String delivered, String failed) {
+    return 'पहिले $delivered डेलिभर, $failed असफल';
+  }
+
+  @override
+  String get riskFactorNewCustomer => 'तपाईंसँग पहिलो अर्डर';
+
+  @override
+  String riskFactorReturns(String returns) {
+    return 'पहिले $returns फिर्ता';
+  }
+
+  @override
+  String get riskFactorAddressMissing => 'ठेगाना अधुरो';
+
+  @override
+  String get riskFactorAddressPartial => 'ठेगानाका केही विवरण छैनन्';
+
+  @override
+  String riskFactorOrderValue(String ratio) {
+    return 'तपाईंको सामान्य अर्डरको $ratio गुणा';
+  }
+
+  @override
+  String riskFactorRoute(String rate, String district) {
+    return '$district मा $rate% डेलिभरी असफल';
+  }
+
+  @override
+  String get riskFairness =>
+      'यो ग्राहकको तपाईंको पसलसँगको इतिहास, ठेगाना र अर्डर मूल्यमा मात्र आधारित। नाम, लिङ्ग, धर्म, जात वा जातीयतामा कहिल्यै होइन।';
+
+  @override
+  String riskOverridden(String reason) {
+    return 'तपाईंले बदल्नुभयो: $reason';
+  }
+
+  @override
+  String riskDisputed(String note) {
+    return 'ग्राहक असहमत: $note';
+  }
+
+  @override
+  String get riskOverride => 'स्तर बदल्नुहोस्';
+
+  @override
+  String get riskOverrideTitle => 'जोखिम स्तर बदल्नुहोस्';
+
+  @override
+  String get riskOverrideReason => 'किन (कम्तीमा ३ अक्षर)';
+
+  @override
+  String get riskSave => 'सेभ';
+
+  @override
+  String get riskDispute => 'ग्राहक असहमत छन्';
+
+  @override
+  String get riskDisputeTitle => 'ग्राहकको असहमति दर्ता';
+
+  @override
+  String get riskDisputeNote => 'ग्राहक के भन्छन्';
+
+  @override
+  String get riskUpdated => 'अपडेट भयो';
+
+  @override
+  String get riskCancel => 'रद्द';
 }

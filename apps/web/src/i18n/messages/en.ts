@@ -286,6 +286,7 @@ export const en = {
     severityMedium: "Today",
     severityLow: "When you can",
     type: {
+      high_risk_cod: "Risky COD order",
       automation_approval: "Automation waiting for you",
       automation_paused: "Automation paused",
       return_requested: "Return to decide",
@@ -312,6 +313,7 @@ export const en = {
       provider_failure: "Service down",
     },
     action: {
+      high_risk_cod: "Review order",
       automation_approval: "Review",
       automation_paused: "Open workflow",
       return_requested: "Review return",
@@ -1550,6 +1552,7 @@ export const en = {
       api: "API",
     },
     review: {
+      cod_risk: "Higher delivery risk: check first",
       unmatched_items: "Items not in your catalog",
       stock_short: "Not enough stock",
       address_incomplete: "Address incomplete",

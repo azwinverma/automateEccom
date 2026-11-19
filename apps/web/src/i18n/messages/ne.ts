@@ -289,6 +289,7 @@ export const ne: Messages = {
     severityMedium: "आजै",
     severityLow: "फुर्सदमा",
     type: {
+      high_risk_cod: "जोखिमपूर्ण COD अर्डर",
       automation_approval: "स्वचालन तपाईंलाई कुर्दै",
       automation_paused: "स्वचालन रोकियो",
       return_requested: "निर्णय गर्नुपर्ने फिर्ता",
@@ -315,6 +316,7 @@ export const ne: Messages = {
       provider_failure: "सेवा बन्द छ",
     },
     action: {
+      high_risk_cod: "अर्डर हेर्नुहोस्",
       automation_approval: "हेर्नुहोस्",
       automation_paused: "कार्यप्रवाह खोल्नुहोस्",
       return_requested: "फिर्ता हेर्नुहोस्",
@@ -1553,6 +1555,7 @@ export const ne: Messages = {
       api: "API",
     },
     review: {
+      cod_risk: "बढी डेलिभरी जोखिम: पहिले जाँच्नुहोस्",
       unmatched_items: "क्याटलगमा नभएका सामान",
       stock_short: "स्टक पुगेन",
       address_incomplete: "ठेगाना अधुरो",

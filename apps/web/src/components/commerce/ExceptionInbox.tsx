@@ -33,6 +33,7 @@ export const EXCEPTION_TYPES = [
   "refund_failed",
   "automation_approval",
   "automation_paused",
+  "high_risk_cod",
 ] as const;
 
 export type ExceptionType = (typeof EXCEPTION_TYPES)[number];

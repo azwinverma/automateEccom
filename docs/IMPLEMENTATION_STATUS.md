@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-02 (Nivaro brand migration added)._ _Previously: Phase 0 complete (open: CI run, staging target). Phase 1 backend + mobile built; web Studio/Channels/Content/Reels screens in progress._
+_Last updated: 2026-11-19 (Phase 6 part A)._
 
 ## Summary
 
@@ -44,6 +44,26 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Phase 6 part A (Commerce Intelligence foundation): built 2026-11-19
+- **Built and tested:** Autopilot Score (A/F/M/X per capability from the action log, thin-data state,
+  volume-weighted overall, daily snapshots with jump flags), recommendations (deterministic
+  explanations, dedupe, at most 10 open, 30-day expiry, always R3: a manager applies them, 14-day
+  before/after measurement), Courier Brain (90-day performance per courier × district × weight × COD,
+  expected-cost ranking, 5 selection modes, "not enough data" fallback under 20 parcels) and COD
+  Intelligence (allowed factors only, LOW/MEDIUM/HIGHER with reasons, HIGHER holds the order for review
+  and never rejects, audited override and dispute, calibration report). Web: score + suggestions on
+  Home, COD risk on the order, courier performance and selection in settings. Mobile: score,
+  suggestions, COD risk card.
+- **Verified in E2E** (desktop + 360px, live API + worker): manual courier bookings show as a 0% gap →
+  suggestion applied from Home → workflow active; a customer with two failed COD parcels is held with
+  reasons → override with a reason clears the hold.
+- **Totals (2026-11-19):** backend 313 passed (21 migrations); web 273 + api-client 25; E2E 30/30;
+  mobile 139 passed + 1 live-only skipped; axe 0 violations and no 360px overflow on Home, an order with COD risk and courier
+  settings (light, dark, 360px).
+- **Not built (Part B and later):** Product Brain, Return Intelligence, Commerce Memory, profit
+  analytics, AI narratives for suggestions (REC-004), the score audit tool (APS-006), ETA calibration
+  (CRI-006), phone verification and COD advance (CODI-006).
 
 ## Phase 5 (Automation + Control Center): built 2026-11-05
 - **Built and tested:** one Decision Policy for every automated action (workflows, Sales Agent auto-send,
@@ -332,7 +352,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | FUL-006 | tracking | P3 | TESTED | FUL-003 | fulfillment/service.py (webhooks + poll_due) | test_fulfillment::test_courier_webhooks…, test_late_webhook…, test_polling… | Signed per-account webhooks through the webhook inbox (dedupe, retry, dead-letter); polling every 30 min (6 h with webhooks); newest-event-wins, late events kept as history |
 | FUL-007 | notify | P3 | TESTED | FUL-006 | fulfillment/service.py::_notify_customer, notify.py | test_fulfillment::test_failed_delivery_asks… | en/ne templates into the customer's own chat only, once per parcel and kind, merchant toggle. Meta 24 h window applies on real channels (GAP-MSG-CHANNELS) |
 | FUL-008 | delivery failure | P3 | TESTED | FUL-006 | fulfillment/service.py (attempts, capture_customer_reply, escalate_stale) | test_fulfillment (3 recovery tests), e2e phase3 | Attempt record → customer asked → reply captured before the Sales Agent → auto reattempt only in smart/autopilot → escalation after the wait window; return to sender; restock on receipt |
-| FUL-009 | smart courier | P6 | NOT_STARTED | — | — | — |  |
+| FUL-009 | smart courier | P6 | TESTED | CRI-003 | Courier Brain (CRI-001…005); settings/CouriersView | apps/backend/tests/test_intelligence.py::test_courier_selection_recommendation_switches_to_smart | Only sandbox courier data until a real Nepal courier API exists (GAP-COURIER-NP) |
 | FUL-010 | reconciliation | P3 | TESTED | FUL-006 | apps/backend/app/domains/fulfillment/settlement.py | test_fulfillment (4 settlement tests) | Statements from courier API, CSV import or own-rider cash; per-line matching (7 outcomes); accept with reason (audited); confirm settles COD records; idempotent per reference |
 | RET-001 | policy | P4 | TESTED | — | apps/backend/app/domains/returns/models.py, service.py; web Settings > Returns | test_returns::test_final_sale…, test_shop_fault… | Window, refund/exchange, evidence reasons, customer-pays return shipping, auto-approve, auto-refund threshold; final-sale products |
 | RET-002 | eligibility | P4 | TESTED | RET-001 | apps/backend/app/domains/returns/service.py::check_eligibility | test_returns::test_outside_window… | Recorded per request; hard checks refuse; soft checks need an audited override reason; live check in the web/mobile form |
@@ -366,7 +386,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | AUT-018 | AutomationActionLog: actor/outcome/eligibility/exclusion for every operational action (APS source) | P5 | TESTED | ORD-001 | apps/backend/app/domains/automation/policy.py::log_action (+ orders, inbox, fulfillment, returns, settlement) | test_automation | Idempotent per action; performed by automation/ai/user/system; human intervention flag |
 | AUT-019 | decision records (inputs refs, rule hit, confidence, impact) + seller-facing explanation | P5 | TESTED | — | apps/backend/app/domains/automation/models.py::DecisionRecord | test_automation | Rule → plain-words explanation in Control Center, approvals and Activity |
 | AUT-020 | intelligence-derived triggers and profit-aware conditions (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
-| AUT-021 | recommendation → policy → approval → idempotent execution path (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
+| AUT-021 | recommendation → policy → approval → idempotent execution path (Phase 6) | P6 | TESTED | REC-005 | apps/backend/app/domains/intelligence/recommendations.py::accept/_execute | apps/backend/tests/test_intelligence.py::test_autopilot_recommendation_is_r3_accepted_by_a_manager_and_measured; e2e phase6a | Recommendation → policy → approval → idempotent execution, decision on record |
 | ANA-001 | sales | P5 | NOT_STARTED | — | — | — |  |
 | ANA-002 | channels | P5 | NOT_STARTED | — | — | — |  |
 | ANA-003 | products | P5 | NOT_STARTED | — | — | — |  |
@@ -411,9 +431,9 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-014 | accessibility | P1 | IN_PROGRESS | — | apps/web, apps/mobile | — | Keyboard, focus, labels, 48dp; no full screen-reader audit yet |
 | UX-015 | bilingual review | P1 | IN_PROGRESS | — | apps/web/src/i18n, apps/mobile/lib/core/l10n/arb | key-parity tests | en/ne complete for Phase 0; Nepali not yet reviewed by a native copy editor |
 | UX-016 | Autopilot Control Center (home): "Your store is running." + Needs Your Attention (Phase 5) | P5 | TESTED | AUT-018 | apps/backend/app/domains/automation/control.py; apps/web/src/features/automation/ControlCenter.tsx; mobile control_center.dart | Automation.test, mobile tests, e2e phase5 | Real 7-day numbers, automatic vs team share, approvals, autopilot feed |
-| UX-017 | Autopilot Score component (breakdown, exclusions, thin-data state) (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
+| UX-017 | Autopilot Score component (breakdown, exclusions, thin-data state) (Phase 6) | P6 | TESTED | APS-005 | apps/web/src/features/intelligence/AutopilotScoreCard.tsx; mobile autopilot_score_card.dart | Intelligence.test.tsx; mobile tests; e2e phase6a; axe | Breakdown, exclusions, thin-data state |
 | UX-018 | Product Brain card (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
-| UX-019 | Recommendation / Profit Recommendation Card with explanation pattern (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
+| UX-019 | Recommendation / Profit Recommendation Card with explanation pattern (Phase 6) | P6 | TESTED | REC-003 | apps/web/src/features/intelligence/Recommendations.tsx; mobile recommendations_section.dart | Intelligence.test.tsx; mobile tests; e2e phase6a; axe | Profit recommendation variant waits for profit analytics (Part B) |
 | UX-020 | Return Insight Card + Courier Recommendation Card (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
 | UX-021 | Commerce Memory insight with correction (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
 | UX-022 | Creative Genome panel (Phase 7) | P7 | NOT_STARTED | — | — | — |  |
@@ -435,38 +455,38 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | MEM-006 | privacy: customer-level facts limited to operational needs; deletion/anonymisation path | P6 | NOT_STARTED | — | — | — |  |
 | MEM-007 | API summaries + Store Manager tool get_memory_facts | P6 | NOT_STARTED | — | — | — |  |
 | MEM-008 | recompute on method_version change (backfill job) | P6 | NOT_STARTED | — | — | — |  |
-| APS-001 | capability registry (eligibility rules per capability, steps-per-operation constants) | P6 | NOT_STARTED | — | — | — |  |
-| APS-002 | daily AutopilotMetric aggregation from AutomationActionLog (A/F/M/X with reasons) | P6 | NOT_STARTED | — | — | — |  |
-| APS-003 | AutopilotScoreSnapshot (volume-weighted overall; thin-data handling) | P6 | NOT_STARTED | — | — | — |  |
-| APS-004 | improvement recommendations (largest gap with config lever; estimated coverage from last 30 days) | P6 | NOT_STARTED | — | — | — |  |
-| APS-005 | API + Control Center + Store Manager tool; upsell hook via REC (plan_upgrade) | P6 | NOT_STARTED | — | — | — |  |
+| APS-001 | capability registry (eligibility rules per capability, steps-per-operation constants) | P6 | TESTED | AUT-018 | apps/backend/app/domains/intelligence/aps.py (CAPABILITY_OF, ACTION_CAPABILITY, STEPS) | apps/backend/tests/test_intelligence.py::test_score_counts_automated_failed_manual_and_excluded_with_thin_data | 8 capabilities from the Phase 5 action log |
+| APS-002 | daily AutopilotMetric aggregation from AutomationActionLog (A/F/M/X with reasons) | P6 | TESTED | APS-001 | apps/backend/app/domains/intelligence/aps.py::compute | apps/backend/tests/test_intelligence.py::test_score_counts_automated_failed_manual_and_excluded_with_thin_data | Computed live from AutomationActionLog over a 30-day window (no separate daily metric table); A/F/M/X with exclusion reasons |
+| APS-003 | AutopilotScoreSnapshot (volume-weighted overall; thin-data handling) | P6 | TESTED | APS-002 | apps/backend/app/domains/intelligence/aps.py::snapshot; models.AutopilotScoreSnapshot | apps/backend/tests/test_intelligence.py::test_score_api_levers_need_the_plan_and_snapshots_flag_jumps | Volume-weighted; capabilities under 10 eligible operations show 'not enough data' and don't count |
+| APS-004 | improvement recommendations (largest gap with config lever; estimated coverage from last 30 days) | P6 | TESTED | APS-003 | apps/backend/app/domains/intelligence/aps.py::levers | apps/backend/tests/test_intelligence.py::test_score_api_levers_need_the_plan_and_snapshots_flag_jumps | Largest manual gap with a config lever (template workflow); coverage estimated from the last 30 days |
+| APS-005 | API + Control Center + Store Manager tool; upsell hook via REC (plan_upgrade) | P6 | TESTED | APS-004 | apps/backend/app/domains/intelligence/router.py; web AutopilotScoreCard; mobile autopilot_score_card | Intelligence.test.tsx; mobile intelligence_test; e2e phase6a | Store Manager tool and plan_upgrade recommendation not built (GAP-APS-TOOL) |
 | APS-006 | audit sampling: manual-audit comparison tool (±2 points exit criterion) | P6 | NOT_STARTED | — | — | — |  |
-| APS-007 | anomaly flag on sudden score jumps | P6 | NOT_STARTED | — | — | — |  |
-| REC-001 | Recommendation + RecommendationEvidence + RecommendationOutcome models | P6 | NOT_STARTED | — | — | — |  |
-| REC-002 | typed recommended_action commands (mapped to automation actions) | P6 | NOT_STARTED | — | — | — |  |
-| REC-003 | explanation object builder (what/why/evidence/confidence/impact/action) — deterministic | P6 | NOT_STARTED | — | — | — |  |
+| APS-007 | anomaly flag on sudden score jumps | P6 | TESTED | APS-003 | apps/backend/app/domains/intelligence/aps.py::snapshot (anomaly) | apps/backend/tests/test_intelligence.py::test_score_api_levers_need_the_plan_and_snapshots_flag_jumps | Flags jumps of 25+ points against the previous snapshot |
+| REC-001 | Recommendation + RecommendationEvidence + RecommendationOutcome models | P6 | TESTED | — | apps/backend/app/domains/intelligence/models.py::Recommendation (evidence, baseline, outcome inline) | apps/backend/tests/test_intelligence.py::test_autopilot_recommendation_is_r3_accepted_by_a_manager_and_measured | Evidence and outcome are JSON columns on the recommendation, not separate tables (ADR-062) |
+| REC-002 | typed recommended_action commands (mapped to automation actions) | P6 | TESTED | REC-001 | apps/backend/app/domains/intelligence/recommendations.py::_execute | apps/backend/tests/test_intelligence.py::test_courier_selection_recommendation_switches_to_smart | enable_template, set_courier_selection, create_restock_task |
+| REC-003 | explanation object builder (what/why/evidence/confidence/impact/action) — deterministic | P6 | TESTED | REC-001 | apps/backend/app/domains/intelligence/recommendations.py generators + view | Intelligence.test.tsx | Deterministic what/why/evidence/confidence/impact/action; no AI narrative (REC-004) |
 | REC-004 | insight-narrative AI task with faithfulness validation (no new numbers) | P6 | NOT_STARTED | — | — | — |  |
-| REC-005 | policy routing (AUT-016) → auto / approval (Needs Your Attention) / blocked | P6 | NOT_STARTED | — | — | — |  |
-| REC-006 | accept/reject APIs (idempotent; reasons) + expiry | P6 | NOT_STARTED | — | — | — |  |
-| REC-007 | outcome measurement jobs (pre/post, holdout/DiD where possible) + impact analytics | P6 | NOT_STARTED | — | — | — |  |
-| REC-008 | dedupe + rate limiting of recommendations per merchant (no spam) | P6 | NOT_STARTED | — | — | — |  |
+| REC-005 | policy routing (AUT-016) → auto / approval (Needs Your Attention) / blocked | P6 | TESTED | AUT-016 | apps/backend/app/domains/intelligence/recommendations.py::accept → policy.decide (R3) | apps/backend/tests/test_intelligence.py::test_autopilot_recommendation_is_r3_accepted_by_a_manager_and_measured | Always R3: needs a person with automation.approve, in every mode (ADR-061) |
+| REC-006 | accept/reject APIs (idempotent; reasons) + expiry | P6 | TESTED | REC-005 | apps/backend/app/domains/intelligence/router.py accept/reject (Idempotency-Key); 30-day expiry | apps/backend/tests/test_intelligence.py::test_rejected_recommendations_dont_come_back_and_restock_uses_real_sales |  |
+| REC-007 | outcome measurement jobs (pre/post, holdout/DiD where possible) + impact analytics | P6 | IMPLEMENTED | REC-006 | apps/backend/app/domains/intelligence/recommendations.py::measure | apps/backend/tests/test_intelligence.py::test_autopilot_recommendation_is_r3_accepted_by_a_manager_and_measured | Pre/post after 14 days for score suggestions only; no holdout/DiD yet (GAP-REC-CAUSAL) |
+| REC-008 | dedupe + rate limiting of recommendations per merchant (no spam) | P6 | TESTED | REC-001 | apps/backend/app/domains/intelligence/recommendations.py::generate (dedupe key, MAX_OPEN=10, rejected stay rejected) | apps/backend/tests/test_intelligence.py::test_rejected_recommendations_dont_come_back_and_restock_uses_real_sales |  |
 | RTI-001 | return-reason metrics by product/variant/size/content version/supplier/campaign | P6 | NOT_STARTED | — | — | — |  |
 | RTI-002 | pattern detection (share vs baseline, min sample, significance) → ReturnInsight | P6 | NOT_STARTED | — | — | — |  |
 | RTI-003 | suspected-cause linking (content/image version shown at purchase, supplier batch) | P6 | NOT_STARTED | — | — | — |  |
 | RTI-004 | recommendations (size guide, fit warning, description, image, stop creative, size-up hint, supplier flag) | P6 | NOT_STARTED | — | — | — |  |
 | RTI-005 | before/after impact measurement | P6 | NOT_STARTED | — | — | — |  |
 | RTI-006 | Return Insight Card + Sales Agent fit hint | P6 | NOT_STARTED | — | — | — |  |
-| CRI-001 | CourierPerformanceMetric by courier × route × weight band × COD | P6 | NOT_STARTED | — | — | — |  |
-| CRI-002 | expected-cost model (price + failure cost × failure prob + settlement delay cost) | P6 | NOT_STARTED | — | — | — |  |
-| CRI-003 | selection modes cheapest/fastest/smart/preferred-only with policy integration | P6 | NOT_STARTED | — | — | — |  |
-| CRI-004 | explanation ("selected because …") + alternatives | P6 | NOT_STARTED | — | — | — |  |
-| CRI-005 | cold-start fallback (merchant preference/rules) with explicit low-confidence label | P6 | NOT_STARTED | — | — | — |  |
+| CRI-001 | CourierPerformanceMetric by courier × route × weight band × COD | P6 | TESTED | FUL | apps/backend/app/domains/intelligence/courier_brain.py::recompute; models.CourierPerformanceMetric | apps/backend/tests/test_intelligence.py::test_courier_brain_picks_the_courier_that_delivers_on_this_route | 90 days, courier × district × weight band × COD; nightly |
+| CRI-002 | expected-cost model (price + failure cost × failure prob + settlement delay cost) | P6 | TESTED | CRI-001 | apps/backend/app/domains/intelligence/courier_brain.py::rank | apps/backend/tests/test_intelligence.py::test_courier_brain_picks_the_courier_that_delivers_on_this_route | Handling cost (NPR 50) and cash-holding cost are documented estimates (ADR-063) |
+| CRI-003 | selection modes cheapest/fastest/smart/preferred-only with policy integration | P6 | TESTED | CRI-002 | apps/backend/app/domains/intelligence/courier_brain.py MODES; fulfillment courier_selection | apps/backend/tests/test_intelligence.py::test_courier_selection_recommendation_switches_to_smart | rules / cheapest / fastest / smart / preferred |
+| CRI-004 | explanation ("selected because …") + alternatives | P6 | TESTED | CRI-003 | apps/backend/app/domains/intelligence/courier_brain.py::_result; web DeliveryPanel | apps/backend/tests/test_intelligence.py::test_courier_brain_picks_the_courier_that_delivers_on_this_route |  |
+| CRI-005 | cold-start fallback (merchant preference/rules) with explicit low-confidence label | P6 | TESTED | CRI-003 | apps/backend/app/domains/intelligence/courier_brain.py (MIN_SAMPLE=20) | apps/backend/tests/test_intelligence.py::test_courier_brain_picks_the_courier_that_delivers_on_this_route | Under 20 finished parcels: falls back to rules with a 'not enough data' note |
 | CRI-006 | ETA calibration monitoring | P6 | NOT_STARTED | — | — | — |  |
-| CODI-001 | feature set (allowed inputs only) + static prohibited-feature check | P6 | NOT_STARTED | — | — | — |  |
-| CODI-002 | CODRiskAssessment (level, score, factors with evidence, recommended action, model_version) | P6 | NOT_STARTED | — | — | — |  |
-| CODI-003 | decision-policy integration (LOW auto, MEDIUM per policy, HIGHER review/advance) | P6 | NOT_STARTED | — | — | — |  |
-| CODI-004 | merchant override + dispute workflow (audited) | P6 | NOT_STARTED | — | — | — |  |
-| CODI-005 | outcome capture + calibration monitoring + regional disparity report | P6 | NOT_STARTED | — | — | — |  |
+| CODI-001 | feature set (allowed inputs only) + static prohibited-feature check | P6 | TESTED | — | apps/backend/app/domains/intelligence/cod_risk.py::ALLOWED_FACTORS | apps/backend/tests/test_intelligence.py::test_cod_model_reads_no_personal_attributes | Static test: factor allow-list and the module never reads names |
+| CODI-002 | CODRiskAssessment (level, score, factors with evidence, recommended action, model_version) | P6 | TESTED | CODI-001 | apps/backend/app/domains/intelligence/cod_risk.py::assess; models.CODRiskAssessment | apps/backend/tests/test_intelligence.py::test_cod_risk_uses_allowed_inputs_only_and_never_rejects | codi-1.0 transparent weighted score |
+| CODI-003 | decision-policy integration (LOW auto, MEDIUM per policy, HIGHER review/advance) | P6 | TESTED | CODI-002 | apps/backend/app/domains/intelligence/cod_risk.py (LOW ok, MEDIUM verify phone, HIGHER needs_review) | apps/backend/tests/test_intelligence.py::test_cod_risk_uses_allowed_inputs_only_and_never_rejects; e2e phase6a | Never auto-rejects (ADR-064) |
+| CODI-004 | merchant override + dispute workflow (audited) | P6 | TESTED | CODI-003 | apps/backend/app/domains/intelligence/cod_risk.py::override/dispute (audited) | apps/backend/tests/test_intelligence.py::test_cod_risk_uses_allowed_inputs_only_and_never_rejects; e2e phase6a | Override with reason clears the hold and changes the advice |
+| CODI-005 | outcome capture + calibration monitoring + regional disparity report | P6 | IMPLEMENTED | CODI-002 | apps/backend/app/domains/intelligence/cod_risk.py::calibration (outcome by level, per district) | apps/backend/tests/test_intelligence.py::test_cod_risk_uses_allowed_inputs_only_and_never_rejects | Ops endpoint only; no alerting on drift yet |
 | CODI-006 | phone verification + partial-advance flows (with PAY) | P6 | NOT_STARTED | — | — | — |  |
 | CGN-001 | CreativePerformanceMetric (views, engagement, clicks, inquiries, orders, attributed contribution) | P7 | NOT_STARTED | — | — | — |  |
 | CGN-002 | genome computation (outcome-weighted effects, min sample, shrinkage) → CreativeGenomeProfile | P7 | NOT_STARTED | — | — | — |  |
@@ -513,4 +533,4 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 5, IMPLEMENTED 28, IN_PROGRESS 12, NOT_STARTED 206, TESTED 82. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 5, IMPLEMENTED 22, IN_PROGRESS 12, NOT_STARTED 94, TESTED 200. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).

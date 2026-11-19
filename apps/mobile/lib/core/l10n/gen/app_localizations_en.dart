@@ -32,7 +32,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splashLoading => 'Opening your shop…';
 
   @override
-  String get offlineBanner => 'You\'re offline. Changes wait until you\'re back.';
+  String get offlineBanner =>
+      'You\'re offline. Changes wait until you\'re back.';
 
   @override
   String get offlineTitle => 'No internet connection';
@@ -47,7 +48,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionDeniedTitle => 'You don\'t have access to this';
 
   @override
-  String get permissionDeniedBody => 'Ask the shop owner to give your role access.';
+  String get permissionDeniedBody =>
+      'Ask the shop owner to give your role access.';
 
   @override
   String get featureNotInPlanTitle => 'Not in your current plan';
@@ -65,7 +67,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errInvalidCredentials => 'Email or password didn\'t match.';
 
   @override
-  String get errMfaInvalidCode => 'That code didn\'t work. Check your authenticator app and try again.';
+  String get errMfaInvalidCode =>
+      'That code didn\'t work. Check your authenticator app and try again.';
 
   @override
   String get errPermissionDenied => 'You don\'t have permission to do this.';
@@ -77,49 +80,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errNotFound => 'We couldn\'t find that.';
 
   @override
-  String get errConflict => 'This changed somewhere else. Refresh and try again.';
+  String get errConflict =>
+      'This changed somewhere else. Refresh and try again.';
 
   @override
-  String get errIdempotencyInProgress => 'Still working on your last request. Give it a moment.';
+  String get errIdempotencyInProgress =>
+      'Still working on your last request. Give it a moment.';
 
   @override
-  String get errIdempotencyKeyReused => 'This was already sent with different details. Please start again.';
+  String get errIdempotencyKeyReused =>
+      'This was already sent with different details. Please start again.';
 
   @override
   String get errSlugTaken => 'That shop link is taken. Try a different name.';
 
   @override
-  String get errEmailTaken => 'An account with this email already exists. Try logging in.';
+  String get errEmailTaken =>
+      'An account with this email already exists. Try logging in.';
 
   @override
-  String get errUsageLimitReached => 'You\'ve reached this period\'s limit. Buy credits, upgrade, or wait for renewal.';
+  String get errUsageLimitReached =>
+      'You\'ve reached this period\'s limit. Buy credits, upgrade, or wait for renewal.';
 
   @override
-  String get errInvalidStateTransition => 'This can\'t be done at its current stage.';
+  String get errInvalidStateTransition =>
+      'This can\'t be done at its current stage.';
 
   @override
   String get errRateLimited => 'Too many tries. Wait a little and try again.';
 
   @override
-  String get errDependencyUnavailable => 'A service we rely on is down. Your data is safe — try again shortly.';
+  String get errDependencyUnavailable =>
+      'A service we rely on is down. Your data is safe — try again shortly.';
 
   @override
-  String get errSessionEnded => 'For your safety we signed you out. Please log in again.';
+  String get errSessionEnded =>
+      'For your safety we signed you out. Please log in again.';
 
   @override
-  String get errSessionReused => 'Your login was used on another device, so we signed you out everywhere. Log in again, and change your password if that wasn\'t you.';
+  String get errSessionReused =>
+      'Your login was used on another device, so we signed you out everywhere. Log in again, and change your password if that wasn\'t you.';
 
   @override
-  String get errSessionRevoked => 'This device was logged out from another device. Please log in again.';
+  String get errSessionRevoked =>
+      'This device was logged out from another device. Please log in again.';
 
   @override
   String get errNetwork => 'No connection. Check your internet and try again.';
 
   @override
-  String get errTimeout => 'The connection is slow and this took too long. Try again.';
+  String get errTimeout =>
+      'The connection is slow and this took too long. Try again.';
 
   @override
-  String get errServer => 'Something went wrong on our side. Try again in a bit.';
+  String get errServer =>
+      'Something went wrong on our side. Try again in a bit.';
 
   @override
   String get errUnknown => 'Something went wrong. Try again.';
@@ -156,14 +171,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String validationPasswordTooShort(int min) {
-    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
     final String minString = minNumberFormat.format(min);
 
     return 'Use at least $minString characters';
   }
 
   @override
-  String get validationPasswordEqualsEmail => 'Password can\'t be the same as your email';
+  String get validationPasswordEqualsEmail =>
+      'Password can\'t be the same as your email';
 
   @override
   String get validationNameRequired => 'Enter your name';
@@ -173,7 +191,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String passwordHint(int min) {
-    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat minNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
     final String minString = minNumberFormat.format(min);
 
     return 'At least $minString characters. Avoid common passwords.';
@@ -195,7 +215,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mfaTitle => 'Enter your 6-digit code';
 
   @override
-  String get mfaSubtitle => 'Open your authenticator app. A recovery code also works.';
+  String get mfaSubtitle =>
+      'Open your authenticator app. A recovery code also works.';
 
   @override
   String get fieldMfaCode => 'Code';
@@ -252,7 +273,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timezoneKathmandu => 'Kathmandu (UTC+5:45)';
 
   @override
-  String get onboardingFixedNote => 'NPR and Nepal time for now. More options later.';
+  String get onboardingFixedNote =>
+      'NPR and Nepal time for now. More options later.';
 
   @override
   String get fieldDefaultLanguage => 'Language for customers and receipts';
@@ -296,7 +318,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricNotYet => 'Not counted yet';
 
   @override
-  String get metricNotYetBody => 'These numbers start once orders and messages connect. Until then we show nothing rather than guesses.';
+  String get metricNotYetBody =>
+      'These numbers start once orders and messages connect. Until then we show nothing rather than guesses.';
 
   @override
   String metricUnavailableSemantics(String metric) {
@@ -310,11 +333,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exceptionsEmptyTitle => 'Nothing needs you right now';
 
   @override
-  String get exceptionsEmptyBody => 'Payment mismatches, failed deliveries and unsure AI replies will show up here first.';
+  String get exceptionsEmptyBody =>
+      'Payment mismatches, failed deliveries and unsure AI replies will show up here first.';
 
   @override
   String exceptionsCount(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -378,14 +403,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autopilotModeAssistedHint => 'AI suggests, you approve';
 
   @override
-  String get autopilotModeSmartHint => 'Routine work runs, risky work waits for you';
+  String get autopilotModeSmartHint =>
+      'Routine work runs, risky work waits for you';
 
   @override
   String get autopilotModeAutopilotHint => 'Runs on its own within your rules';
 
   @override
   String autopilotAutomated(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString handled';
@@ -393,14 +420,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String autopilotNeedsAttention(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString need you';
   }
 
   @override
-  String get autopilotNotActive => 'Not active yet. Starts when orders and messages connect.';
+  String get autopilotNotActive =>
+      'Not active yet. Starts when orders and messages connect.';
 
   @override
   String get quickActionsTitle => 'Quick actions';
@@ -430,25 +459,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoonWhat => 'What it will do';
 
   @override
-  String get comingSoonHonest => 'Until then, nothing here is simulated — no sample orders or made-up numbers.';
+  String get comingSoonHonest =>
+      'Until then, nothing here is simulated — no sample orders or made-up numbers.';
 
   @override
-  String get soonAddProductBody => 'Add a product once with price, stock and sizes or colours. We keep it in sync across Instagram, Facebook and TikTok.';
+  String get soonAddProductBody =>
+      'Add a product once with price, stock and sizes or colours. We keep it in sync across Instagram, Facebook and TikTok.';
 
   @override
-  String get soonCaptureProductBody => 'Snap a few photos on your phone. We clean up the background and draft the title and details for you to check.';
+  String get soonCaptureProductBody =>
+      'Snap a few photos on your phone. We clean up the background and draft the title and details for you to check.';
 
   @override
-  String get soonGenerateContentBody => 'Write captions in Nepali or English from your product details. Nothing is posted until you approve it.';
+  String get soonGenerateContentBody =>
+      'Write captions in Nepali or English from your product details. Nothing is posted until you approve it.';
 
   @override
-  String get soonCreateReelBody => 'Turn your product photos and clips into a short Reel. Uses video credits from your plan.';
+  String get soonCreateReelBody =>
+      'Turn your product photos and clips into a short Reel. Uses video credits from your plan.';
 
   @override
-  String get soonViewOrdersBody => 'Follow every order from chat to doorstep: COD, courier status and returns.';
+  String get soonViewOrdersBody =>
+      'Follow every order from chat to doorstep: COD, courier status and returns.';
 
   @override
-  String get soonViewMessagesBody => 'All customer messages in one inbox. AI drafts replies from your real stock and prices.';
+  String get soonViewMessagesBody =>
+      'All customer messages in one inbox. AI drafts replies from your real stock and prices.';
 
   @override
   String get settingsTitle => 'Settings';
@@ -515,7 +551,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionsRevokeOthers => 'Log out all other devices';
 
   @override
-  String get sessionsRevokeOthersConfirm => 'Every device except this phone will be logged out.';
+  String get sessionsRevokeOthersConfirm =>
+      'Every device except this phone will be logged out.';
 
   @override
   String get sessionsRevokedToast => 'Logged out';
@@ -558,7 +595,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String usageReserved(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     return '$countString in progress';
@@ -577,7 +615,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usageLevelWarning => 'Almost at the limit';
 
   @override
-  String get usageLevelReached => 'Limit reached. Buy credits or upgrade to keep going.';
+  String get usageLevelReached =>
+      'Limit reached. Buy credits or upgrade to keep going.';
 
   @override
   String get usageEmpty => 'Nothing on your plan is metered yet.';
@@ -606,10 +645,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videoMeterNoDailyCap => 'No daily cap';
 
   @override
-  String get videoMeterDailyReached => 'Today\'s cap reached. It resets tomorrow.';
+  String get videoMeterDailyReached =>
+      'Today\'s cap reached. It resets tomorrow.';
 
   @override
-  String get videoMeterHelp => 'A monthly quota plus a daily cap, so one busy day can\'t use up the whole month.';
+  String get videoMeterHelp =>
+      'A monthly quota plus a daily cap, so one busy day can\'t use up the whole month.';
 
   @override
   String get resAiTextGenerations => 'AI writing';
@@ -654,7 +695,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureTitle => 'Capture product';
 
   @override
-  String get captureIntro => 'Add up to 6 clear photos. Front, back and a close-up of the fabric or label work best.';
+  String get captureIntro =>
+      'Add up to 6 clear photos. Front, back and a close-up of the fabric or label work best.';
 
   @override
   String get captureTakePhoto => 'Take photo';
@@ -664,20 +706,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String capturePhotoCount(int count, int max) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
-    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
     final String maxString = maxNumberFormat.format(max);
 
     return '$countString of $maxString photos';
   }
 
   @override
-  String get captureLimitReached => 'That\'s 6 photos — the most one draft can use.';
+  String get captureLimitReached =>
+      'That\'s 6 photos — the most one draft can use.';
 
   @override
   String captureSkipped(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -708,13 +755,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureRemovePhoto => 'Remove photo';
 
   @override
-  String get capturePickerError => 'Couldn\'t open the camera or gallery. Check photo and camera access in phone Settings.';
+  String get capturePickerError =>
+      'Couldn\'t open the camera or gallery. Check photo and camera access in phone Settings.';
 
   @override
   String get captureResumeAll => 'Resume uploads';
 
   @override
-  String get captureKeepsGoing => 'Uploads keep going if you switch apps. If the app closes, they pick up where they left off.';
+  String get captureKeepsGoing =>
+      'Uploads keep going if you switch apps. If the app closes, they pick up where they left off.';
 
   @override
   String get uploadQueued => 'Waiting';
@@ -752,13 +801,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectTooLarge => 'Photo is too big. Pick one under 20 MB.';
 
   @override
-  String get rejectUnsupported => 'This format isn\'t supported. Use JPEG, PNG, WebP or HEIC.';
+  String get rejectUnsupported =>
+      'This format isn\'t supported. Use JPEG, PNG, WebP or HEIC.';
 
   @override
   String get rejectMalware => 'This file looked unsafe, so we deleted it.';
 
   @override
-  String get tipLowResolution => 'Photo is small. Move closer or use the main camera.';
+  String get tipLowResolution =>
+      'Photo is small. Move closer or use the main camera.';
 
   @override
   String get tipBlurry => 'Photo looks blurry. Hold steady and tap to focus.';
@@ -776,22 +827,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errUnsupportedMediaType => 'Use a JPEG, PNG, WebP or HEIC photo.';
 
   @override
-  String get errStorageFull => 'Photo storage on your plan is full. Delete old photos or upgrade.';
+  String get errStorageFull =>
+      'Photo storage on your plan is full. Delete old photos or upgrade.';
 
   @override
-  String get errFileUnreadable => 'We couldn\'t read this photo from your phone. Pick it again.';
+  String get errFileUnreadable =>
+      'We couldn\'t read this photo from your phone. Pick it again.';
 
   @override
-  String get errUploadMissing => 'The photo didn\'t reach us. Retry the upload.';
+  String get errUploadMissing =>
+      'The photo didn\'t reach us. Retry the upload.';
 
   @override
   String get errUploadExpired => 'The upload took too long. Start it again.';
 
   @override
-  String get errMediaNotReady => 'Some photos are still being checked. Try again in a moment.';
+  String get errMediaNotReady =>
+      'Some photos are still being checked. Try again in a moment.';
 
   @override
-  String get errMediaNotFound => 'Some photos are no longer available. Add them again.';
+  String get errMediaNotFound =>
+      'Some photos are no longer available. Add them again.';
 
   @override
   String get errDraftNotReady => 'This draft isn\'t ready yet.';
@@ -800,16 +856,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errNotPublishable => 'This product isn\'t ready to go live yet.';
 
   @override
-  String get errProductNotActive => 'Make the product live first, then publish it to channels.';
+  String get errProductNotActive =>
+      'Make the product live first, then publish it to channels.';
 
   @override
   String get errCapabilityNotSupported => 'This channel can\'t do that.';
 
   @override
-  String get errVersionConflict => 'Someone else changed this. We loaded the latest — check and try again.';
+  String get errVersionConflict =>
+      'Someone else changed this. We loaded the latest — check and try again.';
 
   @override
-  String get errPostLocked => 'Scheduled posts can\'t be edited. Unschedule it first.';
+  String get errPostLocked =>
+      'Scheduled posts can\'t be edited. Unschedule it first.';
 
   @override
   String get errReconnectRequired => 'Reconnect this channel first.';
@@ -833,13 +892,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errNotFailed => 'Only failed drafts can be retried.';
 
   @override
-  String get errAiUnavailable => 'Our writing service is busy. Try again in a few minutes.';
+  String get errAiUnavailable =>
+      'Our writing service is busy. Try again in a few minutes.';
 
   @override
   String get draftWorkingTitle => 'Writing your listing';
 
   @override
-  String get draftWorkingBody => 'Reading your photos and drafting the name, description and captions in Nepali and English. This usually takes under a minute.';
+  String get draftWorkingBody =>
+      'Reading your photos and drafting the name, description and captions in Nepali and English. This usually takes under a minute.';
 
   @override
   String get draftQueued => 'In line';
@@ -848,13 +909,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get draftRunning => 'Working on it';
 
   @override
-  String get draftLeaveOk => 'You can leave this screen; we\'ll keep working. Find it later under Drafts.';
+  String get draftLeaveOk =>
+      'You can leave this screen; we\'ll keep working. Find it later under Drafts.';
 
   @override
   String get draftFailedTitle => 'We couldn\'t write this draft';
 
   @override
-  String get draftFailedBody => 'Our writing service had a problem. Your photos are safe.';
+  String get draftFailedBody =>
+      'Our writing service had a problem. Your photos are safe.';
 
   @override
   String get draftAppliedTitle => 'Already saved as a product';
@@ -869,7 +932,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewTitle => 'Check your listing';
 
   @override
-  String get reviewAiNote => 'Written by AI from your photos. Change anything that\'s off.';
+  String get reviewAiNote =>
+      'Written by AI from your photos. Change anything that\'s off.';
 
   @override
   String get reviewSectionText => 'Name and description';
@@ -893,7 +957,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewSectionCategory => 'Category';
 
   @override
-  String get fieldCategoryHint => 'Separate levels with /, e.g. Clothing / Kurta';
+  String get fieldCategoryHint =>
+      'Separate levels with /, e.g. Clothing / Kurta';
 
   @override
   String confidenceLabel(String percent) {
@@ -928,7 +993,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String attrUncheckedError(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -944,7 +1010,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewSectionPrice => 'Price and options';
 
   @override
-  String get reviewPriceNote => 'Prices always come from you — AI never sets them.';
+  String get reviewPriceNote =>
+      'Prices always come from you — AI never sets them.';
 
   @override
   String get fieldPrice => 'Price (Rs)';
@@ -989,7 +1056,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String variantsCount(int count) {
-    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final intl.NumberFormat countNumberFormat = intl
+        .NumberFormat.decimalPattern(localeName);
     final String countString = countNumberFormat.format(count);
 
     String _temp0 = intl.Intl.pluralLogic(
@@ -1002,7 +1070,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tooManyVariants => 'That makes more than 100 combinations. Remove some values.';
+  String get tooManyVariants =>
+      'That makes more than 100 combinations. Remove some values.';
 
   @override
   String get reviewSectionChecklist => 'AI couldn\'t tell — please confirm';
@@ -1011,31 +1080,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewSectionWarnings => 'Things to check';
 
   @override
-  String get issueClaimPrice => 'The text mentions a price. Prices come from you; please check.';
+  String get issueClaimPrice =>
+      'The text mentions a price. Prices come from you; please check.';
 
   @override
-  String get issueClaimDiscount => 'The text mentions a discount you didn\'t give us. Remove it or make sure it\'s real.';
+  String get issueClaimDiscount =>
+      'The text mentions a discount you didn\'t give us. Remove it or make sure it\'s real.';
 
   @override
-  String get issueClaimStock => 'The text talks about stock. Stock comes from your inventory; please check.';
+  String get issueClaimStock =>
+      'The text talks about stock. Stock comes from your inventory; please check.';
 
   @override
-  String get issueClaimDelivery => 'The text promises delivery terms. Make sure they\'re right.';
+  String get issueClaimDelivery =>
+      'The text promises delivery terms. Make sure they\'re right.';
 
   @override
-  String get issueClaimWarranty => 'The text mentions a warranty. Keep it only if you offer one.';
+  String get issueClaimWarranty =>
+      'The text mentions a warranty. Keep it only if you offer one.';
 
   @override
-  String get issueClaimAuthenticity => 'The text says it\'s original or genuine. Keep it only if you can back it up.';
+  String get issueClaimAuthenticity =>
+      'The text says it\'s original or genuine. Keep it only if you can back it up.';
 
   @override
-  String get issueClaimOther => 'The text makes a claim we couldn\'t verify. Please check.';
+  String get issueClaimOther =>
+      'The text makes a claim we couldn\'t verify. Please check.';
 
   @override
-  String get issueNotProductPhoto => 'These photos may not show a product. Check them before saving.';
+  String get issueNotProductPhoto =>
+      'These photos may not show a product. Check them before saving.';
 
   @override
-  String get issueTooLong => 'Some text was too long and was shortened. Read it once.';
+  String get issueTooLong =>
+      'Some text was too long and was shortened. Read it once.';
 
   @override
   String issueInField(String field) {
@@ -1082,7 +1160,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productProblemAttributes => 'Confirm the AI details below.';
 
   @override
-  String get productProblemVariant => 'Add at least one active variant (from the web dashboard for now).';
+  String get productProblemVariant =>
+      'Add at least one active variant (from the web dashboard for now).';
 
   @override
   String get productProblemTitle => 'Add a product name.';
@@ -1109,7 +1188,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publishNeedsLive => 'Go live first to publish to channels.';
 
   @override
-  String get publishNoChannels => 'No shop channels connected yet. Connect Instagram, Facebook or TikTok from the web dashboard.';
+  String get publishNoChannels =>
+      'No shop channels connected yet. Connect Instagram, Facebook or TikTok from the web dashboard.';
 
   @override
   String get publishAction => 'Publish';
@@ -1155,7 +1235,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reconnectChannelGeneric => 'channel';
 
   @override
-  String get reconnectBody => 'For now, reconnect channels from the web dashboard in a browser:';
+  String get reconnectBody =>
+      'For now, reconnect channels from the web dashboard in a browser:';
 
   @override
   String get reconnectCopied => 'Link copied';
@@ -1167,7 +1248,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postsSection => 'Create posts';
 
   @override
-  String get postsIntro => 'Turn the AI captions into posts for each channel. You review before anything goes out.';
+  String get postsIntro =>
+      'Turn the AI captions into posts for each channel. You review before anything goes out.';
 
   @override
   String get postsCreate => 'Create drafts';
@@ -1226,10 +1308,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postSchedule => 'Schedule';
 
   @override
-  String get postNeedsApprovalNote => 'AI-written posts need an approval before they go out.';
+  String get postNeedsApprovalNote =>
+      'AI-written posts need an approval before they go out.';
 
   @override
-  String get postNoApprovePermission => 'Ask the shop owner or a manager to approve this.';
+  String get postNoApprovePermission =>
+      'Ask the shop owner or a manager to approve this.';
 
   @override
   String get postCaptionSaved => 'Caption saved';
@@ -1247,10 +1331,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get draftsNew => 'New from photos';
 
   @override
-  String get draftsEmpty => 'No drafts yet. Start with a few photos of a product.';
+  String get draftsEmpty =>
+      'No drafts yet. Start with a few photos of a product.';
 
   @override
-  String get draftsIntro => 'Pick a draft to turn into posts, or start with new photos.';
+  String get draftsIntro =>
+      'Pick a draft to turn into posts, or start with new photos.';
 
   @override
   String get draftStatusWorking => 'Writing…';
@@ -1325,7 +1411,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotTitle => 'Reset your password';
 
   @override
-  String get forgotSubtitle => 'Enter your account email and we\'ll send you a link to set a new password.';
+  String get forgotSubtitle =>
+      'Enter your account email and we\'ll send you a link to set a new password.';
 
   @override
   String get forgotAction => 'Send reset link';
@@ -1334,7 +1421,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotSentTitle => 'Check your email';
 
   @override
-  String get forgotSentBody => 'If an account exists for that email, a reset link is on its way. Open it on this phone or a computer. It works once and expires in 30 minutes.';
+  String get forgotSentBody =>
+      'If an account exists for that email, a reset link is on its way. Open it on this phone or a computer. It works once and expires in 30 minutes.';
 
   @override
   String get forgotBack => 'Back to sign in';
@@ -1369,7 +1457,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ordersEmpty => 'No orders here';
 
   @override
-  String get ordersEmptyBody => 'Orders from chats, your channels and the ones you add appear here.';
+  String get ordersEmptyBody =>
+      'Orders from chats, your channels and the ones you add appear here.';
 
   @override
   String orderNumber(int number) {
@@ -1413,7 +1502,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderCancelTitle => 'Cancel this order?';
 
   @override
-  String get orderCancelBody => 'Reserved stock goes back on sale. The customer isn\'t messaged automatically.';
+  String get orderCancelBody =>
+      'Reserved stock goes back on sale. The customer isn\'t messaged automatically.';
 
   @override
   String get orderCancelReason => 'Reason';
@@ -1442,7 +1532,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderViewChat => 'Open chat';
 
   @override
-  String get orderReviewPaymentMismatch => 'Paid amount doesn\'t match the total';
+  String get orderReviewPaymentMismatch =>
+      'Paid amount doesn\'t match the total';
 
   @override
   String get orderReviewPaidAfterCancel => 'Paid after it was cancelled';
@@ -1586,7 +1677,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inboxEmpty => 'No open chats';
 
   @override
-  String get inboxEmptyBody => 'Customer messages from your connected channels arrive here.';
+  String get inboxEmptyBody =>
+      'Customer messages from your connected channels arrive here.';
 
   @override
   String get inboxNeedsYou => 'Needs you';
@@ -1639,7 +1731,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get threadHandedBack => 'The AI will answer new messages again.';
 
   @override
-  String get threadHumanBanner => 'You\'re handling this chat. The AI is paused.';
+  String get threadHumanBanner =>
+      'You\'re handling this chat. The AI is paused.';
 
   @override
   String get threadEscalatedBanner => 'The AI handed this chat to you.';
@@ -1650,7 +1743,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get draftAwaitingConfirmation => 'Order summary sent. Waiting for the customer\'s yes.';
+  String get draftAwaitingConfirmation =>
+      'Order summary sent. Waiting for the customer\'s yes.';
 
   @override
   String get draftConfirmed => 'Order created from this chat';
@@ -1749,7 +1843,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryWhyDefault => 'Recommended: your default courier';
 
   @override
-  String get deliveryWhyCheapest => 'Recommended: the cheapest option that fits this parcel';
+  String get deliveryWhyCheapest =>
+      'Recommended: the cheapest option that fits this parcel';
 
   @override
   String get deliveryWhyOnly => 'The only option that can take this parcel';
@@ -1766,7 +1861,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deliveryNoCouriers => 'No courier is set up yet. Add one in Settings on the web.';
+  String get deliveryNoCouriers =>
+      'No courier is set up yet. Add one in Settings on the web.';
 
   @override
   String deliveryCollectAmount(String amount) {
@@ -1848,7 +1944,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryCancelTitle => 'Cancel this booking?';
 
   @override
-  String get deliveryCancelBody => 'The courier won\'t collect this parcel. You can book again.';
+  String get deliveryCancelBody =>
+      'The courier won\'t collect this parcel. You can book again.';
 
   @override
   String get deliveryKeep => 'Keep';
@@ -1869,7 +1966,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryReturnTitle => 'Return the parcel to your shop?';
 
   @override
-  String get deliveryReturnBody => 'The courier brings it back and no cash is collected.';
+  String get deliveryReturnBody =>
+      'The courier brings it back and no cash is collected.';
 
   @override
   String get deliveryStatusTitle => 'What happened to the parcel?';
@@ -1923,7 +2021,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shipStatusLost => 'Lost by courier';
 
   @override
-  String get failReasonCustomerUnreachable => 'Couldn\'t reach the customer\'s phone';
+  String get failReasonCustomerUnreachable =>
+      'Couldn\'t reach the customer\'s phone';
 
   @override
   String get failReasonCustomerUnavailable => 'Nobody was there to receive it';
@@ -1947,10 +2046,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recoveryOpen => 'Call the customer';
 
   @override
-  String get recoveryAwaitingCustomer => 'We messaged the customer, waiting for a reply';
+  String get recoveryAwaitingCustomer =>
+      'We messaged the customer, waiting for a reply';
 
   @override
-  String get recoveryCustomerReplied => 'Customer replied: ask the courier to try again';
+  String get recoveryCustomerReplied =>
+      'Customer replied: ask the courier to try again';
 
   @override
   String get recoveryReattemptRequested => 'Courier asked to try again';
@@ -1989,7 +2090,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codAwaitingTitle => 'Cash still with couriers';
 
   @override
-  String get codAwaitingEmpty => 'No cash waiting: couriers have paid for every delivered parcel.';
+  String get codAwaitingEmpty =>
+      'No cash waiting: couriers have paid for every delivered parcel.';
 
   @override
   String codDaysWaiting(int days) {
@@ -2172,7 +2274,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnCreated => 'Return created';
 
   @override
-  String get returnNothingLeft => 'Everything from this order is already being returned.';
+  String get returnNothingLeft =>
+      'Everything from this order is already being returned.';
 
   @override
   String get returnPickReason => 'Pick a reason for each item';
@@ -2181,7 +2284,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnPickExchange => 'Pick what to exchange each item for';
 
   @override
-  String get returnCheckOrderDelivered => 'The order hasn\'t been delivered yet';
+  String get returnCheckOrderDelivered =>
+      'The order hasn\'t been delivered yet';
 
   @override
   String returnCheckWindow(int days) {
@@ -2204,7 +2308,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnCheckResolution => 'Your return policy doesn\'t allow this';
 
   @override
-  String get returnCheckExchangeProduct => 'An exchange must be the same product at the same price';
+  String get returnCheckExchangeProduct =>
+      'An exchange must be the same product at the same price';
 
   @override
   String get returnCheckExchangeStock => 'The replacement is out of stock';
@@ -2213,7 +2318,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnCheckGeneric => 'Doesn\'t meet your policy';
 
   @override
-  String get returnWarningsTitle => 'Outside your policy. You can still create it; approving will need a reason.';
+  String get returnWarningsTitle =>
+      'Outside your policy. You can still create it; approving will need a reason.';
 
   @override
   String get returnBlockedTitle => 'This return can\'t be created';
@@ -2333,7 +2439,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnApproveTitle => 'Approve this return?';
 
   @override
-  String get returnOverrideHint => 'This return is outside your policy. Say why you\'re approving it.';
+  String get returnOverrideHint =>
+      'This return is outside your policy. Say why you\'re approving it.';
 
   @override
   String get returnReasonLabel => 'Reason';
@@ -2351,7 +2458,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnCancelTitle => 'Cancel this return?';
 
   @override
-  String get returnCancelBody => 'Any replacement held for it goes back on sale.';
+  String get returnCancelBody =>
+      'Any replacement held for it goes back on sale.';
 
   @override
   String get returnReceivedTitle => 'Has the item reached you?';
@@ -2366,7 +2474,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get returnRestock => 'Put back on sale';
 
   @override
-  String get returnRestockOnlyResellable => 'Only items that can be sold again go back on sale';
+  String get returnRestockOnlyResellable =>
+      'Only items that can be sold again go back on sale';
 
   @override
   String get returnInspectSave => 'Save check';
@@ -2657,4 +2766,261 @@ class AppLocalizationsEn extends AppLocalizations {
   String wfRuns(int done, int waiting, int failed) {
     return '$done done · $waiting in progress · $failed failed';
   }
+
+  @override
+  String get apsTitle => 'Autopilot Score';
+
+  @override
+  String get apsNotEnough => 'Not enough activity yet';
+
+  @override
+  String get apsCapNotEnough => 'not enough activity';
+
+  @override
+  String apsWindow(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String apsCounts(int a, int f, int m) {
+    return 'Automatic $a · Failed $f · By your team $m';
+  }
+
+  @override
+  String apsExcluded(int count, String reason) {
+    return '$count not counted: $reason';
+  }
+
+  @override
+  String get apsExclAboveThreshold => 'Needed approval by your rules';
+
+  @override
+  String get apsExclNotInPlan => 'Not in your plan';
+
+  @override
+  String get apsExclNoCapability => 'Not possible on this channel';
+
+  @override
+  String get apsExclOther => 'Other reasons';
+
+  @override
+  String apsHoursSaved(String hours) {
+    return 'About $hours hours saved (estimated)';
+  }
+
+  @override
+  String get apsCapCustomerReplies => 'Customer replies';
+
+  @override
+  String get apsCapOrderCapture => 'Order capture';
+
+  @override
+  String get apsCapShipmentCreation => 'Booking couriers';
+
+  @override
+  String get apsCapPickupRequests => 'Pickup requests';
+
+  @override
+  String get apsCapDeliveryNotifications => 'Delivery messages';
+
+  @override
+  String get apsCapDeliveryRecovery => 'Failed delivery follow-up';
+
+  @override
+  String get apsCapReturns => 'Returns';
+
+  @override
+  String get apsCapRefunds => 'Refunds';
+
+  @override
+  String get apsCapMarketing => 'Marketing';
+
+  @override
+  String get apsCapOther => 'Other work';
+
+  @override
+  String get recsTitle => 'Suggestions';
+
+  @override
+  String get recSetMode => 'Switch to Smart mode';
+
+  @override
+  String get recActivateTemplate => 'Turn on “Book a courier when packed”';
+
+  @override
+  String get recEnableR2 => 'Let reattempts run by themselves';
+
+  @override
+  String get recEnableReturnAuto => 'Auto-approve small returns';
+
+  @override
+  String get recEnableNotifications => 'Message customers about deliveries';
+
+  @override
+  String get recPlanUpgrade => 'Available on a higher plan';
+
+  @override
+  String get recCourierSelection => 'Let Courier Brain pick couriers';
+
+  @override
+  String recRestock(String title) {
+    return 'Restock $title';
+  }
+
+  @override
+  String get recOther => 'Suggestion';
+
+  @override
+  String recWhyManualGap(String manual, String eligible, String capability) {
+    return 'Your team did $manual of $eligible $capability by hand in 30 days';
+  }
+
+  @override
+  String recWhyCourier(
+    String theirs,
+    String ours,
+    String destination,
+    String n,
+  ) {
+    return 'Another courier delivered $theirs% vs $ours% to $destination ($n parcels)';
+  }
+
+  @override
+  String recWhyRestock(String sold, String available, String days) {
+    return '$sold sold in 30 days, $available left (about $days days)';
+  }
+
+  @override
+  String get recConfidenceHigh => 'High confidence';
+
+  @override
+  String get recConfidenceMedium => 'Medium confidence';
+
+  @override
+  String recImpactScore(String score) {
+    return 'Could raise this to $score';
+  }
+
+  @override
+  String recImpactCourier(String points) {
+    return '+$points points delivery success';
+  }
+
+  @override
+  String get recAccept => 'Apply';
+
+  @override
+  String get recDismiss => 'Dismiss';
+
+  @override
+  String get recDismissTitle => 'Why dismiss this?';
+
+  @override
+  String get recDismissReason => 'Reason';
+
+  @override
+  String get recCancel => 'Cancel';
+
+  @override
+  String get recManagersOnly => 'Only managers can apply this';
+
+  @override
+  String get recApplied => 'Done';
+
+  @override
+  String get recDismissed => 'Dismissed';
+
+  @override
+  String get riskTitle => 'Delivery risk';
+
+  @override
+  String get riskLevelLow => 'Low risk';
+
+  @override
+  String get riskLevelMedium => 'Check before sending';
+
+  @override
+  String get riskLevelHigher => 'Higher delivery risk';
+
+  @override
+  String get riskActionOk => 'Fine to send as cash on delivery';
+
+  @override
+  String get riskActionVerifyPhone => 'Call to confirm the order';
+
+  @override
+  String get riskActionPartialAdvance => 'Ask for a part payment first';
+
+  @override
+  String get riskActionManualReview => 'Review before packing';
+
+  @override
+  String riskFactorHistory(String delivered, String failed) {
+    return 'Delivered $delivered, failed $failed before';
+  }
+
+  @override
+  String get riskFactorNewCustomer => 'First order with you';
+
+  @override
+  String riskFactorReturns(String returns) {
+    return '$returns returns before';
+  }
+
+  @override
+  String get riskFactorAddressMissing => 'Address incomplete';
+
+  @override
+  String get riskFactorAddressPartial => 'Some address details missing';
+
+  @override
+  String riskFactorOrderValue(String ratio) {
+    return '$ratio× your usual order';
+  }
+
+  @override
+  String riskFactorRoute(String rate, String district) {
+    return '$rate% failed deliveries to $district';
+  }
+
+  @override
+  String get riskFairness =>
+      'Based only on this customer\'s history with your shop, the address and order value. Never on name, gender, religion, caste or ethnicity.';
+
+  @override
+  String riskOverridden(String reason) {
+    return 'You changed this: $reason';
+  }
+
+  @override
+  String riskDisputed(String note) {
+    return 'Customer disputes this: $note';
+  }
+
+  @override
+  String get riskOverride => 'Change level';
+
+  @override
+  String get riskOverrideTitle => 'Change the risk level';
+
+  @override
+  String get riskOverrideReason => 'Why (at least 3 characters)';
+
+  @override
+  String get riskSave => 'Save';
+
+  @override
+  String get riskDispute => 'Customer disputes this';
+
+  @override
+  String get riskDisputeTitle => 'Record the customer\'s dispute';
+
+  @override
+  String get riskDisputeNote => 'What the customer says';
+
+  @override
+  String get riskUpdated => 'Updated';
+
+  @override
+  String get riskCancel => 'Cancel';
 }

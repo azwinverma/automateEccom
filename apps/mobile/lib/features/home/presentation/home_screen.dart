@@ -17,6 +17,9 @@ import '../../exceptions/data/exceptions_api.dart';
 import '../../exceptions/presentation/exception_mapping.dart';
 import '../../fulfillment/data/fulfillment_api.dart';
 import '../../fulfillment/presentation/cod_screen.dart';
+import '../../intelligence/data/intelligence_api.dart';
+import '../../intelligence/presentation/autopilot_score_card.dart';
+import '../../intelligence/presentation/recommendations_section.dart';
 import '../../returns/data/returns_api.dart';
 import '../../returns/presentation/returns_list_screen.dart';
 import 'widgets/autopilot_status_strip.dart';
@@ -89,6 +92,8 @@ class HomeScreen extends ConsumerWidget {
               ..invalidate(exceptionsProvider)
               ..invalidate(automationModeProvider)
               ..invalidate(controlCenterProvider)
+              ..invalidate(autopilotScoreProvider)
+              ..invalidate(recommendationsProvider)
               ..invalidate(codOverviewProvider)
               ..invalidate(returnsPageProvider('to_decide'));
             await Future.wait<Object?>([
@@ -143,6 +148,8 @@ class HomeScreen extends ConsumerWidget {
               // The Control Center replaces the strip once its summary has loaded.
               if (!ref.watch(controlCenterProvider).hasValue)
                 AutopilotStatusStrip(status: autopilot),
+              const AutopilotScoreCard(),
+              const RecommendationsSection(),
               const CodHomeCard(),
               const ReturnsHomeCard(),
               SectionHeader(

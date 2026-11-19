@@ -454,3 +454,32 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
   (automation/ai/user/system), outcome and human intervention, idempotently.
 - **Why:** APS (Phase 6) needs a trustworthy numerator/denominator from Phase 5 onward.
 
+## ADR-061: Recommendations are always R3 and change only settings (REC-005, AUT-021, 2026-11-19)
+- **Decision:** applying a suggestion goes through `policy.decide()` as R3 in every mode, needs
+  automation.approve, is idempotent and stores a DecisionRecord. Suggestions only turn on a template
+  workflow, change courier selection or create a restock task; they never move money or stock.
+- **Why:** a suggestion is Nivaro's opinion about the seller's business; the seller decides. Settings
+  changes are reversible, which keeps the before/after measurement honest.
+
+## ADR-062: Score and suggestions are computed from the action log, not new metric tables (APS-002, REC-001, 2026-11-19)
+- **Decision:** the Autopilot Score is computed from AutomationActionLog for a 30-day window; only the
+  daily snapshot is stored. Recommendation evidence, baseline and outcome are JSON on the
+  recommendation row.
+- **Why:** one source of truth with Phase 5 and no aggregate that can drift. Revisit if computing it
+  gets slow at real volume (index on merchant + created_at exists).
+
+## ADR-063: Courier Brain ranks by expected cost with documented estimates (CRI-002, 2026-11-19)
+- **Decision:** expected cost = price + failure probability × (2 × price for return and wasted outbound
+  + NPR 50 handling) + COD cash held × 0.05%/day. Only couriers with 20+ finished parcels on the route
+  are ranked, preferring those at 80%+ success; with none, the seller's rules apply, with a note saying so.
+- **Why:** sellers need a reason they can check ("delivered 46 of 50 to Dhanusha"). The two estimates are
+  shown as estimates and become merchant settings if sellers disagree with them.
+
+## ADR-064: COD risk never rejects and never uses personal attributes (CODI-001/003, 2026-11-19)
+- **Decision:** only this merchant's facts: the customer's delivery/return history with the shop, new
+  vs repeat, address completeness, order value against the shop's usual orders and the shop's failure
+  rate to the district. HIGHER holds the order for review (`needs_review="cod_risk"`); MEDIUM suggests
+  verifying the phone; nothing is cancelled automatically. A static test fails the build if the module
+  reads a name or adds a factor outside the allow-list. Overrides need a reason and are audited.
+- **Why:** spec 12 fairness rules. A wrong "risky" label must cost the seller one phone call, not a
+  lost customer, and must be possible to challenge.

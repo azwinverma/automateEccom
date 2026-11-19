@@ -127,6 +127,18 @@ are done. The items below remain.
 | GAP-TEST-FLAKE-1104 | Low | One backend test failed once in a full run with coverage on 2026-11-04 (output not captured); it hasn't happened again in 4 more full runs or 6 repeats of the concurrency tests. | If CI shows a failure, capture `-rf` output and fix the root cause. |
 | GAP-NE-COPY-REVIEW | Low | New Phase 2 Nepali UI copy and chat templates need a native copy review. | Copy editor pass. |
 
+## Phase 6 part A (2026-11-19)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-APS-AUDIT | Med | No manual-audit comparison tool (APS-006), so the ±2-point accuracy exit criterion isn't verified. | Sample 50 operations per capability, compare with the computed class, report the gap. |
+| GAP-APS-TOOL | Low | The score isn't a Store Manager tool yet and there's no plan-upgrade suggestion. | Add with the Store Manager agent. |
+| GAP-REC-CAUSAL | Med | Suggestion outcomes are before/after only (other changes in the period also count); courier and restock suggestions aren't measured automatically. | Holdout or difference-in-differences once enough merchants exist. |
+| GAP-REC-NARRATIVE | Low | Explanations are deterministic templates; no AI narrative (REC-004). | AI narrative with a no-new-numbers faithfulness check, once a live model key exists. |
+| GAP-CRI-DATA | High (value) | Courier Brain has only sandbox courier data; its estimates (NPR 50 handling, 0.05%/day cash cost) are defaults, not merchant settings. ETA calibration (CRI-006) not built. | Real courier API (GAP-COURIER-NP); make the estimates editable. |
+| GAP-COD-VERIFY | Med | "Verify the phone" is advice only; no OTP/call verification or partial advance payment (CODI-006). | Build with the payment gateway (GAP-PAY-NP) and an SMS provider. |
+| GAP-COD-CALIBRATION-ALERT | Low | The calibration/disparity report exists but nothing alerts on drift or a district disparity. | Weekly check with an ops alert once monitoring exists. |
+| GAP-E2E-COLDSTART | Low | On a freshly started QA stack, the first real-backend spec (phase 2, desktop) failed twice with Node "fetch failed"; no server error was logged, and it passed alone and in the next full run (30/30). | Add a warm-up request in the Playwright global setup; capture the cause if it shows up in CI. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.
@@ -135,7 +147,7 @@ are done. The items below remain.
 | GAP-COD-BANK | Med | "Money received" on a COD statement is the seller's confirmation; Nivaro doesn't see the bank or wallet credit. | Bank/wallet statement import or a payout API from the courier. |
 | GAP-LABEL-BARCODE | Low | Nivaro's printable label shows the tracking number as text; no barcode/QR. Couriers that supply their own label link to it. | Add Code-128/QR rendering once a courier confirms which format its scanners read. |
 | GAP-SETTLEMENT-XLSX | Low | Courier statements are imported as CSV; Excel files must be saved as CSV first. | Parse .xlsx server-side (with a vetted library) if sellers ask for it. |
-| GAP-COURIER-RATES-REAL | Med | Rates and ETAs come from the sandbox courier; own-rider bookings have no rate. Courier Brain (Phase 6) needs real courier data. | Integrate a Nepal courier API (GAP-COURIER-NP). |
+| GAP-COURIER-RATES-REAL | Med | Rates and ETAs come from the sandbox courier; own-rider bookings have no rate. Courier Brain (built in Phase 6A) has only sandbox data (GAP-CRI-DATA). | Integrate a Nepal courier API (GAP-COURIER-NP). |
 | GAP-RETURN-SELF-SERVE | Med | Returns are created by the seller (or prompted by the Sales Agent's hand-over); customers have no return link/portal. | A signed customer return link once a storefront/portal exists. |
 | GAP-RETURN-EVIDENCE-UI | Low | Return lines store evidence media ids and the policy checks them, but the web/mobile forms don't upload photos yet. | Reuse the media upload flow in the Start-a-return form. |
 | GAP-EXCHANGE-PRICE | Low | Exchanges are limited to the same product at the same price (no top-up or partial refund). | Price-difference exchanges with a payment link or partial refund. |

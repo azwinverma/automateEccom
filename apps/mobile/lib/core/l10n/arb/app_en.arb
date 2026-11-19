@@ -1391,5 +1391,226 @@
         "type": "int"
       }
     }
-  }
+  },
+  "apsTitle": "Autopilot Score",
+  "apsNotEnough": "Not enough activity yet",
+  "apsCapNotEnough": "not enough activity",
+  "apsWindow": "Last {days} days",
+  "@apsWindow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "apsCounts": "Automatic {a} · Failed {f} · By your team {m}",
+  "@apsCounts": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "f": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "apsExcluded": "{count} not counted: {reason}",
+  "@apsExcluded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "apsExclAboveThreshold": "Needed approval by your rules",
+  "apsExclNotInPlan": "Not in your plan",
+  "apsExclNoCapability": "Not possible on this channel",
+  "apsExclOther": "Other reasons",
+  "apsHoursSaved": "About {hours} hours saved (estimated)",
+  "@apsHoursSaved": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "apsCapCustomerReplies": "Customer replies",
+  "apsCapOrderCapture": "Order capture",
+  "apsCapShipmentCreation": "Booking couriers",
+  "apsCapPickupRequests": "Pickup requests",
+  "apsCapDeliveryNotifications": "Delivery messages",
+  "apsCapDeliveryRecovery": "Failed delivery follow-up",
+  "apsCapReturns": "Returns",
+  "apsCapRefunds": "Refunds",
+  "apsCapMarketing": "Marketing",
+  "apsCapOther": "Other work",
+  "recsTitle": "Suggestions",
+  "recSetMode": "Switch to Smart mode",
+  "recActivateTemplate": "Turn on “Book a courier when packed”",
+  "recEnableR2": "Let reattempts run by themselves",
+  "recEnableReturnAuto": "Auto-approve small returns",
+  "recEnableNotifications": "Message customers about deliveries",
+  "recPlanUpgrade": "Available on a higher plan",
+  "recCourierSelection": "Let Courier Brain pick couriers",
+  "recRestock": "Restock {title}",
+  "@recRestock": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recOther": "Suggestion",
+  "recWhyManualGap": "Your team did {manual} of {eligible} {capability} by hand in 30 days",
+  "@recWhyManualGap": {
+    "placeholders": {
+      "manual": {
+        "type": "String"
+      },
+      "eligible": {
+        "type": "String"
+      },
+      "capability": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyCourier": "Another courier delivered {theirs}% vs {ours}% to {destination} ({n} parcels)",
+  "@recWhyCourier": {
+    "placeholders": {
+      "theirs": {
+        "type": "String"
+      },
+      "ours": {
+        "type": "String"
+      },
+      "destination": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyRestock": "{sold} sold in 30 days, {available} left (about {days} days)",
+  "@recWhyRestock": {
+    "placeholders": {
+      "sold": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "recConfidenceHigh": "High confidence",
+  "recConfidenceMedium": "Medium confidence",
+  "recImpactScore": "Could raise this to {score}",
+  "@recImpactScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "recImpactCourier": "+{points} points delivery success",
+  "@recImpactCourier": {
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "recAccept": "Apply",
+  "recDismiss": "Dismiss",
+  "recDismissTitle": "Why dismiss this?",
+  "recDismissReason": "Reason",
+  "recCancel": "Cancel",
+  "recManagersOnly": "Only managers can apply this",
+  "recApplied": "Done",
+  "recDismissed": "Dismissed",
+  "riskTitle": "Delivery risk",
+  "riskLevelLow": "Low risk",
+  "riskLevelMedium": "Check before sending",
+  "riskLevelHigher": "Higher delivery risk",
+  "riskActionOk": "Fine to send as cash on delivery",
+  "riskActionVerifyPhone": "Call to confirm the order",
+  "riskActionPartialAdvance": "Ask for a part payment first",
+  "riskActionManualReview": "Review before packing",
+  "riskFactorHistory": "Delivered {delivered}, failed {failed} before",
+  "@riskFactorHistory": {
+    "placeholders": {
+      "delivered": {
+        "type": "String"
+      },
+      "failed": {
+        "type": "String"
+      }
+    }
+  },
+  "riskFactorNewCustomer": "First order with you",
+  "riskFactorReturns": "{returns} returns before",
+  "@riskFactorReturns": {
+    "placeholders": {
+      "returns": {
+        "type": "String"
+      }
+    }
+  },
+  "riskFactorAddressMissing": "Address incomplete",
+  "riskFactorAddressPartial": "Some address details missing",
+  "riskFactorOrderValue": "{ratio}× your usual order",
+  "@riskFactorOrderValue": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "riskFactorRoute": "{rate}% failed deliveries to {district}",
+  "@riskFactorRoute": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "district": {
+        "type": "String"
+      }
+    }
+  },
+  "riskFairness": "Based only on this customer's history with your shop, the address and order value. Never on name, gender, religion, caste or ethnicity.",
+  "riskOverridden": "You changed this: {reason}",
+  "@riskOverridden": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "riskDisputed": "Customer disputes this: {note}",
+  "@riskDisputed": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "riskOverride": "Change level",
+  "riskOverrideTitle": "Change the risk level",
+  "riskOverrideReason": "Why (at least 3 characters)",
+  "riskSave": "Save",
+  "riskDispute": "Customer disputes this",
+  "riskDisputeTitle": "Record the customer's dispute",
+  "riskDisputeNote": "What the customer says",
+  "riskUpdated": "Updated",
+  "riskCancel": "Cancel"
 }

@@ -62,7 +62,8 @@ import 'app_localizations_ne.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ne')
+    Locale('ne'),
   ];
 
   /// No description provided for @appName.
@@ -4960,9 +4963,453 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{done} done · {waiting} in progress · {failed} failed'**
   String wfRuns(int done, int waiting, int failed);
+
+  /// No description provided for @apsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Autopilot Score'**
+  String get apsTitle;
+
+  /// No description provided for @apsNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough activity yet'**
+  String get apsNotEnough;
+
+  /// No description provided for @apsCapNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'not enough activity'**
+  String get apsCapNotEnough;
+
+  /// No description provided for @apsWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {days} days'**
+  String apsWindow(int days);
+
+  /// No description provided for @apsCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic {a} · Failed {f} · By your team {m}'**
+  String apsCounts(int a, int f, int m);
+
+  /// No description provided for @apsExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} not counted: {reason}'**
+  String apsExcluded(int count, String reason);
+
+  /// No description provided for @apsExclAboveThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed approval by your rules'**
+  String get apsExclAboveThreshold;
+
+  /// No description provided for @apsExclNotInPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in your plan'**
+  String get apsExclNotInPlan;
+
+  /// No description provided for @apsExclNoCapability.
+  ///
+  /// In en, this message translates to:
+  /// **'Not possible on this channel'**
+  String get apsExclNoCapability;
+
+  /// No description provided for @apsExclOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other reasons'**
+  String get apsExclOther;
+
+  /// No description provided for @apsHoursSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'About {hours} hours saved (estimated)'**
+  String apsHoursSaved(String hours);
+
+  /// No description provided for @apsCapCustomerReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer replies'**
+  String get apsCapCustomerReplies;
+
+  /// No description provided for @apsCapOrderCapture.
+  ///
+  /// In en, this message translates to:
+  /// **'Order capture'**
+  String get apsCapOrderCapture;
+
+  /// No description provided for @apsCapShipmentCreation.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking couriers'**
+  String get apsCapShipmentCreation;
+
+  /// No description provided for @apsCapPickupRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup requests'**
+  String get apsCapPickupRequests;
+
+  /// No description provided for @apsCapDeliveryNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery messages'**
+  String get apsCapDeliveryNotifications;
+
+  /// No description provided for @apsCapDeliveryRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed delivery follow-up'**
+  String get apsCapDeliveryRecovery;
+
+  /// No description provided for @apsCapReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns'**
+  String get apsCapReturns;
+
+  /// No description provided for @apsCapRefunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds'**
+  String get apsCapRefunds;
+
+  /// No description provided for @apsCapMarketing.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketing'**
+  String get apsCapMarketing;
+
+  /// No description provided for @apsCapOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other work'**
+  String get apsCapOther;
+
+  /// No description provided for @recsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions'**
+  String get recsTitle;
+
+  /// No description provided for @recSetMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Smart mode'**
+  String get recSetMode;
+
+  /// No description provided for @recActivateTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on “Book a courier when packed”'**
+  String get recActivateTemplate;
+
+  /// No description provided for @recEnableR2.
+  ///
+  /// In en, this message translates to:
+  /// **'Let reattempts run by themselves'**
+  String get recEnableR2;
+
+  /// No description provided for @recEnableReturnAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-approve small returns'**
+  String get recEnableReturnAuto;
+
+  /// No description provided for @recEnableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Message customers about deliveries'**
+  String get recEnableNotifications;
+
+  /// No description provided for @recPlanUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Available on a higher plan'**
+  String get recPlanUpgrade;
+
+  /// No description provided for @recCourierSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Courier Brain pick couriers'**
+  String get recCourierSelection;
+
+  /// No description provided for @recRestock.
+  ///
+  /// In en, this message translates to:
+  /// **'Restock {title}'**
+  String recRestock(String title);
+
+  /// No description provided for @recOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestion'**
+  String get recOther;
+
+  /// No description provided for @recWhyManualGap.
+  ///
+  /// In en, this message translates to:
+  /// **'Your team did {manual} of {eligible} {capability} by hand in 30 days'**
+  String recWhyManualGap(String manual, String eligible, String capability);
+
+  /// No description provided for @recWhyCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Another courier delivered {theirs}% vs {ours}% to {destination} ({n} parcels)'**
+  String recWhyCourier(
+    String theirs,
+    String ours,
+    String destination,
+    String n,
+  );
+
+  /// No description provided for @recWhyRestock.
+  ///
+  /// In en, this message translates to:
+  /// **'{sold} sold in 30 days, {available} left (about {days} days)'**
+  String recWhyRestock(String sold, String available, String days);
+
+  /// No description provided for @recConfidenceHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High confidence'**
+  String get recConfidenceHigh;
+
+  /// No description provided for @recConfidenceMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium confidence'**
+  String get recConfidenceMedium;
+
+  /// No description provided for @recImpactScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Could raise this to {score}'**
+  String recImpactScore(String score);
+
+  /// No description provided for @recImpactCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} points delivery success'**
+  String recImpactCourier(String points);
+
+  /// No description provided for @recAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get recAccept;
+
+  /// No description provided for @recDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get recDismiss;
+
+  /// No description provided for @recDismissTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why dismiss this?'**
+  String get recDismissTitle;
+
+  /// No description provided for @recDismissReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get recDismissReason;
+
+  /// No description provided for @recCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get recCancel;
+
+  /// No description provided for @recManagersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only managers can apply this'**
+  String get recManagersOnly;
+
+  /// No description provided for @recApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get recApplied;
+
+  /// No description provided for @recDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismissed'**
+  String get recDismissed;
+
+  /// No description provided for @riskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery risk'**
+  String get riskTitle;
+
+  /// No description provided for @riskLevelLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low risk'**
+  String get riskLevelLow;
+
+  /// No description provided for @riskLevelMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Check before sending'**
+  String get riskLevelMedium;
+
+  /// No description provided for @riskLevelHigher.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher delivery risk'**
+  String get riskLevelHigher;
+
+  /// No description provided for @riskActionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Fine to send as cash on delivery'**
+  String get riskActionOk;
+
+  /// No description provided for @riskActionVerifyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Call to confirm the order'**
+  String get riskActionVerifyPhone;
+
+  /// No description provided for @riskActionPartialAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a part payment first'**
+  String get riskActionPartialAdvance;
+
+  /// No description provided for @riskActionManualReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before packing'**
+  String get riskActionManualReview;
+
+  /// No description provided for @riskFactorHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered {delivered}, failed {failed} before'**
+  String riskFactorHistory(String delivered, String failed);
+
+  /// No description provided for @riskFactorNewCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'First order with you'**
+  String get riskFactorNewCustomer;
+
+  /// No description provided for @riskFactorReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'{returns} returns before'**
+  String riskFactorReturns(String returns);
+
+  /// No description provided for @riskFactorAddressMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Address incomplete'**
+  String get riskFactorAddressMissing;
+
+  /// No description provided for @riskFactorAddressPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Some address details missing'**
+  String get riskFactorAddressPartial;
+
+  /// No description provided for @riskFactorOrderValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{ratio}× your usual order'**
+  String riskFactorOrderValue(String ratio);
+
+  /// No description provided for @riskFactorRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}% failed deliveries to {district}'**
+  String riskFactorRoute(String rate, String district);
+
+  /// No description provided for @riskFairness.
+  ///
+  /// In en, this message translates to:
+  /// **'Based only on this customer\'s history with your shop, the address and order value. Never on name, gender, religion, caste or ethnicity.'**
+  String get riskFairness;
+
+  /// No description provided for @riskOverridden.
+  ///
+  /// In en, this message translates to:
+  /// **'You changed this: {reason}'**
+  String riskOverridden(String reason);
+
+  /// No description provided for @riskDisputed.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer disputes this: {note}'**
+  String riskDisputed(String note);
+
+  /// No description provided for @riskOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'Change level'**
+  String get riskOverride;
+
+  /// No description provided for @riskOverrideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the risk level'**
+  String get riskOverrideTitle;
+
+  /// No description provided for @riskOverrideReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why (at least 3 characters)'**
+  String get riskOverrideReason;
+
+  /// No description provided for @riskSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get riskSave;
+
+  /// No description provided for @riskDispute.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer disputes this'**
+  String get riskDispute;
+
+  /// No description provided for @riskDisputeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the customer\'s dispute'**
+  String get riskDisputeTitle;
+
+  /// No description provided for @riskDisputeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'What the customer says'**
+  String get riskDisputeNote;
+
+  /// No description provided for @riskUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get riskUpdated;
+
+  /// No description provided for @riskCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get riskCancel;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -4971,25 +5418,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ne'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'ne'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'ne': return AppLocalizationsNe();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'ne':
+      return AppLocalizationsNe();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

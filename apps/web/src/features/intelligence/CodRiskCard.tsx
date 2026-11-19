@@ -53,9 +53,19 @@ export function CodRiskCard({ order, onChanged }: { order: OrderDetail; onChange
           </li>
         ))}
       </ul>
-      <span className={styles.muted}>{t("intel.cod.completeness", { pct: Math.round(a.data_completeness * 100) })}</span>
-      {a.overridden && a.override_reason ? <span className={styles.muted}>{t("intel.cod.overridden", { reason: a.override_reason })}</span> : null}
-      {a.disputed && a.dispute_note ? <span className={styles.muted}>{t("intel.cod.disputed", { note: a.dispute_note })}</span> : null}
+      <p className={styles.muted} style={{ margin: "var(--space-2) 0 0" }}>
+        {t("intel.cod.completeness", { pct: Math.round(a.data_completeness * 100) })}
+      </p>
+      {a.overridden && a.override_reason ? (
+        <p className={styles.muted} style={{ margin: "var(--space-1) 0 0" }}>
+          {t("intel.cod.overridden", { reason: a.override_reason })}
+        </p>
+      ) : null}
+      {a.disputed && a.dispute_note ? (
+        <p className={styles.muted} style={{ margin: "var(--space-1) 0 0" }}>
+          {t("intel.cod.disputed", { note: a.dispute_note })}
+        </p>
+      ) : null}
       {can("orders.write") ? (
         <div className={styles.row} style={{ marginTop: "var(--space-2)" }}>
           <Button size="sm" variant="ghost" onClick={() => (setLevel(a.level), setOpen("override"))}>

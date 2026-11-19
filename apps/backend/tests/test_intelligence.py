@@ -285,6 +285,7 @@ def test_cod_risk_uses_allowed_inputs_only_and_never_rejects(client, seller):
         json={"level": "LOW", "reason": "Called the customer, confirmed"},
     ).json()
     assert ov["level"] == "LOW" and ov["model_level"] == "HIGHER" and ov["overridden"] is True
+    assert ov["recommended_action"] == "cod_ok"
     assert client.get(f"{API}/orders/{third['id']}", headers=seller.h()).json()["needs_review"] is None
     dp = client.post(
         f"{API}/intelligence/cod/assessments/{third['id']}/dispute",
