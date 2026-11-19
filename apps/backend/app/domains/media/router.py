@@ -74,6 +74,7 @@ class ReelIn(BaseModel):
     product_id: uuid.UUID | None = None
     show_price: bool = False
     seconds_per_slide: float = Field(default=2.5, ge=1.5, le=6)
+    genome_version: int | None = Field(default=None, ge=1)  # CGN-004: suggested settings applied
 
 
 @router.post("/videos/auto-reels", status_code=202)

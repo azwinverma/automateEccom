@@ -364,6 +364,143 @@ class MemoryFact {
   final int version;
 }
 
+/// One learned content pattern (Creative Genome preference).
+@immutable
+class CreativePreference {
+  const CreativePreference({
+    required this.attribute,
+    required this.value,
+    required this.n,
+    required this.lift,
+    required this.confidence,
+    required this.recommended,
+    required this.engagementOnly,
+  });
+
+  factory CreativePreference.fromJson(Map<String, Object?> j) =>
+      CreativePreference(
+        attribute: (j['attribute'] as String?) ?? '',
+        value: (j['value'] as String?) ?? '',
+        n: _int(j['n']),
+        lift: (j['lift'] as num?)?.toDouble() ?? 0,
+        confidence: (j['confidence'] as String?) ?? 'low',
+        recommended: j['recommended'] == true,
+        engagementOnly: j['engagement_only'] == true,
+      );
+
+  final String attribute;
+  final String value;
+  final int n;
+  final double lift;
+
+  /// high | medium | low
+  final String confidence;
+  final bool recommended;
+  final bool engagementOnly;
+}
+
+/// CGN-002: what sells for this shop. `learning` until enough posts are
+/// measured; then patterns with lift, sample size and confidence.
+@immutable
+class CreativeGenome {
+  const CreativeGenome({
+    required this.status,
+    required this.version,
+    required this.measuredPosts,
+    required this.minPosts,
+    required this.outcome,
+    required this.preferences,
+  });
+
+  factory CreativeGenome.fromJson(Map<String, Object?> j) {
+    final base = (j['baseline'] as Map<String, Object?>?) ?? const {};
+    return CreativeGenome(
+      status: (j['status'] as String?) ?? 'learning',
+      version: (j['version'] as num?)?.toInt(),
+      measuredPosts: _int(j['measured_posts']),
+      minPosts: (j['min_posts'] as num?)?.toInt() ?? 20,
+      outcome: (base['outcome'] as String?) ?? 'orders',
+      preferences: ((j['preferences'] as List<Object?>?) ?? const [])
+          .whereType<Map<String, Object?>>()
+          .map(CreativePreference.fromJson)
+          .toList(growable: false),
+    );
+  }
+
+  final String status;
+  final int? version;
+  final int measuredPosts;
+  final int minPosts;
+
+  /// orders | inquiries (what "more" means in lift sentences)
+  final String outcome;
+  final List<CreativePreference> preferences;
+
+  bool get ready => status == 'ready';
+  List<CreativePreference> get recommended =>
+      preferences.where((p) => p.recommended).toList(growable: false);
+  List<CreativePreference> get engagementOnly =>
+      preferences.where((p) => p.engagementOnly).toList(growable: false);
+}
+
+/// CGN-001: a published post's results over its attribution window.
+@immutable
+class PostResults {
+  const PostResults({
+    required this.postId,
+    required this.windowDays,
+    required this.windowComplete,
+    required this.views,
+    required this.engagements,
+    required this.clicks,
+    required this.source,
+    required this.inquiries,
+    required this.orders,
+    required this.revenueMinor,
+    required this.contributionMinor,
+    this.currency = 'NPR',
+  });
+
+  factory PostResults.fromJson(Map<String, Object?> j) {
+    final m = (j['metrics'] as Map<String, Object?>?) ?? const {};
+    return PostResults(
+      postId: (j['post_id'] as String?) ?? '',
+      windowDays: (m['window_days'] as num?)?.toInt() ?? 7,
+      windowComplete: m['window_complete'] == true,
+      views: (m['views'] as num?)?.toInt(),
+      engagements: (m['engagements'] as num?)?.toInt(),
+      clicks: (m['clicks'] as num?)?.toInt(),
+      source: m['source'] as String?,
+      inquiries: _int(m['inquiries']),
+      orders: (m['orders'] as num?)?.toDouble() ?? 0,
+      revenueMinor: _int(m['revenue_minor']),
+      contributionMinor: (m['contribution_minor'] as num?)?.toInt(),
+      currency: (j['currency'] as String?) ?? 'NPR',
+    );
+  }
+
+  /// Shop currency from the API (NPR when absent).
+  final String currency;
+
+  final String postId;
+  final int windowDays;
+  final bool windowComplete;
+  final int? views;
+  final int? engagements;
+  final int? clicks;
+
+  /// channel | manual | null (no numbers yet)
+  final String? source;
+  final int inquiries;
+
+  /// Weighted by attribution (a shared order counts partly).
+  final double orders;
+  final int revenueMinor;
+
+  /// null = product cost unknown.
+  final int? contributionMinor;
+}
+
 class IntelligenceApi {
   IntelligenceApi(this._dio);
 
@@ -451,6 +588,31 @@ class IntelligenceApi {
       data: {'note': note},
     ),
   );
+  Future<CreativeGenome> creativeGenome() => apiCall(() async {
+    final r = await _dio.get<Map<String, Object?>>(
+      '/intelligence/creative/genome',
+    );
+    return CreativeGenome.fromJson(r.data!);
+  });
+
+  /// Results for one published post (no plan needed). null = no results
+  /// measured yet.
+  Future<PostResults?> postResults(String postId) => apiCall(() async {
+    final r = await _dio.get<Map<String, Object?>>(
+      '/intelligence/creative/posts/$postId',
+    );
+    final j = r.data!;
+    return j['metrics'] is Map ? PostResults.fromJson(j) : null;
+  });
+
+  Future<PostResults> addPostResults(String postId, Map<String, int> counts) =>
+      apiCall(() async {
+        final r = await _dio.post<Map<String, Object?>>(
+          '/intelligence/creative/posts/$postId/metrics',
+          data: counts,
+        );
+        return PostResults.fromJson(r.data!);
+      });
 }
 
 final intelligenceApiProvider = Provider<IntelligenceApi>(
@@ -483,3 +645,12 @@ final profitSummaryProvider = FutureProvider.autoDispose<ProfitSummary>(
 final memoryFactsProvider = FutureProvider.autoDispose<List<MemoryFact>>(
   (ref) => ref.watch(intelligenceApiProvider).memoryFacts(),
 );
+
+final creativeGenomeProvider = FutureProvider.autoDispose<CreativeGenome>(
+  (ref) => ref.watch(intelligenceApiProvider).creativeGenome(),
+);
+
+final postResultsProvider = FutureProvider.autoDispose
+    .family<PostResults?, String>(
+      (ref, postId) => ref.watch(intelligenceApiProvider).postResults(postId),
+    );

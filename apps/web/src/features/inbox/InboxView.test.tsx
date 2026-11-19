@@ -29,7 +29,7 @@ const inbox = {
   retry: vi.fn(),
 };
 const api = { inbox };
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: () => true }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: () => true }) }));
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("c=cv1"),
   useRouter: () => ({ replace: vi.fn() }),

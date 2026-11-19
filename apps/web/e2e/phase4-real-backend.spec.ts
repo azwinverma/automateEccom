@@ -59,7 +59,7 @@ test("delivered → return → pickup → inspection → refund", async ({ page 
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(new RegExp(`/orders/${o.id}`));
+  await expect(page).toHaveURL((u) => u.pathname === `/orders/${o.id}`);
 
   // Order page → Returns: start a return with the live policy check.
   const panel = page.getByTestId("returns-panel");

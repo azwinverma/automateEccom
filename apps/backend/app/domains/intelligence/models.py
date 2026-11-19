@@ -286,3 +286,96 @@ class CommerceMemoryFact(IdMixin, TenantScoped, Base):
     valid_to: Mapped[datetime | None]
     changed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     note: Mapped[str | None] = mapped_column(String(300))
+
+
+# ============================================================================= Phase 7: Creative Intelligence
+class ContentChannelMetric(IdMixin, TenantScoped, Base):
+    """CNT-013: what the channel (or the seller, typing from the app's insights) reports for a post.
+
+    Cumulative counts at `captured_at`. Source says where the numbers came from; Nivaro never invents them.
+    """
+
+    __tablename__ = "content_channel_metrics"
+    __table_args__ = (
+        CheckConstraint("source in ('channel','manual')", name="source"),
+        CheckConstraint(
+            "coalesce(views,0) >= 0 and coalesce(likes,0) >= 0 and coalesce(comments,0) >= 0 "
+            "and coalesce(shares,0) >= 0 and coalesce(saves,0) >= 0 and coalesce(clicks,0) >= 0",
+            name="counts",
+        ),
+        Index("ix_ccm_post", "post_id", "captured_at"),
+    )
+
+    post_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("content_posts.id", ondelete="CASCADE"))
+    source: Mapped[str] = mapped_column(String(8), nullable=False)
+    provider: Mapped[str | None] = mapped_column(String(40))
+    views: Mapped[int | None] = mapped_column(Integer)
+    likes: Mapped[int | None] = mapped_column(Integer)
+    comments: Mapped[int | None] = mapped_column(Integer)
+    shares: Mapped[int | None] = mapped_column(Integer)
+    saves: Mapped[int | None] = mapped_column(Integer)
+    clicks: Mapped[int | None] = mapped_column(Integer)
+    entered_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    captured_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+
+
+class CreativePerformanceMetric(IdMixin, TenantScoped, Base):
+    """CGN-001: a post's results over its attribution window (commerce outcomes first)."""
+
+    __tablename__ = "creative_performance_metrics"
+    __table_args__ = (UniqueConstraint("post_id", "window_days"),)
+
+    post_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("content_posts.id", ondelete="CASCADE"))
+    window_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    window_complete: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    views: Mapped[int | None] = mapped_column(Integer)
+    engagements: Mapped[int | None] = mapped_column(Integer)  # likes + comments + shares + saves
+    clicks: Mapped[int | None] = mapped_column(Integer)
+    metrics_source: Mapped[str | None] = mapped_column(String(8))  # channel | manual | None (no data)
+    inquiries: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    orders: Mapped[float] = mapped_column(Float, default=0, nullable=False)  # weighted by attribution
+    revenue_minor: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    contribution_minor: Mapped[int | None] = mapped_column(BigInteger)  # None = product cost unknown
+    attribution: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    method_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    computed_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+
+
+class CreativeGenomeProfile(IdMixin, TenantScoped, Base):
+    """CGN-002: learned content preferences, one immutable version per computation."""
+
+    __tablename__ = "creative_genome_profiles"
+    __table_args__ = (UniqueConstraint("merchant_id", "version"),)
+
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    posts: Mapped[int] = mapped_column(Integer, nullable=False)
+    baseline: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    preferences: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)  # learning | ready
+    method_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    computed_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+
+
+class CreativeExperiment(IdMixin, TimestampMixin, TenantScoped, Base):
+    """CGN-003: two values of one creative attribute compared with a stopping rule declared up front."""
+
+    __tablename__ = "creative_experiments"
+    __table_args__ = (
+        CheckConstraint("status in ('running','concluded','stopped')", name="status"),
+        CheckConstraint("metric in ('orders','inquiries')", name="metric"),
+        CheckConstraint("min_posts between 3 and 50 and max_days between 7 and 90", name="rule"),
+    )
+
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    hypothesis: Mapped[str] = mapped_column(String(300), nullable=False)
+    attribute: Mapped[str] = mapped_column(String(30), nullable=False)
+    variant_a: Mapped[str] = mapped_column(String(30), nullable=False)
+    variant_b: Mapped[str] = mapped_column(String(30), nullable=False)
+    metric: Mapped[str] = mapped_column(String(10), default="orders", nullable=False)
+    min_posts: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
+    max_days: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
+    status: Mapped[str] = mapped_column(String(10), default="running", nullable=False)
+    started_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+    ended_at: Mapped[datetime | None]
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))

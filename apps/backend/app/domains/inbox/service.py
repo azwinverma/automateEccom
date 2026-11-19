@@ -101,6 +101,15 @@ def receive(db: Session, connection: ChannelConnection, raw: dict[str, Any]) -> 
     )
     if dup is not None:
         return None
+    if m.post_ref and conv.content_post_id is None:
+        # CNT-014 explicit attribution: the channel told us which post the customer came from.
+        from app.domains.content.models import ContentPost
+
+        conv.content_post_id = db.scalar(
+            select(ContentPost.id).where(
+                ContentPost.connection_id == connection.id, ContentPost.external_id == m.post_ref
+            )
+        )
     conv.locale = hints.locale  # the language of the latest customer message
     msg = Message(
         merchant_id=merchant_id,
@@ -110,7 +119,10 @@ def receive(db: Session, connection: ChannelConnection, raw: dict[str, Any]) -> 
         text=m.text,
         status="received",
         external_message_id=m.message_id,
-        grounding={"product_ref": m.product_ref} if m.product_ref else {},
+        grounding={
+            **({"product_ref": m.product_ref} if m.product_ref else {}),
+            **({"post_ref": m.post_ref} if m.post_ref else {}),
+        },
     )
     db.add(msg)
     conv.status = "open"

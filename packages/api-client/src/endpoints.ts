@@ -65,6 +65,14 @@ import type {
   CodRiskAssessment,
   CourierPerformanceRow,
   MemoryFact,
+  CreativeAttribute,
+  CreativeExperiment,
+  CreativeExperimentInput,
+  CreativeGenome,
+  CreativePostMetricsInput,
+  CreativePostRow,
+  CreativeRunStats,
+  CreativeSuggestions,
   MemoryMetricSeries,
   ProductBrain,
   ProfitSettings,
@@ -384,10 +392,11 @@ export function createApi(client: ApiClient) {
       reject: (id: string, note?: string) =>
         client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/reject`, { method: "POST", body: { note: note ?? null }, tenant: true }),
       /** `at` is a UTC ISO string; omit to publish now. */
-      schedule: (id: string, at?: string | null) =>
+      /** `genomeVersion` = the seller used the Creative Genome's suggested time (CGN-004). */
+      schedule: (id: string, at?: string | null, genomeVersion?: number | null) =>
         client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/schedule`, {
           method: "POST",
-          body: at ? { at } : {},
+          body: { ...(at ? { at } : {}), ...(genomeVersion ? { genome_version: genomeVersion } : {}) },
           tenant: true,
         }),
       unschedule: (id: string) => client.request<ContentPost>(`/content/posts/${encodeURIComponent(id)}/unschedule`, { method: "POST", tenant: true }),
@@ -637,6 +646,22 @@ export function createApi(client: ApiClient) {
         client.request<MemoryFact>(`/intelligence/memory/facts/${encodeURIComponent(id)}/reject`, { method: "POST", body: { note }, tenant: true }),
       correctFact: (id: string, value: Record<string, string | number>, note: string) =>
         client.request<MemoryFact>(`/intelligence/memory/facts/${encodeURIComponent(id)}/correct`, { method: "POST", body: { value, note }, tenant: true }),
+      // Phase 7: Creative Intelligence
+      creativeGenome: () => client.request<CreativeGenome>("/intelligence/creative/genome", { tenant: true }),
+      refreshCreative: () => client.request<CreativeRunStats>("/intelligence/creative/refresh", { method: "POST", tenant: true }),
+      creativePosts: (limit = 50) =>
+        client.request<{ items: CreativePostRow[]; window_days: number; currency: string }>("/intelligence/creative/posts", { tenant: true, query: { limit } }),
+      creativePost: (postId: string) =>
+        client.request<CreativePostRow & { currency: string }>(`/intelligence/creative/posts/${encodeURIComponent(postId)}`, { tenant: true }),
+      addPostMetrics: (postId: string, body: CreativePostMetricsInput) =>
+        client.request<CreativePostRow>(`/intelligence/creative/posts/${encodeURIComponent(postId)}/metrics`, { method: "POST", body, tenant: true }),
+      creativeSuggestions: () => client.request<CreativeSuggestions>("/intelligence/creative/suggestions", { tenant: true }),
+      experiments: () =>
+        client.request<{ items: CreativeExperiment[]; attributes: CreativeAttribute[] }>("/intelligence/creative/experiments", { tenant: true }),
+      createExperiment: (body: CreativeExperimentInput) =>
+        client.request<CreativeExperiment>("/intelligence/creative/experiments", { method: "POST", body, tenant: true }),
+      stopExperiment: (id: string) =>
+        client.request<CreativeExperiment>(`/intelligence/creative/experiments/${encodeURIComponent(id)}/stop`, { method: "POST", tenant: true }),
     },
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {

@@ -84,7 +84,7 @@ test("customer message → AI → order → packed and shipped", async ({ page }
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/inbox/);
+  await expect(page).toHaveURL((u) => u.pathname === "/inbox");
 
   await say("Dhaka kurta XL cha? kati ho?");
   await page.getByTestId("conversations").getByRole("button", { name: /Bikash Rai/ }).click();

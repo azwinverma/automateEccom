@@ -397,7 +397,52 @@ def _profit(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     return out[:5]
 
 
-GENERATORS = (_autopilot, _courier, _restock, _returns, _profit)
+def _creative(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """CGN-005: a strong learned content pattern, as a tip (informational; content stays the seller's)."""
+    from app.domains.intelligence import creative
+
+    if not entitlements.resolve(db, merchant_id).has("intelligence.creative_genome"):
+        return []
+    g = creative.latest(db, merchant_id)
+    out = []
+    for a, x in creative.recommended(g).items():
+        if x["confidence"] != "high":
+            continue
+        assert g is not None
+        out.append(
+            {
+                "type": "creative_tip",
+                "dedupe_key": f"creative:{a}:{x['value']}",
+                "subject_type": "creative_attribute",
+                "subject_id": f"{a}:{x['value']}",
+                "explanation": {
+                    "what": f"creative_{a}",
+                    "why": "creative_pattern",
+                    "vars": {
+                        "value": x["value"],
+                        "lift_pct": round(x["lift"] * 100),
+                        "n": x["n"],
+                        "outcome": g.baseline["outcome"],
+                    },
+                },
+                "evidence": [
+                    {"metric": f"{g.baseline['outcome']}_per_post", "value": x["mean"], "n": x["n"]},
+                    {
+                        "metric": f"shop_{g.baseline['outcome']}_per_post",
+                        "value": g.baseline["mean"],
+                        "n": g.posts,
+                    },
+                ],
+                "confidence": 0.8,
+                "estimated_impact": {"lift": x["lift"]},
+                "action": {"type": "none", "params": {"attribute": a, "value": x["value"]}},
+                "baseline": {"genome_version": g.version},
+            }
+        )
+    return out[:2]
+
+
+GENERATORS = (_autopilot, _courier, _restock, _returns, _profit, _creative)
 
 
 def generate(db: Session, merchant_id: uuid.UUID) -> int:

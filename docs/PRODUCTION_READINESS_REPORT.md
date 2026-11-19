@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion, Phases 2–5 and Phase 6 (parts A and B).
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion and Phases 2–7.
 
 ## Overall status: **NOT_READY**
 
@@ -58,7 +58,7 @@ External checks that couldn't run are listed under "External tests pending".
 | Payments / COD | Verified online payments **PASS with sandbox wallet**; manual payments and COD trail **PASS**; Nepal gateway BLOCKED_EXTERNAL (GAP-PAY-NP); COD settlement Phase 3 |
 | Fulfillment / couriers / returns | **PASS with sandbox/manual couriers** (E2E COD → failed attempt → delivered → settled; return → pickup → inspection → refund). Real Nepal courier API BLOCKED_EXTERNAL |
 | Automation / Autopilot | **PASS** (Decision Policy, workflows, Control Center; E2E Assisted → Smart) |
-| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data; Phases 7–10 NOT_IMPLEMENTED |
+| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data. Phase 7 Creative Intelligence **PASS with sandbox/typed-in results** (exit BLOCKED_EXTERNAL on real channel insights); Phases 8–10 NOT_IMPLEMENTED |
 | Admin | API and Nivaro Console UI **PASS** (staff + MFA, E2E); plan/routing editors not built |
 
 ## Known risks
@@ -236,3 +236,20 @@ The Sales Agent only repeats facts the seller confirmed (ADR-066).
 
 Overall status remains **NOT_READY**. Phase 6 exit criteria need 90 days of pilot-merchant data. Still
 missing: real courier API, Nepal payment gateway, live channels, production email, staging, backups, pentest.
+
+## Update 2026-11-19 (Phase 7: Creative Intelligence)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 336 | 336 | 0 | 0 |
+| Web unit + API client | 326 | 326 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 34 | 34 | 0 | 0 |
+| Flutter | 161 | 160 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 7 pages (4 pages × 3 configs) | 12 | 12 | 0 | 0 |
+
+Found and fixed: a Phase 1 content-calendar chip whose accessible name didn't contain its visible text
+(WCAG 2.5.3); Home and order widgets calling plan-gated APIs on plans without the feature (403 noise);
+six E2E specs whose post-login URL check also matched the login page (`/login?next=…`), which made
+phase 6B flaky at 360px; new experiments had no progress until the next refresh.
+
+Exit BLOCKED_EXTERNAL: real channel insights need Meta/TikTok app approval. Overall status remains
+**NOT_READY**.

@@ -41,7 +41,7 @@ const api = {
   automation: { approvals: vi.fn(), approve: vi.fn(), reject: vi.fn(), workflow: vi.fn(), catalog: vi.fn(), runs: vi.fn(async () => ({ items: [] })), update: vi.fn(), setStatus: vi.fn(), dryRun: vi.fn() },
 };
 let perms = new Set<string>();
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

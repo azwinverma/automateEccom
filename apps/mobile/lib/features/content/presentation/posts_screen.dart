@@ -9,6 +9,7 @@ import '../../../design/tokens.g.dart';
 import '../../../design/widgets/state_views.dart';
 import '../../channels/data/channels_api.dart';
 import '../../channels/presentation/reconnect_sheet.dart';
+import '../../intelligence/presentation/post_results.dart';
 import '../../studio/presentation/widgets/issue_list.dart';
 import '../data/content_api.dart';
 
@@ -278,6 +279,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                 child: Text(l.channelReconnect),
               ),
           ],
+          if (p.status == 'published') PostResultsSection(postId: p.id),
           if (actions.isNotEmpty) ...[
             const SizedBox(height: AppSpace.s3),
             Wrap(

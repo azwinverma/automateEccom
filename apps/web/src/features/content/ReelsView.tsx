@@ -19,6 +19,8 @@ import { usePolling } from "@/lib/usePolling";
 import { parseLimitOptions } from "@/lib/usage";
 import productStyles from "../products/products.module.css";
 import wf from "../shared/workflow.module.css";
+import { ReelBestSettings, useCreativeSuggestions } from "../intelligence/CreativeSuggest";
+import { paceFor } from "../intelligence/creativeLabels";
 import { ContentTabs } from "./ContentTabs";
 import { MediaPicker } from "./MediaPicker";
 
@@ -104,6 +106,9 @@ function MakeReelDrawer({ open, onOpenChange, onCreated }: { open: boolean; onOp
   const [productId, setProductId] = useState("");
   const [showPrice, setShowPrice] = useState(false);
   const [pace, setPace] = useState(2.5);
+  // CGN-004: set when the seller applied the genome's settings; any manual change clears it.
+  const [genomeVersion, setGenomeVersion] = useState<number | null>(null);
+  const suggestions = useCreativeSuggestions(open);
   const [formErr, setFormErr] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [pending, setPending] = useState(false);
@@ -118,11 +123,20 @@ function MakeReelDrawer({ open, onOpenChange, onCreated }: { open: boolean; onOp
     setCta("");
     setProductId("");
     setShowPrice(false);
+    setGenomeVersion(null);
     setFormErr(null);
     setError(null);
     setJob(null);
     reset();
   }, [open, reset]);
+
+  const applyBest = () => {
+    const r = suggestions?.reel;
+    if (!r || !suggestions?.genome_version) return;
+    if (r.target_seconds) setPace(paceFor(r.target_seconds, assets.length));
+    if (r.show_price !== undefined) setShowPrice(r.show_price);
+    setGenomeVersion(suggestions.genome_version);
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -140,6 +154,7 @@ function MakeReelDrawer({ open, onOpenChange, onCreated }: { open: boolean; onOp
       product_id: productId || null,
       show_price: showPrice,
       seconds_per_slide: pace,
+      ...(genomeVersion ? { genome_version: genomeVersion } : {}),
     };
     try {
       setJob(await api.media.createAutoReel(body, { idempotencyKey: keyFor(body) }));
@@ -195,6 +210,7 @@ function MakeReelDrawer({ open, onOpenChange, onCreated }: { open: boolean; onOp
             <span className={productStyles.fieldLabel}>{t("reels.photos")}</span>
             <MediaPicker value={assets} onChange={setAssets} max={10} />
           </div>
+          <ReelBestSettings suggestions={suggestions} applied={genomeVersion !== null} onApply={applyBest} />
           <div className={productStyles.row2}>
             <SelectField label={t("reels.aspect")} value={aspect} onChange={(e) => setAspect(e.target.value as ReelAspect)}>
               {ASPECTS.map((a) => (
@@ -229,7 +245,14 @@ function MakeReelDrawer({ open, onOpenChange, onCreated }: { open: boolean; onOp
               : null}
           </SelectField>
           <div>
-            <Checkbox label={t("reels.showPrice")} checked={showPrice} onChange={(e) => setShowPrice(e.target.checked)} />
+            <Checkbox
+              label={t("reels.showPrice")}
+              checked={showPrice}
+              onChange={(e) => {
+                setShowPrice(e.target.checked);
+                setGenomeVersion(null);
+              }}
+            />
             <p className={wf.hint} style={{ marginTop: "var(--space-1)" }}>
               {t("reels.priceNote")}
             </p>
@@ -238,7 +261,12 @@ function MakeReelDrawer({ open, onOpenChange, onCreated }: { open: boolean; onOp
             <label htmlFor="reel-pace" className={productStyles.fieldLabel}>
               {t("reels.pace", { seconds: pace })}
             </label>
-            <input id="reel-pace" type="range" min={1.5} max={6} step={0.5} value={pace} onChange={(e) => setPace(Number(e.target.value))} style={{ width: "100%" }} />
+            <input id="reel-pace" type="range" min={1.5} max={6} step={0.5} value={pace} onChange={(e) => {
+                setPace(Number(e.target.value));
+                setGenomeVersion(null);
+              }}
+              style={{ width: "100%" }}
+            />
           </div>
         </form>
       )}

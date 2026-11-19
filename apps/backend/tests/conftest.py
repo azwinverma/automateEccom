@@ -99,6 +99,7 @@ def _clean() -> Iterator[None]:
     SandboxChannelAdapter.stock.clear()
     SandboxChannelAdapter.orders.clear()
     SandboxChannelAdapter.sent.clear()
+    SandboxChannelAdapter.insights.clear()
     from app.domains.integrations.sandbox import SandboxPaymentAdapter
 
     SandboxPaymentAdapter.paid_amounts.clear()

@@ -56,7 +56,7 @@ const api = {
 };
 
 vi.mock("@/lib/auth/AuthProvider", () => ({
-  useAuth: () => ({ api, merchantId: "m1" }),
+  useAuth: () => ({ feature: () => "yes", api, merchantId: "m1" }),
 }));
 
 beforeEach(() => {

@@ -9,7 +9,7 @@ import { KeysDrawer } from "./ChannelsView";
 
 const channels = { connectWithKeys: vi.fn() };
 const api = { channels };
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: () => true }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: () => true }) }));
 
 const k = en.channels.keys;
 const woo = { code: "woocommerce", name: "WooCommerce" };

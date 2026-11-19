@@ -348,3 +348,111 @@
   align-items: center;
   flex-wrap: wrap;
 }
+
+/* ---------- Phase 7: What sells ---------- */
+.subhead {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.patterns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+}
+.pattern {
+  border: 1px solid var(--color-border-default);
+  border-top: 3px solid var(--color-action-primary);
+  border-radius: 10px;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  font-size: var(--font-size-sm);
+}
+.patternLabel {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.postRows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.postRow {
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.postHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+}
+.postCaption {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.postStats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--space-2);
+}
+.postStats div {
+  min-width: 0;
+}
+.postStats dt {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+.postStats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+}
+.sourceTag {
+  font-size: var(--font-size-xs);
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  padding: 0 var(--space-2);
+}
+.sourceTag[data-source="manual"] {
+  border-style: dashed;
+}
+.sourceTag[data-source="none"] {
+  color: var(--color-text-secondary);
+}
+.formStack {
+  display: grid;
+  gap: var(--space-3);
+}
+.formError {
+  margin: 0;
+  color: var(--color-semantic-danger);
+  font-size: var(--font-size-sm);
+}
+.suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+  border: 1px dashed var(--color-action-primary);
+  border-radius: 10px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}

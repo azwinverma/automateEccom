@@ -326,3 +326,42 @@ describe("Phase 6B intelligence endpoints", () => {
     ]);
   });
 });
+
+describe("Phase 7 creative endpoints", () => {
+  it("reads genome, post results, suggestions and experiments", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.intelligence.creativeGenome();
+    await api.intelligence.creativePosts(20);
+    await api.intelligence.creativeSuggestions();
+    await api.intelligence.experiments();
+    await api.intelligence.creativePost("p 1");
+    expect(fetchMock.mock.calls.map((c) => String(c[0]).replace("http://api.test/api/v1", ""))).toEqual([
+      "/intelligence/creative/genome",
+      "/intelligence/creative/posts?limit=20",
+      "/intelligence/creative/suggestions",
+      "/intelligence/creative/experiments",
+      "/intelligence/creative/posts/p%201",
+    ]);
+  });
+
+  it("sends typed-in results, experiments, stops and genome versions", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.intelligence.addPostMetrics("p1", { views: 1200, likes: 80 });
+    await api.intelligence.createExperiment({ name: "Price first?", hypothesis: "More orders", attribute: "hook_type", variant_a: "price_first", variant_b: "product_closeup", min_posts: 5, max_days: 30 });
+    await api.intelligence.stopExperiment("e1");
+    await api.intelligence.refreshCreative();
+    await api.content.schedule("c1", "2026-11-20T13:00:00Z", 3);
+    await api.content.schedule("c2", null);
+    await api.media.createAutoReel({ asset_ids: ["a1"], aspect: "9:16", locale: "ne", show_price: true, seconds_per_slide: 3, genome_version: 3 }, { idempotencyKey: "reel-key-0001" });
+    const calls = fetchMock.mock.calls.map((c) => [String(c[0]).replace("http://api.test/api/v1", ""), c[1]!.method, c[1]!.body ? JSON.parse(String(c[1]!.body)) : null]);
+    expect(calls).toEqual([
+      ["/intelligence/creative/posts/p1/metrics", "POST", { views: 1200, likes: 80 }],
+      ["/intelligence/creative/experiments", "POST", { name: "Price first?", hypothesis: "More orders", attribute: "hook_type", variant_a: "price_first", variant_b: "product_closeup", min_posts: 5, max_days: 30 }],
+      ["/intelligence/creative/experiments/e1/stop", "POST", null],
+      ["/intelligence/creative/refresh", "POST", null],
+      ["/content/posts/c1/schedule", "POST", { at: "2026-11-20T13:00:00Z", genome_version: 3 }],
+      ["/content/posts/c2/schedule", "POST", {}],
+      ["/media/videos/auto-reels", "POST", { asset_ids: ["a1"], aspect: "9:16", locale: "ne", show_price: true, seconds_per_slide: 3, genome_version: 3 }],
+    ]);
+  });
+});

@@ -54,6 +54,7 @@ class FromStudioIn(BaseModel):
 
 class ScheduleIn(BaseModel):
     at: datetime | None = Field(default=None, description="UTC; omit to publish now")
+    genome_version: int | None = Field(default=None, ge=1, description="Set when the suggested time was used")
 
 
 class RejectIn(BaseModel):
@@ -163,7 +164,7 @@ def schedule(
     ctx: TenantContext = Depends(require("content.publish")),
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
-    return service.post_view(service.schedule(db, ctx, post_id, body.at))
+    return service.post_view(service.schedule(db, ctx, post_id, body.at, genome_version=body.genome_version))
 
 
 @router.post("/posts/{post_id}/unschedule")

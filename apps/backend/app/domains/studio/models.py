@@ -42,3 +42,4 @@ class StudioJob(IdMixin, TimestampMixin, TenantScoped, Base):
     )
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     finished_at: Mapped[datetime | None]
+    genome_version: Mapped[int | None] = mapped_column(Integer)  # CGN-004 guidance used in the prompt

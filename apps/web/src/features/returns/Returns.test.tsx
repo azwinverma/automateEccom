@@ -41,7 +41,7 @@ const api = {
   couriers: { list: vi.fn(async () => ({ items: [] })) },
 };
 let perms = new Set<string>();
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

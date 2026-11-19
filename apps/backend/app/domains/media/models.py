@@ -113,6 +113,7 @@ class VideoJob(IdMixin, TimestampMixin, TenantScoped, Base):
     cta: Mapped[str | None] = mapped_column(String(60))
     show_price: Mapped[bool] = mapped_column(default=False, nullable=False)
     seconds_per_slide: Mapped[float] = mapped_column(Float, default=2.5, nullable=False)
+    genome_version: Mapped[int | None] = mapped_column(Integer)  # CGN-004: settings suggested by the genome
     output_asset_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("media_assets.id", ondelete="SET NULL")
     )

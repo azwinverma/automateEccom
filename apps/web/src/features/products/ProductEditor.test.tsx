@@ -76,7 +76,7 @@ const api = { catalog, channels };
 const can = (p: string) => permissions.has(p);
 
 vi.mock("@/lib/auth/AuthProvider", () => ({
-  useAuth: () => ({ api, merchantId: "m1", can }),
+  useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can }),
 }));
 
 beforeEach(() => {

@@ -15,6 +15,7 @@ from app.domains.intelligence import (
     aps,
     cod_risk,
     courier_brain,
+    creative,
     memory,
     product_brain,
     profit,
@@ -480,3 +481,157 @@ def correct_memory_fact(
 ) -> dict[str, Any]:
     entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
     return memory.view(memory.correct(db, ctx, fact_id, body.value, body.note))
+
+
+# ============================================================================= Phase 7: Creative Intelligence
+def _creative_on(db: Session, ctx: TenantContext) -> None:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.creative_genome")
+
+
+@router.get("/creative/genome")
+def creative_genome(
+    ctx: TenantContext = Depends(require("content.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    from sqlalchemy import func
+
+    from app.domains.content.models import ContentPost
+    from app.domains.intelligence.models import CreativePerformanceMetric
+
+    _creative_on(db, ctx)
+    measured = (
+        db.scalar(
+            select(func.count())
+            .select_from(CreativePerformanceMetric)
+            .join(ContentPost, ContentPost.id == CreativePerformanceMetric.post_id)
+            .where(CreativePerformanceMetric.window_complete.is_(True))
+        )
+        or 0
+    )
+    return {
+        **creative.genome_view(creative.latest(db, ctx.merchant_id), measured),
+        "impact": creative.impact(db, ctx.merchant_id),
+    }
+
+
+@router.post("/creative/refresh")
+def creative_refresh(
+    ctx: TenantContext = Depends(require("content.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    _creative_on(db, ctx)
+    return creative.run(db, ctx.merchant_id)
+
+
+@router.get("/creative/posts")
+def creative_posts(
+    limit: int = Query(default=50, ge=1, le=200),
+    ctx: TenantContext = Depends(require("content.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    """Post results with how orders/chats were attributed (needs no plan: the seller's own numbers)."""
+    from app.domains.content.models import ContentPost
+    from app.domains.intelligence.models import CreativePerformanceMetric
+
+    rows = db.execute(
+        select(ContentPost, CreativePerformanceMetric)
+        .outerjoin(CreativePerformanceMetric, CreativePerformanceMetric.post_id == ContentPost.id)
+        .where(ContentPost.status == "published")
+        .order_by(ContentPost.published_at.desc())
+        .limit(limit)
+    ).all()
+    return {
+        "items": [creative.performance_view(p, m) for p, m in rows],
+        "window_days": creative.WINDOW_DAYS,
+        "currency": _currency(db, ctx.merchant_id),
+    }
+
+
+@router.get("/creative/posts/{post_id}")
+def creative_post(
+    post_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("content.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    from app.core.errors import NotFound
+    from app.domains.content.models import ContentPost
+    from app.domains.intelligence.models import CreativePerformanceMetric
+
+    p = db.get(ContentPost, post_id)
+    if p is None or p.merchant_id != ctx.merchant_id:
+        raise NotFound(code="post_not_found")
+    m = db.scalar(select(CreativePerformanceMetric).where(CreativePerformanceMetric.post_id == post_id))
+    return {**creative.performance_view(p, m), "currency": _currency(db, ctx.merchant_id)}
+
+
+class PostMetricsIn(BaseModel):
+    views: int | None = Field(default=None, ge=0, le=1_000_000_000)
+    likes: int | None = Field(default=None, ge=0, le=1_000_000_000)
+    comments: int | None = Field(default=None, ge=0, le=1_000_000_000)
+    shares: int | None = Field(default=None, ge=0, le=1_000_000_000)
+    saves: int | None = Field(default=None, ge=0, le=1_000_000_000)
+    clicks: int | None = Field(default=None, ge=0, le=1_000_000_000)
+
+
+@router.post("/creative/posts/{post_id}/metrics", status_code=201)
+def creative_post_metrics(
+    post_id: uuid.UUID,
+    body: PostMetricsIn,
+    ctx: TenantContext = Depends(require("content.write")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    from app.domains.content.models import ContentPost
+    from app.domains.intelligence.models import CreativePerformanceMetric
+
+    creative.record_manual(db, ctx, post_id, body.model_dump())
+    p = db.get(ContentPost, post_id)
+    m = db.scalar(select(CreativePerformanceMetric).where(CreativePerformanceMetric.post_id == post_id))
+    return creative.performance_view(p, m)
+
+
+@router.get("/creative/suggestions")
+def creative_suggestions(
+    ctx: TenantContext = Depends(require("content.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    _creative_on(db, ctx)
+    return creative.suggestions(db, ctx.merchant_id)
+
+
+@router.get("/creative/experiments")
+def list_experiments(
+    ctx: TenantContext = Depends(require("content.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    from app.domains.intelligence.models import CreativeExperiment
+
+    _creative_on(db, ctx)
+    rows = db.scalars(select(CreativeExperiment).order_by(CreativeExperiment.created_at.desc()).limit(50))
+    return {"items": [creative.experiment_view(e) for e in rows], "attributes": list(creative.ATTRIBUTES)}
+
+
+class ExperimentIn(BaseModel):
+    name: str = Field(min_length=3, max_length=120)
+    hypothesis: str = Field(min_length=3, max_length=300)
+    attribute: str = Field(max_length=30)
+    variant_a: str = Field(min_length=1, max_length=30)
+    variant_b: str = Field(min_length=1, max_length=30)
+    metric: Literal["orders", "inquiries"] = "orders"
+    min_posts: int = Field(default=5, ge=3, le=50)
+    max_days: int = Field(default=30, ge=7, le=90)
+
+
+@router.post("/creative/experiments", status_code=201)
+def create_experiment(
+    body: ExperimentIn,
+    ctx: TenantContext = Depends(require("content.publish")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    _creative_on(db, ctx)
+    return creative.experiment_view(creative.create_experiment(db, ctx, body.model_dump()))
+
+
+@router.post("/creative/experiments/{exp_id}/stop")
+def stop_experiment(
+    exp_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("content.publish")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    _creative_on(db, ctx)
+    return creative.experiment_view(creative.stop_experiment(db, ctx, exp_id))

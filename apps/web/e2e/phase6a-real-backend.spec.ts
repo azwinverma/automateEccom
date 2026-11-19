@@ -72,7 +72,7 @@ test("score gap → suggestion applied; risky COD order held → override", asyn
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/home/);
+  await expect(page).toHaveURL((u) => u.pathname === "/home");
 
   // Autopilot Score: booking couriers is 0% automatic, measured on 10 parcels.
   const score = page.getByTestId("autopilot-score");

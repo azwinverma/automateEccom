@@ -18,10 +18,11 @@ const TONE: Record<CodRiskAssessment["level"], Tone> = { LOW: "success", MEDIUM:
 /** COD Intelligence on the order page: level, why, what to do; override/dispute are audited. */
 export function CodRiskCard({ order, onChanged }: { order: OrderDetail; onChanged: () => void }) {
   const { t } = useI18n();
-  const { api, can } = useAuth();
+  const { api, can, feature } = useAuth();
+  const on = feature("intelligence.cod") === "yes" && order.payment_method === "cod";
   const toast = useToast();
   const action = useAction();
-  const q = useApiQuery((a) => (order.payment_method === "cod" ? a.intelligence.codAssessment(order.id) : Promise.resolve(null)), [order.id, order.version]);
+  const q = useApiQuery((a) => (on ? a.intelligence.codAssessment(order.id) : Promise.resolve(null)), [order.id, order.version, on]);
   const [open, setOpen] = useState<null | "override" | "dispute">(null);
   const [level, setLevel] = useState<CodRiskAssessment["level"]>("LOW");
   const [text, setText] = useState("");

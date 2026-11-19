@@ -22,7 +22,7 @@ const api = {
   studio: { retry: vi.fn() },
   media: { remove: vi.fn() },
 };
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: () => true }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: () => true }) }));
 
 function Harness() {
   const ex = useExceptions();

@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { useAction, useApiQuery } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { ErrorAlert } from "../orders/shared";
+import { outcomeWord, valueLabel } from "./creativeLabels";
 import styles from "./intelligence.module.css";
 
 /** UX-019: suggestion cards with what / why / confidence / impact; applying needs a manager. */
@@ -98,6 +99,10 @@ const v = (r: RecommendationView) => r.explanation.vars ?? {};
 
 function what(t: T, r: RecommendationView): string {
   const vars = v(r);
+  if (r.type === "creative_tip") {
+    const attribute = String(r.action.params?.attribute ?? r.explanation.what.replace(/^creative_/, ""));
+    return t("intel.rec.what.creative_tip", { pattern: valueLabel(t, attribute, String(vars.value ?? "")) });
+  }
   return t.dynamic(`intel.rec.what.${r.explanation.what.replace(".", "_")}`, { title: String(vars.title ?? ""), variant: String(vars.variant ?? "") }) ?? r.type;
 }
 
@@ -108,6 +113,9 @@ function why(t: T, money: Money, r: RecommendationView): string {
   const cap = typeof vars.capability === "string" ? (t.dynamic(`intel.aps.capability.${vars.capability}`) ?? vars.capability) : "";
   const pct = (x: unknown) => (typeof x === "number" ? Math.round(x * 100) : 0);
   const amount = (x: unknown) => (typeof x === "number" ? money(x) : "–");
+  if (r.explanation.why === "creative_pattern") {
+    return t("intel.rec.why.creative_pattern", { lift_pct: Number(vars.lift_pct ?? 0), outcome: outcomeWord(t, String(vars.outcome ?? "orders")), n: Number(vars.n ?? 0) });
+  }
   if (r.explanation.why === "return_pattern") {
     const base = vars.baseline_pct;
     const main = t(base === null || base === undefined ? "intel.rec.why.return_pattern_nobase" : "intel.rec.why.return_pattern", {

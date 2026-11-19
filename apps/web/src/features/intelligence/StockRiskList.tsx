@@ -10,8 +10,9 @@ import { RiskMeter } from "./ProductBrainCard";
 /** UX-012 on Home: products that run out soonest at the current pace. Silent when empty or not on the plan. */
 export function StockRiskList() {
   const { t, number } = useI18n();
-  const { can } = useAuth();
-  const q = useApiQuery(async (a) => (can("catalog.read") ? a.intelligence.stockRisk() : { items: [] }));
+  const { can, feature } = useAuth();
+  const on = feature("intelligence.product_brain") === "yes" && can("catalog.read");
+  const q = useApiQuery(async (a) => (on ? a.intelligence.stockRisk() : { items: [] }), [on]);
   const items = q.state.status === "success" ? q.state.data.items.slice(0, 5) : [];
   if (!items.length) return null;
   return (

@@ -38,6 +38,13 @@ def _get(db: Session, ctx: TenantContext, job_id: uuid.UUID) -> VideoJob:
     return j
 
 
+def _genome_version(db: Session, ctx: TenantContext, version: int | None) -> int | None:
+    """CGN-004: the seller applied the genome's suggested settings (validated, recorded on the job)."""
+    from app.domains.intelligence.creative import valid_version
+
+    return valid_version(db, ctx.merchant_id, version)
+
+
 def create_auto_reel(
     db: Session,
     ctx: TenantContext,
@@ -51,6 +58,7 @@ def create_auto_reel(
     show_price: bool,
     seconds_per_slide: float,
     idempotency_key: str,
+    genome_version: int | None = None,
 ) -> VideoJob:
     entitlements.require_feature(db, ctx.merchant_id, "video.auto_reels")
     if aspect not in reels.ASPECTS:
@@ -98,6 +106,7 @@ def create_auto_reel(
         product_id=product_id,
         show_price=show_price,
         seconds_per_slide=seconds_per_slide,
+        genome_version=_genome_version(db, ctx, genome_version),
         created_by_user_id=ctx.actor.id,
     )
     db.add(job)
@@ -316,6 +325,8 @@ def job_view(db: Session, j: VideoJob) -> dict[str, Any]:
         "headline": j.headline,
         "cta": j.cta,
         "show_price": j.show_price,
+        "seconds_per_slide": j.seconds_per_slide,
+        "genome_version": j.genome_version,
         "product_id": j.product_id,
         "duration_s": j.duration_s,
         "credits_charged": j.credits_charged,

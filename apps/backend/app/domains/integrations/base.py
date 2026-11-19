@@ -26,6 +26,7 @@ class ChannelCapability(StrEnum):
     RETURNS = "returns"
     REFUNDS = "refunds"
     FULFILLMENT = "fulfillment"
+    CONTENT_METRICS = "content_metrics"  # CNT-013: views/engagement/clicks for published posts
 
 
 class PaymentCapability(StrEnum):
@@ -190,6 +191,19 @@ class ExternalMessage:
     sender_name: str | None
     text: str
     product_ref: str | None = None  # the post/listing the customer wrote from, if the channel says
+    post_ref: str | None = None  # CNT-014: external id of the post the customer replied to / came from
+
+
+@dataclass(frozen=True)
+class ContentMetrics:
+    """Cumulative counts a channel reports for one published post. None = the channel doesn't say."""
+
+    views: int | None = None
+    likes: int | None = None
+    comments: int | None = None
+    shares: int | None = None
+    saves: int | None = None
+    clicks: int | None = None
 
 
 class ChannelAdapter(Adapter):
@@ -234,6 +248,11 @@ class ChannelAdapter(Adapter):
 
     def publish_content(self, content: dict[str, Any], idempotency_key: str) -> str:
         self._require(ChannelCapability.CONTENT_PUBLISH)
+        raise NotImplementedError
+
+    def fetch_content_metrics(self, external_ids: list[str]) -> dict[str, ContentMetrics]:
+        """CNT-013: insights for published posts (missing ids = not available yet)."""
+        self._require(ChannelCapability.CONTENT_METRICS)
         raise NotImplementedError
 
     def send_message(self, conversation_external_id: str, text: str, idempotency_key: str) -> str:

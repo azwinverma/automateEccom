@@ -48,7 +48,7 @@ test("order → COD → courier → failed attempt → reattempt → delivered �
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/settings\/couriers/);
+  await expect(page).toHaveURL((u) => u.pathname === "/settings/couriers");
 
   // Settings → Couriers: add the courier with a pickup address, and the delivery charge table.
   await page.getByRole("button", { name: "Add courier" }).click();

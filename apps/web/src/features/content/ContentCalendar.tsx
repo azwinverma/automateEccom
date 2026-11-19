@@ -91,9 +91,12 @@ export function ContentCalendar() {
       type="button"
       className={[styles.chip, styles[`s_${p.status}`]].filter(Boolean).join(" ")}
       onClick={() => setOpenId(p.id)}
-      aria-label={`${timeOf(p.scheduled_at!, tz)} · ${connById.get(p.connection_id)?.display_name ?? ""} · ${t(`content.status.${p.status}`)} · ${p.caption.slice(0, 60)}`}
     >
       <span className={styles.chipTime}>{timeOf(p.scheduled_at!, tz)}</span>
+      {/* The accessible name is the visible text plus channel and status (WCAG 2.5.3 label in name). */}
+      <span className="srOnly">
+        {` · ${connById.get(p.connection_id)?.display_name ?? ""} · ${t(`content.status.${p.status}`)} · `}
+      </span>
       <span className={styles.chipText}>{p.caption}</span>
     </button>
   );

@@ -152,6 +152,15 @@ are done. The items below remain.
 | GAP-RTI-CAUSES | Low | Return causes can't point at the content/image version shown at purchase or a supplier batch: neither is recorded on orders. | Record content version on chat/channel orders (Phase 7) and batch on receiving (Phase 8). |
 | GAP-RTI-E2E | Low | Return pattern detection is covered by backend tests, not by E2E (needs 10+ delivered sales per product). | Seed a pattern in a dedicated E2E once a fixtures endpoint exists for QA. |
 
+## Phase 7 (2026-11-19)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-P7-EXIT | High (phase exit) | Phase 7 exit needs content metrics from a real channel and measured genome impact on real posts. Only sandbox insights and seller-typed results exist. | Meta/TikTok app approval (GAP-CHANNEL-APPS), then implement fetch_content_metrics for those adapters. |
+| GAP-CGN-EXPERIMENT-ASSIGN | Med | Experiments compare posts the seller made with each option (observational); nothing assigns options at random, so differences can come from other things. | Let Studio/Reels alternate options automatically during a test. |
+| GAP-CGN-ATTRIBUTION | Med | Window attribution only works for posts linked to a product; chats count as inquiries only when the channel sends a product/post reference. | Link posts to products in the composer by default; parse post links/UTMs in messages. |
+| GAP-CGN-VIDEO | Low | Genome inputs don't reach premium video concepts (premium video isn't built); Auto Reel hook type is suggested but not rendered differently. | With premium video / new reel templates. |
+| GAP-CGN-MOBILE | Low | Mobile shows patterns and post results but not experiments, the suggested time or reel settings. | Next mobile iteration. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.

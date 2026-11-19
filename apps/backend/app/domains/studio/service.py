@@ -169,6 +169,12 @@ def run_job(job_id: uuid.UUID) -> StudioJob | None:
         job.status, job.attempts = "running", job.attempts + 1
         merchant_id, locale, notes = job.merchant_id, job.locale, job.seller_notes or ""
         brand_voice = describe_brand_voice(db, merchant_id)
+        # CGN-004: what has worked in this shop's own posts, as guidance (the prompt's rules still win).
+        from app.domains.intelligence.creative import studio_guidance
+
+        guidance, job.genome_version = studio_guidance(db, merchant_id)
+        if guidance:
+            brand_voice += f"\nWhat has worked in this shop's posts (guidance only): {guidance}."
         images = _images(db, job)
         prompt = get_prompt(db, PROMPT, "en")
     request = AIRequest(
@@ -405,6 +411,7 @@ def job_view(j: StudioJob) -> dict[str, Any]:
         "seller_notes": j.seller_notes,
         "draft": j.result,
         "confidence": j.confidence,
+        "genome_version": j.genome_version,
         "needs_review": j.needs_review,
         "issues": j.issues,
         "error_code": j.error_code,

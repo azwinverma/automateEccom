@@ -3332,4 +3332,212 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get settingsLearned => 'निभारोले के सिक्यो';
+
+  @override
+  String get cgTitle => 'के बिक्छ';
+
+  @override
+  String cgLearning(int measured, int min) {
+    return 'तपाईंका पोस्टबाट सिक्दै: $min मध्ये $measured नापिए';
+  }
+
+  @override
+  String cgLearningHint(int min) {
+    return 'के बिक्छ भन्न निभारोलाई पूरा एक हप्ताको नतिजा भएका $min पोस्ट चाहिन्छ। प्रकाशित पोस्टमा नतिजा थप्दा मद्दत हुन्छ।';
+  }
+
+  @override
+  String cgPattern(String code) {
+    String _temp0 = intl.Intl.selectLogic(code, {
+      'format__post': 'फिड पोस्ट',
+      'format__story': 'स्टोरी',
+      'format__reel': 'रिल',
+      'format__video': 'भिडियो',
+      'hook_type__price_first': 'सुरुमै मूल्य देखाउने',
+      'hook_type__product_closeup': 'सामानको नजिकको दृश्यबाट सुरु',
+      'hook_type__problem_solution': 'यसले समाधान गर्ने समस्याबाट सुरु',
+      'hook_type__social_proof': 'ग्राहकको समीक्षा वा प्रमाण देखाउने',
+      'hook_type__offer': 'अफरबाट सुरु',
+      'price_timing__no_price': 'मूल्य नभएका पोस्ट',
+      'price_timing__first_2s': 'पहिलो २ सेकेन्डमै मूल्य',
+      'price_timing__later': 'भिडियोमा पछि मूल्य',
+      'price_timing__shown': 'मूल्य देखाउने',
+      'language_mix__ne': 'नेपालीमा क्याप्सन',
+      'language_mix__en': 'अंग्रेजीमा क्याप्सन',
+      'language_mix__ne_en_mixed': 'नेपाली र अंग्रेजी मिसाएको क्याप्सन',
+      'caption_length__short': 'छोटो क्याप्सन',
+      'caption_length__medium': 'मध्यम लम्बाइको क्याप्सन',
+      'caption_length__long': 'लामो, विस्तृत क्याप्सन',
+      'cta_type__dm': 'म्यासेज गर्न भन्ने',
+      'cta_type__comment': 'कमेन्ट गर्न भन्ने',
+      'cta_type__link': 'लिङ्कतिर देखाउने',
+      'cta_type__call': 'फोन गर्न भन्ने',
+      'cta_type__none': 'कुनै आह्वान नभएको',
+      'human_presence__yes': 'फोटो वा भिडियोमा मान्छे',
+      'human_presence__no': 'सामान मात्र, मान्छे बिना',
+      'posting_window__morning': 'बिहान पोस्ट (८–११ बजे)',
+      'posting_window__afternoon': 'दिउँसो पोस्ट (१२–३ बजे)',
+      'posting_window__evening': 'साँझ पोस्ट (६–९ बजे)',
+      'posting_window__night': 'राति पोस्ट (९–११ बजे)',
+      'duration_band__up_to_7s': '७ सेकेन्डसम्मका भिडियो',
+      'duration_band__8_11s': '८–११ सेकेन्डका भिडियो',
+      'duration_band__12_20s': '१२–२० सेकेन्डका भिडियो',
+      'duration_band__over_20s': '२० सेकेन्डभन्दा लामा भिडियो',
+      'background__white': 'सेतो ब्याकग्राउन्ड',
+      'background__lifestyle': 'दैनिक जीवनको ब्याकग्राउन्ड',
+      'background__blurred_photo': 'धमिलो फोटो ब्याकग्राउन्ड',
+      'background__other': 'अन्य ब्याकग्राउन्ड',
+      'other': 'अन्य ढाँचा',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String cgLiftOrders(String pct) {
+    return 'प्रति पोस्ट $pct% बढी अर्डर';
+  }
+
+  @override
+  String cgLiftInquiries(String pct) {
+    return 'प्रति पोस्ट $pct% बढी च्याट';
+  }
+
+  @override
+  String cgEvidence(String n, String confidence) {
+    return '$n पोस्टबाट · $confidence';
+  }
+
+  @override
+  String get cgConfHigh => 'धेरै भरोसा';
+
+  @override
+  String get cgConfMedium => 'मध्यम भरोसा';
+
+  @override
+  String get cgConfLow => 'कम भरोसा';
+
+  @override
+  String get cgEngagementOnly => 'लाइक आउँछ, अर्डर आउँदैन';
+
+  @override
+  String get cgNothingYet =>
+      'अहिलेसम्म स्पष्ट ढाँचा छैन। कुनै खालको पोस्टले स्पष्ट रूपमा बढी बेचेपछि ढाँचा देखिन्छ।';
+
+  @override
+  String get cgSeeAll => 'सबै ढाँचा हेर्नुहोस्';
+
+  @override
+  String get cgOtherPatterns => 'अन्य ढाँचा';
+
+  @override
+  String recCreative(String pattern) {
+    return 'यो बढी गर्नुहोस्: $pattern';
+  }
+
+  @override
+  String recWhyCreativeOrders(String pct, String n) {
+    return '$n पोस्टबाट, प्रति पोस्ट $pct% बढी अर्डर';
+  }
+
+  @override
+  String recWhyCreativeInquiries(String pct, String n) {
+    return '$n पोस्टबाट, प्रति पोस्ट $pct% बढी च्याट';
+  }
+
+  @override
+  String prTitle(String days) {
+    return 'नतिजा (पहिलो $days दिन)';
+  }
+
+  @override
+  String prWindowOpen(String days) {
+    return 'अझै गन्दै: पहिलो $days दिन सकिएको छैन';
+  }
+
+  @override
+  String prViews(String n) {
+    return '$n पटक हेरिएको';
+  }
+
+  @override
+  String prEngagements(String n) {
+    return '$n लाइक, कमेन्ट, सेयर र सेभ';
+  }
+
+  @override
+  String prClicks(String n) {
+    return '$n क्लिक';
+  }
+
+  @override
+  String get prSourceChannel => 'नम्बर च्यानलबाट';
+
+  @override
+  String get prSourceManual => 'नम्बर तपाईंले राख्नुभएको';
+
+  @override
+  String get prNoNumbers => 'अहिलेसम्म हेराइ वा लाइक थपिएको छैन';
+
+  @override
+  String prChats(String n) {
+    return '$n च्याट';
+  }
+
+  @override
+  String prOrders(String n) {
+    return '$n अर्डर';
+  }
+
+  @override
+  String prRevenue(String amount) {
+    return 'बिक्री $amount';
+  }
+
+  @override
+  String prMargin(String amount) {
+    return 'मार्जिन $amount';
+  }
+
+  @override
+  String get prCostNotSet => 'मार्जिन: सामानको लागत राखिएको छैन';
+
+  @override
+  String get prAdd => 'नतिजा थप्नुहोस्';
+
+  @override
+  String get prAddTitle => 'एपको इनसाइटबाट नतिजा';
+
+  @override
+  String get prAddHint =>
+      'इन्स्टाग्राम, फेसबुक वा टिकटकको इनसाइटबाट नम्बर सार्नुहोस्। थाहा नभएका खाली छोड्नुहोस्।';
+
+  @override
+  String get prFieldViews => 'हेराइ';
+
+  @override
+  String get prFieldLikes => 'लाइक';
+
+  @override
+  String get prFieldComments => 'कमेन्ट';
+
+  @override
+  String get prFieldShares => 'सेयर';
+
+  @override
+  String get prFieldSaves => 'सेभ';
+
+  @override
+  String get prFieldClicks => 'लिङ्क क्लिक';
+
+  @override
+  String get prSave => 'नतिजा सेभ गर्नुहोस्';
+
+  @override
+  String get prInvalid => 'पूर्ण अंक मात्र';
+
+  @override
+  String get prNeedOne => 'कम्तीमा एउटा नम्बर राख्नुहोस्';
+
+  @override
+  String get prSaved => 'नतिजा सेभ भयो';
 }

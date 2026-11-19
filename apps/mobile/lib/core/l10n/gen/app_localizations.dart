@@ -5890,6 +5890,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What Nivaro has learned'**
   String get settingsLearned;
+
+  /// No description provided for @cgTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What sells'**
+  String get cgTitle;
+
+  /// No description provided for @cgLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning from your posts: {measured} of {min} measured'**
+  String cgLearning(int measured, int min);
+
+  /// No description provided for @cgLearningHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nivaro needs {min} posts with a full week of results before it can say what sells. Adding results to published posts helps.'**
+  String cgLearningHint(int min);
+
+  /// No description provided for @cgPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'{code, select, format__post{Feed posts} format__story{Stories} format__reel{Reels} format__video{Videos} hook_type__price_first{Showing the price first} hook_type__product_closeup{Opening with a product close-up} hook_type__problem_solution{Opening with the problem it solves} hook_type__social_proof{Showing customer reviews or proof} hook_type__offer{Leading with an offer} price_timing__no_price{Posts without a price} price_timing__first_2s{Price in the first 2 seconds} price_timing__later{Price later in the video} price_timing__shown{Showing the price} language_mix__ne{Captions in Nepali} language_mix__en{Captions in English} language_mix__ne_en_mixed{Captions mixing Nepali and English} caption_length__short{Short captions} caption_length__medium{Medium-length captions} caption_length__long{Long, detailed captions} cta_type__dm{Asking customers to send a message} cta_type__comment{Asking for comments} cta_type__link{Pointing to a link} cta_type__call{Asking customers to call} cta_type__none{No call to action} human_presence__yes{A person in the photo or video} human_presence__no{Product only, no person} posting_window__morning{Posting in the morning (8–11 AM)} posting_window__afternoon{Posting in the afternoon (12–3 PM)} posting_window__evening{Posting in the evening (6–9 PM)} posting_window__night{Posting at night (9–11 PM)} duration_band__up_to_7s{Videos up to 7 seconds} duration_band__8_11s{Videos of 8–11 seconds} duration_band__12_20s{Videos of 12–20 seconds} duration_band__over_20s{Videos over 20 seconds} background__white{White background} background__lifestyle{Lifestyle background} background__blurred_photo{Blurred photo background} background__other{Other backgrounds} other{Other pattern}}'**
+  String cgPattern(String code);
+
+  /// No description provided for @cgLiftOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% more orders per post'**
+  String cgLiftOrders(String pct);
+
+  /// No description provided for @cgLiftInquiries.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% more chats per post'**
+  String cgLiftInquiries(String pct);
+
+  /// No description provided for @cgEvidence.
+  ///
+  /// In en, this message translates to:
+  /// **'From {n} posts · {confidence}'**
+  String cgEvidence(String n, String confidence);
+
+  /// No description provided for @cgConfHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'high confidence'**
+  String get cgConfHigh;
+
+  /// No description provided for @cgConfMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'medium confidence'**
+  String get cgConfMedium;
+
+  /// No description provided for @cgConfLow.
+  ///
+  /// In en, this message translates to:
+  /// **'low confidence'**
+  String get cgConfLow;
+
+  /// No description provided for @cgEngagementOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Gets likes, not orders'**
+  String get cgEngagementOnly;
+
+  /// No description provided for @cgNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No clear pattern yet. Patterns appear when one kind of post clearly sells more.'**
+  String get cgNothingYet;
+
+  /// No description provided for @cgSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all patterns'**
+  String get cgSeeAll;
+
+  /// No description provided for @cgOtherPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Other patterns'**
+  String get cgOtherPatterns;
+
+  /// No description provided for @recCreative.
+  ///
+  /// In en, this message translates to:
+  /// **'Do more of this: {pattern}'**
+  String recCreative(String pattern);
+
+  /// No description provided for @recWhyCreativeOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% more orders per post, from {n} posts'**
+  String recWhyCreativeOrders(String pct, String n);
+
+  /// No description provided for @recWhyCreativeInquiries.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% more chats per post, from {n} posts'**
+  String recWhyCreativeInquiries(String pct, String n);
+
+  /// No description provided for @prTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Results (first {days} days)'**
+  String prTitle(String days);
+
+  /// No description provided for @prWindowOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Still counting: first {days} days not over yet'**
+  String prWindowOpen(String days);
+
+  /// No description provided for @prViews.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} views'**
+  String prViews(String n);
+
+  /// No description provided for @prEngagements.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} likes, comments, shares and saves'**
+  String prEngagements(String n);
+
+  /// No description provided for @prClicks.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} clicks'**
+  String prClicks(String n);
+
+  /// No description provided for @prSourceChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers from the channel'**
+  String get prSourceChannel;
+
+  /// No description provided for @prSourceManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers entered by you'**
+  String get prSourceManual;
+
+  /// No description provided for @prNoNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'No views or likes added yet'**
+  String get prNoNumbers;
+
+  /// No description provided for @prChats.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} chats'**
+  String prChats(String n);
+
+  /// No description provided for @prOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} orders'**
+  String prOrders(String n);
+
+  /// No description provided for @prRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales {amount}'**
+  String prRevenue(String amount);
+
+  /// No description provided for @prMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin {amount}'**
+  String prMargin(String amount);
+
+  /// No description provided for @prCostNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin: product cost not set'**
+  String get prCostNotSet;
+
+  /// No description provided for @prAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add results'**
+  String get prAdd;
+
+  /// No description provided for @prAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Results from the app\'s insights'**
+  String get prAddTitle;
+
+  /// No description provided for @prAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the numbers from Instagram, Facebook or TikTok insights. Leave the ones you don\'t know empty.'**
+  String get prAddHint;
+
+  /// No description provided for @prFieldViews.
+  ///
+  /// In en, this message translates to:
+  /// **'Views'**
+  String get prFieldViews;
+
+  /// No description provided for @prFieldLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes'**
+  String get prFieldLikes;
+
+  /// No description provided for @prFieldComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get prFieldComments;
+
+  /// No description provided for @prFieldShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares'**
+  String get prFieldShares;
+
+  /// No description provided for @prFieldSaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves'**
+  String get prFieldSaves;
+
+  /// No description provided for @prFieldClicks.
+  ///
+  /// In en, this message translates to:
+  /// **'Link clicks'**
+  String get prFieldClicks;
+
+  /// No description provided for @prSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save results'**
+  String get prSave;
+
+  /// No description provided for @prInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole numbers only'**
+  String get prInvalid;
+
+  /// No description provided for @prNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one number'**
+  String get prNeedOne;
+
+  /// No description provided for @prSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Results saved'**
+  String get prSaved;
 }
 
 class _AppLocalizationsDelegate

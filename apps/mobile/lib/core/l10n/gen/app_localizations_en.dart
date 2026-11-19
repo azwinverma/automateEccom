@@ -3352,4 +3352,212 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLearned => 'What Nivaro has learned';
+
+  @override
+  String get cgTitle => 'What sells';
+
+  @override
+  String cgLearning(int measured, int min) {
+    return 'Learning from your posts: $measured of $min measured';
+  }
+
+  @override
+  String cgLearningHint(int min) {
+    return 'Nivaro needs $min posts with a full week of results before it can say what sells. Adding results to published posts helps.';
+  }
+
+  @override
+  String cgPattern(String code) {
+    String _temp0 = intl.Intl.selectLogic(code, {
+      'format__post': 'Feed posts',
+      'format__story': 'Stories',
+      'format__reel': 'Reels',
+      'format__video': 'Videos',
+      'hook_type__price_first': 'Showing the price first',
+      'hook_type__product_closeup': 'Opening with a product close-up',
+      'hook_type__problem_solution': 'Opening with the problem it solves',
+      'hook_type__social_proof': 'Showing customer reviews or proof',
+      'hook_type__offer': 'Leading with an offer',
+      'price_timing__no_price': 'Posts without a price',
+      'price_timing__first_2s': 'Price in the first 2 seconds',
+      'price_timing__later': 'Price later in the video',
+      'price_timing__shown': 'Showing the price',
+      'language_mix__ne': 'Captions in Nepali',
+      'language_mix__en': 'Captions in English',
+      'language_mix__ne_en_mixed': 'Captions mixing Nepali and English',
+      'caption_length__short': 'Short captions',
+      'caption_length__medium': 'Medium-length captions',
+      'caption_length__long': 'Long, detailed captions',
+      'cta_type__dm': 'Asking customers to send a message',
+      'cta_type__comment': 'Asking for comments',
+      'cta_type__link': 'Pointing to a link',
+      'cta_type__call': 'Asking customers to call',
+      'cta_type__none': 'No call to action',
+      'human_presence__yes': 'A person in the photo or video',
+      'human_presence__no': 'Product only, no person',
+      'posting_window__morning': 'Posting in the morning (8–11 AM)',
+      'posting_window__afternoon': 'Posting in the afternoon (12–3 PM)',
+      'posting_window__evening': 'Posting in the evening (6–9 PM)',
+      'posting_window__night': 'Posting at night (9–11 PM)',
+      'duration_band__up_to_7s': 'Videos up to 7 seconds',
+      'duration_band__8_11s': 'Videos of 8–11 seconds',
+      'duration_band__12_20s': 'Videos of 12–20 seconds',
+      'duration_band__over_20s': 'Videos over 20 seconds',
+      'background__white': 'White background',
+      'background__lifestyle': 'Lifestyle background',
+      'background__blurred_photo': 'Blurred photo background',
+      'background__other': 'Other backgrounds',
+      'other': 'Other pattern',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String cgLiftOrders(String pct) {
+    return '$pct% more orders per post';
+  }
+
+  @override
+  String cgLiftInquiries(String pct) {
+    return '$pct% more chats per post';
+  }
+
+  @override
+  String cgEvidence(String n, String confidence) {
+    return 'From $n posts · $confidence';
+  }
+
+  @override
+  String get cgConfHigh => 'high confidence';
+
+  @override
+  String get cgConfMedium => 'medium confidence';
+
+  @override
+  String get cgConfLow => 'low confidence';
+
+  @override
+  String get cgEngagementOnly => 'Gets likes, not orders';
+
+  @override
+  String get cgNothingYet =>
+      'No clear pattern yet. Patterns appear when one kind of post clearly sells more.';
+
+  @override
+  String get cgSeeAll => 'See all patterns';
+
+  @override
+  String get cgOtherPatterns => 'Other patterns';
+
+  @override
+  String recCreative(String pattern) {
+    return 'Do more of this: $pattern';
+  }
+
+  @override
+  String recWhyCreativeOrders(String pct, String n) {
+    return '$pct% more orders per post, from $n posts';
+  }
+
+  @override
+  String recWhyCreativeInquiries(String pct, String n) {
+    return '$pct% more chats per post, from $n posts';
+  }
+
+  @override
+  String prTitle(String days) {
+    return 'Results (first $days days)';
+  }
+
+  @override
+  String prWindowOpen(String days) {
+    return 'Still counting: first $days days not over yet';
+  }
+
+  @override
+  String prViews(String n) {
+    return '$n views';
+  }
+
+  @override
+  String prEngagements(String n) {
+    return '$n likes, comments, shares and saves';
+  }
+
+  @override
+  String prClicks(String n) {
+    return '$n clicks';
+  }
+
+  @override
+  String get prSourceChannel => 'Numbers from the channel';
+
+  @override
+  String get prSourceManual => 'Numbers entered by you';
+
+  @override
+  String get prNoNumbers => 'No views or likes added yet';
+
+  @override
+  String prChats(String n) {
+    return '$n chats';
+  }
+
+  @override
+  String prOrders(String n) {
+    return '$n orders';
+  }
+
+  @override
+  String prRevenue(String amount) {
+    return 'Sales $amount';
+  }
+
+  @override
+  String prMargin(String amount) {
+    return 'Margin $amount';
+  }
+
+  @override
+  String get prCostNotSet => 'Margin: product cost not set';
+
+  @override
+  String get prAdd => 'Add results';
+
+  @override
+  String get prAddTitle => 'Results from the app\'s insights';
+
+  @override
+  String get prAddHint =>
+      'Copy the numbers from Instagram, Facebook or TikTok insights. Leave the ones you don\'t know empty.';
+
+  @override
+  String get prFieldViews => 'Views';
+
+  @override
+  String get prFieldLikes => 'Likes';
+
+  @override
+  String get prFieldComments => 'Comments';
+
+  @override
+  String get prFieldShares => 'Shares';
+
+  @override
+  String get prFieldSaves => 'Saves';
+
+  @override
+  String get prFieldClicks => 'Link clicks';
+
+  @override
+  String get prSave => 'Save results';
+
+  @override
+  String get prInvalid => 'Whole numbers only';
+
+  @override
+  String get prNeedOne => 'Enter at least one number';
+
+  @override
+  String get prSaved => 'Results saved';
 }

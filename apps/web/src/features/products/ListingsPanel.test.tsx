@@ -42,7 +42,7 @@ function listing(over: Partial<ChannelListing> = {}): ChannelListing {
 const catalog = { listings: vi.fn(), publish: vi.fn(), unpublish: vi.fn(), resolveDrift: vi.fn() };
 const channels = { list: vi.fn(async () => ({ items: [conn] })) };
 const api = { catalog, channels };
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: () => true }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: () => true }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

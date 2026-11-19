@@ -75,6 +75,10 @@ class Conversation(IdMixin, TimestampMixin, TenantScoped, Base):
     last_message_at: Mapped[datetime | None]
     last_inbound_at: Mapped[datetime | None]
     first_response_due_at: Mapped[datetime | None]  # SLA: cleared by the first reply
+    # CNT-014: the post the customer wrote from (explicit attribution), when the channel says.
+    content_post_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("content_posts.id", ondelete="SET NULL"), index=True
+    )
 
 
 class Message(IdMixin, TenantScoped, Base):

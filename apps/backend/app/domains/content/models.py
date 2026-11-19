@@ -101,5 +101,7 @@ class ContentPost(IdMixin, TimestampMixin, TenantScoped, Base):
         Integer, default=1, server_default="1", nullable=False
     )
     version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    # CGN-004: the Creative Genome version that informed this post (None = not genome-informed).
+    genome_version: Mapped[int | None] = mapped_column(Integer)
 
     __mapper_args__ = {"version_id_col": version}

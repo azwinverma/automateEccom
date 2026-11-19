@@ -13,7 +13,7 @@ const api = {
   reference: { nepal: vi.fn(async () => ({ provinces: [], districts: [{ code: "kathmandu", name: "Kathmandu", province: "bagmati" }, { code: "kaski", name: "Kaski", province: "gandaki" }], max_ward: 35 })) },
 };
 let perms = new Set(["fulfillment.read", "settings.manage"]);
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

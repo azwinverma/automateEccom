@@ -171,6 +171,11 @@ def nightly_intelligence() -> dict[str, int]:
         stats["product_profiles"] = product_brain.recompute_all(db)
     with session_scope() as db:
         stats["memory_merchants"] = memory.compute_all(db)
+    # Phase 7: post results → attribution → Creative Genome → experiments.
+    from app.domains.intelligence import creative
+
+    with session_scope() as db:
+        stats["creative_merchants"] = creative.run_all(db)
     with session_scope() as db:
         stats["aps_snapshots"] = aps.snapshot_all(db)
     with session_scope() as db:

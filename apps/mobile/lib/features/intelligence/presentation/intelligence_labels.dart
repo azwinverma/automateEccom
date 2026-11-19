@@ -65,6 +65,14 @@ String recommendationWhat(AppLocalizations l, Recommendation r) => switch (r
       .recReviewReturns(_v(r.vars, 'title')),
   'review_price_or_cost' => l.recReviewPrice(_v(r.vars, 'title')),
   'add_cost' => l.recAddCost(_v(r.vars, 'title')),
+  final w when w.startsWith('creative_') && r.type == 'creative_tip' => l
+      .recCreative(
+        creativePatternLabel(
+          l,
+          w.substring('creative_'.length),
+          _v(r.vars, 'value'),
+        ),
+      ),
   _ => l.recOther,
 };
 
@@ -114,6 +122,10 @@ String? recommendationWhy(AppLocalizations l, Recommendation r) => switch (r
     _v(r.vars, 'units'),
   ),
   'cost_not_set' => l.recWhyCostNotSet(_v(r.vars, 'units')),
+  'creative_pattern' =>
+    r.vars['outcome'] == 'inquiries'
+        ? l.recWhyCreativeInquiries(_v(r.vars, 'lift_pct'), _v(r.vars, 'n'))
+        : l.recWhyCreativeOrders(_v(r.vars, 'lift_pct'), _v(r.vars, 'n')),
   _ => null,
 };
 
@@ -241,3 +253,22 @@ String memoryFactLabel(AppLocalizations l, MemoryFact f) {
 
 String _capitalise(String s) =>
     s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+
+/// A creative attribute value as a plain phrase ("Captions mixing Nepali
+/// and English"). Unknown codes fall back to a generic label.
+String creativePatternLabel(
+  AppLocalizations l,
+  String attribute,
+  String value,
+) => l.cgPattern('${attribute}__$value');
+
+String creativeLiftLabel(AppLocalizations l, double lift, String outcome) {
+  final pct = (lift * 100).round().toString();
+  return outcome == 'inquiries' ? l.cgLiftInquiries(pct) : l.cgLiftOrders(pct);
+}
+
+String creativeConfidenceLabel(AppLocalizations l, String c) => switch (c) {
+  'high' => l.cgConfHigh,
+  'medium' => l.cgConfMedium,
+  _ => l.cgConfLow,
+};

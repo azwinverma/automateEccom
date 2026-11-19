@@ -16,7 +16,7 @@ const admin = {
   grantCredits: vi.fn(),
 };
 const api = { admin };
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, me, merchantId: null, signOut: vi.fn() }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, me, merchantId: null, signOut: vi.fn() }) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), push: vi.fn() }), usePathname: () => "/console/merchants" }));
 
 function user(over: Partial<Me["user"]> = {}, mfa = false): Me {

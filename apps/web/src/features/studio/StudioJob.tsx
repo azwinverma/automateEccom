@@ -206,6 +206,11 @@ function Review({ job, onDiscarded }: { job: StudioJob; onDiscarded: () => void 
       />
       <div className={wf.split}>
         <div className={wf.stack}>
+          {job.genome_version ? (
+            <p className={wf.hint} data-testid="studio-genome-note" style={{ margin: 0 }}>
+              {t("intel.creative.studioNote", { v: job.genome_version })}
+            </p>
+          ) : null}
           {limited && isApiError(applyErr) ? (
             <InlineAlert tone="warning" title={t("products.editor.planLimitTitle")}>
               <LimitActions buyCredits={parseLimitOptions(applyErr.details.options).includes("buy_credits")} upgrade />

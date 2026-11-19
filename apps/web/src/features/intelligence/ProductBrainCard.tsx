@@ -32,11 +32,12 @@ export function missingSentences(t: T, b: ProductBrain): string[] {
 
 /** UX-018 Product Brain card (+ UX-012 stock risk, UX-020 return insights). Hidden without the plan. */
 export function ProductBrainCard({ productId }: { productId: string }) {
-  const { can } = useAuth();
+  const { can, feature } = useAuth();
+  const on = feature("intelligence.product_brain") === "yes" && can("catalog.read");
   const q = useApiQuery(async (a) => {
-    if (!can("catalog.read")) throw new Error("no access");
+    if (!on) throw new Error("not on the plan or no access"); // never ask the API for what the plan lacks
     return a.intelligence.productBrain(productId);
-  }, [productId]);
+  }, [productId, on]);
   if (q.state.status !== "success") return null; // not on the plan, no access or still loading: no banner
   return <ProductBrainView brain={q.state.data} />;
 }

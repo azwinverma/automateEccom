@@ -514,3 +514,32 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
   limit or significantly above the shop's rate (exact binomial, p < 0.05, baseline needs 30+ units). A
   reason holding 50%+ of returns becomes the pattern. Dismissed patterns stay quiet for 90 days.
 - **Why:** small shops have small numbers; without minimums every second return would raise an alert.
+
+## ADR-069: Post results come from the channel or the seller, never estimated (CNT-013, 2026-11-19)
+- **Decision:** channels report insights through an adapter capability (CONTENT_METRICS). Until Meta/TikTok
+  approve the apps, the seller can type the numbers from the app's insights; every snapshot keeps its source
+  (channel / manual) and the UI says which. Chats and orders always come from Nivaro's own records.
+- **Why:** the learning loop can start before platform approval without inventing data.
+
+## ADR-070: Attribution and the genome favour orders, with honest uncertainty (CNT-014, CGN-002, 2026-11-19)
+- **Decision:** explicit post references win; otherwise orders for the post's product within 7 days get
+  exp(-days/3) credit, shared between posts of that product live at the time (one order never counts as
+  more than one). The genome needs 20 measured posts and 5 per option, shrinks each option towards the
+  shop average (k = 5) and marks a pattern recommended only with ≥ 10% lift and z ≥ 1.5. Engagement is
+  shown but cannot make a pattern recommended. With fewer than 5 attributed orders the outcome is chats.
+- **Why:** spec 09: optimise for commerce, not likes; small shops have small samples, so the shop average
+  is the safe default until the evidence is strong.
+
+## ADR-071: Genome guidance is recorded, optional and never overrides the prompt rules (CGN-004, 2026-11-19)
+- **Decision:** Studio adds the shop's caption patterns to the brand-voice input as guidance (the grounding
+  rules stay above it) and stores the genome version on the job; posts inherit it. Auto Reel settings and
+  the suggested time are applied only when the seller chooses them, and send the genome version. The
+  suggested time falls back to when customers order (Commerce Memory), labelled differently, without a
+  genome version.
+- **Why:** sellers stay in control, and genome-informed posts can be compared with the rest (CGN-006).
+
+## ADR-072: The web asks the plan before calling plan-gated APIs (2026-11-19)
+- **Decision:** the auth context loads the plan's features (when the user can read billing) and widgets
+  that hide quietly without a feature (stock risk, Product Brain, COD risk, creative suggestions) don't call
+  their API at all when the plan lacks it. Pages whose job is the feature still show the upsell on 403.
+- **Why:** avoids pointless 403s (noise in logs and alerts) found by the settings E2E's failed-request check.

@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-19 (Phase 6 part B)._
+_Last updated: 2026-11-19 (Phase 7)._
 
 ## Summary
 
@@ -44,6 +44,26 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Phase 7 (Creative Intelligence): built 2026-11-19, exit BLOCKED
+- **Built and tested:** post results from channel insights (adapter capability, sandbox) or typed in by the
+  seller from the app's insights; attribution of chats and orders to posts (explicit post reference from
+  the channel → 7-day product window with decay, shared between live posts; method stored); Creative
+  Genome (≥ 20 measured posts, ≥ 5 per option, shrinkage to the shop average, orders before inquiries,
+  likes never recommend a pattern); experiments with a stopping rule set up front; genome guidance in
+  Studio captions, Auto Reel settings and the suggested posting time, each recording the genome version;
+  observational impact of genome-informed posts; creative tips on Home.
+- **Web:** Content → What sells (patterns, post results with "Add results", tests), suggested time in the
+  post drawer, "Use your best settings" for Auto Reels, a note on genome-informed Studio drafts. **Mobile:**
+  What sells card/screen, post results + Add results, tip copy. Gated widgets no longer call plan-gated
+  APIs when the plan lacks the feature (auth context now knows the plan's features).
+- **Verified in E2E** (desktop + 360px, live API + worker): publish a post → type in results → shown as
+  "You typed it" → What sells shows the learning state → a test is created and collecting.
+- **Totals (2026-11-19):** backend 336 passed (23 migrations); web 297 + api-client 29; E2E 34/34;
+  mobile 160 passed + 1 live-only skipped; axe 0 violations and no 360px overflow on Home, Content,
+  What sells and Reels (light, dark, 360px), after fixing a Phase 1 calendar chip label (WCAG 2.5.3).
+- **Exit BLOCKED (external):** needs content metrics from ≥ 1 real channel and measured impact on real
+  posts. Meta/TikTok insights need app approval (GAP-CHANNEL-APPS); typed-in results work meanwhile.
 
 ## Phase 6 part B (profit, Product Brain, Return Intelligence, Commerce Memory): built 2026-11-19
 - **Built and tested:** true profit waterfall and product P&L per spec 14 (cost recorded on each order
@@ -309,8 +329,8 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CNT-010 | scheduler | P1 | TESTED | CNT-009 | apps/backend/app/domains/content/service.py, worker/ | test_content | 30s beat scheduler, idempotent provider call |
 | CNT-011 | retry | P1 | TESTED | CNT-010 | apps/backend/app/domains/content/service.py | test_content::test_transient_failures… | Backoff retry → failed + exception event; reconnect handling |
 | CNT-012 | creative attributes on posts and video jobs (hook, duration, price timing, language mix, CTA, caption length, background, template, posting window) [Phase 1, pull-forward] | P1 | TESTED | CNT-008, MED-008 | apps/backend/app/domains/content/creative.py, service.py, migration 0010 | test_creative_attributes | Derived (language mix, CTA, caption bucket, local posting hour, Auto Reel duration/price timing/template) + seller-declared (hook, human presence, background) with CHECK vocabularies; existing posts backfilled. Web/mobile don't yet expose the declared fields (optional) |
-| CNT-013 | content metrics ingestion interface on adapters (fetch_content_metrics) [Phase 7] | P7 | NOT_STARTED | — | — | — |  |
-| CNT-014 | inquiry/order attribution to content (explicit ref → window heuristic; method recorded) [Phase 7] | P7 | NOT_STARTED | — | — | — |  |
+| CNT-013 | content metrics ingestion interface on adapters (fetch_content_metrics) [Phase 7] | P7 | IMPLEMENTED | CHN-001 | integrations/base.py ChannelCapability.CONTENT_METRICS + fetch_content_metrics; sandbox adapter; apps/backend/app/domains/intelligence/creative.py::ingest_channel_metrics, record_manual | apps/backend/tests/test_creative.py::test_channel_insights_and_typed_in_results_keep_their_source | Sandbox + seller-typed results only; Meta/TikTok insights BLOCKED with their app approval (GAP-CHANNEL-APPS) |
+| CNT-014 | inquiry/order attribution to content (explicit ref → window heuristic; method recorded) [Phase 7] | P7 | TESTED | CNT-013 | apps/backend/app/domains/intelligence/creative.py::attribute_post (explicit post ref → 7-day window with decay, shared credit); inbox post_ref → conversation.content_post_id | apps/backend/tests/test_creative.py::test_explicit_beats_window_and_shared_credit_never_exceeds_one_order | Method recorded per metric |
 | CHN-001 | adapter interface | P1 | TESTED | — | apps/backend/app/domains/integrations/base.py, registry.py | test_platform::test_registry… | Channel/Payment/Courier/Notification interfaces |
 | CHN-002 | capabilities | P1 | TESTED | CHN-001 | apps/backend/app/domains/integrations/base.py | test_platform::test_registry… | Capability enums; sandbox adapters refused in production |
 | CHN-003 | OAuth | P1 | TESTED | CHN-001 | apps/backend/app/domains/channels/ | test_channels | OAuth flow + web callback page (state check, single exchange) + E2E studio→channels |
@@ -461,7 +481,7 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-019 | Recommendation / Profit Recommendation Card with explanation pattern (Phase 6) | P6 | TESTED | REC-003 | apps/web/src/features/intelligence/Recommendations.tsx; mobile recommendations_section.dart | Intelligence.test.tsx; mobile tests; e2e phase6a; axe | Profit recommendation variant waits for profit analytics (Part B) |
 | UX-020 | Return Insight Card + Courier Recommendation Card (Phase 6) | P6 | IMPLEMENTED | RTI-002 | apps/web/src/features/analytics Return patterns tab; product card insights | web component tests | Return Insight Card done; Courier Recommendation Card is the Phase 6A courier panel. Not covered by E2E (needs 10+ delivered sales) |
 | UX-021 | Commerce Memory insight with correction (Phase 6) | P6 | TESTED | MEM-005 | apps/web/src/features/analytics What Nivaro learned; mobile memory_screen | web + mobile tests; axe | Mobile has confirm/reject, not correct |
-| UX-022 | Creative Genome panel (Phase 7) | P7 | NOT_STARTED | — | — | — |  |
+| UX-022 | Creative Genome panel (Phase 7) | P7 | TESTED | CGN-005 | apps/web/src/features/intelligence/CreativeView.tsx; mobile creative_genome_card.dart | web + mobile tests; e2e phase7; axe |  |
 | PBR-001 | ProductIntelligenceProfile schema + method_version + as_of + data-completeness | P6 | TESTED | — | apps/backend/app/domains/intelligence/models.py::ProductIntelligenceProfile | apps/backend/tests/test_intelligence_b.py::test_product_brain_uses_in_stock_days_and_lists_what_it_cant_know | completeness + not_included reasons |
 | PBR-002 | demand rate (EWMA, in-stock days only, seasonality index) per product/variant | P6 | TESTED | PBR-001 | apps/backend/app/domains/intelligence/product_brain.py::ewma, _in_stock_days | apps/backend/tests/test_intelligence_b.py::test_product_brain_uses_in_stock_days_and_lists_what_it_cant_know | Per product (not per variant); seasonality index needs 12 months → listed as not included |
 | PBR-003 | margin + expected contribution per unit (uses ANA true-profit components; "not included" handling) | P6 | TESTED | ANA-007 | apps/backend/app/domains/intelligence/product_brain.py (margin, contribution from 90-day P&L) | apps/backend/tests/test_intelligence_b.py | Contribution needs 5+ delivered units |
@@ -513,12 +533,12 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CODI-004 | merchant override + dispute workflow (audited) | P6 | TESTED | CODI-003 | apps/backend/app/domains/intelligence/cod_risk.py::override/dispute (audited) | apps/backend/tests/test_intelligence.py::test_cod_risk_uses_allowed_inputs_only_and_never_rejects; e2e phase6a | Override with reason clears the hold and changes the advice |
 | CODI-005 | outcome capture + calibration monitoring + regional disparity report | P6 | IMPLEMENTED | CODI-002 | apps/backend/app/domains/intelligence/cod_risk.py::calibration (outcome by level, per district) | apps/backend/tests/test_intelligence.py::test_cod_risk_uses_allowed_inputs_only_and_never_rejects | Ops endpoint only; no alerting on drift yet |
 | CODI-006 | phone verification + partial-advance flows (with PAY) | P6 | NOT_STARTED | — | — | — |  |
-| CGN-001 | CreativePerformanceMetric (views, engagement, clicks, inquiries, orders, attributed contribution) | P7 | NOT_STARTED | — | — | — |  |
-| CGN-002 | genome computation (outcome-weighted effects, min sample, shrinkage) → CreativeGenomeProfile | P7 | NOT_STARTED | — | — | — |  |
-| CGN-003 | CreativeExperiment (hypothesis, variants, stopping rule) | P7 | NOT_STARTED | — | — | — |  |
-| CGN-004 | genome inputs to Studio prompts, Auto Reel template choice, video concepts, schedule suggestions (genome_version recorded) | P7 | NOT_STARTED | — | — | — |  |
-| CGN-005 | Creative Genome panel + Store Manager tool | P7 | NOT_STARTED | — | — | — |  |
-| CGN-006 | impact measurement of genome-informed content vs baseline | P7 | NOT_STARTED | — | — | — |  |
+| CGN-001 | CreativePerformanceMetric (views, engagement, clicks, inquiries, orders, attributed contribution) | P7 | TESTED | CNT-014 | apps/backend/app/domains/intelligence/creative.py; models.CreativePerformanceMetric, ContentChannelMetric | apps/backend/tests/test_creative.py | One row per post over its 7-day window; contribution = margin of attributed lines (None when cost unknown) |
+| CGN-002 | genome computation (outcome-weighted effects, min sample, shrinkage) → CreativeGenomeProfile | P7 | TESTED | CGN-001 | apps/backend/app/domains/intelligence/creative.py::compute_genome (min 20 posts, 5 per value, shrinkage k=5, z vs rest) | apps/backend/tests/test_creative.py::test_genome_recommends_what_sells_with_shrinkage | Orders first; inquiries when < 5 orders; likes never recommend (ADR-070) |
+| CGN-003 | CreativeExperiment (hypothesis, variants, stopping rule) | P7 | TESTED | CGN-001 | apps/backend/app/domains/intelligence/creative.py::create_experiment/evaluate/stop | apps/backend/tests/test_creative.py::test_experiment_follows_its_stopping_rule | Observational assignment (the seller makes the posts); no randomisation |
+| CGN-004 | genome inputs to Studio prompts, Auto Reel template choice, video concepts, schedule suggestions (genome_version recorded) | P7 | TESTED | CGN-002 | apps/backend/app/domains/intelligence/creative.py::suggestions/studio_guidance; studio run_job; media auto-reels + content schedule accept genome_version | apps/backend/tests/test_creative.py::test_genome_version_is_recorded_on_studio_drafts_reels_and_scheduled_posts | Video concepts not built (premium video not built) |
+| CGN-005 | Creative Genome panel + Store Manager tool | P7 | IMPLEMENTED | CGN-002 | web Content → What sells; mobile What sells card; creative_tip suggestion | web Creative.test.tsx; mobile creative_test; e2e phase7; axe | Store Manager tool not built (GAP-STORE-MANAGER) |
+| CGN-006 | impact measurement of genome-informed content vs baseline | P7 | TESTED | CGN-004 | apps/backend/app/domains/intelligence/creative.py::impact | apps/backend/tests/test_creative.py::test_impact_compares_genome_informed_posts_with_the_rest | Observational comparison, labelled as such |
 | SPI-001 | SupplierPerformanceMetric (landed cost, defect, return, on-time, lead-time variance, contribution/unit) | P8 | NOT_STARTED | — | — | — |  |
 | SPI-002 | batch/lot linkage receiving → returns/defects | P8 | NOT_STARTED | — | — | — |  |
 | SPI-003 | true-economics supplier recommendation with explanation | P8 | NOT_STARTED | — | — | — |  |
@@ -558,4 +578,4 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 5, IMPLEMENTED 26, IN_PROGRESS 12, NOT_STARTED 63, TESTED 227. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 5, IMPLEMENTED 28, IN_PROGRESS 12, NOT_STARTED 54, TESTED 234. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).

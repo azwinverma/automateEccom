@@ -11,6 +11,7 @@ export function ContentTabs() {
   const tabs = [
     { href: "/content", label: t("content.tabCalendar"), active: pathname === "/content" },
     { href: "/content/reels", label: t("content.tabReels"), active: pathname.startsWith("/content/reels") },
+    { href: "/content/insights", label: t("content.tabWhatSells"), active: pathname.startsWith("/content/insights") },
   ];
   return (
     <nav aria-label={t("content.sectionTabs")}>

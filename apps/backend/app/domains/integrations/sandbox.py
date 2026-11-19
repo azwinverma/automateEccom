@@ -21,6 +21,7 @@ from app.domains.integrations.base import (
     Address,
     ChannelAdapter,
     ChannelCapability,
+    ContentMetrics,
     CourierAdapter,
     CourierCapability,
     ExternalLine,
@@ -104,6 +105,7 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
             ChannelCapability.PRODUCT_LISTING,
             ChannelCapability.INVENTORY_SYNC,
             ChannelCapability.CONTENT_PUBLISH,
+            ChannelCapability.CONTENT_METRICS,
             ChannelCapability.MESSAGES,
             ChannelCapability.ORDERS,
         }
@@ -194,6 +196,14 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
         self._fail()
         return "sbx-post-" + hashlib.sha256(idempotency_key.encode()).hexdigest()[:10]
 
+    # CNT-013: what the sandbox "platform" reports per post id (tests/QA set it; empty = no insights yet).
+    insights: ClassVar[dict[str, ContentMetrics]] = {}
+
+    def fetch_content_metrics(self, external_ids: list[str]) -> dict[str, ContentMetrics]:
+        self._require(ChannelCapability.CONTENT_METRICS)
+        self._fail()
+        return {i: self.insights[i] for i in external_ids if i in self.insights}
+
     sent: ClassVar[list[dict[str, str]]] = []  # outbound messages (tests read what the customer got)
 
     def send_message(self, conversation_external_id: str, text: str, idempotency_key: str) -> str:
@@ -216,6 +226,7 @@ class SandboxChannelAdapter(_HmacWebhookMixin, ChannelAdapter):
             sender_name=sender.get("name"),
             text=text[:4000],
             product_ref=raw.get("product_id"),
+            post_ref=raw.get("post_id"),
         )
 
     orders: ClassVar[list[dict[str, Any]]] = []  # what fetch_orders returns (tests append raw orders)

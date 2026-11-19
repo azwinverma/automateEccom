@@ -64,7 +64,7 @@ const api = {
   intelligence: { profit: vi.fn(), updateProfitSettings: vi.fn(), memoryFacts: vi.fn(), confirmFact: vi.fn(), correctFact: vi.fn(), rejectFact: vi.fn(), recommendations: vi.fn(), accept: vi.fn(), reject: vi.fn() },
 };
 let perms = new Set<string>();
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: () => "yes", api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

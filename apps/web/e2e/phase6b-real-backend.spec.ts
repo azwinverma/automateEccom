@@ -74,7 +74,7 @@ test("true profit labels missing costs; packaging set → included; Product Brai
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/analytics/);
+  await expect(page).toHaveURL((u) => u.pathname === "/analytics");
 
   // Profit: packaging isn't set, so it's "Not included" with a sentence saying how to fix it.
   const card = page.getByTestId("profit-card");

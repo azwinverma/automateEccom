@@ -558,6 +558,8 @@ export interface StudioJob {
   attempts: number;
   product_id: string | null;
   ai: { provider: string; model: string; prompt_version: string } | null;
+  /** CGN-004: the Creative Genome version whose caption guidance informed this draft (null = none). */
+  genome_version?: number | null;
   created_at: string;
   finished_at: string | null;
 }
@@ -668,6 +670,8 @@ export interface ContentPost {
   rejection_note: string | null;
   version: number;
   created_at: string;
+  /** CGN-004: the Creative Genome version that informed this post (null = not genome-informed). */
+  genome_version?: number | null;
 }
 
 export interface ContentPostInput {
@@ -694,6 +698,8 @@ export interface AutoReelInput {
   product_id?: string | null;
   show_price: boolean;
   seconds_per_slide: number;
+  /** Set when the seller applied the genome's suggested settings. */
+  genome_version?: number | null;
 }
 
 export interface VideoJob {
@@ -705,6 +711,8 @@ export interface VideoJob {
   headline: string | null;
   cta: string | null;
   show_price: boolean;
+  seconds_per_slide?: number;
+  genome_version?: number | null;
   product_id: string | null;
   duration_s: number | null;
   credits_charged: number | null;
@@ -1943,3 +1951,171 @@ export interface ProductBrain {
 export interface StockRiskItem extends ProductBrain {
   title: string;
 }
+
+/* ---------- Creative Intelligence (Phase 7) ---------- */
+
+export type CreativeAttribute =
+  | "format"
+  | "hook_type"
+  | "price_timing"
+  | "language_mix"
+  | "caption_length"
+  | "cta_type"
+  | "human_presence"
+  | "posting_window"
+  | "duration_band"
+  | "background";
+
+export interface CreativePreference {
+  attribute: CreativeAttribute | (string & {});
+  value: string;
+  n: number;
+  /** Average outcome (orders or inquiries) per post with this value. */
+  mean: number;
+  /** Shrunk towards the shop average (k = 5 posts). */
+  shrunk: number;
+  /** shrunk / shop average − 1. */
+  lift: number;
+  z: number;
+  confidence: "high" | "medium" | "low";
+  engagement_rate: number | null;
+  engagement_lift: number | null;
+  /** Gets likes, not orders: never recommended. */
+  engagement_only: boolean;
+  recommended: boolean;
+}
+
+export interface CreativeImpact {
+  genome_posts: number;
+  other_posts: number;
+  genome_mean_orders: number | null;
+  other_mean_orders: number | null;
+  method: "observational";
+  note: string;
+  lift?: number;
+  z?: number;
+}
+
+export interface CreativeGenome {
+  version: number | null;
+  status: "learning" | "ready";
+  posts: number;
+  measured_posts: number;
+  min_posts: number;
+  baseline: {
+    outcome: "orders" | "inquiries";
+    mean: number;
+    orders: number;
+    engagement_rate: number | null;
+    min_posts: number;
+    min_per_value: number;
+    window_days: number;
+    lookback_days: number;
+  } | null;
+  preferences: CreativePreference[];
+  method_version: string;
+  computed_at: string | null;
+  impact: CreativeImpact;
+}
+
+export interface CreativeAttribution {
+  method: "explicit" | "window" | "mixed" | "none";
+  explicit_orders: number;
+  window_orders: number;
+  explicit_inquiries: number;
+  window_inquiries: number;
+  decay_days: number;
+}
+
+export interface CreativePostMetrics {
+  window_days: number;
+  window_complete: boolean;
+  views: number | null;
+  engagements: number | null;
+  clicks: number | null;
+  /** Where views/engagement came from; null = no numbers yet. */
+  source: "channel" | "manual" | null;
+  inquiries: number;
+  /** Weighted by attribution (shared credit), so it can be fractional. */
+  orders: number;
+  revenue_minor: number;
+  /** null = a product cost is missing. */
+  contribution_minor: number | null;
+  attribution: CreativeAttribution;
+}
+
+export interface CreativePostRow {
+  post_id: string;
+  kind: PostKind;
+  caption: string;
+  product_id: string | null;
+  published_at: string | null;
+  genome_version: number | null;
+  features: Partial<Record<CreativeAttribute, string>>;
+  metrics: CreativePostMetrics | null;
+}
+
+export interface CreativePostMetricsInput {
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  saves?: number | null;
+  clicks?: number | null;
+}
+
+export interface CreativeSuggestions {
+  genome_version: number | null;
+  status: "learning" | "ready";
+  caption: { attribute: CreativeAttribute; value: string; lift: number; n: number }[];
+  studio_guidance: string | null;
+  reel: { target_seconds?: [number, number]; show_price?: boolean; hook_type?: string };
+  /** source genome = learned best window; orders = when customers order (Commerce Memory). */
+  schedule: { window?: string; hours?: [number, number]; source?: "genome" | "orders"; lift?: number };
+}
+
+export interface CreativeExperimentResultSide {
+  n: number;
+  mean: number | null;
+}
+
+export interface CreativeExperiment {
+  id: string;
+  name: string;
+  hypothesis: string;
+  attribute: CreativeAttribute | (string & {});
+  variant_a: string;
+  variant_b: string;
+  metric: "orders" | "inquiries";
+  min_posts: number;
+  max_days: number;
+  status: "running" | "concluded" | "stopped";
+  started_at: string;
+  ends_by: string;
+  ended_at: string | null;
+  result:
+    | ({ a: CreativeExperimentResultSide; b: CreativeExperimentResultSide } & (
+        | { status: "collecting" }
+        | { z: number; winner: "a" | "b" | null; verdict: "clear" | "no_clear_difference" | "not_enough_posts" }
+      ))
+    | null;
+}
+
+export interface CreativeExperimentInput {
+  name: string;
+  hypothesis: string;
+  attribute: CreativeAttribute;
+  variant_a: string;
+  variant_b: string;
+  metric?: "orders" | "inquiries";
+  min_posts?: number;
+  max_days?: number;
+}
+
+export interface CreativeRunStats {
+  metrics: number;
+  attributed: number;
+  genome_version: number;
+  experiments: number;
+}
+

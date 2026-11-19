@@ -33,10 +33,12 @@ const order = { id: "o1", payment_method: "cod", version: 2 } as unknown as Orde
 
 const api = { intelligence: { autopilotScore: vi.fn(), recommendations: vi.fn(), accept: vi.fn(), reject: vi.fn(), codAssessment: vi.fn(), codOverride: vi.fn(), codDispute: vi.fn() } };
 let perms = new Set<string>();
-vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
+let featuresOff = new Set<string>();
+vi.mock("@/lib/auth/AuthProvider", () => ({ useAuth: () => ({ feature: (c: string) => (featuresOff.has(c) ? "no" : "yes"), api, merchantId: "m1", can: (p: string) => perms.has(p) }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  featuresOff = new Set();
   perms = new Set(["analytics.read", "orders.write", "automation.approve"]);
   api.intelligence.autopilotScore.mockResolvedValue(score());
   api.intelligence.recommendations.mockResolvedValue({ items: [rec()] });
@@ -119,6 +121,14 @@ describe("CodRiskCard", () => {
     api.intelligence.codAssessment.mockRejectedValue(new ApiError({ status: 403, code: "feature_not_in_plan", message: "x", requestId: "q" }));
     renderWithI18n(<CodRiskCard order={order} onChanged={vi.fn()} />);
     await waitFor(() => expect(api.intelligence.codAssessment).toHaveBeenCalled());
+    expect(screen.queryByTestId("cod-risk")).toBeNull();
+  });
+
+  it("doesn't ask the API when the plan's features say no", async () => {
+    featuresOff = new Set(["intelligence.cod"]);
+    renderWithI18n(<CodRiskCard order={order} onChanged={vi.fn()} />);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(api.intelligence.codAssessment).not.toHaveBeenCalled();
     expect(screen.queryByTestId("cod-risk")).toBeNull();
   });
 });

@@ -59,7 +59,7 @@ test("template workflow → approval in Assisted → automatic in Smart → Cont
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/\/automation/);
+  await expect(page).toHaveURL((u) => u.pathname === "/automation");
 
   // Template → builder → dry run on a real order → turn on.
   const o0 = await newOrder();

@@ -26,6 +26,11 @@ export interface AuthValue {
   /** Effective permissions for the current merchant; `null` = unknown (server still enforces). */
   permissions: Set<string> | null;
   can: (permission: string) => boolean;
+  /**
+   * Plan feature state for the current merchant: "pending" while loading, "no" when the plan lacks it,
+   * "yes" otherwise (also when the user can't read billing; the server still enforces).
+   */
+  feature: (code: string) => "yes" | "no" | "pending";
   ensureSession: () => void;
   establishSession: (session: BrowserSession) => Promise<Me>;
   reloadMe: () => Promise<Me | null>;
@@ -62,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
   const [merchantId, setMerchantId] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<Set<string> | null>(null);
+  // null = loading; "unknown" = can't tell (no billing.read or error) → treat as included.
+  const [features, setFeatures] = useState<Record<string, boolean> | "unknown" | null>(null);
 
   const tokenRef = useRef<string | null>(null);
   const merchantRef = useRef<string | null>(null);
@@ -190,13 +197,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (status !== "ready" || !merchantId) return;
     let cancelled = false;
     setPermissions(null);
+    setFeatures(null);
     api.me
       .permissions()
       .then((r) => {
-        if (!cancelled && Array.isArray(r?.permissions)) setPermissions(new Set(r.permissions));
+        if (cancelled) return;
+        const perms = Array.isArray(r?.permissions) ? new Set(r.permissions) : null;
+        if (perms) setPermissions(perms);
+        if (!perms?.has("billing.read")) {
+          setFeatures("unknown");
+          return;
+        }
+        api.billing.entitlements().then(
+          (e) => !cancelled && setFeatures(e?.features ?? "unknown"),
+          () => !cancelled && setFeatures("unknown"),
+        );
       })
       .catch(() => {
         /* unknown permissions: show actions, server enforces */
+        if (!cancelled) setFeatures("unknown");
       });
     return () => {
       cancelled = true;
@@ -221,12 +240,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       selectMerchant,
       permissions,
       can: (p) => (permissions ? permissions.has(p) : true),
+      feature: (code) =>
+        features === null ? "pending" : features === "unknown" ? "yes" : features[code] === false ? "no" : "yes",
       ensureSession,
       establishSession,
       reloadMe,
       signOut,
     }),
-    [status, error, me, api, activeMemberships, merchantId, membership, selectMerchant, permissions, ensureSession, establishSession, reloadMe, signOut],
+    [status, error, me, api, activeMemberships, merchantId, membership, selectMerchant, permissions, features, ensureSession, establishSession, reloadMe, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

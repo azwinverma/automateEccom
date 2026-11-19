@@ -15,6 +15,7 @@ import { addDays, dayKey, zonedToUtcIso } from "@/lib/content/calendar";
 import { ChipInput } from "../products/ChipInput";
 import productStyles from "../products/products.module.css";
 import wf from "../shared/workflow.module.css";
+import { SuggestedTime, useCreativeSuggestions } from "../intelligence/CreativeSuggest";
 import { issueText } from "../studio/StudioJob";
 import styles from "./content.module.css";
 
@@ -58,6 +59,7 @@ export function PostDrawer({
   const [note, setNote] = useState("");
   const [confirmCancel, setConfirmCancel] = useState(false);
   const action = useAction();
+  const suggestions = useCreativeSuggestions(post !== null && can("content.publish"));
 
   useEffect(() => {
     if (!post) return;
@@ -177,6 +179,17 @@ export function PostDrawer({
               {t("content.action.schedule")}
             </Button>
           </div>
+        ) : null}
+        {actions.includes("schedule") && !dirty ? (
+          <SuggestedTime
+            suggestions={suggestions}
+            pending={action.pending}
+            onUse={(hour, genomeVersion) => {
+              const hh = `${String(hour).padStart(2, "0")}:00`;
+              setTime(hh);
+              void run(() => api.content.schedule(post.id, zonedToUtcIso(day, hh, tz), genomeVersion), t("content.drawer.updated"));
+            }}
+          />
         ) : null}
         {actions.includes("reject") ? (
           <TextField label={t("content.drawer.rejectNote")} optionalLabel={t("common.optional")} value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} />

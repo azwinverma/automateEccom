@@ -178,6 +178,11 @@ def create_post(
         created_by_user_id=ctx.actor.id,
         video_job_id=video.id if video else None,
     )
+    # CGN-004: a post inherits the genome version that informed its Studio draft or Auto Reel.
+    studio = db.get(StudioJob, studio_job_id) if studio_job_id else None
+    p.genome_version = (video.genome_version if video is not None else None) or (
+        studio.genome_version if studio else None
+    )
     _apply_declared(p, hook_type, human_presence, background)
     apply_creative_attributes(db, p, video)
     db.add(p)
@@ -304,8 +309,19 @@ def reject(db: Session, ctx: TenantContext, post_id: uuid.UUID, note: str | None
     return p
 
 
-def schedule(db: Session, ctx: TenantContext, post_id: uuid.UUID, when: datetime | None) -> ContentPost:
+def schedule(
+    db: Session,
+    ctx: TenantContext,
+    post_id: uuid.UUID,
+    when: datetime | None,
+    *,
+    genome_version: int | None = None,
+) -> ContentPost:
+    from app.domains.intelligence.creative import valid_version
+
     p = _get(db, ctx, post_id)
+    if genome_version is not None:
+        p.genome_version = valid_version(db, ctx.merchant_id, genome_version)
     now = utcnow()
     when = when or now
     if when < now - timedelta(minutes=1):
@@ -443,6 +459,7 @@ def post_view(p: ContentPost) -> dict[str, Any]:
         "rejection_note": p.rejection_note,
         "version": p.version,
         "created_at": p.created_at,
+        "genome_version": p.genome_version,
         "creative": creative_view(p),
     }
 
