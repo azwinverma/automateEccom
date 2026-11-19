@@ -11,8 +11,23 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_db, require
 from app.core.context import TenantContext
 from app.domains.billing.service import entitlements
-from app.domains.intelligence import aps, cod_risk, courier_brain, recommendations
-from app.domains.intelligence.models import Recommendation
+from app.domains.intelligence import (
+    aps,
+    cod_risk,
+    courier_brain,
+    memory,
+    product_brain,
+    profit,
+    recommendations,
+    return_intel,
+)
+from app.domains.intelligence.models import (
+    CommerceMemoryFact,
+    CommerceMemoryMetric,
+    ProductIntelligenceProfile,
+    Recommendation,
+    ReturnInsight,
+)
 
 router = APIRouter(prefix="/intelligence", tags=["intelligence"])
 
@@ -179,3 +194,289 @@ def reject_recommendation(
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return recommendations.view(recommendations.reject(db, ctx, rec_id, body.reason))
+
+
+# ============================================================================= Phase 6 part B
+def _currency(db: Session, merchant_id: uuid.UUID) -> str:
+    from app.domains.merchants.models import Merchant
+
+    m = db.get(Merchant, merchant_id)
+    return m.currency if m else "NPR"
+
+
+# ----------------------------------------------------------------------------- Profit (ANA-007/008)
+@router.get("/profit")
+def profit_summary(
+    days: int = Query(default=30, ge=7, le=365),
+    ctx: TenantContext = Depends(require("analytics.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "analytics.profit")
+    out = profit.compute(db, ctx.merchant_id, days)
+    out["currency"] = _currency(db, ctx.merchant_id)
+    out["settings"] = profit.settings_view(profit.settings_row(db, ctx.merchant_id))
+    return out
+
+
+@router.get("/profit/settings")
+def get_profit_settings(
+    ctx: TenantContext = Depends(require("analytics.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    return profit.settings_view(profit.settings_row(db, ctx.merchant_id))
+
+
+class ProfitSettingsIn(BaseModel):
+    packaging_cost_minor: int | None = Field(default=None, ge=0, le=10_000_000)
+    clear_packaging: bool = False
+    min_margin_pct: float | None = Field(default=None, ge=0, le=100)
+    min_contribution_minor: int | None = Field(default=None, ge=-10_000_000, le=10_000_000)
+    max_return_rate_pct: float | None = Field(default=None, ge=0, le=100)
+
+
+@router.put("/profit/settings")
+def put_profit_settings(
+    body: ProfitSettingsIn,
+    ctx: TenantContext = Depends(require("settings.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    changes = body.model_dump(exclude_none=True, exclude={"clear_packaging"})
+    if body.clear_packaging:
+        changes["packaging_cost_minor"] = None
+    return profit.settings_view(profit.update_settings(db, ctx, changes))
+
+
+# ----------------------------------------------------------------------------- Product Brain (PBR-009)
+@router.get("/products/{product_id}/brain")
+def product_brain_profile(
+    product_id: uuid.UUID,
+    refresh: bool = False,
+    ctx: TenantContext = Depends(require("catalog.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    from app.core.errors import NotFound
+    from app.domains.catalog.models import Product
+
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    p = db.get(Product, product_id)
+    if p is None or p.merchant_id != ctx.merchant_id:
+        raise NotFound(code="product_not_found")
+    prof = (
+        product_brain.recompute(db, ctx.merchant_id, product_id)
+        if refresh
+        else product_brain.get_or_compute(db, ctx.merchant_id, product_id)
+    )
+    out = product_brain.view(prof, fit=memory.confirmed_fit(db, ctx.merchant_id, product_id))
+    out["currency"] = _currency(db, ctx.merchant_id)
+    ent = entitlements.resolve(db, ctx.merchant_id)
+    out["return_insights"] = (
+        [
+            return_intel.view(i)
+            for i in db.scalars(
+                select(ReturnInsight)
+                .where(ReturnInsight.product_id == product_id, ReturnInsight.status.in_(("open", "acted")))
+                .order_by(ReturnInsight.created_at.desc())
+            )
+        ]
+        if ent.has("intelligence.returns")
+        else None
+    )
+    out["facts"] = [
+        memory.view(f)
+        for f in db.scalars(
+            select(CommerceMemoryFact).where(
+                CommerceMemoryFact.subject_type == "product",
+                CommerceMemoryFact.subject_id == str(product_id),
+                CommerceMemoryFact.status == "active",
+            )
+        )
+    ]
+    return out
+
+
+@router.get("/stock-risk")
+def stock_risk(
+    ctx: TenantContext = Depends(require("catalog.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    """UX-012: products that will run out soonest at their current demand."""
+    from app.domains.catalog.models import Product
+
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    rows = db.execute(
+        select(ProductIntelligenceProfile, Product.title)
+        .join(Product, Product.id == ProductIntelligenceProfile.product_id)
+        .where(
+            ProductIntelligenceProfile.cover_days.is_not(None) | (ProductIntelligenceProfile.available == 0)
+        )
+        .order_by(ProductIntelligenceProfile.cover_days.asc().nulls_first())
+        .limit(20)
+    ).all()
+    items = []
+    for prof, title in rows:
+        risk = product_brain.stock_risk(prof)
+        if risk in ("out", "high", "medium") and (prof.demand_per_day or 0) > 0:
+            items.append({**product_brain.view(prof), "title": title})
+    return {"items": items}
+
+
+# ----------------------------------------------------------------------------- Return Intelligence
+@router.get("/return-insights")
+def list_return_insights(
+    status: Literal["open", "acted", "dismissed", "resolved"] | None = None,
+    ctx: TenantContext = Depends(require("analytics.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    from app.domains.catalog.models import Product, Variant
+
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.returns")
+    stmt = select(ReturnInsight).order_by(ReturnInsight.created_at.desc()).limit(100)
+    stmt = (
+        stmt.where(ReturnInsight.status == status)
+        if status
+        else stmt.where(ReturnInsight.status.in_(("open", "acted")))
+    )
+    items = []
+    for i in db.scalars(stmt):
+        p = db.get(Product, i.product_id)
+        v = db.get(Variant, i.variant_id) if i.variant_id else None
+        items.append(return_intel.view(i, p.title if p else None, v.title if v else None))
+    return {"items": items}
+
+
+@router.post("/return-insights/refresh")
+def refresh_return_insights(
+    ctx: TenantContext = Depends(require("analytics.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.returns")
+    return return_intel.detect(db, ctx.merchant_id)
+
+
+class DismissIn(BaseModel):
+    reason: str = Field(min_length=3, max_length=300)
+
+
+@router.post("/return-insights/{insight_id}/dismiss")
+def dismiss_return_insight(
+    insight_id: uuid.UUID,
+    body: DismissIn,
+    ctx: TenantContext = Depends(require("analytics.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.returns")
+    return return_intel.view(return_intel.dismiss(db, ctx, insight_id, body.reason))
+
+
+# ----------------------------------------------------------------------------- Commerce Memory (MEM-007)
+def _labels(db: Session, facts: list[CommerceMemoryFact]) -> dict[str, str]:
+    from app.domains.catalog.models import Product
+
+    pids = [uuid.UUID(f.subject_id) for f in facts if f.subject_type == "product"]
+    return (
+        {
+            str(k): v
+            for k, v in db.execute(select(Product.id, Product.title).where(Product.id.in_(pids))).all()
+        }
+        if pids
+        else {}
+    )
+
+
+@router.get("/memory/facts")
+def list_memory_facts(
+    include_history: bool = False,
+    subject_type: str | None = None,
+    subject_id: str | None = None,
+    ctx: TenantContext = Depends(require("analytics.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    stmt = select(CommerceMemoryFact).order_by(CommerceMemoryFact.valid_from.desc()).limit(200)
+    if not include_history:
+        stmt = stmt.where(CommerceMemoryFact.status == "active")
+    if subject_type:
+        stmt = stmt.where(CommerceMemoryFact.subject_type == subject_type)
+    if subject_id:
+        stmt = stmt.where(CommerceMemoryFact.subject_id == subject_id)
+    facts = list(db.scalars(stmt))
+    labels = _labels(db, facts)
+    return {
+        "items": [memory.view(f, labels.get(f.subject_id)) for f in facts],
+        "fact_types": sorted(memory.FACT_TYPES),
+    }
+
+
+@router.get("/memory/metrics")
+def list_memory_metrics(
+    metric: str,
+    subject_type: str,
+    subject_id: str,
+    ctx: TenantContext = Depends(require("analytics.read")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    from app.core.errors import ValidationFailed
+
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    if metric not in memory.METRICS:
+        raise ValidationFailed("Unknown metric", code="memory_metric_unknown")
+    rows = db.scalars(
+        select(CommerceMemoryMetric)
+        .where(
+            CommerceMemoryMetric.metric == metric,
+            CommerceMemoryMetric.subject_type == subject_type,
+            CommerceMemoryMetric.subject_id == subject_id,
+        )
+        .order_by(CommerceMemoryMetric.period_start)
+    )
+    return {
+        "metric": metric,
+        **memory.METRICS[metric],
+        "points": [{"period_start": r.period_start.isoformat(), "value": r.value, "n": r.n} for r in rows],
+    }
+
+
+@router.post("/memory/refresh")
+def refresh_memory(
+    ctx: TenantContext = Depends(require("analytics.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    return memory.compute(db, ctx.merchant_id)
+
+
+@router.post("/memory/facts/{fact_id}/confirm")
+def confirm_memory_fact(
+    fact_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("settings.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    return memory.view(memory.confirm(db, ctx, fact_id))
+
+
+class FactRejectIn(BaseModel):
+    note: str = Field(min_length=3, max_length=300)
+
+
+@router.post("/memory/facts/{fact_id}/reject")
+def reject_memory_fact(
+    fact_id: uuid.UUID,
+    body: FactRejectIn,
+    ctx: TenantContext = Depends(require("settings.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    return memory.view(memory.reject(db, ctx, fact_id, body.note))
+
+
+class FactCorrectIn(BaseModel):
+    value: dict[str, Any]
+    note: str = Field(min_length=3, max_length=300)
+
+
+@router.post("/memory/facts/{fact_id}/correct")
+def correct_memory_fact(
+    fact_id: uuid.UUID,
+    body: FactCorrectIn,
+    ctx: TenantContext = Depends(require("settings.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    entitlements.require_feature(db, ctx.merchant_id, "intelligence.product_brain")
+    return memory.view(memory.correct(db, ctx, fact_id, body.value, body.note))

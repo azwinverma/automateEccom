@@ -16,6 +16,7 @@ import '../../../design/widgets/state_views.dart';
 import '../../channels/data/channels_api.dart';
 import '../../channels/presentation/reconnect_sheet.dart';
 import '../../content/data/content_api.dart';
+import '../../intelligence/presentation/product_brain_card.dart';
 import '../../studio/data/studio_api.dart';
 import '../../studio/presentation/review_view.dart'
     show priceErrorText, variantLabel;
@@ -356,6 +357,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
             ),
           ),
         StockSection(productId: widget.productId),
+        ProductBrainCard(productId: widget.productId),
         if (p.unconfirmed.isNotEmpty) ...[
           SectionHeader(
             l.productConfirmSection,

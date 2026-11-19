@@ -146,6 +146,8 @@ class OrderLine(IdMixin, TenantScoped, Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     cancelled_quantity: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     line_discount_minor: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    # Phase 6 (ANA): the variant's cost when the order was placed; None = cost not set then.
+    unit_cost_minor: Mapped[int | None] = mapped_column(BigInteger)
     matched: Mapped[bool] = mapped_column(
         Boolean, default=True, nullable=False
     )  # imported line found in catalog

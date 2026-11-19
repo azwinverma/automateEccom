@@ -13,6 +13,7 @@ import app.domains.fulfillment.service
 import app.domains.inbox.agent
 import app.domains.inbox.service
 import app.domains.intelligence.cod_risk
+import app.domains.intelligence.product_brain
 import app.domains.media.service
 import app.domains.media.video
 import app.domains.orders.service
@@ -37,6 +38,7 @@ HANDLER_MODULES = (
     app.domains.inbox.agent,
     app.domains.inbox.service,
     app.domains.intelligence.cod_risk,
+    app.domains.intelligence.product_brain,
     app.domains.media.service,
     app.domains.media.video,
     app.domains.orders.service,

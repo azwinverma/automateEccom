@@ -483,3 +483,34 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
   reads a name or adds a factor outside the allow-list. Overrides need a reason and are audited.
 - **Why:** spec 12 fairness rules. A wrong "risky" label must cost the seller one phone call, not a
   lost customer, and must be possible to challenge.
+
+## ADR-065: True profit counts only finished orders and never fills gaps with zero (ANA-007/008, 2026-11-19)
+- **Decision:** the waterfall covers orders placed in the window that reached the customer (delivered,
+  completed, or returned by the customer after delivery). Undelivered parcels count only their cost
+  (both trips + NPR 50 handling); open orders are listed, not counted. Cost of goods uses the cost saved
+  on the order line when it was placed (new column), falling back to today's cost for older lines.
+  Restocked returns carry no cost; damaged ones keep it. Shared order costs are split across lines by
+  value. Each component is Included / Partial (with a count) / Not included (with a reason).
+- **Why:** spec 14: a missing cost must never look like profit. Sellers need to see what's missing and
+  how to fix it.
+
+## ADR-066: The Sales Agent uses only facts the seller confirmed (RTI-006, MEM-005, 2026-11-19)
+- **Decision:** a derived fact such as "runs small" is shown to the seller first; it reaches customers
+  only after the seller confirms it (directly or by applying the suggestion). Seller corrections become
+  a new version that derivations never overwrite; a rejected fact isn't suggested again until the method
+  version changes.
+- **Why:** telling customers something wrong about a product costs sales and trust; the seller knows the
+  product. Versioning keeps an audit trail of what Nivaro believed and when.
+
+## ADR-067: Commerce Memory holds no personal facts (MEM-006, 2026-11-19)
+- **Decision:** facts and metrics are about the shop, products, districts or couriers, never about one
+  customer. Customer behaviour appears only as shop-level aggregates (e.g. reorder cycle). A test fails if
+  a fact type or metric with a customer subject is added.
+- **Why:** customer deletion/anonymisation then needs no extra step here, and memory can't become a
+  profile of individuals.
+
+## ADR-068: Return patterns are judged against the shop's own baseline with minimum samples (RTI-002, 2026-11-19)
+- **Decision:** 10+ delivered units and 3+ returns; flagged when the rate is at or above the seller's
+  limit or significantly above the shop's rate (exact binomial, p < 0.05, baseline needs 30+ units). A
+  reason holding 50%+ of returns becomes the pattern. Dismissed patterns stay quiet for 90 days.
+- **Why:** small shops have small numbers; without minimums every second return would raise an alert.

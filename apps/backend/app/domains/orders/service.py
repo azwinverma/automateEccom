@@ -312,6 +312,7 @@ def create_order(db: Session, ctx: TenantContext, data: OrderInput) -> Order:
                 unit_price_minor=v.price_minor if ln.unit_price_minor is None else ln.unit_price_minor,
                 quantity=ln.quantity,
                 line_discount_minor=ln.line_discount_minor,
+                unit_cost_minor=v.cost_minor,
             )
         )
     db.flush()
@@ -580,6 +581,7 @@ def import_external(
                 title=ln.title[:255],
                 unit_price_minor=ln.unit_price_minor,
                 quantity=ln.quantity,
+                unit_cost_minor=v.cost_minor if v else None,
                 matched=v is not None,
             )
         )

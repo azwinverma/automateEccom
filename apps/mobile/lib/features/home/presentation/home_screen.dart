@@ -19,6 +19,7 @@ import '../../fulfillment/data/fulfillment_api.dart';
 import '../../fulfillment/presentation/cod_screen.dart';
 import '../../intelligence/data/intelligence_api.dart';
 import '../../intelligence/presentation/autopilot_score_card.dart';
+import '../../intelligence/presentation/profit_card.dart';
 import '../../intelligence/presentation/recommendations_section.dart';
 import '../../returns/data/returns_api.dart';
 import '../../returns/presentation/returns_list_screen.dart';
@@ -94,6 +95,7 @@ class HomeScreen extends ConsumerWidget {
               ..invalidate(controlCenterProvider)
               ..invalidate(autopilotScoreProvider)
               ..invalidate(recommendationsProvider)
+              ..invalidate(profitSummaryProvider)
               ..invalidate(codOverviewProvider)
               ..invalidate(returnsPageProvider('to_decide'));
             await Future.wait<Object?>([
@@ -149,6 +151,7 @@ class HomeScreen extends ConsumerWidget {
               if (!ref.watch(controlCenterProvider).hasValue)
                 AutopilotStatusStrip(status: autopilot),
               const AutopilotScoreCard(),
+              const ProfitCard(),
               const RecommendationsSection(),
               const CodHomeCard(),
               const ReturnsHomeCard(),

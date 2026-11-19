@@ -289,3 +289,40 @@ describe("catalog version locks", () => {
     expect(fetchMock.mock.calls[1]![0]).toBe("http://api.test/api/v1/catalog/products/p1/variants/v1?version=8");
   });
 });
+
+describe("Phase 6B intelligence endpoints", () => {
+  it("builds profit, brain and memory requests with the tenant header", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.intelligence.profit(90);
+    await api.intelligence.productBrain("p 1", true);
+    await api.intelligence.memoryFacts(true);
+    await api.intelligence.returnInsights();
+    await api.intelligence.memoryMetrics("units_sold", "product", "p1");
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(urls).toEqual([
+      "http://api.test/api/v1/intelligence/profit?days=90",
+      "http://api.test/api/v1/intelligence/products/p%201/brain?refresh=true",
+      "http://api.test/api/v1/intelligence/memory/facts?include_history=true",
+      "http://api.test/api/v1/intelligence/return-insights",
+      "http://api.test/api/v1/intelligence/memory/metrics?metric=units_sold&subject_type=product&subject_id=p1",
+    ]);
+    expect((fetchMock.mock.calls[0]![1]!.headers as Record<string, string>)["X-Merchant-Id"]).toBe("m1");
+  });
+
+  it("sends settings, corrections, rejections and dismissals as JSON bodies", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.intelligence.updateProfitSettings({ packaging_cost_minor: 3000 });
+    await api.intelligence.correctFact("f1", { days: 30 }, "Festival buyers");
+    await api.intelligence.rejectFact("f2", "We close at 6pm");
+    await api.intelligence.dismissReturnInsight("i1", "New batch fixed it");
+    await api.intelligence.confirmFact("f3");
+    const calls = fetchMock.mock.calls.map((c) => [String(c[0]).replace("http://api.test/api/v1", ""), c[1]!.method, c[1]!.body ? JSON.parse(String(c[1]!.body)) : null]);
+    expect(calls).toEqual([
+      ["/intelligence/profit/settings", "PUT", { packaging_cost_minor: 3000 }],
+      ["/intelligence/memory/facts/f1/correct", "POST", { value: { days: 30 }, note: "Festival buyers" }],
+      ["/intelligence/memory/facts/f2/reject", "POST", { note: "We close at 6pm" }],
+      ["/intelligence/return-insights/i1/dismiss", "POST", { reason: "New batch fixed it" }],
+      ["/intelligence/memory/facts/f3/confirm", "POST", null],
+    ]);
+  });
+});

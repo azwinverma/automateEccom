@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-19 (Phase 6 part A)._
+_Last updated: 2026-11-19 (Phase 6 part B)._
 
 ## Summary
 
@@ -44,6 +44,31 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Phase 6 part B (profit, Product Brain, Return Intelligence, Commerce Memory): built 2026-11-19
+- **Built and tested:** true profit waterfall and product P&L per spec 14 (cost recorded on each order
+  line at sale; returns, refunds and failed deliveries costed; every missing input labelled "Not included"
+  or "Partial"), profit settings (packaging cost, margin and return-rate limits), Product Brain profiles
+  (EWMA demand over in-stock days, cover days, stockouts, margin, contribution, return rate and reasons,
+  stock risk; refreshed on delivery and nightly), Return Intelligence (min-sample + binomial test against
+  the shop's own baseline, reason patterns, likely causes, dismiss, 30-day before/after), Commerce Memory
+  (5 registered metrics, versioned facts, seller confirm/correct/reject, method-version backfill) and
+  profit-aware suggestions (restock ranked by contribution; loss makers and missing costs flagged). The
+  Sales Agent gives a fit hint only when the seller has confirmed the fact.
+- **Web:** /analytics (Profit, What Nivaro learned, Return patterns), Product Brain card on the product
+  page, "Running out" on Home, new suggestion types. **Mobile:** Product Brain card, Profit card, new
+  suggestion types, "What Nivaro has learned" screen.
+- **Verified in E2E** (desktop + 360px, live API + worker): delivered orders + a size return → /analytics
+  shows packaging Not included → seller sets it → included and contribution updates → product page shows
+  the Product Brain card.
+- **Totals (2026-11-19):** backend 327 passed (22 migrations); web 285 + api-client 27; E2E 32/32 (first
+  run); mobile 149 passed + 1 live-only skipped; axe 0 violations and no 360px overflow on Home, the
+  three Analytics tabs and a product page (light, dark, 360px).
+- **Phase 6 exit criteria not met:** they need ≥ 90 days of real data from pilot merchants, an APS manual
+  audit and offline backtests on real data. There are no pilot merchants yet.
+- **Not built:** product FAQs (PBR-007), channel/content conversion (PBR-006, needs Phase 7 metrics),
+  Store Manager tools (ANA-009, PBR-009/MEM-007 tool parts), profit-aware workflow conditions (AUT-020),
+  APS-006, REC-004, CRI-006, CODI-006.
 
 ## Phase 6 part A (Commerce Intelligence foundation): built 2026-11-19
 - **Built and tested:** Autopilot Score (A/F/M/X per capability from the action log, thin-data state,
@@ -393,10 +418,10 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | ANA-004 | fulfillment | P5 | NOT_STARTED | — | — | — |  |
 | ANA-005 | returns | P5 | NOT_STARTED | — | — | — |  |
 | ANA-006 | AI/automation | P5 | NOT_STARTED | — | — | — |  |
-| ANA-007 | product P&L | P6 | NOT_STARTED | — | — | — |  |
-| ANA-008 | profit dashboard | P6 | NOT_STARTED | — | — | — |  |
+| ANA-007 | product P&L | P6 | TESTED | ANA | apps/backend/app/domains/intelligence/profit.py::compute (per-product waterfall, order costs split by line value) | apps/backend/tests/test_intelligence_b.py::test_true_profit_waterfall_counts_returns_failures_and_labels_missing_data | Cost snapshot on order lines from 2026-11-19; older lines use today's cost (counted) |
+| ANA-008 | profit dashboard | P6 | TESTED | ANA-007 | apps/backend/app/domains/intelligence/profit.py; web /analytics Profit tab; mobile profit_card | apps/backend/tests/test_intelligence_b.py; web Analytics tests; e2e phase6b | Missing data shown as Not included / Partial, never 0 (ADR-065) |
 | ANA-009 | Store Manager tools | P6 | NOT_STARTED | — | — | — |  |
-| ANA-010 | recommendations | P6 | NOT_STARTED | — | — | — |  |
+| ANA-010 | recommendations | P6 | TESTED | ANA-007 | apps/backend/app/domains/intelligence/recommendations.py::_profit, profit-aware _restock | apps/backend/tests/test_intelligence_b.py::test_suggestions_rank_by_profit_and_never_push_loss_makers | Ranks restock by 30-day contribution; never restocks loss makers or high-return items; informational only (no price changes) |
 | PRO-001 | suppliers | P8 | NOT_STARTED | — | — | — |  |
 | PRO-002 | supplier products | P8 | NOT_STARTED | — | — | — |  |
 | PRO-003 | purchase orders | P8 | NOT_STARTED | — | — | — |  |
@@ -418,43 +443,43 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | UX-001 | design tokens | P0 | TESTED | — | packages/design-system/ | CI diff check of generated outputs | JSON → CSS vars, TS, Dart |
 | UX-002 | web library | P0 | TESTED | UX-001 | apps/web/src/components | 95 vitest tests; E2E vs real backend | No 3rd-party visual library; Radix for behaviour only |
 | UX-003 | Flutter theme | P0 | TESTED | UX-001 | apps/mobile/lib/design | flutter test (51) | Theme from generated tokens; bundled Inter + Noto Sans Devanagari |
-| UX-004 | Product Brain | P6 | NOT_STARTED | — | — | — | Product Brain card: needs PBR (Phase 6) |
+| UX-004 | Product Brain | P6 | TESTED | PBR-009 | apps/web/src/features/products Product Brain card; mobile product_brain_card | web + mobile component tests; e2e phase6b | See UX-018 |
 | UX-005 | Channel Sync Rail | P1 | IMPLEMENTED | — | — | — | Web product listings panel = per-channel sync state (status, error, polling); not yet a standalone reusable rail component |
 | UX-006 | Autopilot Strip | P1 | IMPLEMENTED | UX-002 | apps/web/src/components/commerce, apps/mobile/lib/features/home | widget/component tests | Autopilot Status Strip (no data source until AUT) |
 | UX-007 | Exception Inbox | P1 | TESTED | UX-002 | apps/backend/app/domains/exceptions/, apps/web, apps/mobile | test_exceptions | Live Exception Inbox (web Home + mobile Home) from GET /exceptions; actions routed; E2E vs real backend |
 | UX-008 | Order Journey | P2 | TESTED | — | apps/web/src/features/orders/OrderDetail.tsx | OrderDetail.test, e2e phase2 | Order Journey on web; mobile order detail shows status + timeline |
 | UX-009 | AI Timeline | P5 | NOT_STARTED | — | — | — | AI Action Timeline: needs AutomationActionLog (Phase 5) |
-| UX-010 | Profit Card | P6 | NOT_STARTED | — | — | — | Profit Card: needs true-profit model (Phase 6) |
+| UX-010 | Profit Card | P6 | TESTED | ANA-008 | apps/web/src/features/analytics Profit card; mobile profit_card | web + mobile tests; e2e phase6b; axe |  |
 | UX-011 | Video Credit Meter | P1 | TESTED | BIL-006 | apps/web …/settings/plan, apps/mobile …/settings | component tests | Video Credit Meter + plan-aware usage (not-in-plan, overage policy, gauges); verified against real backend |
-| UX-012 | Inventory Risk | P6 | NOT_STARTED | — | — | — | Inventory Risk Meter: needs stockout risk (Phase 6) |
+| UX-012 | Inventory Risk | P6 | TESTED | PBR-004 | apps/backend/app/domains/intelligence/product_brain.py::stock_risk; /intelligence/stock-risk; web Home 'Running out' + product meter | web tests; apps/backend/tests/test_intelligence_b.py | Lead time fixed at 7 days until supplier lead times are used (Phase 8) |
 | UX-013 | real states | P1 | IN_PROGRESS | — | apps/web, apps/mobile | component tests | Loading/empty/error/offline/permission states for Phase 0 screens |
 | UX-014 | accessibility | P1 | IN_PROGRESS | — | apps/web, apps/mobile | — | Keyboard, focus, labels, 48dp; no full screen-reader audit yet |
 | UX-015 | bilingual review | P1 | IN_PROGRESS | — | apps/web/src/i18n, apps/mobile/lib/core/l10n/arb | key-parity tests | en/ne complete for Phase 0; Nepali not yet reviewed by a native copy editor |
 | UX-016 | Autopilot Control Center (home): "Your store is running." + Needs Your Attention (Phase 5) | P5 | TESTED | AUT-018 | apps/backend/app/domains/automation/control.py; apps/web/src/features/automation/ControlCenter.tsx; mobile control_center.dart | Automation.test, mobile tests, e2e phase5 | Real 7-day numbers, automatic vs team share, approvals, autopilot feed |
 | UX-017 | Autopilot Score component (breakdown, exclusions, thin-data state) (Phase 6) | P6 | TESTED | APS-005 | apps/web/src/features/intelligence/AutopilotScoreCard.tsx; mobile autopilot_score_card.dart | Intelligence.test.tsx; mobile tests; e2e phase6a; axe | Breakdown, exclusions, thin-data state |
-| UX-018 | Product Brain card (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
+| UX-018 | Product Brain card (Phase 6) | P6 | TESTED | PBR-009 | apps/web/src/features/products Product Brain card; mobile product_brain_card | web + mobile tests; e2e phase6b; axe |  |
 | UX-019 | Recommendation / Profit Recommendation Card with explanation pattern (Phase 6) | P6 | TESTED | REC-003 | apps/web/src/features/intelligence/Recommendations.tsx; mobile recommendations_section.dart | Intelligence.test.tsx; mobile tests; e2e phase6a; axe | Profit recommendation variant waits for profit analytics (Part B) |
-| UX-020 | Return Insight Card + Courier Recommendation Card (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
-| UX-021 | Commerce Memory insight with correction (Phase 6) | P6 | NOT_STARTED | — | — | — |  |
+| UX-020 | Return Insight Card + Courier Recommendation Card (Phase 6) | P6 | IMPLEMENTED | RTI-002 | apps/web/src/features/analytics Return patterns tab; product card insights | web component tests | Return Insight Card done; Courier Recommendation Card is the Phase 6A courier panel. Not covered by E2E (needs 10+ delivered sales) |
+| UX-021 | Commerce Memory insight with correction (Phase 6) | P6 | TESTED | MEM-005 | apps/web/src/features/analytics What Nivaro learned; mobile memory_screen | web + mobile tests; axe | Mobile has confirm/reject, not correct |
 | UX-022 | Creative Genome panel (Phase 7) | P7 | NOT_STARTED | — | — | — |  |
-| PBR-001 | ProductIntelligenceProfile schema + method_version + as_of + data-completeness | P6 | NOT_STARTED | — | — | — |  |
-| PBR-002 | demand rate (EWMA, in-stock days only, seasonality index) per product/variant | P6 | NOT_STARTED | — | — | — |  |
-| PBR-003 | margin + expected contribution per unit (uses ANA true-profit components; "not included" handling) | P6 | NOT_STARTED | — | — | — |  |
-| PBR-004 | stock cover days + stockout history | P6 | NOT_STARTED | — | — | — |  |
-| PBR-005 | return rate + top reasons (from RET-012) per product/variant/size | P6 | NOT_STARTED | — | — | — |  |
+| PBR-001 | ProductIntelligenceProfile schema + method_version + as_of + data-completeness | P6 | TESTED | — | apps/backend/app/domains/intelligence/models.py::ProductIntelligenceProfile | apps/backend/tests/test_intelligence_b.py::test_product_brain_uses_in_stock_days_and_lists_what_it_cant_know | completeness + not_included reasons |
+| PBR-002 | demand rate (EWMA, in-stock days only, seasonality index) per product/variant | P6 | TESTED | PBR-001 | apps/backend/app/domains/intelligence/product_brain.py::ewma, _in_stock_days | apps/backend/tests/test_intelligence_b.py::test_product_brain_uses_in_stock_days_and_lists_what_it_cant_know | Per product (not per variant); seasonality index needs 12 months → listed as not included |
+| PBR-003 | margin + expected contribution per unit (uses ANA true-profit components; "not included" handling) | P6 | TESTED | ANA-007 | apps/backend/app/domains/intelligence/product_brain.py (margin, contribution from 90-day P&L) | apps/backend/tests/test_intelligence_b.py | Contribution needs 5+ delivered units |
+| PBR-004 | stock cover days + stockout history | P6 | TESTED | PBR-002 | apps/backend/app/domains/intelligence/product_brain.py (cover_days, stockouts_90d) | apps/backend/tests/test_intelligence_b.py::test_product_brain_uses_in_stock_days_and_lists_what_it_cant_know |  |
+| PBR-005 | return rate + top reasons (from RET-012) per product/variant/size | P6 | TESTED | RTI-001 | apps/backend/app/domains/intelligence/product_brain.py (return_rate, top_reasons, by_variant) | apps/backend/tests/test_intelligence_b.py |  |
 | PBR-006 | channel conversion + content performance summary (from CGN metrics when available) | P6 | NOT_STARTED | — | — | — |  |
 | PBR-007 | FAQ clustering from conversations + seller-approved answers (ProductFAQ) | P6 | NOT_STARTED | — | — | — |  |
-| PBR-008 | incremental refresh on events + nightly full recompute; freshness SLO + metrics | P6 | NOT_STARTED | — | — | — |  |
-| PBR-009 | API GET /product-brain/products/{id} (+faqs); Sales Agent + Store Manager tool get_product_brain | P6 | NOT_STARTED | — | — | — |  |
-| PBR-010 | golden-value tests + offline backtest of demand rate | P6 | NOT_STARTED | — | — | — |  |
-| MEM-001 | CommerceMemoryMetric registry (named metrics, definitions, periods, method_version) + storage | P6 | NOT_STARTED | — | — | — |  |
-| MEM-002 | metric computation jobs (idempotent per period key) for products, customers, logistics, operations | P6 | NOT_STARTED | — | — | — |  |
-| MEM-003 | CommerceMemoryFact schema (typed fact_type JSON schemas, confidence, evidence_ref, validity, versions) | P6 | NOT_STARTED | — | — | — |  |
-| MEM-004 | fact derivation rules (e.g. fit_runs_small, best_post_window, repeat_cycle_days) with thresholds + min samples | P6 | NOT_STARTED | — | — | — |  |
-| MEM-005 | merchant correction (reject/edit fact → new version, respected by derivations), audited | P6 | NOT_STARTED | — | — | — |  |
-| MEM-006 | privacy: customer-level facts limited to operational needs; deletion/anonymisation path | P6 | NOT_STARTED | — | — | — |  |
-| MEM-007 | API summaries + Store Manager tool get_memory_facts | P6 | NOT_STARTED | — | — | — |  |
-| MEM-008 | recompute on method_version change (backfill job) | P6 | NOT_STARTED | — | — | — |  |
+| PBR-008 | incremental refresh on events + nightly full recompute; freshness SLO + metrics | P6 | TESTED | PBR-001 | apps/backend/app/domains/intelligence/product_brain.py (_on_status handler, recompute_all nightly, 26h freshness) | apps/backend/tests/test_intelligence_b.py::test_product_brain_refreshes_when_an_order_is_delivered | Event refresh debounced 10 min; no freshness metric exported yet |
+| PBR-009 | API GET /product-brain/products/{id} (+faqs); Sales Agent + Store Manager tool get_product_brain | P6 | IMPLEMENTED | PBR-008 | apps/backend/app/domains/intelligence/router.py GET /intelligence/products/{id}/brain; Sales Agent fit hint | apps/backend/tests/test_intelligence_b.py | FAQs (PBR-007) and Store Manager tool not built; path is /intelligence/products/{id}/brain |
+| PBR-010 | golden-value tests + offline backtest of demand rate | P6 | TESTED | PBR-002 | apps/backend/tests/test_intelligence_b.py::test_ewma_golden_values_and_backtest | apps/backend/tests/test_intelligence_b.py | Synthetic backtest only; real backtest needs pilot data |
+| MEM-001 | CommerceMemoryMetric registry (named metrics, definitions, periods, method_version) + storage | P6 | TESTED | — | apps/backend/app/domains/intelligence/memory.py::METRICS; models.CommerceMemoryMetric | apps/backend/tests/test_intelligence_b.py::test_memory_facts_are_versioned_and_the_seller_has_the_last_word | 5 metrics: units_sold, return_rate, orders, repeat_share, delivery_success |
+| MEM-002 | metric computation jobs (idempotent per period key) for products, customers, logistics, operations | P6 | TESTED | MEM-001 | apps/backend/app/domains/intelligence/memory.py::compute_metrics (upsert per period key) | apps/backend/tests/test_intelligence_b.py::test_memory_facts_are_versioned_and_the_seller_has_the_last_word | Idempotency asserted |
+| MEM-003 | CommerceMemoryFact schema (typed fact_type JSON schemas, confidence, evidence_ref, validity, versions) | P6 | TESTED | — | apps/backend/app/domains/intelligence/memory.py::FACT_TYPES, _validate; models.CommerceMemoryFact | apps/backend/tests/test_intelligence_b.py |  |
+| MEM-004 | fact derivation rules (e.g. fit_runs_small, best_post_window, repeat_cycle_days) with thresholds + min samples | P6 | TESTED | MEM-003 | apps/backend/app/domains/intelligence/memory.py (fit_runs_small/large, repeat_cycle_days, peak_order_hours, best_courier_route) | apps/backend/tests/test_intelligence_b.py | best_post_window needs content metrics (Phase 7) |
+| MEM-005 | merchant correction (reject/edit fact → new version, respected by derivations), audited | P6 | TESTED | MEM-004 | apps/backend/app/domains/intelligence/memory.py::confirm/correct/reject (audited) | apps/backend/tests/test_intelligence_b.py::test_rejected_fact_is_not_derived_again_until_the_method_changes |  |
+| MEM-006 | privacy: customer-level facts limited to operational needs; deletion/anonymisation path | P6 | TESTED | MEM-003 | apps/backend/app/domains/intelligence/memory.py (no customer-subject facts/metrics) | apps/backend/tests/test_intelligence_b.py::test_memory_holds_no_personal_facts_and_is_tenant_isolated | ADR-067 |
+| MEM-007 | API summaries + Store Manager tool get_memory_facts | P6 | IMPLEMENTED | MEM-005 | apps/backend/app/domains/intelligence/router.py /intelligence/memory/* | apps/backend/tests/test_intelligence_b.py | Store Manager tool not built (no Store Manager agent yet) |
+| MEM-008 | recompute on method_version change (backfill job) | P6 | TESTED | MEM-004 | apps/backend/app/domains/intelligence/memory.py::put_fact (method_version), compute_all nightly | apps/backend/tests/test_intelligence_b.py::test_rejected_fact_is_not_derived_again_until_the_method_changes |  |
 | APS-001 | capability registry (eligibility rules per capability, steps-per-operation constants) | P6 | TESTED | AUT-018 | apps/backend/app/domains/intelligence/aps.py (CAPABILITY_OF, ACTION_CAPABILITY, STEPS) | apps/backend/tests/test_intelligence.py::test_score_counts_automated_failed_manual_and_excluded_with_thin_data | 8 capabilities from the Phase 5 action log |
 | APS-002 | daily AutopilotMetric aggregation from AutomationActionLog (A/F/M/X with reasons) | P6 | TESTED | APS-001 | apps/backend/app/domains/intelligence/aps.py::compute | apps/backend/tests/test_intelligence.py::test_score_counts_automated_failed_manual_and_excluded_with_thin_data | Computed live from AutomationActionLog over a 30-day window (no separate daily metric table); A/F/M/X with exclusion reasons |
 | APS-003 | AutopilotScoreSnapshot (volume-weighted overall; thin-data handling) | P6 | TESTED | APS-002 | apps/backend/app/domains/intelligence/aps.py::snapshot; models.AutopilotScoreSnapshot | apps/backend/tests/test_intelligence.py::test_score_api_levers_need_the_plan_and_snapshots_flag_jumps | Volume-weighted; capabilities under 10 eligible operations show 'not enough data' and don't count |
@@ -470,12 +495,12 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | REC-006 | accept/reject APIs (idempotent; reasons) + expiry | P6 | TESTED | REC-005 | apps/backend/app/domains/intelligence/router.py accept/reject (Idempotency-Key); 30-day expiry | apps/backend/tests/test_intelligence.py::test_rejected_recommendations_dont_come_back_and_restock_uses_real_sales |  |
 | REC-007 | outcome measurement jobs (pre/post, holdout/DiD where possible) + impact analytics | P6 | IMPLEMENTED | REC-006 | apps/backend/app/domains/intelligence/recommendations.py::measure | apps/backend/tests/test_intelligence.py::test_autopilot_recommendation_is_r3_accepted_by_a_manager_and_measured | Pre/post after 14 days for score suggestions only; no holdout/DiD yet (GAP-REC-CAUSAL) |
 | REC-008 | dedupe + rate limiting of recommendations per merchant (no spam) | P6 | TESTED | REC-001 | apps/backend/app/domains/intelligence/recommendations.py::generate (dedupe key, MAX_OPEN=10, rejected stay rejected) | apps/backend/tests/test_intelligence.py::test_rejected_recommendations_dont_come_back_and_restock_uses_real_sales |  |
-| RTI-001 | return-reason metrics by product/variant/size/content version/supplier/campaign | P6 | NOT_STARTED | — | — | — |  |
-| RTI-002 | pattern detection (share vs baseline, min sample, significance) → ReturnInsight | P6 | NOT_STARTED | — | — | — |  |
-| RTI-003 | suspected-cause linking (content/image version shown at purchase, supplier batch) | P6 | NOT_STARTED | — | — | — |  |
-| RTI-004 | recommendations (size guide, fit warning, description, image, stop creative, size-up hint, supplier flag) | P6 | NOT_STARTED | — | — | — |  |
-| RTI-005 | before/after impact measurement | P6 | NOT_STARTED | — | — | — |  |
-| RTI-006 | Return Insight Card + Sales Agent fit hint | P6 | NOT_STARTED | — | — | — |  |
+| RTI-001 | return-reason metrics by product/variant/size/content version/supplier/campaign | P6 | TESTED | RET | apps/backend/app/domains/intelligence/return_intel.py::stats | apps/backend/tests/test_intelligence_b.py | By product/variant/reason; content version, supplier batch and campaign aren't recorded yet |
+| RTI-002 | pattern detection (share vs baseline, min sample, significance) → ReturnInsight | P6 | TESTED | RTI-001 | apps/backend/app/domains/intelligence/return_intel.py::detect (min sample, exact binomial vs baseline) | apps/backend/tests/test_intelligence_b.py::test_return_pattern_becomes_a_fit_fact_used_in_chat_only_after_the_seller_confirms; test_small_samples_raise_nothing |  |
+| RTI-003 | suspected-cause linking (content/image version shown at purchase, supplier batch) | P6 | IMPLEMENTED | RTI-002 | apps/backend/app/domains/intelligence/return_intel.py::_causes | apps/backend/tests/test_intelligence_b.py | Variant concentration + preferred supplier; content version shown as not tracked (Phase 7) |
+| RTI-004 | recommendations (size guide, fit warning, description, image, stop creative, size-up hint, supplier flag) | P6 | TESTED | RTI-002 | apps/backend/app/domains/intelligence/recommendations.py::_returns | apps/backend/tests/test_intelligence_b.py | Fit note (confirm fact) or 'I've fixed it' (starts measurement) |
+| RTI-005 | before/after impact measurement | P6 | TESTED | RTI-004 | apps/backend/app/domains/intelligence/return_intel.py::measure; recommendations outcome | apps/backend/tests/test_intelligence_b.py::test_return_pattern_becomes_a_fit_fact_used_in_chat_only_after_the_seller_confirms | Pre/post after 30 days and 10 sales |
+| RTI-006 | Return Insight Card + Sales Agent fit hint | P6 | TESTED | RTI-004 | apps/backend/app/domains/intelligence/memory.py::confirmed_fit; inbox/agent.py fit hint; web/mobile cards | apps/backend/tests/test_intelligence_b.py::test_return_pattern_becomes_a_fit_fact_used_in_chat_only_after_the_seller_confirms | Agent uses only seller-confirmed facts (ADR-066) |
 | CRI-001 | CourierPerformanceMetric by courier × route × weight band × COD | P6 | TESTED | FUL | apps/backend/app/domains/intelligence/courier_brain.py::recompute; models.CourierPerformanceMetric | apps/backend/tests/test_intelligence.py::test_courier_brain_picks_the_courier_that_delivers_on_this_route | 90 days, courier × district × weight band × COD; nightly |
 | CRI-002 | expected-cost model (price + failure cost × failure prob + settlement delay cost) | P6 | TESTED | CRI-001 | apps/backend/app/domains/intelligence/courier_brain.py::rank | apps/backend/tests/test_intelligence.py::test_courier_brain_picks_the_courier_that_delivers_on_this_route | Handling cost (NPR 50) and cash-holding cost are documented estimates (ADR-063) |
 | CRI-003 | selection modes cheapest/fastest/smart/preferred-only with policy integration | P6 | TESTED | CRI-002 | apps/backend/app/domains/intelligence/courier_brain.py MODES; fulfillment courier_selection | apps/backend/tests/test_intelligence.py::test_courier_selection_recommendation_switches_to_smart | rules / cheapest / fastest / smart / preferred |
@@ -533,4 +558,4 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 5, IMPLEMENTED 22, IN_PROGRESS 12, NOT_STARTED 94, TESTED 200. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 5, IMPLEMENTED 26, IN_PROGRESS 12, NOT_STARTED 63, TESTED 227. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).

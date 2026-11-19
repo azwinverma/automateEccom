@@ -14,7 +14,7 @@ import styles from "./intelligence.module.css";
 
 /** UX-019: suggestion cards with what / why / confidence / impact; applying needs a manager. */
 export function Recommendations() {
-  const { t } = useI18n();
+  const { t, money } = useI18n();
   const { api, can } = useAuth();
   const toast = useToast();
   const action = useAction();
@@ -32,19 +32,25 @@ export function Recommendations() {
         {items.map((r) => (
           <li key={r.id} className={styles.rec} data-type={r.type}>
             <strong>{what(t, r)}</strong>
-            <span style={{ fontSize: "var(--font-size-sm)" }}>{why(t, r)}</span>
+            <span style={{ fontSize: "var(--font-size-sm)" }}>{why(t, money, r)}</span>
             <span className={styles.row}>
               <Badge tone={r.confidence >= 0.8 ? "info" : "neutral"} dot={false}>
                 {t(r.confidence >= 0.8 ? "intel.rec.confidence.high" : "intel.rec.confidence.medium")}
               </Badge>
-              {impact(t, r) ? <span className={styles.muted}>{impact(t, r)}</span> : null}
+              {impact(t, money, r) ? <span className={styles.muted}>{impact(t, money, r)}</span> : null}
             </span>
             <span className={styles.row}>
               {r.action.type === "plan_upgrade" ? (
                 <ButtonLink size="sm" href="/settings/plan">
                   {t("intel.rec.openPlan")}
                 </ButtonLink>
-              ) : r.action.type === "none" ? null : (
+              ) : r.action.type === "none" ? (
+                r.subject_type === "product" && r.subject_id ? (
+                  <ButtonLink size="sm" href={`/products/${r.subject_id}`}>
+                    {t("intel.rec.openProduct")}
+                  </ButtonLink>
+                ) : null
+              ) : (
                 <Button
                   size="sm"
                   variant="primary"
@@ -95,10 +101,24 @@ function what(t: T, r: RecommendationView): string {
   return t.dynamic(`intel.rec.what.${r.explanation.what.replace(".", "_")}`, { title: String(vars.title ?? ""), variant: String(vars.variant ?? "") }) ?? r.type;
 }
 
-function why(t: T, r: RecommendationView): string {
+type Money = ReturnType<typeof useI18n>["money"];
+
+function why(t: T, money: Money, r: RecommendationView): string {
   const vars = v(r);
   const cap = typeof vars.capability === "string" ? (t.dynamic(`intel.aps.capability.${vars.capability}`) ?? vars.capability) : "";
   const pct = (x: unknown) => (typeof x === "number" ? Math.round(x * 100) : 0);
+  const amount = (x: unknown) => (typeof x === "number" ? money(x) : "–");
+  if (r.explanation.why === "return_pattern") {
+    const base = vars.baseline_pct;
+    const main = t(base === null || base === undefined ? "intel.rec.why.return_pattern_nobase" : "intel.rec.why.return_pattern", {
+      returned: Number(vars.returned ?? 0),
+      sold: Number(vars.sold ?? 0),
+      rate_pct: Number(vars.rate_pct ?? 0),
+      baseline_pct: Number(base ?? 0),
+    });
+    const reason = typeof vars.reason === "string" ? (t.dynamic(`intel.retReason.${vars.reason}`) ?? vars.reason) : null;
+    return reason && vars.share_pct != null ? `${main} ${t("intel.rec.why.return_share", { share_pct: Number(vars.share_pct), reason })}` : main;
+  }
   return (
     t.dynamic(`intel.rec.why.${r.explanation.why}`, {
       manual: Number(vars.manual ?? 0),
@@ -111,16 +131,23 @@ function why(t: T, r: RecommendationView): string {
       sold_30d: Number(vars.sold_30d ?? 0),
       available: Number(vars.available ?? 0),
       cover_days: vars.cover_days ?? "–",
+      units: Number(vars.units ?? 0),
+      contribution: amount(vars.contribution),
+      per_unit: amount(vars.per_unit),
+      revenue: amount(vars.revenue),
     }) ?? ""
   );
 }
 
-function impact(t: T, r: RecommendationView): string | null {
+function impact(t: T, money: Money, r: RecommendationView): string | null {
   const i = r.estimated_impact;
   if (i.capability && i.score_to != null) {
     const p = (x: unknown) => (typeof x === "number" ? `${Math.round(x * 100)}%` : "–");
     return t("intel.rec.impact.score", { capability: t.dynamic(`intel.aps.capability.${i.capability}`) ?? String(i.capability), from: p(i.score_from), to: p(i.score_to) });
   }
   if (i.routes) return t("intel.rec.impact.routes", { routes: Number(i.routes), points: Number(i.success_gain_points ?? 0) });
+  if (r.type === "restock" && typeof i.contribution_30d_minor === "number" && i.contribution_30d_minor > 0) {
+    return t("intel.rec.impactContribution", { amount: money(i.contribution_30d_minor) });
+  }
   return null;
 }

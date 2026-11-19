@@ -164,11 +164,15 @@ def _courier(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
 
 def _restock(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     """Low-stock items that are actually selling (units in the last 30 days), with days of cover."""
+    from app.domains.intelligence import profit
+    from app.domains.intelligence.models import ProductIntelligenceProfile
     from app.domains.inventory.service import low_stock
     from app.domains.orders.models import Order, OrderLine
 
-    out = []
+    out: list[dict[str, Any]] = []
     since = utcnow() - timedelta(days=30)
+    profit_aware = entitlements.resolve(db, merchant_id).has("intelligence.profit")
+    limits = profit.settings_row(db, merchant_id)
     for lvl, v, p in low_stock(db, merchant_id, limit=20):
         avail = lvl.on_hand - lvl.reserved
         sold = (
@@ -187,6 +191,17 @@ def _restock(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
             continue
         per_day = sold / 30
         cover = round(avail / per_day, 1) if per_day else None
+        prof = db.scalar(
+            select(ProductIntelligenceProfile).where(ProductIntelligenceProfile.product_id == p.id)
+        )
+        per_unit = prof.contribution_per_unit_minor if prof else None
+        if profit_aware and prof is not None:
+            # Spec 14: selling a lot at a loss or with heavy returns must not trigger more buying.
+            if per_unit is not None and per_unit < limits.min_contribution_minor:
+                continue
+            if prof.return_rate is not None and prof.return_rate * 100 > limits.max_return_rate_pct:
+                continue
+        expected = round(per_day * 30 * per_unit) if profit_aware and per_unit is not None else None
         out.append(
             {
                 "type": "restock",
@@ -202,22 +217,187 @@ def _restock(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
                         "available": avail,
                         "sold_30d": int(sold),
                         "cover_days": cover,
+                        "contribution_30d": expected,
                     },
                 },
                 "evidence": [
                     {"metric": "units_sold", "window_days": 30, "value": int(sold)},
                     {"metric": "available", "value": avail},
+                    *(
+                        [{"metric": "contribution_per_unit", "window_days": 90, "value": per_unit}]
+                        if expected is not None
+                        else []
+                    ),
                 ],
                 "confidence": 0.7 if sold >= 5 else 0.5,
-                "estimated_impact": {"cover_days": cover},
+                "estimated_impact": {"cover_days": cover, "contribution_30d_minor": expected},
                 "action": {"type": "none", "params": {"product_id": str(p.id)}},
                 "baseline": {"available": avail, "sold_30d": int(sold)},
+            }
+        )
+    # Rank by what the stock is worth to the shop, not by units (spec 14).
+    out.sort(key=lambda x: -(x["estimated_impact"]["contribution_30d_minor"] or 0))
+    return out
+
+
+def _returns(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """RTI-004: one suggestion per open return insight."""
+    from app.domains.catalog.models import Product
+    from app.domains.intelligence.models import ReturnInsight
+
+    if not entitlements.resolve(db, merchant_id).has("intelligence.returns"):
+        return []
+    out = []
+    for ins in db.scalars(
+        select(ReturnInsight)
+        .where(ReturnInsight.status == "open")
+        .order_by(ReturnInsight.rate.desc())
+        .limit(5)
+    ):
+        p = db.get(Product, ins.product_id)
+        if p is None:
+            continue
+        reason = ins.pattern.split(":", 1)[1] if ins.pattern.startswith("reason:") else None
+        share = round(ins.reasons.get(reason, 0) / ins.returned, 2) if reason else None
+        if reason in ("size_small", "size_large"):
+            fact_type = "fit_runs_small" if reason == "size_small" else "fit_runs_large"
+            what, action = (
+                f"fit_note_{reason}",
+                {
+                    "type": "confirm_fact",
+                    "params": {
+                        "subject_type": "product",
+                        "subject_id": str(p.id),
+                        "fact_type": fact_type,
+                        "insight_id": str(ins.id),
+                    },
+                },
+            )
+        else:
+            what, action = (
+                f"review_{reason or 'returns'}",
+                {"type": "mark_insight_acted", "params": {"insight_id": str(ins.id)}},
+            )
+        out.append(
+            {
+                "type": "return_prevention",
+                "dedupe_key": f"returns:{ins.id}",
+                "subject_type": "product",
+                "subject_id": str(p.id),
+                "explanation": {
+                    "what": what,
+                    "why": "return_pattern",
+                    "vars": {
+                        "title": p.title,
+                        "returned": ins.returned,
+                        "sold": ins.sold,
+                        "rate_pct": round(ins.rate * 100),
+                        "baseline_pct": round(ins.baseline_rate * 100)
+                        if ins.baseline_rate is not None
+                        else None,
+                        "reason": reason,
+                        "share_pct": round(share * 100) if share is not None else None,
+                    },
+                },
+                "evidence": [
+                    {
+                        "metric": "returns",
+                        "window_days": ins.window_days,
+                        "value": ins.returned,
+                        "of": ins.sold,
+                    },
+                    *([{"metric": "reason_share", "reason": reason, "value": share}] if reason else []),
+                    *(
+                        [{"metric": "shop_return_rate", "value": ins.baseline_rate}]
+                        if ins.baseline_rate is not None
+                        else []
+                    ),
+                ],
+                "confidence": 0.8 if ins.returned >= 8 else 0.6,
+                "estimated_impact": {"return_rate_now": ins.rate},
+                "action": action,
+                "baseline": {"rate": ins.rate, "sold": ins.sold, "insight_id": str(ins.id)},
             }
         )
     return out
 
 
-GENERATORS = (_autopilot, _courier, _restock)
+def _profit(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """ANA-010: products that lose money, and best sellers with no cost (profit can't be shown)."""
+    from app.domains.intelligence import profit
+
+    if not entitlements.resolve(db, merchant_id).has("intelligence.profit"):
+        return []
+    pnl = profit.compute(db, merchant_id, 30)
+    out: list[dict[str, Any]] = []
+    for row in pnl["products"]:
+        cogs = next(c for c in row["components"] if c["code"] == "cogs")
+        if row["units"] >= 5 and cogs["status"] != "not_included" and row["contribution_minor"] < 0:
+            out.append(
+                {
+                    "type": "profit_loss",
+                    "dedupe_key": f"profit_loss:{row['product_id']}",
+                    "subject_type": "product",
+                    "subject_id": row["product_id"],
+                    "explanation": {
+                        "what": "review_price_or_cost",
+                        "why": "losing_money",
+                        "vars": {
+                            "title": row["title"],
+                            "units": row["units"],
+                            "contribution": row["contribution_minor"],
+                            "per_unit": row["contribution_per_unit_minor"],
+                            "complete": row["complete"],
+                        },
+                    },
+                    "evidence": [
+                        {
+                            "metric": c["code"],
+                            "window_days": 30,
+                            "value": c["amount_minor"],
+                            "status": c["status"],
+                        }
+                        for c in row["components"]
+                        if c["amount_minor"]
+                    ],
+                    "confidence": 0.8 if row["complete"] else 0.6,
+                    "estimated_impact": {"contribution_30d_minor": row["contribution_minor"]},
+                    "action": {"type": "none", "params": {"product_id": row["product_id"]}},
+                    "baseline": {"contribution_minor": row["contribution_minor"], "units": row["units"]},
+                }
+            )
+    no_cost = sorted(
+        (
+            r
+            for r in pnl["products"]
+            if r["units"] >= 3
+            and next(c for c in r["components"] if c["code"] == "cogs")["status"] == "not_included"
+        ),
+        key=lambda r: -r["revenue_minor"],
+    )[:3]
+    for row in no_cost:
+        out.append(
+            {
+                "type": "profit_data",
+                "dedupe_key": f"profit_cost:{row['product_id']}",
+                "subject_type": "product",
+                "subject_id": row["product_id"],
+                "explanation": {
+                    "what": "add_cost",
+                    "why": "cost_not_set",
+                    "vars": {"title": row["title"], "units": row["units"], "revenue": row["revenue_minor"]},
+                },
+                "evidence": [{"metric": "revenue", "window_days": 30, "value": row["revenue_minor"]}],
+                "confidence": 0.9,
+                "estimated_impact": {},
+                "action": {"type": "none", "params": {"product_id": row["product_id"]}},
+                "baseline": {},
+            }
+        )
+    return out[:5]
+
+
+GENERATORS = (_autopilot, _courier, _restock, _returns, _profit)
 
 
 def generate(db: Session, merchant_id: uuid.UUID) -> int:
@@ -413,6 +593,16 @@ def _execute(db: Session, ctx: TenantContext, r: Recommendation) -> bool:
         from app.domains.fulfillment.couriers import get_settings_row
 
         get_settings_row(db, ctx.merchant_id).courier_selection = params["mode"]
+    elif t == "confirm_fact":
+        from app.domains.intelligence import memory, return_intel
+
+        memory.confirm_by_subject(db, ctx, params["subject_type"], params["subject_id"], params["fact_type"])
+        if params.get("insight_id"):
+            return_intel.mark_acted(db, ctx.merchant_id, uuid.UUID(params["insight_id"]))
+    elif t == "mark_insight_acted":
+        from app.domains.intelligence import return_intel
+
+        return_intel.mark_acted(db, ctx.merchant_id, uuid.UUID(params["insight_id"]))
     else:
         raise AppError("Unknown action", code="recommendation_action_unknown")
     return True
@@ -441,6 +631,8 @@ def measure(db: Session) -> dict[str, int]:
     ):
         bind_tenant(db, r.merchant_id)
         r.outcome = _outcome(db, r)
+        if r.outcome.get("pending"):
+            continue  # not enough data after the change yet; try again tomorrow
         r.outcome_measured_at = now
         measured += 1
     return {"expired": expired, "measured": measured}
@@ -458,6 +650,19 @@ def _outcome(db: Session, r: Recommendation) -> dict[str, Any]:
             "eligible_after": after.get("eligible", 0),
             "note": "Before/after comparison; other changes in the same period can contribute.",
         }
+    if r.type == "return_prevention" and r.baseline.get("insight_id"):
+        from app.domains.intelligence.models import ReturnInsight
+
+        ins = db.get(ReturnInsight, uuid.UUID(r.baseline["insight_id"]))
+        if ins is not None and ins.post_change_rate is not None:
+            return {
+                "method": "pre_post",
+                "before": r.baseline.get("rate"),
+                "after": ins.post_change_rate,
+                "sold_after": ins.post_change_sold,
+                "note": "Return rate on sales after the change; other changes in the period can contribute.",
+            }
+        return {"method": "pre_post", "pending": True, "note": "Measured after 30 days and 10 sales."}
     return {
         "method": "pre_post",
         "window_days": EVALUATION.days,

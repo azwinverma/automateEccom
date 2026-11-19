@@ -201,6 +201,13 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/settings/plan'),
           ),
           const Divider(),
+          _NavRow(
+            key: const Key('settings-learned'),
+            icon: Icons.lightbulb_outline,
+            title: l.settingsLearned,
+            onTap: () => context.push('/learned'),
+          ),
+          const Divider(),
           const SizedBox(height: AppSpace.s8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
@@ -222,6 +229,7 @@ class SettingsScreen extends ConsumerWidget {
 
 class _NavRow extends StatelessWidget {
   const _NavRow({
+    super.key,
     required this.icon,
     required this.title,
     required this.onTap,

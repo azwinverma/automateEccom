@@ -39,7 +39,7 @@ export const SECTIONS: SectionDef[] = [
   { key: "fulfillment", href: "/fulfillment", icon: "fulfillment", group: "deliver" },
   { key: "returns", href: "/returns", icon: "returns", group: "deliver" },
   { key: "automation", href: "/automation", icon: "automation", group: "grow" },
-  { key: "analytics", href: "/analytics", icon: "analytics", group: "grow", phase: 3 },
+  { key: "analytics", href: "/analytics", icon: "analytics", group: "grow" },
 ];
 
 export const NAV_GROUPS: { group: NavGroup; labelKey?: "nav.groupSell" | "nav.groupCatalog" | "nav.groupDeliver" | "nav.groupGrow" }[] = [

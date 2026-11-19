@@ -3023,4 +3023,333 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get riskCancel => 'Cancel';
+
+  @override
+  String get pbTitle => 'Product Brain';
+
+  @override
+  String pbDemand(String rate, int days) {
+    return 'About $rate a day, from $days days in stock';
+  }
+
+  @override
+  String pbUnits(int d7, int d30, int d90) {
+    return 'Sold $d7 in 7 days · $d30 in 30 · $d90 in 90';
+  }
+
+  @override
+  String pbStock(int n, String days) {
+    return '$n available · about $days days left';
+  }
+
+  @override
+  String pbStockOnly(int n) {
+    return '$n available';
+  }
+
+  @override
+  String pbStockouts(int n) {
+    return 'Sold out $n times in the last 90 days';
+  }
+
+  @override
+  String get pbRiskOut => 'Sold out';
+
+  @override
+  String get pbRiskHigh => 'Runs out soon';
+
+  @override
+  String get pbRiskMedium => 'Running low';
+
+  @override
+  String get pbRiskLow => 'Enough stock';
+
+  @override
+  String pbMargin(String pct) {
+    return 'Margin $pct% at today\'s price and cost';
+  }
+
+  @override
+  String pbContribution(String amount) {
+    return 'Profit per unit: $amount';
+  }
+
+  @override
+  String pbContributionPartial(String amount) {
+    return 'Profit per unit: $amount (some costs not included)';
+  }
+
+  @override
+  String pbReturnRate(String pct) {
+    return 'Returned: $pct% of delivered';
+  }
+
+  @override
+  String pbTopReason(String reason) {
+    return 'Most common reason: $reason';
+  }
+
+  @override
+  String get pbFitSmall => 'Customers are told it runs small (you confirmed)';
+
+  @override
+  String get pbFitLarge => 'Customers are told it runs large (you confirmed)';
+
+  @override
+  String pbCompleteness(String pct) {
+    return '$pct% of this profile has data';
+  }
+
+  @override
+  String get niNeedsContentMetrics =>
+      'Channel and content results arrive with content tracking.';
+
+  @override
+  String get niNeeds12Months => 'Seasonality needs a year of sales.';
+
+  @override
+  String get niNoPromotions => 'No promotions yet to learn from.';
+
+  @override
+  String get niNotEnoughDaysInStock =>
+      'Not enough days in stock to estimate demand.';
+
+  @override
+  String get niNoSales => 'No sales in the last 90 days.';
+
+  @override
+  String get niStockNotTracked => 'Stock isn\'t tracked for this product.';
+
+  @override
+  String get niCostNotSet => 'Add a cost to see margin and profit.';
+
+  @override
+  String get niNotEnoughSales => 'Profit per unit needs at least 5 sales.';
+
+  @override
+  String get niNoDeliveredSales => 'No delivered sales yet, so no return rate.';
+
+  @override
+  String get niOther => 'Some data isn\'t available yet.';
+
+  @override
+  String profitTitle(int days) {
+    return 'Profit, last $days days';
+  }
+
+  @override
+  String profitRevenue(String amount) {
+    return 'Sales $amount';
+  }
+
+  @override
+  String profitContribution(String amount) {
+    return 'Profit before fixed costs $amount';
+  }
+
+  @override
+  String profitMargin(String pct) {
+    return 'Margin $pct%';
+  }
+
+  @override
+  String profitGaps(int n, String list) {
+    return '$n items not included: $list';
+  }
+
+  @override
+  String get pcPackaging => 'packaging';
+
+  @override
+  String get pcAds => 'ad spend';
+
+  @override
+  String get pcCogs => 'cost of goods';
+
+  @override
+  String get pcPaymentFees => 'payment fees';
+
+  @override
+  String get pcChannelFees => 'channel fees';
+
+  @override
+  String get pcCourier => 'courier cost';
+
+  @override
+  String get pcReturnShipping => 'return shipping';
+
+  @override
+  String get pcFailedDelivery => 'failed deliveries';
+
+  @override
+  String get pcOther => 'other costs';
+
+  @override
+  String recFitNoteSmall(String title) {
+    return 'Tell customers $title runs small';
+  }
+
+  @override
+  String recFitNoteLarge(String title) {
+    return 'Tell customers $title runs large';
+  }
+
+  @override
+  String recReviewPhotos(String title) {
+    return 'Check the photos of $title';
+  }
+
+  @override
+  String recReviewDescription(String title) {
+    return 'Check the description of $title';
+  }
+
+  @override
+  String recReviewQuality(String title) {
+    return 'Check the quality of $title with your supplier';
+  }
+
+  @override
+  String recReviewPacking(String title) {
+    return 'Check how $title is packed';
+  }
+
+  @override
+  String recReviewReturns(String title) {
+    return 'Look into returns of $title';
+  }
+
+  @override
+  String recWhyReturns(
+    String returned,
+    String sold,
+    String rate,
+    String baseline,
+  ) {
+    return '$returned of $sold returned ($rate%; shop average $baseline%)';
+  }
+
+  @override
+  String recWhyReturnsNoBase(String returned, String sold, String rate) {
+    return '$returned of $sold returned ($rate%)';
+  }
+
+  @override
+  String recWhyReturnsReason(String share, String reason) {
+    return '$share% of returns say: $reason';
+  }
+
+  @override
+  String recReviewPrice(String title) {
+    return 'Review the price or cost of $title';
+  }
+
+  @override
+  String recWhyLosing(String amount, String units) {
+    return 'Lost $amount on $units sold in 30 days';
+  }
+
+  @override
+  String recAddCost(String title) {
+    return 'Add a cost for $title';
+  }
+
+  @override
+  String recWhyCostNotSet(String units) {
+    return '$units sold, but profit can\'t be shown without a cost';
+  }
+
+  @override
+  String recImpactContribution(String amount) {
+    return 'Worth about $amount profit in 30 days';
+  }
+
+  @override
+  String get memTitle => 'What Nivaro has learned';
+
+  @override
+  String get memIntro =>
+      'Facts from your own shop\'s data. Only facts you confirm are used when talking to customers.';
+
+  @override
+  String get memEmpty =>
+      'Nothing learned yet. Facts appear once there\'s enough data.';
+
+  @override
+  String memFitSmall(String title, String share, String returns, String sold) {
+    return '$title runs small: $share% of returns say too small ($returns returns, $sold sold)';
+  }
+
+  @override
+  String memFitLarge(String title, String share, String returns, String sold) {
+    return '$title runs large: $share% of returns say too large ($returns returns, $sold sold)';
+  }
+
+  @override
+  String memRepeatCycle(String days, String customers) {
+    return 'Customers reorder about every $days days ($customers repeat customers)';
+  }
+
+  @override
+  String memPeakHours(String start, String end, String share) {
+    return 'Most orders come between $start:00 and $end:00 ($share% of orders)';
+  }
+
+  @override
+  String memBestCourier(
+    String courier,
+    String district,
+    String success,
+    String n,
+  ) {
+    return '$courier delivers best to $district: $success% of $n parcels';
+  }
+
+  @override
+  String get memOther => 'Something learned about your shop';
+
+  @override
+  String memConfidence(String pct) {
+    return 'Confidence $pct%';
+  }
+
+  @override
+  String memWindow(String days) {
+    return 'From the last $days days';
+  }
+
+  @override
+  String get memConfirmed => 'Confirmed by you';
+
+  @override
+  String get memSellerVersion => 'Your version';
+
+  @override
+  String memVersion(int n) {
+    return 'Version $n';
+  }
+
+  @override
+  String get memConfirm => 'Confirm';
+
+  @override
+  String get memReject => 'Not right';
+
+  @override
+  String get memRejectTitle => 'What\'s wrong with it?';
+
+  @override
+  String get memRejectNote => 'Reason';
+
+  @override
+  String get memDone => 'Saved';
+
+  @override
+  String get memCancel => 'Cancel';
+
+  @override
+  String get memManagersOnly => 'Only owners and managers can change these.';
+
+  @override
+  String get settingsLearned => 'What Nivaro has learned';
 }

@@ -139,6 +139,19 @@ are done. The items below remain.
 | GAP-COD-CALIBRATION-ALERT | Low | The calibration/disparity report exists but nothing alerts on drift or a district disparity. | Weekly check with an ops alert once monitoring exists. |
 | GAP-E2E-COLDSTART | Low | On a freshly started QA stack, the first real-backend spec (phase 2, desktop) failed twice with Node "fetch failed"; no server error was logged, and it passed alone and in the next full run (30/30). | Add a warm-up request in the Playwright global setup; capture the cause if it shows up in CI. |
 
+## Phase 6 part B (2026-11-19)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-P6-EXIT | High (phase exit) | Phase 6 exit needs ≥ 90 days of real data from pilot merchants, an APS manual audit and backtests on real data. Everything is tested on synthetic data only. | Recruit pilot merchants; run the audit and backtests after 90 days. |
+| GAP-PROFIT-FEES | Med | Online payment provider fees and channel/marketplace fees aren't recorded, so those lines show Partial/Not included when such orders exist. COD fees appear only after the courier statement. | Record provider fees on payments; channel fees from channel order imports. |
+| GAP-PROFIT-HISTORY | Low | Order lines placed before 2026-11-19 have no saved cost; profit uses today's cost for them (counted in the response). | None needed once old orders age out of the window. |
+| GAP-PROFIT-CURRENCY | Low | Profit and Product Brain responses carry the shop currency; suggestions and profit settings don't (mobile assumes NPR there). All shops are NPR today. | Add currency to recommendation views and settings. |
+| GAP-PBR-FAQ | Med | Product FAQs from conversations (PBR-007) and channel/content conversion (PBR-006) aren't built. | FAQ clustering with seller-approved answers; content metrics in Phase 7. |
+| GAP-PBR-VARIANT-DEMAND | Low | Demand is per product, not per variant/size; the stock-risk lead time is a fixed 7 days. | Per-variant EWMA; supplier lead times (Phase 8). |
+| GAP-STORE-MANAGER | Med | No Store Manager agent, so the get_product_brain / get_memory_facts tools (ANA-009, PBR-009, MEM-007) don't exist. | Build with the Store Manager agent. |
+| GAP-RTI-CAUSES | Low | Return causes can't point at the content/image version shown at purchase or a supplier batch: neither is recorded on orders. | Record content version on chat/channel orders (Phase 7) and batch on receiving (Phase 8). |
+| GAP-RTI-E2E | Low | Return pattern detection is covered by backend tests, not by E2E (needs 10+ delivered sales per product). | Seed a pattern in a dedicated E2E once a fixtures endpoint exists for QA. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.

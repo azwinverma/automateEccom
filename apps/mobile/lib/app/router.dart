@@ -18,6 +18,7 @@ import '../features/home/presentation/home_screen.dart';
 import '../features/home/presentation/widgets/quick_actions.dart';
 import '../features/inbox/presentation/inbox_screen.dart';
 import '../features/inbox/presentation/thread_screen.dart';
+import '../features/intelligence/presentation/memory_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/orders/presentation/order_screen.dart';
 import '../features/orders/presentation/orders_screen.dart';
@@ -151,6 +152,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/cod', builder: (_, __) => const CodScreen()),
       GoRoute(path: '/returns', builder: (_, __) => const ReturnsListScreen()),
       GoRoute(path: '/automation', builder: (_, __) => const WorkflowsScreen()),
+      GoRoute(path: '/learned', builder: (_, __) => const MemoryScreen()),
       GoRoute(
         path: '/automation/approvals',
         builder: (_, __) => const ApprovalsScreen(),

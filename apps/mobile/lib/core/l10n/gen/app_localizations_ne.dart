@@ -2999,4 +2999,337 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get riskCancel => 'रद्द';
+
+  @override
+  String get pbTitle => 'प्रोडक्ट ब्रेन';
+
+  @override
+  String pbDemand(String rate, int days) {
+    return 'स्टकमा रहेका $days दिनको आधारमा दिनको करिब $rate';
+  }
+
+  @override
+  String pbUnits(int d7, int d30, int d90) {
+    return 'बिक्री: ७ दिनमा $d7 · ३० मा $d30 · ९० मा $d90';
+  }
+
+  @override
+  String pbStock(int n, String days) {
+    return '$n उपलब्ध · करिब $days दिन पुग्छ';
+  }
+
+  @override
+  String pbStockOnly(int n) {
+    return '$n उपलब्ध';
+  }
+
+  @override
+  String pbStockouts(int n) {
+    return 'पछिल्लो ९० दिनमा $n पटक सकियो';
+  }
+
+  @override
+  String get pbRiskOut => 'सकियो';
+
+  @override
+  String get pbRiskHigh => 'छिट्टै सकिन्छ';
+
+  @override
+  String get pbRiskMedium => 'कम हुँदैछ';
+
+  @override
+  String get pbRiskLow => 'पर्याप्त स्टक';
+
+  @override
+  String pbMargin(String pct) {
+    return 'आजको मूल्य र लागतमा मार्जिन $pct%';
+  }
+
+  @override
+  String pbContribution(String amount) {
+    return 'प्रति थान नाफा: $amount';
+  }
+
+  @override
+  String pbContributionPartial(String amount) {
+    return 'प्रति थान नाफा: $amount (केही लागत समावेश छैन)';
+  }
+
+  @override
+  String pbReturnRate(String pct) {
+    return 'फिर्ता: डेलिभर भएकामध्ये $pct%';
+  }
+
+  @override
+  String pbTopReason(String reason) {
+    return 'सबैभन्दा धेरै कारण: $reason';
+  }
+
+  @override
+  String get pbFitSmall =>
+      'ग्राहकलाई यो सानो आउँछ भनिन्छ (तपाईंले पक्का गर्नुभयो)';
+
+  @override
+  String get pbFitLarge =>
+      'ग्राहकलाई यो ठूलो आउँछ भनिन्छ (तपाईंले पक्का गर्नुभयो)';
+
+  @override
+  String pbCompleteness(String pct) {
+    return 'यो प्रोफाइलको $pct% मा डाटा छ';
+  }
+
+  @override
+  String get niNeedsContentMetrics =>
+      'च्यानल र सामग्रीको नतिजा सामग्री ट्र्याकिङसँगै आउँछ।';
+
+  @override
+  String get niNeeds12Months => 'मौसमी ढाँचाका लागि एक वर्षको बिक्री चाहिन्छ।';
+
+  @override
+  String get niNoPromotions => 'सिक्नका लागि अहिलेसम्म कुनै प्रमोसन छैन।';
+
+  @override
+  String get niNotEnoughDaysInStock =>
+      'माग अनुमान गर्न स्टकमा पर्याप्त दिन छैनन्।';
+
+  @override
+  String get niNoSales => 'पछिल्लो ९० दिनमा बिक्री छैन।';
+
+  @override
+  String get niStockNotTracked => 'यो प्रोडक्टको स्टक ट्र्याक गरिएको छैन।';
+
+  @override
+  String get niCostNotSet => 'मार्जिन र नाफा हेर्न लागत थप्नुहोस्।';
+
+  @override
+  String get niNotEnoughSales =>
+      'प्रति थान नाफाका लागि कम्तीमा ५ बिक्री चाहिन्छ।';
+
+  @override
+  String get niNoDeliveredSales =>
+      'डेलिभर भएको बिक्री छैन, त्यसैले फिर्ता दर छैन।';
+
+  @override
+  String get niOther => 'केही डाटा अझै उपलब्ध छैन।';
+
+  @override
+  String profitTitle(int days) {
+    return 'नाफा, पछिल्लो $days दिन';
+  }
+
+  @override
+  String profitRevenue(String amount) {
+    return 'बिक्री $amount';
+  }
+
+  @override
+  String profitContribution(String amount) {
+    return 'स्थिर खर्च अघिको नाफा $amount';
+  }
+
+  @override
+  String profitMargin(String pct) {
+    return 'मार्जिन $pct%';
+  }
+
+  @override
+  String profitGaps(int n, String list) {
+    return '$n कुरा समावेश छैन: $list';
+  }
+
+  @override
+  String get pcPackaging => 'प्याकेजिङ';
+
+  @override
+  String get pcAds => 'विज्ञापन खर्च';
+
+  @override
+  String get pcCogs => 'सामानको लागत';
+
+  @override
+  String get pcPaymentFees => 'भुक्तानी शुल्क';
+
+  @override
+  String get pcChannelFees => 'च्यानल शुल्क';
+
+  @override
+  String get pcCourier => 'कुरियर खर्च';
+
+  @override
+  String get pcReturnShipping => 'फिर्ता ढुवानी';
+
+  @override
+  String get pcFailedDelivery => 'असफल डेलिभरी';
+
+  @override
+  String get pcOther => 'अन्य खर्च';
+
+  @override
+  String recFitNoteSmall(String title) {
+    return '$title सानो आउँछ भनेर ग्राहकलाई भन्नुहोस्';
+  }
+
+  @override
+  String recFitNoteLarge(String title) {
+    return '$title ठूलो आउँछ भनेर ग्राहकलाई भन्नुहोस्';
+  }
+
+  @override
+  String recReviewPhotos(String title) {
+    return '$title का फोटो जाँच्नुहोस्';
+  }
+
+  @override
+  String recReviewDescription(String title) {
+    return '$title को विवरण जाँच्नुहोस्';
+  }
+
+  @override
+  String recReviewQuality(String title) {
+    return 'आपूर्तिकर्तासँग $title को गुणस्तर जाँच्नुहोस्';
+  }
+
+  @override
+  String recReviewPacking(String title) {
+    return '$title कसरी प्याक हुन्छ जाँच्नुहोस्';
+  }
+
+  @override
+  String recReviewReturns(String title) {
+    return '$title का फिर्ता हेर्नुहोस्';
+  }
+
+  @override
+  String recWhyReturns(
+    String returned,
+    String sold,
+    String rate,
+    String baseline,
+  ) {
+    return '$sold मध्ये $returned फिर्ता ($rate%; पसलको औसत $baseline%)';
+  }
+
+  @override
+  String recWhyReturnsNoBase(String returned, String sold, String rate) {
+    return '$sold मध्ये $returned फिर्ता ($rate%)';
+  }
+
+  @override
+  String recWhyReturnsReason(String share, String reason) {
+    return '$share% फिर्तामा कारण: $reason';
+  }
+
+  @override
+  String recReviewPrice(String title) {
+    return '$title को मूल्य वा लागत हेर्नुहोस्';
+  }
+
+  @override
+  String recWhyLosing(String amount, String units) {
+    return '३० दिनमा $units बिक्रीमा $amount घाटा';
+  }
+
+  @override
+  String recAddCost(String title) {
+    return '$title को लागत थप्नुहोस्';
+  }
+
+  @override
+  String recWhyCostNotSet(String units) {
+    return '$units बिक्री भयो, तर लागत बिना नाफा देखाउन सकिँदैन';
+  }
+
+  @override
+  String recImpactContribution(String amount) {
+    return '३० दिनमा करिब $amount नाफा';
+  }
+
+  @override
+  String get memTitle => 'निभारोले के सिक्यो';
+
+  @override
+  String get memIntro =>
+      'तपाईंकै पसलको डाटाबाट तथ्य। तपाईंले पक्का गरेका तथ्य मात्र ग्राहकसँग कुरा गर्दा प्रयोग हुन्छन्।';
+
+  @override
+  String get memEmpty =>
+      'अहिलेसम्म केही सिकिएको छैन। पर्याप्त डाटा भएपछि तथ्य देखिन्छन्।';
+
+  @override
+  String memFitSmall(String title, String share, String returns, String sold) {
+    return '$title सानो आउँछ: $share% फिर्तामा धेरै सानो भनिएको ($returns फिर्ता, $sold बिक्री)';
+  }
+
+  @override
+  String memFitLarge(String title, String share, String returns, String sold) {
+    return '$title ठूलो आउँछ: $share% फिर्तामा धेरै ठूलो भनिएको ($returns फिर्ता, $sold बिक्री)';
+  }
+
+  @override
+  String memRepeatCycle(String days, String customers) {
+    return 'ग्राहकले करिब हरेक $days दिनमा फेरि अर्डर गर्छन् ($customers दोहोरिने ग्राहक)';
+  }
+
+  @override
+  String memPeakHours(String start, String end, String share) {
+    return 'धेरैजसो अर्डर $start:00 देखि $end:00 बीच आउँछन् ($share% अर्डर)';
+  }
+
+  @override
+  String memBestCourier(
+    String courier,
+    String district,
+    String success,
+    String n,
+  ) {
+    return '$district मा $courier ले राम्रो डेलिभर गर्छ: $n पार्सलमध्ये $success%';
+  }
+
+  @override
+  String get memOther => 'तपाईंको पसलबारे सिकिएको कुरा';
+
+  @override
+  String memConfidence(String pct) {
+    return 'विश्वास $pct%';
+  }
+
+  @override
+  String memWindow(String days) {
+    return 'पछिल्लो $days दिनबाट';
+  }
+
+  @override
+  String get memConfirmed => 'तपाईंले पक्का गर्नुभयो';
+
+  @override
+  String get memSellerVersion => 'तपाईंको संस्करण';
+
+  @override
+  String memVersion(int n) {
+    return 'संस्करण $n';
+  }
+
+  @override
+  String get memConfirm => 'पक्का गर्नुहोस्';
+
+  @override
+  String get memReject => 'मिलेन';
+
+  @override
+  String get memRejectTitle => 'यसमा के मिलेन?';
+
+  @override
+  String get memRejectNote => 'कारण';
+
+  @override
+  String get memDone => 'सेभ भयो';
+
+  @override
+  String get memCancel => 'रद्द';
+
+  @override
+  String get memManagersOnly => 'यी मालिक र म्यानेजरले मात्र बदल्न सक्छन्।';
+
+  @override
+  String get settingsLearned => 'निभारोले के सिक्यो';
 }

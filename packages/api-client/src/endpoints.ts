@@ -64,6 +64,14 @@ import type {
   AutopilotScore,
   CodRiskAssessment,
   CourierPerformanceRow,
+  MemoryFact,
+  MemoryMetricSeries,
+  ProductBrain,
+  ProfitSettings,
+  ProfitSettingsUpdate,
+  ProfitSummary,
+  ReturnInsightView,
+  StockRiskItem,
   RecommendationView,
   AutomationApproval,
   AutomationCatalog,
@@ -606,6 +614,29 @@ export function createApi(client: ApiClient) {
         client.request<CodRiskAssessment>(`/intelligence/cod/assessments/${encodeURIComponent(orderId)}/dispute`, { method: "POST", body: { note }, tenant: true }),
       courierPerformance: (refresh = false) =>
         client.request<{ items: CourierPerformanceRow[]; min_sample: number; period_days: number; method_version: string }>("/intelligence/couriers/performance", { tenant: true, query: { refresh } }),
+      // Phase 6 part B
+      profit: (days = 30) => client.request<ProfitSummary>("/intelligence/profit", { tenant: true, query: { days } }),
+      profitSettings: () => client.request<ProfitSettings>("/intelligence/profit/settings", { tenant: true }),
+      updateProfitSettings: (body: ProfitSettingsUpdate) => client.request<ProfitSettings>("/intelligence/profit/settings", { method: "PUT", body, tenant: true }),
+      productBrain: (productId: string, refresh = false) =>
+        client.request<ProductBrain>(`/intelligence/products/${encodeURIComponent(productId)}/brain`, { tenant: true, query: { refresh } }),
+      stockRisk: () => client.request<{ items: StockRiskItem[] }>("/intelligence/stock-risk", { tenant: true }),
+      returnInsights: (status?: ReturnInsightView["status"]) =>
+        client.request<{ items: ReturnInsightView[] }>("/intelligence/return-insights", { tenant: true, query: { status } }),
+      refreshReturnInsights: () =>
+        client.request<{ raised: number; updated: number; resolved: number }>("/intelligence/return-insights/refresh", { method: "POST", tenant: true }),
+      dismissReturnInsight: (id: string, reason: string) =>
+        client.request<ReturnInsightView>(`/intelligence/return-insights/${encodeURIComponent(id)}/dismiss`, { method: "POST", body: { reason }, tenant: true }),
+      memoryFacts: (includeHistory = false) =>
+        client.request<{ items: MemoryFact[]; fact_types: string[] }>("/intelligence/memory/facts", { tenant: true, query: { include_history: includeHistory } }),
+      memoryMetrics: (metric: string, subjectType: string, subjectId: string) =>
+        client.request<MemoryMetricSeries>("/intelligence/memory/metrics", { tenant: true, query: { metric, subject_type: subjectType, subject_id: subjectId } }),
+      refreshMemory: () => client.request<{ metrics: number; facts: number }>("/intelligence/memory/refresh", { method: "POST", tenant: true }),
+      confirmFact: (id: string) => client.request<MemoryFact>(`/intelligence/memory/facts/${encodeURIComponent(id)}/confirm`, { method: "POST", tenant: true }),
+      rejectFact: (id: string, note: string) =>
+        client.request<MemoryFact>(`/intelligence/memory/facts/${encodeURIComponent(id)}/reject`, { method: "POST", body: { note }, tenant: true }),
+      correctFact: (id: string, value: Record<string, string | number>, note: string) =>
+        client.request<MemoryFact>(`/intelligence/memory/facts/${encodeURIComponent(id)}/correct`, { method: "POST", body: { value, note }, tenant: true }),
     },
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {

@@ -120,3 +120,231 @@
   padding-top: var(--space-2);
   margin: 0;
 }
+
+/* ---------------------------------------------------------------- Phase 6B: profit, memory, returns, Product Brain */
+.profitHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.profitFigure {
+  display: grid;
+  gap: var(--space-1);
+}
+.negative {
+  color: var(--color-status-danger);
+}
+.window {
+  display: inline-flex;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+}
+.window button {
+  border: 0;
+  background: none;
+  border-radius: 999px;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.window button[aria-pressed="true"] {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+.waterfall {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+.waterfall th,
+.waterfall td {
+  text-align: left;
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--color-border-default);
+  vertical-align: top;
+}
+.waterfall th {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+}
+.waterfall .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.waterfall tfoot td {
+  font-weight: var(--font-weight-bold);
+  border-bottom: 0;
+  border-top: 2px solid var(--color-border-default);
+}
+.reasonText {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  margin-top: 2px;
+}
+.status {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  border: 1px solid var(--color-border-default);
+  white-space: nowrap;
+}
+.status[data-status="not_included"] {
+  border-style: dashed;
+  color: var(--color-text-secondary);
+}
+.status[data-status="partial"] {
+  border-color: var(--color-status-warning);
+}
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+@media (max-width: 560px) {
+  .hideNarrow {
+    display: none;
+  }
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+}
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border-default);
+  margin-bottom: var(--space-4);
+}
+.tab {
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab[aria-selected="true"] {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  border-bottom-color: var(--color-action-primary);
+}
+.facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.fact {
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  background: var(--color-surface-raised);
+}
+.fact[data-status="superseded"],
+.fact[data-status="rejected_by_merchant"] {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+}
+.brainGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+.brainCell {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  font-size: var(--font-size-sm);
+}
+.brainCell h3 {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.figure {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.risk {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  height: 6px;
+  max-width: 160px;
+}
+.risk span {
+  border-radius: 3px;
+  background: var(--color-surface-sunken);
+}
+.risk[data-risk="out"] span,
+.risk[data-risk="high"] span:nth-child(-n + 3) {
+  background: var(--color-status-danger);
+}
+.risk[data-risk="medium"] span:nth-child(-n + 2) {
+  background: var(--color-status-warning);
+}
+.risk[data-risk="low"] span:nth-child(1) {
+  background: var(--color-text-positive);
+}
+.missing {
+  margin: 0;
+  padding-left: var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  display: grid;
+  gap: 2px;
+}
+.insight {
+  border: 1px solid var(--color-border-default);
+  border-left: 3px solid var(--color-status-danger);
+  border-radius: 0 10px 10px 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-1);
+  background: var(--color-surface-raised);
+  font-size: var(--font-size-sm);
+}
+.insight[data-status="acted"],
+.insight[data-status="resolved"] {
+  border-left-color: var(--color-text-positive);
+}
+.stockList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+.stockList li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+}

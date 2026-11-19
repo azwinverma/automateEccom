@@ -943,7 +943,6 @@
     {
       "type": "returns.pattern_detected",
       "version": 1,
-      "status": "planned",
       "maps_to": "ReturnPatternDetected",
       "description": "A return pattern (ReturnInsight) was detected.",
       "aggregate": "returns",

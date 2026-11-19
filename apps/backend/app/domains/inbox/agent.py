@@ -69,6 +69,15 @@ T: dict[str, dict[str, str]] = {
     "out_of_stock": {"en": "Sorry, it's out of stock right now.", "ne": "माफ गर्नुहोस्, अहिले स्टकमा छैन।"},
     "stock_unknown": {"en": "The shop will confirm stock.", "ne": "स्टक पसलले पक्का गर्नेछ।"},
     "options": {"en": "Available options: {options}.", "ne": "उपलब्ध विकल्प: {options}।"},
+    # RTI-006: only from fit facts the seller confirmed (Commerce Memory).
+    "fit_small": {
+        "en": "Tip: this runs small, so most customers pick one size up.",
+        "ne": "सुझाव: यो अलि सानो आउँछ, धेरैजसो ग्राहकले एक साइज ठूलो रोज्नुहुन्छ।",
+    },
+    "fit_large": {
+        "en": "Tip: this runs large, so most customers pick one size down.",
+        "ne": "सुझाव: यो अलि ठूलो आउँछ, धेरैजसो ग्राहकले एक साइज सानो रोज्नुहुन्छ।",
+    },
     "want_order": {
         "en": "Would you like to order? Tell me the size/colour and quantity.",
         "ne": "अर्डर गर्न चाहनुहुन्छ? साइज/रङ र कति वटा भन्नुहोस्।",
@@ -646,6 +655,11 @@ def _product_answer(
         ]
         if facts.options and in_stock:
             out += " " + t("options", locale, options=", ".join(in_stock[:12]))
+    from app.domains.intelligence.memory import confirmed_fit
+
+    fit = confirmed_fit(db, conv.merchant_id, facts.product.id)
+    if fit:
+        out += " " + t(f"fit_{fit}", locale)
     if ask_order:
         out += "\n" + t("want_order", locale)
     return out

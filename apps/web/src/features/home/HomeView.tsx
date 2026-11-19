@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { ControlCenter } from "../automation/ControlCenter";
 import { AutopilotScoreCard } from "../intelligence/AutopilotScoreCard";
 import { Recommendations } from "../intelligence/Recommendations";
+import { StockRiskList } from "../intelligence/StockRiskList";
 import styles from "./home.module.css";
 import { useExceptions } from "./useExceptions";
 
@@ -41,6 +42,7 @@ export function HomeView() {
 
       <ControlCenter onChanged={exceptions.query.reload} />
       <Recommendations />
+      <StockRiskList />
       <AutopilotScoreCard />
 
       {exceptions.commandError ? (

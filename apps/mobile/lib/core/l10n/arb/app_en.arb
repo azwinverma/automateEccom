@@ -1612,5 +1612,429 @@
   "riskDisputeTitle": "Record the customer's dispute",
   "riskDisputeNote": "What the customer says",
   "riskUpdated": "Updated",
-  "riskCancel": "Cancel"
+  "riskCancel": "Cancel",
+  "pbTitle": "Product Brain",
+  "pbDemand": "About {rate} a day, from {days} days in stock",
+  "@pbDemand": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "pbUnits": "Sold {d7} in 7 days · {d30} in 30 · {d90} in 90",
+  "@pbUnits": {
+    "placeholders": {
+      "d7": {
+        "type": "int"
+      },
+      "d30": {
+        "type": "int"
+      },
+      "d90": {
+        "type": "int"
+      }
+    }
+  },
+  "pbStock": "{n} available · about {days} days left",
+  "@pbStock": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "pbStockOnly": "{n} available",
+  "@pbStockOnly": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pbStockouts": "Sold out {n} times in the last 90 days",
+  "@pbStockouts": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pbRiskOut": "Sold out",
+  "pbRiskHigh": "Runs out soon",
+  "pbRiskMedium": "Running low",
+  "pbRiskLow": "Enough stock",
+  "pbMargin": "Margin {pct}% at today's price and cost",
+  "@pbMargin": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "pbContribution": "Profit per unit: {amount}",
+  "@pbContribution": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pbContributionPartial": "Profit per unit: {amount} (some costs not included)",
+  "@pbContributionPartial": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "pbReturnRate": "Returned: {pct}% of delivered",
+  "@pbReturnRate": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "pbTopReason": "Most common reason: {reason}",
+  "@pbTopReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pbFitSmall": "Customers are told it runs small (you confirmed)",
+  "pbFitLarge": "Customers are told it runs large (you confirmed)",
+  "pbCompleteness": "{pct}% of this profile has data",
+  "@pbCompleteness": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "niNeedsContentMetrics": "Channel and content results arrive with content tracking.",
+  "niNeeds12Months": "Seasonality needs a year of sales.",
+  "niNoPromotions": "No promotions yet to learn from.",
+  "niNotEnoughDaysInStock": "Not enough days in stock to estimate demand.",
+  "niNoSales": "No sales in the last 90 days.",
+  "niStockNotTracked": "Stock isn't tracked for this product.",
+  "niCostNotSet": "Add a cost to see margin and profit.",
+  "niNotEnoughSales": "Profit per unit needs at least 5 sales.",
+  "niNoDeliveredSales": "No delivered sales yet, so no return rate.",
+  "niOther": "Some data isn't available yet.",
+  "profitTitle": "Profit, last {days} days",
+  "@profitTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "profitRevenue": "Sales {amount}",
+  "@profitRevenue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "profitContribution": "Profit before fixed costs {amount}",
+  "@profitContribution": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "profitMargin": "Margin {pct}%",
+  "@profitMargin": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "profitGaps": "{n} items not included: {list}",
+  "@profitGaps": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "pcPackaging": "packaging",
+  "pcAds": "ad spend",
+  "pcCogs": "cost of goods",
+  "pcPaymentFees": "payment fees",
+  "pcChannelFees": "channel fees",
+  "pcCourier": "courier cost",
+  "pcReturnShipping": "return shipping",
+  "pcFailedDelivery": "failed deliveries",
+  "pcOther": "other costs",
+  "recFitNoteSmall": "Tell customers {title} runs small",
+  "@recFitNoteSmall": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recFitNoteLarge": "Tell customers {title} runs large",
+  "@recFitNoteLarge": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recReviewPhotos": "Check the photos of {title}",
+  "@recReviewPhotos": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recReviewDescription": "Check the description of {title}",
+  "@recReviewDescription": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recReviewQuality": "Check the quality of {title} with your supplier",
+  "@recReviewQuality": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recReviewPacking": "Check how {title} is packed",
+  "@recReviewPacking": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recReviewReturns": "Look into returns of {title}",
+  "@recReviewReturns": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyReturns": "{returned} of {sold} returned ({rate}%; shop average {baseline}%)",
+  "@recWhyReturns": {
+    "placeholders": {
+      "returned": {
+        "type": "String"
+      },
+      "sold": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "baseline": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyReturnsNoBase": "{returned} of {sold} returned ({rate}%)",
+  "@recWhyReturnsNoBase": {
+    "placeholders": {
+      "returned": {
+        "type": "String"
+      },
+      "sold": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyReturnsReason": "{share}% of returns say: {reason}",
+  "@recWhyReturnsReason": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "recReviewPrice": "Review the price or cost of {title}",
+  "@recReviewPrice": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyLosing": "Lost {amount} on {units} sold in 30 days",
+  "@recWhyLosing": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "units": {
+        "type": "String"
+      }
+    }
+  },
+  "recAddCost": "Add a cost for {title}",
+  "@recAddCost": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyCostNotSet": "{units} sold, but profit can't be shown without a cost",
+  "@recWhyCostNotSet": {
+    "placeholders": {
+      "units": {
+        "type": "String"
+      }
+    }
+  },
+  "recImpactContribution": "Worth about {amount} profit in 30 days",
+  "@recImpactContribution": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "memTitle": "What Nivaro has learned",
+  "memIntro": "Facts from your own shop's data. Only facts you confirm are used when talking to customers.",
+  "memEmpty": "Nothing learned yet. Facts appear once there's enough data.",
+  "memFitSmall": "{title} runs small: {share}% of returns say too small ({returns} returns, {sold} sold)",
+  "@memFitSmall": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      },
+      "returns": {
+        "type": "String"
+      },
+      "sold": {
+        "type": "String"
+      }
+    }
+  },
+  "memFitLarge": "{title} runs large: {share}% of returns say too large ({returns} returns, {sold} sold)",
+  "@memFitLarge": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      },
+      "returns": {
+        "type": "String"
+      },
+      "sold": {
+        "type": "String"
+      }
+    }
+  },
+  "memRepeatCycle": "Customers reorder about every {days} days ({customers} repeat customers)",
+  "@memRepeatCycle": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "customers": {
+        "type": "String"
+      }
+    }
+  },
+  "memPeakHours": "Most orders come between {start}:00 and {end}:00 ({share}% of orders)",
+  "@memPeakHours": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "share": {
+        "type": "String"
+      }
+    }
+  },
+  "memBestCourier": "{courier} delivers best to {district}: {success}% of {n} parcels",
+  "@memBestCourier": {
+    "placeholders": {
+      "courier": {
+        "type": "String"
+      },
+      "district": {
+        "type": "String"
+      },
+      "success": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "memOther": "Something learned about your shop",
+  "memConfidence": "Confidence {pct}%",
+  "@memConfidence": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "memWindow": "From the last {days} days",
+  "@memWindow": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "memConfirmed": "Confirmed by you",
+  "memSellerVersion": "Your version",
+  "memVersion": "Version {n}",
+  "@memVersion": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "memConfirm": "Confirm",
+  "memReject": "Not right",
+  "memRejectTitle": "What's wrong with it?",
+  "memRejectNote": "Reason",
+  "memDone": "Saved",
+  "memCancel": "Cancel",
+  "memManagersOnly": "Only owners and managers can change these.",
+  "settingsLearned": "What Nivaro has learned"
 }

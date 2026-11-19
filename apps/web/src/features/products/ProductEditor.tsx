@@ -35,6 +35,7 @@ import { CategoriesDrawer, categoryOptionLabel } from "./CategoriesDrawer";
 import { ChipInput } from "./ChipInput";
 import { CollectionsPicker } from "./CollectionsPicker";
 import { StockSection } from "../inventory/StockSection";
+import { ProductBrainCard } from "../intelligence/ProductBrainCard";
 import { ListingsPanel } from "./ListingsPanel";
 import { PublishChecklist, StatusControl } from "./StatusControl";
 import { VariantGrid } from "./VariantGrid";
@@ -533,6 +534,7 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
               <ListingsPanel product={server} canPublish={canPublish} />
             </Section>
           ) : null}
+          {server ? <ProductBrainCard productId={server.id} /> : null}
         </fieldset>
       </div>
       {server ? (

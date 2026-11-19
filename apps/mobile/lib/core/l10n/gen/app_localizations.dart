@@ -5406,6 +5406,490 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get riskCancel;
+
+  /// No description provided for @pbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Brain'**
+  String get pbTitle;
+
+  /// No description provided for @pbDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'About {rate} a day, from {days} days in stock'**
+  String pbDemand(String rate, int days);
+
+  /// No description provided for @pbUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold {d7} in 7 days · {d30} in 30 · {d90} in 90'**
+  String pbUnits(int d7, int d30, int d90);
+
+  /// No description provided for @pbStock.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} available · about {days} days left'**
+  String pbStock(int n, String days);
+
+  /// No description provided for @pbStockOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} available'**
+  String pbStockOnly(int n);
+
+  /// No description provided for @pbStockouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out {n} times in the last 90 days'**
+  String pbStockouts(int n);
+
+  /// No description provided for @pbRiskOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get pbRiskOut;
+
+  /// No description provided for @pbRiskHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs out soon'**
+  String get pbRiskHigh;
+
+  /// No description provided for @pbRiskMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Running low'**
+  String get pbRiskMedium;
+
+  /// No description provided for @pbRiskLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough stock'**
+  String get pbRiskLow;
+
+  /// No description provided for @pbMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin {pct}% at today\'s price and cost'**
+  String pbMargin(String pct);
+
+  /// No description provided for @pbContribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit per unit: {amount}'**
+  String pbContribution(String amount);
+
+  /// No description provided for @pbContributionPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit per unit: {amount} (some costs not included)'**
+  String pbContributionPartial(String amount);
+
+  /// No description provided for @pbReturnRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned: {pct}% of delivered'**
+  String pbReturnRate(String pct);
+
+  /// No description provided for @pbTopReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Most common reason: {reason}'**
+  String pbTopReason(String reason);
+
+  /// No description provided for @pbFitSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers are told it runs small (you confirmed)'**
+  String get pbFitSmall;
+
+  /// No description provided for @pbFitLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers are told it runs large (you confirmed)'**
+  String get pbFitLarge;
+
+  /// No description provided for @pbCompleteness.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% of this profile has data'**
+  String pbCompleteness(String pct);
+
+  /// No description provided for @niNeedsContentMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Channel and content results arrive with content tracking.'**
+  String get niNeedsContentMetrics;
+
+  /// No description provided for @niNeeds12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Seasonality needs a year of sales.'**
+  String get niNeeds12Months;
+
+  /// No description provided for @niNoPromotions.
+  ///
+  /// In en, this message translates to:
+  /// **'No promotions yet to learn from.'**
+  String get niNoPromotions;
+
+  /// No description provided for @niNotEnoughDaysInStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough days in stock to estimate demand.'**
+  String get niNotEnoughDaysInStock;
+
+  /// No description provided for @niNoSales.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales in the last 90 days.'**
+  String get niNoSales;
+
+  /// No description provided for @niStockNotTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock isn\'t tracked for this product.'**
+  String get niStockNotTracked;
+
+  /// No description provided for @niCostNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a cost to see margin and profit.'**
+  String get niCostNotSet;
+
+  /// No description provided for @niNotEnoughSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit per unit needs at least 5 sales.'**
+  String get niNotEnoughSales;
+
+  /// No description provided for @niNoDeliveredSales.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivered sales yet, so no return rate.'**
+  String get niNoDeliveredSales;
+
+  /// No description provided for @niOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Some data isn\'t available yet.'**
+  String get niOther;
+
+  /// No description provided for @profitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit, last {days} days'**
+  String profitTitle(int days);
+
+  /// No description provided for @profitRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales {amount}'**
+  String profitRevenue(String amount);
+
+  /// No description provided for @profitContribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit before fixed costs {amount}'**
+  String profitContribution(String amount);
+
+  /// No description provided for @profitMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin {pct}%'**
+  String profitMargin(String pct);
+
+  /// No description provided for @profitGaps.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} items not included: {list}'**
+  String profitGaps(int n, String list);
+
+  /// No description provided for @pcPackaging.
+  ///
+  /// In en, this message translates to:
+  /// **'packaging'**
+  String get pcPackaging;
+
+  /// No description provided for @pcAds.
+  ///
+  /// In en, this message translates to:
+  /// **'ad spend'**
+  String get pcAds;
+
+  /// No description provided for @pcCogs.
+  ///
+  /// In en, this message translates to:
+  /// **'cost of goods'**
+  String get pcCogs;
+
+  /// No description provided for @pcPaymentFees.
+  ///
+  /// In en, this message translates to:
+  /// **'payment fees'**
+  String get pcPaymentFees;
+
+  /// No description provided for @pcChannelFees.
+  ///
+  /// In en, this message translates to:
+  /// **'channel fees'**
+  String get pcChannelFees;
+
+  /// No description provided for @pcCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'courier cost'**
+  String get pcCourier;
+
+  /// No description provided for @pcReturnShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'return shipping'**
+  String get pcReturnShipping;
+
+  /// No description provided for @pcFailedDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'failed deliveries'**
+  String get pcFailedDelivery;
+
+  /// No description provided for @pcOther.
+  ///
+  /// In en, this message translates to:
+  /// **'other costs'**
+  String get pcOther;
+
+  /// No description provided for @recFitNoteSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell customers {title} runs small'**
+  String recFitNoteSmall(String title);
+
+  /// No description provided for @recFitNoteLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell customers {title} runs large'**
+  String recFitNoteLarge(String title);
+
+  /// No description provided for @recReviewPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the photos of {title}'**
+  String recReviewPhotos(String title);
+
+  /// No description provided for @recReviewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the description of {title}'**
+  String recReviewDescription(String title);
+
+  /// No description provided for @recReviewQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the quality of {title} with your supplier'**
+  String recReviewQuality(String title);
+
+  /// No description provided for @recReviewPacking.
+  ///
+  /// In en, this message translates to:
+  /// **'Check how {title} is packed'**
+  String recReviewPacking(String title);
+
+  /// No description provided for @recReviewReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Look into returns of {title}'**
+  String recReviewReturns(String title);
+
+  /// No description provided for @recWhyReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'{returned} of {sold} returned ({rate}%; shop average {baseline}%)'**
+  String recWhyReturns(
+    String returned,
+    String sold,
+    String rate,
+    String baseline,
+  );
+
+  /// No description provided for @recWhyReturnsNoBase.
+  ///
+  /// In en, this message translates to:
+  /// **'{returned} of {sold} returned ({rate}%)'**
+  String recWhyReturnsNoBase(String returned, String sold, String rate);
+
+  /// No description provided for @recWhyReturnsReason.
+  ///
+  /// In en, this message translates to:
+  /// **'{share}% of returns say: {reason}'**
+  String recWhyReturnsReason(String share, String reason);
+
+  /// No description provided for @recReviewPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the price or cost of {title}'**
+  String recReviewPrice(String title);
+
+  /// No description provided for @recWhyLosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost {amount} on {units} sold in 30 days'**
+  String recWhyLosing(String amount, String units);
+
+  /// No description provided for @recAddCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a cost for {title}'**
+  String recAddCost(String title);
+
+  /// No description provided for @recWhyCostNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'{units} sold, but profit can\'t be shown without a cost'**
+  String recWhyCostNotSet(String units);
+
+  /// No description provided for @recImpactContribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth about {amount} profit in 30 days'**
+  String recImpactContribution(String amount);
+
+  /// No description provided for @memTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What Nivaro has learned'**
+  String get memTitle;
+
+  /// No description provided for @memIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Facts from your own shop\'s data. Only facts you confirm are used when talking to customers.'**
+  String get memIntro;
+
+  /// No description provided for @memEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing learned yet. Facts appear once there\'s enough data.'**
+  String get memEmpty;
+
+  /// No description provided for @memFitSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} runs small: {share}% of returns say too small ({returns} returns, {sold} sold)'**
+  String memFitSmall(String title, String share, String returns, String sold);
+
+  /// No description provided for @memFitLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} runs large: {share}% of returns say too large ({returns} returns, {sold} sold)'**
+  String memFitLarge(String title, String share, String returns, String sold);
+
+  /// No description provided for @memRepeatCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers reorder about every {days} days ({customers} repeat customers)'**
+  String memRepeatCycle(String days, String customers);
+
+  /// No description provided for @memPeakHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Most orders come between {start}:00 and {end}:00 ({share}% of orders)'**
+  String memPeakHours(String start, String end, String share);
+
+  /// No description provided for @memBestCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'{courier} delivers best to {district}: {success}% of {n} parcels'**
+  String memBestCourier(
+    String courier,
+    String district,
+    String success,
+    String n,
+  );
+
+  /// No description provided for @memOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something learned about your shop'**
+  String get memOther;
+
+  /// No description provided for @memConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence {pct}%'**
+  String memConfidence(String pct);
+
+  /// No description provided for @memWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'From the last {days} days'**
+  String memWindow(String days);
+
+  /// No description provided for @memConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed by you'**
+  String get memConfirmed;
+
+  /// No description provided for @memSellerVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Your version'**
+  String get memSellerVersion;
+
+  /// No description provided for @memVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {n}'**
+  String memVersion(int n);
+
+  /// No description provided for @memConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get memConfirm;
+
+  /// No description provided for @memReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Not right'**
+  String get memReject;
+
+  /// No description provided for @memRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s wrong with it?'**
+  String get memRejectTitle;
+
+  /// No description provided for @memRejectNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get memRejectNote;
+
+  /// No description provided for @memDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get memDone;
+
+  /// No description provided for @memCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get memCancel;
+
+  /// No description provided for @memManagersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only owners and managers can change these.'**
+  String get memManagersOnly;
+
+  /// No description provided for @settingsLearned.
+  ///
+  /// In en, this message translates to:
+  /// **'What Nivaro has learned'**
+  String get settingsLearned;
 }
 
 class _AppLocalizationsDelegate

@@ -167,6 +167,203 @@ class CodRisk {
   final String? disputeNote;
 }
 
+int? _intOrNull(Object? v) => (v as num?)?.toInt();
+double? _dbl(Object? v) => (v as num?)?.toDouble();
+Map<String, String> _strMap(Object? v) => {
+  for (final e in ((v as Map<String, Object?>?) ?? const {}).entries)
+    if (e.value != null) e.key: e.value.toString(),
+};
+
+/// Product Brain (PBR): one recomputable profile per product. Anything that
+/// couldn't be computed is listed in [notIncluded] with a reason code.
+@immutable
+class ProductBrain {
+  const ProductBrain({
+    required this.units7,
+    required this.units30,
+    required this.units90,
+    required this.inStockDays,
+    required this.demandPerDay,
+    required this.available,
+    required this.coverDays,
+    required this.stockRisk,
+    required this.stockouts,
+    required this.marginPct,
+    required this.contributionPerUnit,
+    required this.contributionBasis,
+    required this.returnRate,
+    required this.topReasons,
+    required this.fit,
+    required this.notIncluded,
+    required this.completeness,
+    this.currency = 'NPR',
+  });
+
+  factory ProductBrain.fromJson(Map<String, Object?> j) => ProductBrain(
+    units7: _int(j['units_7d']),
+    units30: _int(j['units_30d']),
+    units90: _int(j['units_90d']),
+    inStockDays: _int(j['in_stock_days_90d']),
+    demandPerDay: _dbl(j['demand_per_day']),
+    available: _intOrNull(j['available']),
+    coverDays: _dbl(j['cover_days']),
+    stockRisk: j['stock_risk'] as String?,
+    stockouts: _int(j['stockouts_90d']),
+    marginPct: _dbl(j['margin_pct']),
+    contributionPerUnit: _intOrNull(j['contribution_per_unit_minor']),
+    contributionBasis: j['contribution_basis'] as String?,
+    returnRate: _dbl(j['return_rate']),
+    topReasons: [
+      for (final r in ((j['top_reasons'] as List<Object?>?) ?? const []))
+        if (r is Map<String, Object?>)
+          (
+            reason: (r['reason'] as String?) ?? 'other',
+            units: _int(r['units']),
+          ),
+    ],
+    fit: j['fit'] as String?,
+    notIncluded: _strMap(j['not_included']),
+    completeness: _dbl(j['completeness']) ?? 0,
+    currency: (j['currency'] as String?) ?? 'NPR',
+  );
+
+  final int units7;
+  final int units30;
+  final int units90;
+  final int inStockDays;
+  final double? demandPerDay;
+  final int? available;
+  final double? coverDays;
+  final String? stockRisk;
+  final int stockouts;
+  final double? marginPct;
+  final int? contributionPerUnit;
+  final String? contributionBasis;
+  final double? returnRate;
+  final List<({String reason, int units})> topReasons;
+  final String? fit;
+  final Map<String, String> notIncluded;
+  final double completeness;
+
+  /// From the API; NPR when an older backend doesn't send it.
+  final String currency;
+}
+
+/// One waterfall line. [amountMinor] is null when the component is not included.
+@immutable
+class ProfitComponent {
+  const ProfitComponent({
+    required this.code,
+    required this.amountMinor,
+    required this.status,
+    required this.reason,
+  });
+
+  factory ProfitComponent.fromJson(Map<String, Object?> j) => ProfitComponent(
+    code: (j['code'] as String?) ?? '',
+    amountMinor: _intOrNull(j['amount_minor']),
+    status: (j['status'] as String?) ?? 'included',
+    reason: j['reason'] as String?,
+  );
+
+  final String code;
+  final int? amountMinor;
+  final String status;
+  final String? reason;
+}
+
+@immutable
+class ProfitSummary {
+  const ProfitSummary({
+    required this.windowDays,
+    required this.revenueMinor,
+    required this.contributionMinor,
+    required this.marginPct,
+    required this.complete,
+    required this.components,
+    this.currency = 'NPR',
+  });
+
+  factory ProfitSummary.fromJson(Map<String, Object?> j) {
+    final shop = (j['shop'] as Map<String, Object?>?) ?? const {};
+    return ProfitSummary(
+      windowDays: _int(j['window_days']),
+      currency: (j['currency'] as String?) ?? 'NPR',
+      revenueMinor: _int(shop['revenue_minor']),
+      contributionMinor: _int(shop['contribution_minor']),
+      marginPct: _dbl(shop['margin_pct']),
+      complete: (shop['complete'] as bool?) ?? false,
+      components: [
+        for (final c in ((shop['components'] as List<Object?>?) ?? const []))
+          if (c is Map<String, Object?>) ProfitComponent.fromJson(c),
+      ],
+    );
+  }
+
+  final int windowDays;
+  final int revenueMinor;
+  final int contributionMinor;
+  final double? marginPct;
+  final bool complete;
+  final List<ProfitComponent> components;
+
+  /// From the API; NPR when an older backend doesn't send it.
+  final String currency;
+
+  /// Components without full data (ads included: "no ad account").
+  List<ProfitComponent> get gaps => [
+    for (final c in components)
+      if (c.status != 'included') c,
+  ];
+}
+
+/// A Commerce Memory fact (MEM): versioned, evidence-backed, seller-controlled.
+@immutable
+class MemoryFact {
+  const MemoryFact({
+    required this.id,
+    required this.subjectType,
+    required this.subjectId,
+    required this.subjectLabel,
+    required this.factType,
+    required this.value,
+    required this.confidence,
+    required this.evidence,
+    required this.source,
+    required this.confirmed,
+    required this.version,
+  });
+
+  factory MemoryFact.fromJson(Map<String, Object?> j) => MemoryFact(
+    id: (j['id'] as String?) ?? '',
+    subjectType: (j['subject_type'] as String?) ?? '',
+    subjectId: (j['subject_id'] as String?) ?? '',
+    subjectLabel: j['subject_label'] as String?,
+    factType: (j['fact_type'] as String?) ?? '',
+    value: (j['value'] as Map<String, Object?>?) ?? const {},
+    confidence: _dbl(j['confidence']) ?? 0,
+    evidence: [
+      for (final e in ((j['evidence'] as List<Object?>?) ?? const []))
+        if (e is Map<String, Object?>) e,
+    ],
+    source: (j['source'] as String?) ?? 'derived',
+    confirmed: (j['confirmed'] as bool?) ?? false,
+    version: _int(j['version']),
+  );
+
+  final String id;
+  final String subjectType;
+  final String subjectId;
+  final String? subjectLabel;
+  final String factType;
+  final Map<String, Object?> value;
+  final double confidence;
+  final List<Map<String, Object?>> evidence;
+  final String source;
+  final bool confirmed;
+  final int version;
+}
+
 class IntelligenceApi {
   IntelligenceApi(this._dio);
 
@@ -221,6 +418,39 @@ class IntelligenceApi {
     );
     return CodRisk.fromJson(r.data!);
   });
+
+  Future<ProductBrain> productBrain(String productId) => apiCall(() async {
+    final r = await _dio.get<Map<String, Object?>>(
+      '/intelligence/products/$productId/brain',
+    );
+    return ProductBrain.fromJson(r.data!);
+  });
+
+  Future<ProfitSummary> profit({int days = 30}) => apiCall(() async {
+    final r = await _dio.get<Map<String, Object?>>(
+      '/intelligence/profit',
+      queryParameters: {'days': days},
+    );
+    return ProfitSummary.fromJson(r.data!);
+  });
+
+  Future<List<MemoryFact>> memoryFacts() => apiCall(() async {
+    final r = await _dio.get<Map<String, Object?>>(
+      '/intelligence/memory/facts',
+    );
+    return itemsOf(r.data).map(MemoryFact.fromJson).toList();
+  });
+
+  Future<void> confirmFact(String id) => apiCall(
+    () => _dio.post<Object?>('/intelligence/memory/facts/$id/confirm'),
+  );
+
+  Future<void> rejectFact(String id, String note) => apiCall(
+    () => _dio.post<Object?>(
+      '/intelligence/memory/facts/$id/reject',
+      data: {'note': note},
+    ),
+  );
 }
 
 final intelligenceApiProvider = Provider<IntelligenceApi>(
@@ -238,4 +468,18 @@ final recommendationsProvider =
 
 final codRiskProvider = FutureProvider.autoDispose.family<CodRisk, String>(
   (ref, orderId) => ref.watch(intelligenceApiProvider).codRisk(orderId),
+);
+
+final productBrainProvider = FutureProvider.autoDispose
+    .family<ProductBrain, String>(
+      (ref, productId) =>
+          ref.watch(intelligenceApiProvider).productBrain(productId),
+    );
+
+final profitSummaryProvider = FutureProvider.autoDispose<ProfitSummary>(
+  (ref) => ref.watch(intelligenceApiProvider).profit(),
+);
+
+final memoryFactsProvider = FutureProvider.autoDispose<List<MemoryFact>>(
+  (ref) => ref.watch(intelligenceApiProvider).memoryFacts(),
 );

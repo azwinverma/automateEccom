@@ -150,12 +150,27 @@ def resume_workflows() -> int:
 
 @celery.task(name="app.worker.tasks.nightly_intelligence", ignore_result=True)
 def nightly_intelligence() -> dict[str, int]:
-    """Phase 6: Courier Brain metrics, Autopilot Score snapshots, recommendations and their outcomes."""
-    from app.domains.intelligence import aps, courier_brain, recommendations
+    """Phase 6: Courier Brain, Return Intelligence, Product Brain, Commerce Memory, Autopilot Score,
+    recommendations and their outcomes."""
+    from app.domains.intelligence import (
+        aps,
+        courier_brain,
+        memory,
+        product_brain,
+        recommendations,
+        return_intel,
+    )
 
     stats: dict[str, int] = {}
     with session_scope() as db:
         stats["courier_merchants"] = courier_brain.recompute_all(db)
+    # Part B: returns first (fit facts), then profiles (use returns), then memory (uses courier metrics).
+    with session_scope() as db:
+        stats["return_merchants"] = return_intel.detect_all(db)
+    with session_scope() as db:
+        stats["product_profiles"] = product_brain.recompute_all(db)
+    with session_scope() as db:
+        stats["memory_merchants"] = memory.compute_all(db)
     with session_scope() as db:
         stats["aps_snapshots"] = aps.snapshot_all(db)
     with session_scope() as db:

@@ -150,3 +150,139 @@ class Recommendation(IdMixin, TimestampMixin, TenantScoped, Base):
     baseline: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
     outcome: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     outcome_measured_at: Mapped[datetime | None]
+
+
+# ============================================================================= Phase 6 part B
+class ProfitSettings(IdMixin, TimestampMixin, TenantScoped, Base):
+    """Merchant inputs for true profit (ANA) and profit-aware suggestions (spec 14 thresholds)."""
+
+    __tablename__ = "profit_settings"
+    __table_args__ = (
+        UniqueConstraint("merchant_id"),
+        CheckConstraint("packaging_cost_minor is null or packaging_cost_minor >= 0", name="packaging"),
+        CheckConstraint("min_margin_pct between 0 and 100", name="margin"),
+        CheckConstraint("max_return_rate_pct between 0 and 100", name="return_rate"),
+    )
+
+    packaging_cost_minor: Mapped[int | None] = mapped_column(BigInteger)  # per order; None = not included
+    min_margin_pct: Mapped[float] = mapped_column(Float, default=20.0, nullable=False)
+    min_contribution_minor: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    max_return_rate_pct: Mapped[float] = mapped_column(Float, default=15.0, nullable=False)
+
+
+class ProductIntelligenceProfile(IdMixin, TenantScoped, Base):
+    """PBR-001: one recomputable profile per product. Missing inputs are listed, never zero."""
+
+    __tablename__ = "product_intelligence_profiles"
+    __table_args__ = (UniqueConstraint("product_id"), Index("ix_pip_cover", "merchant_id", "cover_days"))
+
+    product_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("catalog_products.id", ondelete="CASCADE"))
+    units_7d: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    units_30d: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    units_90d: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    in_stock_days_90d: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    demand_per_day: Mapped[float | None] = mapped_column(Float)  # EWMA over in-stock days
+    available: Mapped[int | None] = mapped_column(Integer)  # None = stock not tracked
+    cover_days: Mapped[float | None] = mapped_column(Float)
+    stockouts_90d: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    margin_pct: Mapped[float | None] = mapped_column(Float)
+    contribution_per_unit_minor: Mapped[int | None] = mapped_column(BigInteger)
+    return_rate: Mapped[float | None] = mapped_column(Float)
+    data: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, default=dict, nullable=False
+    )  # details + not_included
+    completeness: Mapped[float] = mapped_column(Float, nullable=False)
+    method_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    as_of: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+
+
+class ReturnInsight(IdMixin, TimestampMixin, TenantScoped, Base):
+    """RTI-002: a return pattern on a product (or one of its variants) with its evidence."""
+
+    __tablename__ = "return_insights"
+    __table_args__ = (
+        CheckConstraint("status in ('open','acted','dismissed','resolved')", name="status"),
+        Index(
+            "uq_return_insight_open",
+            "merchant_id",
+            "product_id",
+            "pattern",
+            unique=True,
+            postgresql_where=text("status in ('open','acted')"),
+        ),
+    )
+
+    product_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("catalog_products.id", ondelete="CASCADE"))
+    variant_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("catalog_variants.id", ondelete="SET NULL")
+    )
+    pattern: Mapped[str] = mapped_column(String(40), nullable=False)  # high_return_rate | reason:size_small
+    status: Mapped[str] = mapped_column(String(10), default="open", nullable=False)
+    window_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    sold: Mapped[int] = mapped_column(Integer, nullable=False)
+    returned: Mapped[int] = mapped_column(Integer, nullable=False)
+    rate: Mapped[float] = mapped_column(Float, nullable=False)
+    baseline_rate: Mapped[float | None] = mapped_column(Float)
+    p_value: Mapped[float | None] = mapped_column(Float)
+    reasons: Mapped[dict[str, int]] = mapped_column(JSONB, default=dict, nullable=False)
+    causes: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, nullable=False)
+    acted_at: Mapped[datetime | None]
+    post_change_rate: Mapped[float | None] = mapped_column(Float)
+    post_change_sold: Mapped[int | None] = mapped_column(Integer)
+    method_version: Mapped[str] = mapped_column(String(20), nullable=False)
+
+
+class CommerceMemoryMetric(IdMixin, TenantScoped, Base):
+    """MEM-001/002: named, registered metrics per subject and period. Recomputed idempotently."""
+
+    __tablename__ = "commerce_memory_metrics"
+    __table_args__ = (
+        UniqueConstraint("merchant_id", "subject_type", "subject_id", "metric", "period", "period_start"),
+        CheckConstraint("period in ('day','week','month')", name="period"),
+    )
+
+    subject_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    metric: Mapped[str] = mapped_column(String(40), nullable=False)
+    period: Mapped[str] = mapped_column(String(5), nullable=False)
+    period_start: Mapped[date] = mapped_column(Date, nullable=False)
+    value: Mapped[float | None] = mapped_column(Float)
+    n: Mapped[int] = mapped_column(Integer, nullable=False)
+    method_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    computed_at: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+
+
+class CommerceMemoryFact(IdMixin, TenantScoped, Base):
+    """MEM-003: a versioned, evidence-backed fact. The seller can confirm, correct or reject it."""
+
+    __tablename__ = "commerce_memory_facts"
+    __table_args__ = (
+        CheckConstraint("status in ('active','superseded','rejected_by_merchant')", name="status"),
+        CheckConstraint("source in ('derived','merchant')", name="source"),
+        Index(
+            "uq_memory_fact_active",
+            "merchant_id",
+            "subject_type",
+            "subject_id",
+            "fact_type",
+            unique=True,
+            postgresql_where=text("status = 'active'"),
+        ),
+        Index("ix_memory_fact_subject", "merchant_id", "subject_type", "subject_id"),
+    )
+
+    subject_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    fact_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    value: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    evidence: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, nullable=False)
+    status: Mapped[str] = mapped_column(String(24), default="active", nullable=False)
+    source: Mapped[str] = mapped_column(String(10), default="derived", nullable=False)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)  # seller said it's right
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    method_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    valid_from: Mapped[datetime] = mapped_column(default=utcnow, nullable=False)
+    valid_to: Mapped[datetime | None]
+    changed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    note: Mapped[str | None] = mapped_column(String(300))

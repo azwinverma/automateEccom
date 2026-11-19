@@ -1771,3 +1771,175 @@ export interface CourierPerformanceRow {
   period_days: number;
   computed_at: string;
 }
+
+// ============================================================================= Phase 6 part B
+export type ProfitComponentCode =
+  | "goods"
+  | "delivery_fees"
+  | "discounts"
+  | "cogs"
+  | "payment_fees"
+  | "channel_fees"
+  | "courier"
+  | "packaging"
+  | "return_shipping"
+  | "refunds"
+  | "failed_delivery"
+  | "ads";
+
+export interface ProfitComponent {
+  code: ProfitComponentCode;
+  /** Signed: income positive, costs negative. null when not included. */
+  amount_minor: number | null;
+  status: "included" | "partial" | "not_included";
+  /** How many orders/lines had no data for this component. */
+  missing: number;
+  reason: "packaging_not_set" | "no_ad_account" | "channel_fees_unknown" | "provider_fees_unknown" | (string & {}) | null;
+}
+
+export interface ProfitWaterfall {
+  components: ProfitComponent[];
+  revenue_minor: number;
+  contribution_minor: number;
+  margin_pct: number | null;
+  complete: boolean;
+  units: number;
+  orders: number;
+}
+
+export interface ProductProfitRow extends ProfitWaterfall {
+  product_id: string;
+  title: string | null;
+  contribution_per_unit_minor: number | null;
+}
+
+export interface ProfitSettings {
+  packaging_cost_minor: number | null;
+  min_margin_pct: number;
+  min_contribution_minor: number;
+  max_return_rate_pct: number;
+}
+
+export interface ProfitSummary {
+  /** The shop's ISO currency, e.g. "NPR". */
+  currency: string;
+  window_days: number;
+  shop: ProfitWaterfall;
+  products: ProductProfitRow[];
+  counts: { sold: number; failed: number; open: number; cost_from_current: number };
+  allocation: string;
+  method_version: string;
+  as_of: string;
+  settings: ProfitSettings;
+}
+
+export interface ProfitSettingsUpdate {
+  packaging_cost_minor?: number | null;
+  clear_packaging?: boolean;
+  min_margin_pct?: number;
+  min_contribution_minor?: number;
+  max_return_rate_pct?: number;
+}
+
+export type StockRisk = "out" | "high" | "medium" | "low";
+
+export interface ReturnInsightCause {
+  type: "variant" | "supplier" | "content_version";
+  variant_id?: string;
+  variant?: string | null;
+  returned_share?: number;
+  sold_share?: number;
+  supplier?: string;
+  status?: string;
+}
+
+export interface ReturnInsightView {
+  id: string;
+  product_id: string;
+  title: string | null;
+  variant_id: string | null;
+  variant: string | null;
+  pattern: string;
+  reason: string | null;
+  reason_share: number | null;
+  status: "open" | "acted" | "dismissed" | "resolved";
+  window_days: number;
+  sold: number;
+  returned: number;
+  rate: number;
+  baseline_rate: number | null;
+  p_value: number | null;
+  reasons: Record<string, number>;
+  causes: ReturnInsightCause[];
+  acted_at: string | null;
+  post_change_rate: number | null;
+  post_change_sold: number | null;
+  method_version: string;
+  created_at: string | null;
+}
+
+export type MemoryFactType = "fit_runs_small" | "fit_runs_large" | "repeat_cycle_days" | "peak_order_hours" | "best_courier_route";
+
+export interface MemoryFact {
+  id: string;
+  subject_type: "product" | "shop" | "district" | (string & {});
+  subject_id: string;
+  subject_label: string | null;
+  fact_type: MemoryFactType | (string & {});
+  value: Record<string, string | number | null>;
+  confidence: number;
+  evidence: Record<string, unknown>[];
+  status: "active" | "superseded" | "rejected_by_merchant";
+  source: "derived" | "merchant";
+  confirmed: boolean;
+  version: number;
+  method_version: string;
+  valid_from: string;
+  valid_to: string | null;
+  note: string | null;
+}
+
+export interface MemoryMetricSeries {
+  metric: string;
+  subject: string;
+  period: "day" | "week" | "month";
+  definition: string;
+  points: { period_start: string; value: number | null; n: number }[];
+}
+
+export interface ProductBrain {
+  product_id: string;
+  /** The shop's ISO currency (on the brain endpoint; may be absent on stock-risk rows). */
+  currency?: string;
+  units_7d: number;
+  units_30d: number;
+  units_90d: number;
+  in_stock_days_90d: number;
+  demand_per_day: number | null;
+  available: number | null;
+  cover_days: number | null;
+  stockouts_90d: number;
+  margin_pct: number | null;
+  contribution_per_unit_minor: number | null;
+  return_rate: number | null;
+  completeness: number;
+  stock_risk: StockRisk | null;
+  fit: "small" | "large" | null;
+  sold_90d_delivered: number;
+  returned_90d: number;
+  top_reasons: { reason: string; units: number }[];
+  by_variant: { variant_id: string; variant: string | null; sold: number; returned: number; rate: number }[];
+  contribution_basis: "complete" | "partial" | "cost_not_set" | "not_enough_sales" | (string & {});
+  stock_tracked: boolean;
+  /** section → reason code, e.g. { margin: "cost_not_set", seasonality: "needs_12_months" } */
+  not_included: Record<string, string>;
+  method_version: string;
+  as_of: string;
+  /** null when Return Intelligence isn't on the plan. */
+  return_insights?: ReturnInsightView[] | null;
+  facts?: MemoryFact[];
+}
+
+export interface StockRiskItem extends ProductBrain {
+  title: string;
+}

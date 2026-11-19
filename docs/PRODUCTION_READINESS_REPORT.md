@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion, Phases 2–5 and Phase 6 part A.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion, Phases 2–5 and Phase 6 (parts A and B).
 
 ## Overall status: **NOT_READY**
 
@@ -58,7 +58,7 @@ External checks that couldn't run are listed under "External tests pending".
 | Payments / COD | Verified online payments **PASS with sandbox wallet**; manual payments and COD trail **PASS**; Nepal gateway BLOCKED_EXTERNAL (GAP-PAY-NP); COD settlement Phase 3 |
 | Fulfillment / couriers / returns | **PASS with sandbox/manual couriers** (E2E COD → failed attempt → delivered → settled; return → pickup → inspection → refund). Real Nepal courier API BLOCKED_EXTERNAL |
 | Automation / Autopilot | **PASS** (Decision Policy, workflows, Control Center; E2E Assisted → Smart) |
-| Analytics / intelligence | Phase 6A **PASS** (Autopilot Score, suggestions, Courier Brain, COD risk; E2E). Courier Brain on sandbox data only; Part B and Phases 7–10 NOT_IMPLEMENTED |
+| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data; Phases 7–10 NOT_IMPLEMENTED |
 | Admin | API and Nivaro Console UI **PASS** (staff + MFA, E2E); plan/routing editors not built |
 
 ## Known risks
@@ -215,3 +215,24 @@ static test blocks reading names or adding factors (ADR-064).
 
 Overall status remains **NOT_READY** (real courier API, which Courier Brain needs to be useful; Nepal
 payment gateway; live channels; production email; staging; backups; pentest).
+
+## Update 2026-11-19 (Phase 6 part B: profit, Product Brain, Return Intelligence, Commerce Memory)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 327 | 327 | 0 | 0 |
+| Web unit + API client | 312 | 312 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 32 | 32 | 0 | 0 |
+| Flutter | 150 | 149 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 6B pages (5 views × 3 configs) | 15 | 15 | 0 | 0 |
+
+E2E passed 32/32 on the first run against a fresh stack this time (GAP-E2E-COLDSTART not reproduced).
+
+Fixed while building: a new return insight's numbers weren't saved (status unset before insert); the
+weekly metric query failed on PostgreSQL grouping; pending outcome measurements were marked done and would
+never be measured again; profit and Product Brain responses lacked the currency.
+
+Profit honesty: missing costs show as Not included / Partial with the reason, never as zero (ADR-065).
+The Sales Agent only repeats facts the seller confirmed (ADR-066).
+
+Overall status remains **NOT_READY**. Phase 6 exit criteria need 90 days of pilot-merchant data. Still
+missing: real courier API, Nepal payment gateway, live channels, production email, staging, backups, pentest.

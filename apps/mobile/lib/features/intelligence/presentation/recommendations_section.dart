@@ -57,7 +57,8 @@ class _RecommendationTileState extends ConsumerState<RecommendationTile> {
       ref
         ..invalidate(recommendationsProvider)
         ..invalidate(autopilotScoreProvider)
-        ..invalidate(controlCenterProvider);
+        ..invalidate(controlCenterProvider)
+        ..invalidate(memoryFactsProvider);
     } on ApiError catch (e) {
       if (!mounted) return;
       setState(() {
