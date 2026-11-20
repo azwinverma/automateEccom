@@ -195,6 +195,8 @@ export function ChannelsView() {
   const canManage = can("channels.manage");
   const connections = useApiQuery((a) => a.channels.list());
   const providers = useApiQuery((a) => a.channels.providers());
+  const metaStatus = useApiQuery((a) => a.channels.metaStatus().catch(() => ({ one_click_available: false })));
+  const oneClick = metaStatus.state.status === "success" && metaStatus.state.data.one_click_available;
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [keysFor, setKeysFor] = useState<{ provider: ChannelProvider; reconnect: ChannelConnection | null } | null>(null);
@@ -330,7 +332,7 @@ export function ChannelsView() {
                         <strong>{c.display_name}</strong>
                         <span>
                           {provider?.name ?? c.provider}
-                          {META_PROVIDERS.has(c.provider) ? ` · ${t("messaging.metaPublishOnly")}` : null}
+                          {META_PROVIDERS.has(c.provider) && !c.capabilities.includes("messages") ? ` · ${t("messaging.metaPublishOnly")}` : null}
                         </span>
                       </div>
                     </td>
@@ -413,7 +415,7 @@ export function ChannelsView() {
                     <td>
                       <strong style={{ fontWeight: "var(--font-weight-medium)" }}>{row.kind === "meta" ? t("messaging.metaCard") : row.provider.name}</strong>{" "}
                       {row.provider.sandbox ? <Badge dot={false}>{t("channels.sandbox")}</Badge> : null}
-                      {row.kind === "meta" ? <span className={table.muted} style={{ display: "block", fontSize: "var(--font-size-xs)", marginTop: 2 }}>{t("messaging.metaPublishOnly")}</span> : null}
+                      {row.kind === "meta" ? <span className={table.muted} style={{ display: "block", fontSize: "var(--font-size-xs)", marginTop: 2 }}>{oneClick ? t("messaging.metaRowFull") : t("messaging.metaRowPending")}</span> : null}
                     </td>
                     <td className={table.hideSm}>
                       <Capabilities caps={row.provider.capabilities} />
@@ -451,6 +453,7 @@ export function ChannelsView() {
       />
       <MetaDrawer
         open={metaOpen}
+        oneClick={oneClick}
         onOpenChange={setMetaOpen}
         onConnected={(items) => {
           connections.reload();

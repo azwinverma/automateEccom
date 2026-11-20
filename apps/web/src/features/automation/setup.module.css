@@ -1,0 +1,157 @@
+.meter {
+  display: block;
+  width: 100%;
+  height: 8px;
+  margin: 0 0 var(--space-6);
+  accent-color: var(--action-primary);
+}
+
+.path {
+  margin: 0 0 var(--space-8);
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: var(--space-3) var(--space-4);
+  align-items: start;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-default);
+}
+/* The connecting line between steps: the path reads top to bottom. */
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: calc(var(--space-4) + 32px);
+  bottom: calc(-1 * var(--space-4));
+  width: 2px;
+  background: var(--border-default);
+}
+.step[data-state="done"]:not(:last-child)::before {
+  background: var(--status-healthy);
+}
+.marker {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong, var(--border-default));
+  background: var(--surface-default);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+.step[data-state="done"] .marker {
+  border-color: var(--status-healthy);
+  background: var(--status-healthy);
+  color: var(--surface-default);
+}
+.step[data-state="todo"] .marker {
+  border-color: var(--action-primary);
+  color: var(--action-primary);
+}
+.stepBody {
+  min-width: 0;
+}
+.stepHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.stepHead h3 {
+  margin: 0;
+  font-size: var(--font-size-md, 1rem);
+  font-weight: var(--font-weight-medium);
+}
+.help {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.detail {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+.workflows {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+.workflows li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+
+@media (max-width: 560px) {
+  .step {
+    grid-template-columns: 32px 1fr;
+  }
+  .step > :last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+.apply {
+  padding-top: var(--space-2);
+}
+.summary ul,
+.resultList {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-5);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3) var(--space-6);
+  align-items: center;
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--action-primary);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-raised, var(--surface-default));
+}
+.card h2 {
+  margin: 0;
+  font-size: var(--font-size-md, 1rem);
+  font-weight: var(--font-weight-medium);
+}
+.card p {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.card .meter {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin: 0;
+}
+.card .warn {
+  color: var(--status-warning-text, var(--text-primary));
+}
+@media (max-width: 560px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+  .card .meter {
+    grid-row: auto;
+  }
+}

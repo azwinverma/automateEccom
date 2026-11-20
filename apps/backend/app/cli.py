@@ -19,6 +19,11 @@ def main() -> None:
     st = sub.add_parser("make-staff", help="Grant platform staff to an existing user (requires MFA to use)")
     st.add_argument("email")
     sub.add_parser("dispatch-outbox", help="Run one outbox dispatch batch")
+    mv = sub.add_parser(
+        "move-plan-versions",
+        help="After seed-plans: move subscriptions to their plan's current version (same price only)",
+    )
+    mv.add_argument("--dry-run", action="store_true")
     pl = sub.add_parser(
         "set-plan", help="Move a merchant to another plan (ops/support until the plan editor ships)"
     )
@@ -99,6 +104,11 @@ def main() -> None:
 
         with session_scope() as db:
             print(json.dumps(seed_from_file(db, args.file or DEFAULT_PATH)))  # noqa: T201
+    elif args.cmd == "move-plan-versions":
+        from app.domains.billing.plans import move_to_current_versions
+
+        with session_scope() as db:
+            print(json.dumps(move_to_current_versions(db, dry_run=args.dry_run)))  # noqa: T201
     elif args.cmd == "make-staff":
         from app.domains.accounts.service import find_user_by_email
 

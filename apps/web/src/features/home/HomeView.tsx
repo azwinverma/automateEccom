@@ -13,6 +13,7 @@ import { ControlCenter } from "../automation/ControlCenter";
 import { AutopilotScoreCard } from "../intelligence/AutopilotScoreCard";
 import { Recommendations } from "../intelligence/Recommendations";
 import { StockRiskList } from "../intelligence/StockRiskList";
+import { AutopilotSetupCard } from "../automation/AutopilotSetup";
 import { StoreGlance } from "../twin/StoreGlance";
 import styles from "./home.module.css";
 import { useExceptions } from "./useExceptions";
@@ -41,6 +42,7 @@ export function HomeView() {
         subtitle={t("home.subtitle", { business: membership?.merchant.name ?? "" })}
       />
 
+      <AutopilotSetupCard />
       <StoreGlance />
       <ControlCenter onChanged={exceptions.query.reload} />
       <Recommendations />

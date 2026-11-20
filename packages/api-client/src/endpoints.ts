@@ -1,6 +1,10 @@
 import type { ApiClient } from "./client";
 import type {
   AiCredential,
+  AutomationModeChoice,
+  AutopilotReadiness,
+  MetaPagesResponse,
+  SetupApplyResult,
   AutopostInput,
   AutopostSettings,
   ConnectMetaInput,
@@ -414,6 +418,14 @@ export function createApi(client: ApiClient) {
       /** Facebook Page (+ its linked Instagram professional account) through the seller's own Meta app. */
       connectMeta: (body: ConnectMetaInput) =>
         client.request<{ items: ChannelConnection[] }>("/channels/connect-meta", { method: "POST", body, tenant: true }),
+      /** Is one-click Facebook & Instagram (Nivaro's own Meta app) available on this server? */
+      metaStatus: () => client.request<{ one_click_available: boolean }>("/channels/meta/status", { tenant: true }),
+      metaStart: (redirect_uri: string) =>
+        client.request<{ authorize_url: string }>("/channels/meta/oauth/start", { method: "POST", body: { redirect_uri }, tenant: true }),
+      metaPages: (body: { state: string; code: string }) =>
+        client.request<MetaPagesResponse>("/channels/meta/oauth/pages", { method: "POST", body, tenant: true }),
+      metaConnect: (body: { selection: string; page_id: string; with_instagram: boolean }) =>
+        client.request<{ items: ChannelConnection[] }>("/channels/meta/oauth/connect", { method: "POST", body, tenant: true }),
       /** WhatsApp: the callback URL and verify token the seller pastes into their Meta app. */
       webhookSetup: (id: string) => client.request<WebhookSetup>(`/channels/${encodeURIComponent(id)}/webhook-setup`, { tenant: true }),
     },
@@ -629,6 +641,11 @@ export function createApi(client: ApiClient) {
       retry: (id: string) => client.request<RefundRecord>(`/refunds/${encodeURIComponent(id)}/retry`, { method: "POST", tenant: true }),
     },
     automation: {
+      /** The end-to-end selling checklist (automation.read). */
+      setup: () => client.request<AutopilotReadiness>("/automation/setup", { tenant: true }),
+      /** Turn the recommended automations on in one go (automation.approve). */
+      applySetup: (body: { mode: AutomationModeChoice; posting: boolean; campaigns: boolean }) =>
+        client.request<SetupApplyResult>("/automation/setup/apply", { method: "POST", body, tenant: true }),
       catalog: () => client.request<AutomationCatalog>("/automation/catalog", { tenant: true }),
       workflows: () => client.request<{ items: Workflow[] }>("/automation/workflows", { tenant: true }),
       workflow: (id: string) => client.request<Workflow>(`/automation/workflows/${encodeURIComponent(id)}`, { tenant: true }),

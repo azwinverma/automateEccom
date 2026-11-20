@@ -27,6 +27,14 @@ export function callbackUrl(origin: string): string {
   return `${origin.replace(/\/+$/, "")}/channels/callback`;
 }
 
+/** One-click Facebook & Instagram returns here (it needs a Page picker, not the generic callback). */
+export const META_CALLBACK_PATH = "/settings/channels/meta";
+export const META_PENDING_PROVIDER = "meta";
+
+export function metaCallbackUrl(origin: string): string {
+  return `${origin.replace(/\/+$/, "")}${META_CALLBACK_PATH}`;
+}
+
 export type CallbackResolution =
   | { kind: "exchange"; provider: string; state: string; code: string; returnTo: string }
   | { kind: "denied"; returnTo: string }

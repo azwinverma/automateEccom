@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { EmptyState, QueryError, TableSkeleton } from "@/components/states/States";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Checkbox, TextField } from "@/components/ui/Field";
 import { Icon } from "@/components/ui/Icon";
 import { Badge, PageHeader, SectionHeader, type Tone, useToast } from "@/components/ui/misc";
@@ -30,7 +30,15 @@ export function AutomationView() {
   const [tab, setTab] = useState<Tab>(TABS.includes(initial) ? initial : "workflows");
   return (
     <>
-      <PageHeader title={t("automation.title")} subtitle={t("automation.subtitle")} />
+      <PageHeader
+        title={t("automation.title")}
+        subtitle={t("automation.subtitle")}
+        actions={
+          <ButtonLink href="/automation/setup" variant="primary">
+            {t("autopilotSetup.headerLink")}
+          </ButtonLink>
+        }
+      />
       <div role="tablist" aria-label={t("automation.tabsLabel")} className={products.tabs} style={{ marginBottom: "var(--space-4)", borderBottom: "1px solid var(--color-border-default)" }}>
         {TABS.map((k) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={products.tab} onClick={() => setTab(k)} data-tab={k}>

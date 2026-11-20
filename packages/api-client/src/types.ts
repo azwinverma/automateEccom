@@ -2603,3 +2603,56 @@ export interface AutopostInput {
   kind: Exclude<PostKind, "reel">;
   require_approval: boolean;
 }
+
+// ----------------------------------------------------------------------------- one-click Meta (Nivaro's app)
+export interface MetaPage {
+  id: string;
+  name: string | null;
+  /** Username of the linked Instagram professional account, if any. */
+  instagram: string | null;
+}
+
+export interface MetaPagesResponse {
+  /** Opaque handle for the pages just fetched; expires after a few minutes. */
+  selection: string;
+  pages: MetaPage[];
+}
+
+// ----------------------------------------------------------------------------- autopilot setup
+export type SetupStepKey = "chat" | "sales_agent" | "payments" | "delivery" | "posting" | "workflows" | "campaigns";
+export type SetupStepState = "done" | "todo" | "partial" | "blocked";
+export type AutomationModeChoice = "assisted" | "smart" | "autopilot";
+
+export interface SetupWorkflow {
+  code: string;
+  name: string;
+  status: string | null;
+}
+
+export interface SetupStep {
+  key: SetupStepKey | (string & {});
+  state: SetupStepState;
+  /** English detail from the server, e.g. connected account names. */
+  detail: string;
+  /** App path to the place this step is set up. */
+  action: string | null;
+  mode?: string | null;
+  workflows?: SetupWorkflow[];
+}
+
+export interface AutopilotReadiness {
+  steps: SetupStep[];
+  done: number;
+  total: number;
+  needs_reconnect: string[];
+}
+
+export interface SetupSkip {
+  item: string;
+  reason: "plan" | "no_account_can_post" | (string & {});
+}
+
+export interface SetupApplyResult extends AutopilotReadiness {
+  changed: string[];
+  skipped: SetupSkip[];
+}

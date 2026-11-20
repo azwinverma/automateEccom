@@ -109,9 +109,7 @@ def readiness(db: Session, merchant_id: Any) -> dict[str, Any]:
         step(
             "payments",
             "done" if gateways else "partial",
-            ", ".join(f"{g.provider} ({g.mode})" for g in gateways)
-            if gateways
-            else "Cash on delivery works now; connect eSewa or Khalti for online payment",
+            ", ".join(f"{g.provider} ({g.mode})" for g in gateways) if gateways else "Cash on delivery only",
             None if gateways else "/settings/payments",
         ),
         step(

@@ -193,3 +193,44 @@ def start_subscription(
         payload={"subscription_id": str(sub.id), "plan_code": plan.code, "status": sub.status},
     )
     return sub
+
+
+def move_to_current_versions(db: Session, *, dry_run: bool = False) -> dict[str, Any]:
+    """Move live subscriptions on a retired version of a plan to that plan's active version, but only
+    when the price and currency are unchanged (a feature or limit change, not a price change).
+    Price changes stay grandfathered until the merchant is told and agrees."""
+    from app.core.context import Actor
+    from app.domains.audit import service as audit
+    from app.domains.billing.models import Subscription
+
+    moved: dict[str, int] = {}
+    kept: dict[str, int] = {}
+    for sub in db.scalars(select(Subscription).execution_options(skip_tenant_filter=True)):
+        cur = db.get(PlanVersion, sub.plan_version_id)
+        if cur is None or cur.status == "active":
+            continue
+        new = db.scalar(
+            select(PlanVersion).where(PlanVersion.plan_id == cur.plan_id, PlanVersion.status == "active")
+        )
+        plan = db.get(Plan, cur.plan_id)
+        code = plan.code if plan else "?"
+        if new is None or (cur.currency, cur.price_monthly_minor, cur.price_annual_minor) != (
+            new.currency,
+            new.price_monthly_minor,
+            new.price_annual_minor,
+        ):
+            kept[code] = kept.get(code, 0) + 1
+            continue
+        moved[code] = moved.get(code, 0) + 1
+        if not dry_run:
+            sub.plan_version_id = new.id
+            audit.record(
+                db,
+                action="billing.plan_version_moved",
+                resource_type="subscription",
+                resource_id=sub.id,
+                actor=Actor.system("cli"),
+                merchant_id=sub.merchant_id,
+                metadata={"plan": code, "from_version": cur.version, "to_version": new.version},
+            )
+    return {"dry_run": dry_run, "moved": moved, "kept_price_changed": kept}

@@ -247,3 +247,45 @@ def test_seed_demo_gives_a_working_sign_in_for_every_role(client, monkeypatch, t
         if u["role"] in ("staff", "viewer"):
             assert "refunds.approve" not in plist and "billing.manage" not in plist
     assert cli_demo.demo_code().isdigit()
+
+
+def test_new_plan_features_reach_existing_shops_only_when_the_price_is_unchanged(client, seller):
+    import json as _json
+
+    from sqlalchemy import select
+
+    from app.domains.billing.models import Plan, PlanVersion
+    from app.domains.billing.plans import DEFAULT_PATH, move_to_current_versions, seed_from_file
+    from app.domains.billing.service import entitlements
+
+    set_plan_mid = uuid.UUID(seller.merchant_id)
+    doc = _json.loads(DEFAULT_PATH.read_text())
+    starter = next(p for p in doc["plans"] if p["code"] == "starter")
+    assert starter["version"]["features"]["marketing.campaigns"] is False
+    starter["version"]["features"]["marketing.campaigns"] = True  # a feature added, same price
+    path = DEFAULT_PATH.parent / "_test_plans.json"
+    path.write_text(_json.dumps(doc))
+    try:
+        with session_scope() as db:
+            seed_from_file(db, path)
+        with session_scope() as db:
+            assert not entitlements.resolve(db, set_plan_mid).has(
+                "marketing.campaigns"
+            )  # still on the old version
+            dry = move_to_current_versions(db, dry_run=True)
+        assert dry["moved"].get("starter", 0) >= 1
+        with session_scope() as db:
+            move_to_current_versions(db)
+        with session_scope() as db:
+            assert entitlements.resolve(db, set_plan_mid).has("marketing.campaigns")
+            # A price change is never applied silently.
+            plan = db.scalar(select(Plan).where(Plan.code == "starter"))
+            active = db.scalar(
+                select(PlanVersion).where(PlanVersion.plan_id == plan.id, PlanVersion.status == "active")
+            )
+            active.price_monthly_minor = 99900
+    finally:
+        path.unlink(missing_ok=True)
+        with session_scope() as db:
+            seed_from_file(db)  # restore the contract's plans for the other tests
+            move_to_current_versions(db)
