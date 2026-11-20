@@ -20,16 +20,18 @@ jobs:
     environment: staging
     steps:
       - uses: actions/checkout@v4
+      - name: Image prefix (registry names must be lowercase)
+        run: echo "PREFIX=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
       - uses: docker/login-action@v3
         with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
       - name: Build & push api
         run: |
-          IMG=ghcr.io/${{ github.repository }}/api:${{ github.sha }}
+          IMG=$PREFIX/api:${{ github.sha }}
           docker build --build-context contracts=packages/contracts -t "$IMG" apps/backend
           docker push "$IMG"
       - name: Build & push web
         run: |
-          IMG=ghcr.io/${{ github.repository }}/web:${{ github.sha }}
+          IMG=$PREFIX/web:${{ github.sha }}
           docker build -f apps/web/Dockerfile -t "$IMG" .
           docker push "$IMG"
       - name: Deploy
