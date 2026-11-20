@@ -131,6 +131,56 @@ def connect_meta(
     return {"items": [service.connection_view(c) for c in conns]}
 
 
+class MetaStartIn(BaseModel):
+    redirect_uri: str = Field(min_length=10, max_length=500)
+
+
+class MetaPagesIn(BaseModel):
+    state: str = Field(min_length=20, max_length=200)
+    code: str = Field(min_length=1, max_length=2000)
+
+
+class MetaPickIn(BaseModel):
+    selection: str = Field(min_length=20, max_length=200)
+    page_id: str = Field(pattern=r"^\d{5,25}$")
+    with_instagram: bool = True
+
+
+@router.get("/meta/status")
+def meta_status(ctx: TenantContext = Depends(require("channels.read"))) -> dict[str, Any]:
+    from app.domains.integrations import meta
+
+    return {"one_click_available": meta.app_configured()}
+
+
+@router.post("/meta/oauth/start")
+def meta_oauth_start(
+    body: MetaStartIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    return {"authorize_url": service.meta_start(db, ctx, body.redirect_uri)}
+
+
+@router.post("/meta/oauth/pages")
+def meta_oauth_pages(
+    body: MetaPagesIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    return service.meta_pages(db, ctx, body.state, body.code)
+
+
+@router.post("/meta/oauth/connect", status_code=201)
+def meta_oauth_connect(
+    body: MetaPickIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    conns = service.meta_connect(db, ctx, body.selection, body.page_id, body.with_instagram)
+    return {"items": [service.connection_view(c) for c in conns]}
+
+
 @router.get("/{connection_id}/webhook-setup")
 def webhook_setup(
     connection_id: uuid.UUID,
@@ -232,6 +282,58 @@ def resolve_drift(
 
 
 # ----------------------------------------------------------------------------- public webhook gateway
+# Meta's app-level webhook first: /webhooks/meta must not be read as /webhooks/{provider}.
+@webhooks_router.get("/webhooks/meta", include_in_schema=False)
+def verify_meta_webhook(request: Request) -> Response:
+    """Meta's callback check for Nivaro's app-level webhook (Messenger + Instagram DMs)."""
+    from app.core.security import constant_time_equals
+
+    token = get_settings().meta_verify_token
+    q = request.query_params
+    if (
+        token is None
+        or q.get("hub.mode") != "subscribe"
+        or not constant_time_equals(q.get("hub.verify_token", ""), token.get_secret_value())
+    ):
+        return Response(status_code=403)
+    return Response(q.get("hub.challenge", "")[:200], media_type="text/plain")
+
+
+@webhooks_router.post("/webhooks/meta", include_in_schema=False)
+async def receive_meta_webhook(request: Request) -> JSONResponse:
+    """Messenger and Instagram DMs for every connected shop, signed with Nivaro's app secret."""
+    from starlette.concurrency import run_in_threadpool
+
+    from app.domains.integrations import meta
+
+    body = await request.body()
+    if len(body) > get_settings().webhook_max_bytes:
+        raise ValidationFailed("Payload too large", code="payload_too_large")
+    if not meta.verify_app_signature(dict(request.headers), body):
+        from app.core.metrics import INTEGRATION_CALLS
+
+        INTEGRATION_CALLS.labels("meta", "webhook", "bad_signature").inc()
+        return JSONResponse(
+            {
+                "error": {
+                    "code": "webhook_signature_invalid",
+                    "message": "Invalid signature",
+                    "details": {},
+                    "request_id": request.state.request_id,
+                }
+            },
+            status_code=401,
+        )
+
+    def _ingest() -> dict[str, int]:
+        from app.core.db import session_scope
+
+        with session_scope() as db:
+            return service.ingest_meta_webhook(db, body)
+
+    return JSONResponse({"received": True, **(await run_in_threadpool(_ingest))})
+
+
 @webhooks_router.post("/webhooks/{provider}")
 async def receive_webhook(provider: str, request: Request) -> JSONResponse:
     s = get_settings()

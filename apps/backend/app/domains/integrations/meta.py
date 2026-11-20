@@ -32,8 +32,11 @@ def _caption(content: dict[str, Any], limit: int) -> str:
 
 
 class _MetaPublisher(ChannelAdapter):
+    """Publishing works with any Page token. Messages (Messenger / Instagram DM) need Nivaro's Meta
+    app: connections made with a pasted token are stored with content_publish only."""
+
     auth_kind = "api_keys"
-    capabilities = frozenset({ChannelCapability.CONTENT_PUBLISH})
+    capabilities = frozenset({ChannelCapability.CONTENT_PUBLISH, ChannelCapability.MESSAGES})
     credential_fields: ClassVar[tuple[str, ...]] = ("page_access_token", "page_id")
     optional_fields: ClassVar[tuple[str, ...]] = ()
     needs_manual_webhook = False
@@ -66,7 +69,25 @@ class _MetaPublisher(ChannelAdapter):
         raise IntegrationError("provider_rejected", f"{self.code} {op}")
 
     def register_webhooks(self, delivery_url: str, secret: str) -> list[str]:
-        return []  # publishing only; nothing to subscribe to
+        return []  # DMs arrive on Nivaro's app-level webhook (/webhooks/meta), not per connection
+
+    def send_message(self, conversation_external_id: str, text: str, idempotency_key: str) -> str:
+        return _send_dm(self, conversation_external_id, text)
+
+    def normalize_message(self, raw: dict[str, Any]) -> Any:
+        from app.domains.integrations.base import ExternalMessage
+
+        text = str(raw.get("text") or "").strip()
+        if not text:
+            return None
+        sender = raw.get("sender") or {}
+        return ExternalMessage(
+            thread_id=str(raw["thread_id"]),
+            message_id=str(raw["message_id"]),
+            sender_id=str(sender.get("id") or raw["thread_id"]),
+            sender_name=sender.get("name"),
+            text=text[:4000],
+        )
 
     def verify_webhook(self, headers: dict[str, str], body: bytes) -> bool:
         return False
@@ -218,3 +239,181 @@ class InstagramAdapter(_MetaPublisher):
         return str(
             self._call("POST", f"{self._ig()}/media_publish", "publish", data={"creation_id": cid})["id"]
         )
+
+
+# ------------------------------------------------ Nivaro's Meta app: one-click connect + DMs
+OAUTH_SCOPES = (
+    "pages_show_list",
+    "pages_manage_metadata",
+    "pages_read_engagement",
+    "pages_manage_posts",
+    "pages_messaging",
+    "business_management",
+    "instagram_basic",
+    "instagram_content_publish",
+    "instagram_manage_messages",
+)
+
+
+def app_configured() -> bool:
+    from app.core.config import get_settings
+
+    s = get_settings()
+    return bool(s.meta_app_id and s.meta_app_secret and s.meta_verify_token)
+
+
+def _app() -> tuple[str, str]:
+    from app.core.config import get_settings
+
+    s = get_settings()
+    if not (s.meta_app_id and s.meta_app_secret):
+        raise IntegrationError("meta_app_not_configured", "meta")
+    return s.meta_app_id, s.meta_app_secret.get_secret_value()
+
+
+def authorize_url(state: str, redirect_uri: str) -> str:
+    from urllib.parse import urlencode
+
+    app_id, _ = _app()
+    q = urlencode(
+        {
+            "client_id": app_id,
+            "redirect_uri": redirect_uri,
+            "state": state,
+            "scope": ",".join(OAUTH_SCOPES),
+            "response_type": "code",
+        }
+    )
+    return f"https://www.facebook.com/v21.0/dialog/oauth?{q}"
+
+
+def _graph(method: str, path: str, op: str, **kw: Any) -> dict[str, Any]:
+    r = ResilientClient("meta", base_url=GRAPH, transport=transport_override, timeout_s=30).request(
+        method, path, operation=op, **kw
+    )
+    data = r.json() if r.content else {}
+    if r.status_code >= 400 or "error" in data:
+        code = (data.get("error") or {}).get("code")
+        if code == 190 or r.status_code == 401:
+            raise IntegrationError("invalid_credentials", f"meta {op}", auth=True)
+        if r.status_code >= 500 or code in (4, 17, 32, 613):
+            raise IntegrationError("provider_unavailable", f"meta {op}", retryable=True)
+        raise IntegrationError("provider_rejected", f"meta {op}")
+    return data
+
+
+def exchange_code(code: str, redirect_uri: str) -> str:
+    """Code → long-lived user token (60 days); Page tokens derived from it don't expire."""
+    app_id, secret = _app()
+    short = _graph(
+        "GET",
+        "oauth/access_token",
+        "oauth_exchange",
+        params={"client_id": app_id, "client_secret": secret, "redirect_uri": redirect_uri, "code": code},
+    )
+    long = _graph(
+        "GET",
+        "oauth/access_token",
+        "oauth_extend",
+        params={
+            "grant_type": "fb_exchange_token",
+            "client_id": app_id,
+            "client_secret": secret,
+            "fb_exchange_token": short["access_token"],
+        },
+    )
+    return str(long["access_token"])
+
+
+def list_pages(user_token: str) -> list[dict[str, Any]]:
+    data = _graph(
+        "GET",
+        "me/accounts",
+        "pages",
+        params={
+            "access_token": user_token,
+            "fields": "id,name,access_token,instagram_business_account{id,username}",
+            "limit": 50,
+        },
+    )
+    return list(data.get("data") or [])
+
+
+def subscribe_page(page_id: str, page_token: str) -> None:
+    _graph(
+        "POST",
+        f"{page_id}/subscribed_apps",
+        "webhook_register",
+        params={"access_token": page_token},
+        data={"subscribed_fields": "messages,messaging_postbacks"},
+    )
+
+
+def verify_app_signature(headers: dict[str, str], body: bytes) -> bool:
+    import hashlib
+    import hmac
+
+    try:
+        _, secret = _app()
+    except IntegrationError:
+        return False
+    got = {k.lower(): v for k, v in headers.items()}.get("x-hub-signature-256", "")
+    want = "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(want, got)
+
+
+def parse_app_webhook(body: bytes) -> tuple[str, list[Any]]:
+    """Meta's app-level webhook → (provider, [NormalizedWebhook]). Echoes and non-text are dropped."""
+    import json
+
+    from app.domains.integrations.base import NormalizedWebhook
+
+    doc = json.loads(body)
+    provider = {"page": "facebook_page", "instagram": "instagram"}.get(doc.get("object", ""), "")
+    out = []
+    for entry in doc.get("entry") or []:
+        account = str(entry.get("id", ""))
+        for ev in entry.get("messaging") or []:
+            msg = ev.get("message") or {}
+            if not msg or msg.get("is_echo") or not msg.get("text") or not msg.get("mid"):
+                continue
+            sender = str((ev.get("sender") or {}).get("id", ""))
+            out.append(
+                NormalizedWebhook(
+                    provider=provider,
+                    external_event_id=f"meta:{msg['mid']}",
+                    event_type="message.received",
+                    occurred_at=None,
+                    payload={
+                        "thread_id": sender,
+                        "message_id": str(msg["mid"]),
+                        "sender": {"id": sender, "name": None},
+                        "text": str(msg["text"]),
+                    },
+                    external_account_id=account,
+                )
+            )
+    return provider, out
+
+
+def _send_dm(adapter: _MetaPublisher, recipient: str, text: str) -> str:
+    r = adapter._client().request(
+        "POST",
+        "me/messages",
+        operation="send",
+        params={"access_token": adapter._token()},
+        json={"recipient": {"id": recipient}, "messaging_type": "RESPONSE", "message": {"text": text[:2000]}},
+    )
+    data = r.json() if r.content else {}
+    if r.status_code < 400 and "error" not in data:
+        return str(data.get("message_id", ""))
+    err = data.get("error") or {}
+    if (err.get("code") == 10 and err.get("error_subcode") == 2018278) or err.get("error_subcode") == 2534022:
+        raise IntegrationError("outside_reply_window", "meta send")
+    if err.get("code") == 190:
+        raise IntegrationError("invalid_credentials", "meta send", auth=True)
+    if err.get("code") in (10, 200, 230) or err.get("error_subcode") == 2018108:
+        raise IntegrationError("messaging_not_approved", "meta send")  # Meta App Review pending
+    if r.status_code >= 500 or err.get("code") in (4, 17, 32, 613):
+        raise IntegrationError("provider_unavailable", "meta send", retryable=True)
+    raise IntegrationError("provider_rejected", "meta send")

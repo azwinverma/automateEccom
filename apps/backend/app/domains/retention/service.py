@@ -5,8 +5,9 @@ Rules that keep this from becoming spam:
 * A customer who replies STOP (or बन्द / रोक) is never messaged by a campaign again.
 * At most one campaign message per customer per 7 days, only between 09:00 and 20:00 shop time,
   and each campaign has a daily limit.
-* WhatsApp only allows free-form messages within 24 hours of the customer's last message, so
-  WhatsApp customers outside that window are skipped (approved message templates: GAP-WA-TEMPLATES).
+* WhatsApp, Messenger and Instagram only allow free-form messages within 24 hours of the
+  customer's last message, so those customers are deferred until they write again (WhatsApp
+  templates / Messenger tags: GAP-WA-TEMPLATES).
 * A message counts as converting when the customer orders within 7 days of it.
 """
 
@@ -40,6 +41,8 @@ FEATURE = "marketing.campaigns"
 FREQUENCY_CAP = timedelta(days=7)
 ATTRIBUTION_WINDOW = timedelta(days=7)
 WHATSAPP_WINDOW = timedelta(hours=24)
+# Channels where a business may only send free-form messages within 24 h of the customer's last one.
+WINDOWED_PROVIDERS = frozenset({"whatsapp_cloud", "facebook_page", "instagram"})
 SEND_HOURS = range(9, 20)  # 09:00 to 19:59 shop time
 DEFAULT_DAYS = {"win_back": 60, "repeat_reminder": 30}
 SEGMENTS = ("all", "repeat", "new", "inactive")
@@ -252,7 +255,7 @@ def _reachable(db: Session, customer_id: uuid.UUID, now: datetime) -> tuple[Conv
     )
     if conv is None:
         return None, "no_chat_channel"
-    if conv.provider == "whatsapp_cloud" and (
+    if conv.provider in WINDOWED_PROVIDERS and (
         conv.last_inbound_at is None or now - conv.last_inbound_at > WHATSAPP_WINDOW
     ):
         return None, "whatsapp_window_closed"

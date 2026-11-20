@@ -15,6 +15,7 @@ in containers `python -m app.cli …`). Every write command is audited (actor `c
 | [Backup & restore drill](restore-drill.md) | (quarterly drill; backup job failures) |
 | [Deploy & rollback](deploy-rollback.md) | (every release) |
 | [Incident response](incident-response.md) | (any page) |
+| [Nivaro's Meta app: setup and App Review](meta-app-setup.md) | (one-time setup; Messenger/Instagram DMs) |
 
 **First look, always:** `python -m app.cli ops-status` prints outbox, webhook, queue, freshness and job
 heartbeat numbers in one go. Grafana: *Nivaro · Service health* and *Nivaro · Intelligence health*.

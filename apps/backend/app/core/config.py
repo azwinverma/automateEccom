@@ -95,6 +95,12 @@ class Settings(BaseSettings):
     payment_webhook_secrets: dict[str, SecretStr] = Field(
         default_factory=lambda: {"sandbox_wallet": SecretStr("dev-sandbox-payment-secret")}
     )
+    # Nivaro's own Meta app (Facebook Login for Business): one-click Facebook/Instagram connect and
+    # Messenger / Instagram DM webhooks. Customer messages beyond app-role users need Meta App Review
+    # (pages_messaging, instagram_manage_messages advanced access).
+    meta_app_id: str | None = None
+    meta_app_secret: SecretStr | None = None
+    meta_verify_token: SecretStr | None = None
     # eSewa status-check endpoints (sources disagree on the sandbox host: confirm at onboarding).
     esewa_status_url_test: str = "https://uat.esewa.com.np/api/epay/transaction/status/"
     esewa_status_url_live: str = "https://epay.esewa.com.np/api/epay/transaction/status/"

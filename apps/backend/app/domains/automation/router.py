@@ -243,3 +243,32 @@ def control_center(
         include_revenue=ctx.has("orders.read"),
         include_usage=ctx.has("billing.read"),
     )
+
+
+# ----------------------------------------------------------------------------- autopilot setup
+class SetupApplyIn(BaseModel):
+    mode: str = Field(default="smart", pattern="^(assisted|smart|autopilot)$")
+    posting: bool = True
+    campaigns: bool = True
+
+
+@router.get("/automation/setup")
+def setup_readiness(
+    ctx: TenantContext = Depends(require("automation.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    """The end-to-end selling checklist: what's connected, what runs by itself, what to do next."""
+    from app.domains.automation import setup
+
+    return setup.readiness(db, ctx.merchant_id)
+
+
+@router.post("/automation/setup/apply")
+def setup_apply(
+    body: SetupApplyIn,
+    ctx: TenantContext = Depends(require("automation.approve")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    """Turn the recommended automations on in one go (each change audited; plan limits apply)."""
+    from app.domains.automation import setup
+
+    return setup.apply(db, ctx, mode=body.mode, posting=body.posting, campaigns=body.campaigns)

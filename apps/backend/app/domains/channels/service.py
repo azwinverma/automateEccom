@@ -404,7 +404,10 @@ def connect_messaging(
         db.add(c)
     c.display_name = display[:120]
     c.status, c.last_error_code, c.consecutive_failures, c.last_healthy_at = "connected", None, 0, utcnow()
-    c.capabilities = sorted(cap.value for cap in adapter.capabilities)
+    caps = sorted(cap.value for cap in adapter.capabilities)
+    if provider in ("facebook_page", "instagram"):
+        caps = ["content_publish"]  # a pasted Page token can't receive customer DMs (needs Nivaro's app)
+    c.capabilities = caps
     c.access_token_sealed = SealedSecret.seal(json.dumps(creds), _aad(c, "access")).blob
     c.refresh_token_sealed, c.token_expires_at = None, None
     c.webhooks_registered_at = None  # (re)register with the new credentials
@@ -445,6 +448,170 @@ def connect_meta(
         except ValidationFailed as e:
             if e.code != "instagram_not_linked":
                 raise
+    return out
+
+
+# ----------------------------------------------------------------------------- Meta one-click (Nivaro's app)
+META_SELECTION_TTL = 600
+
+
+def meta_start(db: Session, ctx: TenantContext, redirect_uri: str) -> str:
+    from app.domains.integrations import meta
+
+    if not meta.app_configured():
+        raise Conflict(
+            "One-click Facebook connect isn't set up on this server yet", code="meta_app_not_configured"
+        )
+    if not redirect_uri.startswith(("https://", "http://localhost", "http://127.0.0.1")):
+        raise ValidationFailed("redirect_uri must be https", code="invalid_redirect_uri")
+    state = new_opaque_token()
+    db.add(
+        OAuthState(
+            merchant_id=ctx.merchant_id,
+            user_id=ctx.actor.id,
+            provider="meta",
+            redirect_uri=redirect_uri,
+            state_hash=hash_token(state),
+            expires_at=utcnow() + OAUTH_STATE_TTL,
+        )
+    )
+    db.flush()
+    return meta.authorize_url(state, redirect_uri)
+
+
+def meta_pages(db: Session, ctx: TenantContext, state: str, code: str) -> dict[str, Any]:
+    """Finish Facebook sign-in and list the seller's Pages. Page tokens stay server-side, sealed in
+    Redis for 10 minutes under a one-time selection id; the browser only sees ids and names."""
+    from app.core.redis import get_redis
+    from app.domains.integrations import meta
+
+    st = db.scalar(select(OAuthState).where(OAuthState.state_hash == hash_token(state)).with_for_update())
+    if (
+        st is None
+        or st.merchant_id != ctx.merchant_id
+        or st.user_id != ctx.actor.id
+        or st.provider != "meta"
+        or st.used_at is not None
+        or st.expires_at < utcnow()
+    ):
+        raise ValidationFailed(
+            "This sign-in link is invalid or expired. Start again.", code="oauth_state_invalid"
+        )
+    st.used_at = utcnow()
+    try:
+        pages = meta.list_pages(meta.exchange_code(code, st.redirect_uri))
+    except IntegrationError as e:
+        raise AppError("Facebook didn't accept the sign-in. Try again.", code="oauth_exchange_failed") from e
+    selection = new_opaque_token()
+    blob = SealedSecret.seal(
+        json.dumps(pages), f"meta-pages:{ctx.merchant_id}:{ctx.actor.id}:{selection}"
+    ).blob
+    get_redis().set(f"meta:pages:{hash_token(selection)}", blob, ex=META_SELECTION_TTL)
+    return {
+        "selection": selection,
+        "pages": [
+            {
+                "id": str(p["id"]),
+                "name": p.get("name"),
+                "instagram": (p.get("instagram_business_account") or {}).get("username"),
+            }
+            for p in pages
+        ],
+    }
+
+
+def meta_connect(
+    db: Session, ctx: TenantContext, selection: str, page_id: str, with_instagram: bool
+) -> list[ChannelConnection]:
+    from app.core.redis import get_redis
+    from app.domains.integrations import meta
+
+    key = f"meta:pages:{hash_token(selection)}"
+    blob = get_redis().getdel(key)
+    if not blob:
+        raise ValidationFailed("That sign-in has expired. Connect again.", code="meta_selection_expired")
+    raw = blob.decode() if isinstance(blob, bytes) else blob
+    pages = json.loads(SealedSecret(raw).open(f"meta-pages:{ctx.merchant_id}:{ctx.actor.id}:{selection}"))
+    page = next((p for p in pages if str(p["id"]) == page_id), None)
+    if page is None:
+        raise ValidationFailed("Choose one of your Pages", code="page_not_found")
+    token = str(page["access_token"])
+    try:
+        meta.subscribe_page(page_id, token)
+    except IntegrationError as e:
+        raise ValidationFailed("Facebook refused the messages subscription", code="permission_missing") from e
+    targets: list[tuple[str, str, str, dict[str, str]]] = [
+        ("facebook_page", page_id, f"Facebook · {page.get('name') or page_id}", {})
+    ]
+    ig = page.get("instagram_business_account") or {}
+    if with_instagram and ig.get("id"):
+        targets.append(
+            (
+                "instagram",
+                str(ig["id"]),
+                f"Instagram @{ig.get('username') or ig['id']}",
+                {"ig_user_id": str(ig["id"])},
+            )
+        )
+    out = []
+    for provider, account, display, extra in targets:
+        taken = db.scalar(
+            select(ChannelConnection.id)
+            .where(
+                ChannelConnection.provider == provider,
+                ChannelConnection.external_account_id == account,
+                ChannelConnection.status != "disconnected",
+                ChannelConnection.merchant_id != ctx.merchant_id,
+            )
+            .execution_options(skip_tenant_filter=True)
+        )
+        if taken is not None:
+            raise Conflict("This account is already connected to another shop", code="account_in_use")
+        c = db.scalar(
+            select(ChannelConnection).where(
+                ChannelConnection.merchant_id == ctx.merchant_id,
+                ChannelConnection.provider == provider,
+                ChannelConnection.external_account_id == account,
+                ChannelConnection.status != "disconnected",
+            )
+        )
+        existing = c is not None
+        if c is None:
+            entitlements.check_gauge(db, ctx.merchant_id, "channels")
+            c = ChannelConnection(
+                id=uuid7(),
+                merchant_id=ctx.merchant_id,
+                provider=provider,
+                external_account_id=account,
+                connected_by_user_id=ctx.actor.id,
+            )
+            db.add(c)
+        creds = {"page_id": page_id, "page_access_token": token, "via": "nivaro_app", **extra}
+        c.display_name, c.status, c.last_error_code, c.consecutive_failures = (
+            display[:120],
+            "connected",
+            None,
+            0,
+        )
+        c.capabilities, c.last_healthy_at = ["content_publish", "messages"], utcnow()
+        c.access_token_sealed = SealedSecret.seal(json.dumps(creds), _aad(c, "access")).blob
+        c.refresh_token_sealed, c.token_expires_at = (
+            None,
+            None,
+        )  # Page tokens from a long-lived user token don't expire
+        c.webhooks_registered_at = utcnow()
+        db.flush()
+        audit.record(
+            db,
+            action="channels.reconnected" if existing else "channels.connected",
+            resource_type="channel_connection",
+            resource_id=c.id,
+            actor=ctx.actor,
+            merchant_id=ctx.merchant_id,
+            meta=ctx.meta,
+            metadata={"provider": provider, "account": account, "via": "nivaro_app"},
+        )
+        out.append(c)
     return out
 
 
@@ -644,6 +811,26 @@ def ingest_webhook(
         events = adapter.parse_webhook(headers, body)
     except (ValueError, KeyError) as e:
         raise ValidationFailed("Malformed webhook", code="webhook_malformed") from e
+    return _store_webhook_events(db, provider, events, connection)
+
+
+def ingest_meta_webhook(db: Session, body: bytes) -> dict[str, int]:
+    """Nivaro's app-level Meta webhook (signature already checked): route each DM to the connection
+    of the Page / Instagram account it was sent to. Accounts we don't know are stored unrouted."""
+    from app.domains.integrations import meta
+
+    try:
+        provider, events = meta.parse_app_webhook(body)
+    except (ValueError, KeyError) as e:
+        raise ValidationFailed("Malformed webhook", code="webhook_malformed") from e
+    if not provider:
+        return {"accepted": 0, "duplicates": 0}
+    return _store_webhook_events(db, provider, events, None)
+
+
+def _store_webhook_events(
+    db: Session, provider: str, events: list[Any], connection: ChannelConnection | None
+) -> dict[str, int]:
     stats = {"accepted": 0, "duplicates": 0}
     for ev in events:
         conn = connection
