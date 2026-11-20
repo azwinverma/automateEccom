@@ -587,6 +587,12 @@ export interface ChannelProvider {
   name: string;
   sandbox: boolean;
   capabilities: (ChannelCapability | (string & {}))[];
+  /** How the seller connects: sign-in (OAuth) or keys they paste (WooCommerce, Telegram, WhatsApp). */
+  auth_kind?: "oauth" | "api_keys";
+  secret_fields?: string[];
+  optional_fields?: string[];
+  /** The seller pastes our callback URL and verify token into their own app (WhatsApp). */
+  manual_webhook?: boolean;
 }
 
 export type ConnectionStatus = "connected" | "expired" | "revoked" | "error" | "disconnected";
@@ -2446,4 +2452,123 @@ export interface SimulationCalibration {
   };
   discount_runs_compared: number;
   discount_runs_mape: number | null;
+}
+
+// ----------------------------------------------------------------------------- seller payment gateways
+export type GatewayProviderCode = "khalti" | "esewa";
+export type GatewayMode = "test" | "live";
+
+export interface PaymentGatewayProvider {
+  code: GatewayProviderCode;
+  name: string;
+  secret_fields: string[];
+  /** Non-secret fields, e.g. eSewa's merchant (product) code. */
+  public_fields: string[];
+  modes: GatewayMode[];
+}
+
+export interface PaymentGateway {
+  id: string;
+  provider: GatewayProviderCode;
+  name: string;
+  mode: GatewayMode;
+  status: "active" | "error";
+  is_default: boolean;
+  public_id: string | null;
+  /** Last four characters only ("••••abcd"); the secret itself is never returned. */
+  secret_hint: string | null;
+  /** true = the gateway accepted the keys; false = rejected; null = proven by the first real payment. */
+  verified: boolean | null;
+  last_error_code: string | null;
+  last_payment_at: string | null;
+  connected_at: string | null;
+}
+
+export interface PaymentGatewayInput {
+  provider: GatewayProviderCode;
+  mode: GatewayMode;
+  secret_key: string;
+  public_id?: string | null;
+  is_default?: boolean;
+}
+
+// ----------------------------------------------------------------------------- AI provider keys (BYOK)
+export type AiProviderCode = "anthropic" | "openai" | "gemini";
+
+export interface AiCredential {
+  id: string;
+  provider: AiProviderCode;
+  key_last4: string;
+  status: string;
+  fallback_to_platform: boolean;
+  last_tested_at: string | null;
+  last_test_ok: boolean | null;
+  rotated_at: string | null;
+  created_at: string;
+}
+
+// ----------------------------------------------------------------------------- messaging channels
+export type MessagingProviderCode = "telegram" | "whatsapp_cloud";
+
+export interface WebhookSetup {
+  callback_url: string;
+  verify_token: string;
+  fields: string[];
+}
+
+// ----------------------------------------------------------------------------- retention campaigns
+export type CampaignKind = "win_back" | "repeat_reminder" | "broadcast";
+export type CampaignStatus = "draft" | "active" | "paused" | "completed";
+export type CampaignSegment = "all" | "repeat" | "new" | "inactive";
+export type CampaignSkipReason = "opted_out" | "no_chat_channel" | "whatsapp_window_closed" | (string & {});
+
+export interface CampaignStats {
+  sent: number;
+  replied: number;
+  orders: number;
+  revenue_minor: number;
+  skipped: Partial<Record<CampaignSkipReason, number>>;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  kind: CampaignKind;
+  status: CampaignStatus;
+  days: number | null;
+  segment: CampaignSegment | null;
+  message_en: string;
+  message_ne: string | null;
+  daily_limit: number;
+  activated_at: string | null;
+  last_run_at: string | null;
+  completed_at: string | null;
+  created_at: string | null;
+  stats: CampaignStats;
+}
+
+export interface CampaignInput {
+  name: string;
+  kind: CampaignKind;
+  days?: number | null;
+  segment?: CampaignSegment | null;
+  message_en?: string | null;
+  message_ne?: string | null;
+  daily_limit?: number;
+}
+
+export type CampaignPatch = Partial<Omit<CampaignInput, "kind">>;
+
+export interface CampaignTemplate {
+  kind: CampaignKind;
+  message_en: string;
+  message_ne: string;
+  default_days: number | null;
+}
+
+export interface CampaignPreview {
+  audience: number;
+  reachable: number;
+  unreachable: Partial<Record<CampaignSkipReason, number>>;
+  sample_en: string;
 }

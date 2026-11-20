@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { connectFlow, normalizeStoreUrl, validateKeys, type KeysForm } from "@/lib/channels/connect";
 import { callbackUrl, savePending, stateFromAuthorizeUrl } from "@/lib/channels/oauth";
 import { parseLimitOptions } from "@/lib/usage";
+import { MessagingDrawer } from "./MessagingDrawer";
 import wf from "../shared/workflow.module.css";
 
 const STATUS_TONE: Record<string, Tone> = { connected: "success", expired: "warning", revoked: "danger", error: "danger", disconnected: "neutral" };
@@ -176,14 +177,21 @@ export function ChannelsView() {
   const [error, setError] = useState<unknown>(null);
   const [keysFor, setKeysFor] = useState<{ provider: ChannelProvider; reconnect: ChannelConnection | null } | null>(null);
   const [disconnecting, setDisconnecting] = useState<ChannelConnection | null>(null);
+  const [messagingFor, setMessagingFor] = useState<ChannelProvider | null>(null);
+  const [setupFor, setSetupFor] = useState<ChannelConnection | null>(null);
   const disconnect = useAction();
 
   const providerByCode = new Map((providers.state.status === "success" ? providers.state.data.items : []).map((p) => [p.code, p]));
 
   const startConnect = async (provider: ChannelProvider, reconnect: ChannelConnection | null) => {
     setError(null);
-    if (connectFlow(provider.code) === "keys") {
+    const flow = connectFlow(provider.code, provider.auth_kind);
+    if (flow === "keys") {
       setKeysFor({ provider, reconnect });
+      return;
+    }
+    if (flow === "messaging") {
+      setMessagingFor(provider);
       return;
     }
     setBusy(reconnect?.id ?? provider.code);
@@ -321,6 +329,11 @@ export function ChannelsView() {
                             {t("channels.checkHealth")}
                           </Button>
                         )}
+                        {canManage && c.provider === "whatsapp_cloud" ? (
+                          <Button size="sm" variant="ghost" onClick={() => setSetupFor(c)} aria-label={`${t("messaging.setupAction")}: ${c.display_name}`}>
+                            {t("messaging.setupAction")}
+                          </Button>
+                        ) : null}
                         {canManage ? (
                           <Button
                             size="sm"
@@ -385,6 +398,20 @@ export function ChannelsView() {
         onOpenChange={(o) => !o && setKeysFor(null)}
         onConnected={(c) => {
           setKeysFor(null);
+          connections.reload();
+          toast(t("channels.connectedToast", { name: c.display_name }));
+        }}
+      />
+      <MessagingDrawer
+        provider={messagingFor}
+        setupFor={setupFor}
+        onOpenChange={(o) => {
+          if (!o) {
+            setMessagingFor(null);
+            setSetupFor(null);
+          }
+        }}
+        onConnected={(c) => {
           connections.reload();
           toast(t("channels.connectedToast", { name: c.display_name }));
         }}

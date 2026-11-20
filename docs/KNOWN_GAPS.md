@@ -15,7 +15,6 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | ID | Sev | Gap | Next step |
 |---|---|---|---|
 | GAP-INFRA-TARGET | High | No hosting target (AWS / GCP / Fly / Render…). The staging deploy job is gated. | Your decision. Then: IaC, managed Postgres with PITR, managed Redis, bucket, secret manager. |
-| GAP-CI-RUN | High | The CI workflow has never run on GitHub (the repo has no remote). Jobs may need small fixes on first run. | Add a remote and push. |
 | GAP-KMS | High | Only the local KEK provider is implemented; production refuses to start without KMS. | Choose a KMS, then implement `KmsKeyProvider`. |
 | GAP-ALERTS | Med (was High) | Alert rules (26, promtool-tested), dashboards and runbooks now exist (infra/observability, docs/runbooks). Nothing routes alerts to a person yet and no Prometheus runs in a real environment. | Deploy Prometheus/Alertmanager (or a hosted equivalent) with the hosting decision; route page/ticket severities. |
 | GAP-EMAIL | High | Only the dev console mailer exists; production refuses to send. | Choose an email provider (SES / Postmark…) and implement the adapter. |

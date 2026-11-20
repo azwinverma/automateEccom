@@ -157,8 +157,8 @@ class TelegramAdapter(_KeyedMessagingChannel):
 class WhatsAppCloudAdapter(_KeyedMessagingChannel):
     code = "whatsapp_cloud"
     display_name = "WhatsApp Business"
-    credential_fields = ("access_token", "app_secret")
-    optional_fields = ("phone_number_id", "business_account_id")
+    credential_fields = ("access_token", "app_secret", "phone_number_id")
+    optional_fields = ("business_account_id",)
     needs_manual_webhook = True
     GRAPH = "https://graph.facebook.com/v21.0/"
 

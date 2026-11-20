@@ -30,6 +30,7 @@ export const FEATURE_CODES = [
   "ai.sales_agent",
   "orders.chat_to_order",
   "automation.workflows",
+  "marketing.campaigns",
   "automation.autopilot",
   "analytics.profit",
   "ai.store_manager",

@@ -349,8 +349,6 @@ def connect_messaging(
     allowed = (*cls.credential_fields, *cls.optional_fields)
     creds = {k: str(v).strip() for k, v in fields.items() if k in allowed and str(v).strip()}
     missing = [k for k in cls.credential_fields if k not in creds]
-    if provider == "whatsapp_cloud" and "phone_number_id" not in creds:
-        missing.append("phone_number_id")
     if missing:
         raise ValidationFailed(
             "Fill in every required field", code="missing_fields", details={"fields": missing}

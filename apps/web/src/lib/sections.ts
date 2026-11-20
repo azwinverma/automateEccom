@@ -11,6 +11,7 @@ export type SectionKey =
   | "fulfillment"
   | "returns"
   | "automation"
+  | "campaigns"
   | "analytics";
 
 export type NavGroup = "none" | "sell" | "catalog" | "deliver" | "grow";
@@ -38,6 +39,7 @@ export const SECTIONS: SectionDef[] = [
   { key: "inventory", href: "/inventory", icon: "inventory", group: "catalog" },
   { key: "fulfillment", href: "/fulfillment", icon: "fulfillment", group: "deliver" },
   { key: "returns", href: "/returns", icon: "returns", group: "deliver" },
+  { key: "campaigns", href: "/campaigns", icon: "customers", group: "grow" },
   { key: "automation", href: "/automation", icon: "automation", group: "grow" },
   { key: "analytics", href: "/analytics", icon: "analytics", group: "grow" },
 ];
@@ -52,10 +54,12 @@ export const NAV_GROUPS: { group: NavGroup; labelKey?: "nav.groupSell" | "nav.gr
 
 export const AUTOMATION_PHASE = 3;
 
-export type SettingsKey = "team" | "channels" | "couriers" | "returns" | "security" | "plan" | "audit";
+export type SettingsKey = "team" | "channels" | "payments" | "ai" | "couriers" | "returns" | "security" | "plan" | "audit";
 export const SETTINGS_PAGES: { key: SettingsKey; href: string; icon: IconName }[] = [
   { key: "team", href: "/settings/team", icon: "customers" },
   { key: "channels", href: "/settings/channels", icon: "store" },
+  { key: "payments", href: "/settings/payments", icon: "cash" },
+  { key: "ai", href: "/settings/ai", icon: "automation" },
   { key: "couriers", href: "/settings/couriers", icon: "fulfillment" },
   { key: "returns", href: "/settings/returns", icon: "returns" },
   { key: "security", href: "/settings/security", icon: "shield" },

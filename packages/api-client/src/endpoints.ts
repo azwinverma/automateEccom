@@ -1,5 +1,18 @@
 import type { ApiClient } from "./client";
 import type {
+  AiCredential,
+  AiProviderCode,
+  Campaign,
+  CampaignInput,
+  CampaignPatch,
+  CampaignPreview,
+  CampaignStatus,
+  CampaignTemplate,
+  MessagingProviderCode,
+  PaymentGateway,
+  PaymentGatewayInput,
+  PaymentGatewayProvider,
+  WebhookSetup,
   AutoReelInput,
   ChannelConnection,
   ChannelListing,
@@ -392,6 +405,11 @@ export function createApi(client: ApiClient) {
         client.request<ChannelConnection>(`/channels/${encodeURIComponent(id)}/reconcile`, { method: "POST", tenant: true }),
       disconnect: (id: string) =>
         client.request<void>(`/channels/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
+      /** Telegram bot or the seller's own WhatsApp Business app. Secrets are sealed server-side, never returned. */
+      connectMessaging: (body: { provider: MessagingProviderCode; fields: Record<string, string> }) =>
+        client.request<ChannelConnection>("/channels/connect-messaging", { method: "POST", body, tenant: true }),
+      /** WhatsApp: the callback URL and verify token the seller pastes into their Meta app. */
+      webhookSetup: (id: string) => client.request<WebhookSetup>(`/channels/${encodeURIComponent(id)}/webhook-setup`, { tenant: true }),
     },
     content: {
       posts: (q: { from?: string; to?: string; status?: string } = {}) =>
@@ -726,6 +744,37 @@ export function createApi(client: ApiClient) {
       section: (name: TwinSectionName) => client.request<TwinSection>(`/twin/sections/${encodeURIComponent(name)}`, { tenant: true }),
       reconcile: () => client.request<{ sections: number }>("/twin/reconcile", { method: "POST", tenant: true }),
       freshness: () => client.request<TwinFreshness>("/twin/freshness", { tenant: true }),
+    },
+    /** The seller's own payment gateways (Khalti, eSewa). Writes need payments.manage (owner/admin). */
+    paymentGateways: {
+      providers: () => client.request<{ items: PaymentGatewayProvider[] }>("/payments/gateways/providers", { tenant: true }),
+      list: () => client.request<{ items: PaymentGateway[] }>("/payments/gateways", { tenant: true }),
+      connect: (body: PaymentGatewayInput) => client.request<PaymentGateway>("/payments/gateways", { method: "POST", body, tenant: true }),
+      test: (id: string) => client.request<PaymentGateway>(`/payments/gateways/${encodeURIComponent(id)}/test`, { method: "POST", tenant: true }),
+      makeDefault: (id: string) => client.request<PaymentGateway>(`/payments/gateways/${encodeURIComponent(id)}/default`, { method: "POST", tenant: true }),
+      disconnect: (id: string) => client.request<void>(`/payments/gateways/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
+    },
+    /** Bring-your-own AI provider keys (plan feature ai.byok). Keys are sealed and never returned. */
+    aiCredentials: {
+      list: () => client.request<{ items: AiCredential[] }>("/ai/credentials", { tenant: true }),
+      create: (body: { provider: AiProviderCode; api_key: string; fallback_to_platform: boolean }) =>
+        client.request<AiCredential>("/ai/credentials", { method: "POST", body, tenant: true }),
+      rotate: (id: string, body: { api_key: string; fallback_to_platform?: boolean | null }) =>
+        client.request<AiCredential>(`/ai/credentials/${encodeURIComponent(id)}/rotate`, { method: "POST", body, tenant: true }),
+      test: (id: string) => client.request<{ ok: boolean }>(`/ai/credentials/${encodeURIComponent(id)}/test`, { method: "POST", tenant: true }),
+      revoke: (id: string) => client.request<void>(`/ai/credentials/${encodeURIComponent(id)}`, { method: "DELETE", tenant: true }),
+    },
+    /** Retain: retention campaigns (plan feature marketing.campaigns). */
+    campaigns: {
+      templates: () => client.request<{ items: CampaignTemplate[]; placeholders: string[] }>("/retention/templates", { tenant: true }),
+      list: () => client.request<{ items: Campaign[] }>("/retention/campaigns", { tenant: true }),
+      get: (id: string) => client.request<Campaign>(`/retention/campaigns/${encodeURIComponent(id)}`, { tenant: true }),
+      create: (body: CampaignInput) => client.request<Campaign>("/retention/campaigns", { method: "POST", body, tenant: true }),
+      update: (id: string, body: CampaignPatch) =>
+        client.request<Campaign>(`/retention/campaigns/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      preview: (id: string) => client.request<CampaignPreview>(`/retention/campaigns/${encodeURIComponent(id)}/preview`, { method: "POST", tenant: true }),
+      setStatus: (id: string, status: Exclude<CampaignStatus, "draft">) =>
+        client.request<Campaign>(`/retention/campaigns/${encodeURIComponent(id)}/status`, { method: "POST", body: { status }, tenant: true }),
     },
     /** Phase 9: what-if estimates. Queued (202) and run by the worker; poll `get` until completed/failed. */
     simulations: {

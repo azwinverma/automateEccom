@@ -17,9 +17,13 @@ describe("public website", () => {
     expect(statuses(siteNe)).toEqual(statuses(siteEn));
   });
 
-  it("only claims what is built: chat selling (needs Meta app review) and retention campaigns are still in development", () => {
-    expect(siteEn.loop.stages.filter((s) => s.status === "next").map((s) => s.name)).toEqual(["Converse", "Retain"]);
-    expect(siteEn.modules.items.filter((m) => m.status === "next").map((m) => m.key)).toEqual(["inbox"]);
+  it("every loop stage and product module is available now; Converse names only channels sellers can connect today", () => {
+    expect(siteEn.loop.stages.filter((s) => s.status === "next")).toEqual([]);
+    expect(siteEn.modules.items.filter((m) => m.status === "next")).toEqual([]);
+    const converse = siteEn.loop.stages.find((s) => s.name === "Converse")!;
+    expect(converse.text).toMatch(/Telegram/);
+    expect(converse.text).not.toMatch(/Instagram|Messenger/);
+    expect(siteEn.loop.stages.find((s) => s.name === "Retain")!.text).toMatch(/opt-out/);
   });
 
   it("never shows prices, testimonials or the pre-Nivaro name", () => {
@@ -37,7 +41,7 @@ describe("public website", () => {
     expect(within(header).getByRole("link", { name: "Start free" })).toHaveAttribute("href", "/register");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Your store, on autopilot.");
     expect(screen.getAllByText("Illustrative").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("In development").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("In development")).toHaveLength(0);
   });
 
   it("signed-in visitors go straight to the app", () => {

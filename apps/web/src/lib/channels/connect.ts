@@ -1,13 +1,20 @@
-/**
- * How a provider connects. The providers endpoint doesn't expose the adapter's `auth_kind`
- * yet (reported as an API gap), so API-key providers are listed by code here.
- */
+/** Store channels connected with a URL + REST keys (WooCommerce). */
 export const KEY_PROVIDERS: ReadonlySet<string> = new Set(["woocommerce"]);
+/** Messaging channels connected with the seller's own bot/app credentials. */
+export const MESSAGING_PROVIDERS: ReadonlySet<string> = new Set(["telegram", "whatsapp_cloud"]);
 
-export type ConnectFlow = "oauth" | "keys";
+export type ConnectFlow = "oauth" | "keys" | "messaging";
 
-export function connectFlow(providerCode: string): ConnectFlow {
-  return KEY_PROVIDERS.has(providerCode) ? "keys" : "oauth";
+/** How a provider connects. Uses the providers endpoint's `auth_kind` when present. */
+export function connectFlow(providerCode: string, authKind?: "oauth" | "api_keys"): ConnectFlow {
+  if (MESSAGING_PROVIDERS.has(providerCode)) return "messaging";
+  if (KEY_PROVIDERS.has(providerCode)) return "keys";
+  return authKind === "api_keys" ? "keys" : "oauth";
+}
+
+/** Required fields that are still empty (trimmed). */
+export function missingMessagingFields(required: readonly string[], values: Record<string, string>): string[] {
+  return required.filter((f) => !(values[f] ?? "").trim());
 }
 
 export interface KeysForm {

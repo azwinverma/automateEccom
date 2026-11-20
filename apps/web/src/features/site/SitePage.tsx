@@ -229,7 +229,7 @@ function Control({ copy }: { copy: SiteCopy }) {
       <div className={styles.split2}>
         <div>
           <p className={`${styles.eyebrow} rv`}>
-            {c.eyebrow} <Status s="next" copy={copy} />
+            {c.eyebrow} <Status s="now" copy={copy} />
           </p>
           <h2 id="control-title" className={`${styles.h2} rv`}>
             {c.title}
@@ -398,7 +398,7 @@ function Modules({ copy }: { copy: SiteCopy }) {
         </div>
       </div>
 
-      {/* In development: smaller, honest */}
+      {/* Selling, delivery and returns: the operations modules */}
       <div className={styles.nextGrid}>
         {next.map((m) => (
           <div key={m.key} className={`${styles.nextCell} rv`}>
@@ -452,7 +452,7 @@ function Intelligence({ copy }: { copy: SiteCopy }) {
       <div className={styles.split2}>
         <div>
           <p className={`${styles.eyebrow} rv`}>
-            {c.eyebrow} <Status s="next" copy={copy} />
+            {c.eyebrow} <Status s="now" copy={copy} />
           </p>
           <h2 id="intel-title" className={`${styles.h2} rv`}>
             {c.title}

@@ -1,0 +1,262 @@
+/* Shared by Settings → Payments, Settings → AI, messaging connect and Campaigns. */
+
+.how {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-3) var(--space-6);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) 0 0;
+  list-style: none;
+  border-top: 1px solid var(--border-default);
+}
+.how li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2);
+  align-items: start;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.how li > svg {
+  margin-top: 3px;
+  color: var(--status-healthy);
+}
+.howTitle {
+  margin: var(--space-2) 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.providers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+.provider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-raised, var(--surface-default));
+}
+.provider strong {
+  font-weight: var(--font-weight-medium);
+}
+.provider p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.provider > :last-child {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.choice legend {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-2);
+  padding: 0;
+}
+.choiceOption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border-default);
+  cursor: pointer;
+}
+.choiceOption:last-child {
+  border-bottom: 1px solid var(--border-default);
+}
+.choiceOption input {
+  grid-row: span 2;
+  margin: 3px 0 0;
+  accent-color: var(--action-primary);
+}
+.choiceOption strong {
+  font-weight: var(--font-weight-medium);
+}
+.choiceOption span {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.copyRow {
+  display: grid;
+  gap: var(--space-1);
+}
+.copyRow > span {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.copyValue {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+}
+.copyValue code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--surface-sunken, var(--surface-default));
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--font-size-sm);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 112px;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong, var(--border-default));
+  border-radius: var(--radius-sm, 6px);
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+.textarea:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--action-primary));
+  outline-offset: 1px;
+}
+.label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+.counter {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.tokens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.tokens code {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--surface-sunken, var(--surface-default));
+  border: 1px solid var(--border-default);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+}
+
+.sample {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--action-primary);
+  background: var(--surface-sunken, var(--surface-default));
+  border-radius: 0 var(--radius-sm, 6px) var(--radius-sm, 6px) 0;
+  white-space: pre-wrap;
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+.stats div {
+  padding: var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm, 6px);
+}
+.stats dt {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+.stats dd {
+  margin: 2px 0 0;
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.reasons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+.reasons li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.reasons li span:last-child {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.meta {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+.mono {
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+.rowButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link, var(--action-primary));
+  font: inherit;
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+.rowButton:hover {
+  text-decoration: underline;
+}
+.rowButton:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--action-primary));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
