@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 import app.domains.automation.engine
 import app.domains.catalog.imports
 import app.domains.channels.service
+import app.domains.content.autopost
 import app.domains.fulfillment.service
 import app.domains.inbox.agent
 import app.domains.inbox.service
@@ -18,6 +19,7 @@ import app.domains.media.service
 import app.domains.media.video
 import app.domains.orders.service
 import app.domains.payments.service
+import app.domains.retention.service
 import app.domains.returns.service
 import app.domains.studio.service
 import app.domains.twin.service
@@ -36,6 +38,7 @@ HANDLER_MODULES = (
     app.domains.automation.engine,
     app.domains.catalog.imports,
     app.domains.channels.service,
+    app.domains.content.autopost,
     app.domains.fulfillment.service,
     app.domains.inbox.agent,
     app.domains.inbox.service,

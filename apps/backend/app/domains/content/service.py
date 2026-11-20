@@ -294,6 +294,9 @@ def approve(db: Session, ctx: TenantContext, post_id: uuid.UUID) -> ContentPost:
     _move(p, "approved")
     p.approved_by_user_id, p.approved_at = ctx.actor.id, utcnow()
     _audit(db, ctx, p, "approved", acknowledged_issues=len(p.issues))
+    from app.domains.content.autopost import on_approved
+
+    on_approved(db, ctx, p)
     return p
 
 
@@ -376,6 +379,43 @@ def publish_due(db: Session, limit: int = 50) -> dict[str, int]:
     return stats
 
 
+def _media_for(db: Session, p: ContentPost) -> list[dict[str, str]]:
+    """Signed links (6 h) the platform downloads once: the reel's MP4, or JPEG renditions sized for
+    the format (4:5 feed, 9:16 story). Location metadata never leaves: renditions are re-encoded."""
+    from app.domains.integrations.storage import get_storage
+    from app.domains.media.models import MediaAsset, MediaDerivative
+    from app.domains.media.service import _absolute
+
+    storage = get_storage()
+    prefer = (
+        ["story_9_16", "portrait_4_5", "square_white"]
+        if p.kind == "story"
+        else ["portrait_4_5", "square_white"]
+    )
+    out: list[dict[str, str]] = []
+    for aid in p.asset_ids:
+        a = db.get(MediaAsset, aid)
+        if a is None or a.status in ("deleted", "rejected") or a.scan_status == "infected":
+            continue
+        if a.kind == "video":
+            out.append(
+                {"type": "video", "url": _absolute(storage.signed_get_url(a.original_key, ttl_s=6 * 3600))}
+            )
+            continue
+        ders = {
+            d.kind: d
+            for d in db.scalars(
+                select(MediaDerivative).where(
+                    MediaDerivative.asset_id == aid, MediaDerivative.kind.in_(prefer)
+                )
+            )
+        }
+        d = next((ders[k] for k in prefer if k in ders), None)
+        if d is not None:
+            out.append({"type": "image", "url": _absolute(storage.signed_get_url(d.key, ttl_s=6 * 3600))})
+    return out
+
+
 def _publish_one(db: Session, p: ContentPost) -> str:
     bind_tenant(db, p.merchant_id)
     actor = Actor.system("content-scheduler")
@@ -391,6 +431,7 @@ def _publish_one(db: Session, p: ContentPost) -> str:
                 "caption": p.caption,
                 "hashtags": p.hashtags,
                 "asset_ids": [str(a) for a in p.asset_ids],
+                "media": _media_for(db, p),
             },
             idempotency_key=f"content:{p.id}",
         )

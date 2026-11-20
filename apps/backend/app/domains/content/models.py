@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, Integer, String, Text, text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -33,7 +33,7 @@ class ContentPost(IdMixin, TimestampMixin, TenantScoped, Base):
             name="status",
         ),
         CheckConstraint("kind in ('post','story','reel')", name="kind"),
-        CheckConstraint("source in ('seller','ai_studio','ai_schedule')", name="source"),
+        CheckConstraint("source in ('seller','ai_studio','ai_schedule','autopost')", name="source"),
         CheckConstraint(
             "hook_type in ('price_first','product_closeup','problem_solution','social_proof','offer',"
             "'unknown')",
@@ -105,3 +105,21 @@ class ContentPost(IdMixin, TimestampMixin, TenantScoped, Base):
     genome_version: Mapped[int | None] = mapped_column(Integer)
 
     __mapper_args__ = {"version_id_col": version}
+
+
+class AutopostSettings(IdMixin, TimestampMixin, TenantScoped, Base):
+    """Post a product to the chosen accounts automatically when it goes live (one row per merchant)."""
+
+    __tablename__ = "content_autopost_settings"
+    __table_args__ = (
+        CheckConstraint("kind in ('post','story')", name="kind"),
+        UniqueConstraint("merchant_id"),
+    )
+
+    enabled: Mapped[bool] = mapped_column(default=False, nullable=False)
+    connection_ids: Mapped[list[uuid.UUID]] = mapped_column(
+        ARRAY(UUID(as_uuid=True)), default=list, nullable=False
+    )
+    kind: Mapped[str] = mapped_column(String(8), default="post", nullable=False)
+    require_approval: Mapped[bool] = mapped_column(default=True, nullable=False)
+    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))

@@ -14,10 +14,11 @@ import { errorMessage } from "@/i18n/errors";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useAction, useApiQuery } from "@/lib/api/hooks";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { connectFlow, normalizeStoreUrl, validateKeys, type KeysForm } from "@/lib/channels/connect";
+import { COMING_SOON_PROVIDERS, connectFlow, META_PROVIDERS, normalizeStoreUrl, validateKeys, type KeysForm } from "@/lib/channels/connect";
 import { callbackUrl, savePending, stateFromAuthorizeUrl } from "@/lib/channels/oauth";
 import { parseLimitOptions } from "@/lib/usage";
 import { MessagingDrawer } from "./MessagingDrawer";
+import { MetaDrawer } from "./MetaDrawer";
 import wf from "../shared/workflow.module.css";
 
 const STATUS_TONE: Record<string, Tone> = { connected: "success", expired: "warning", revoked: "danger", error: "danger", disconnected: "neutral" };
@@ -164,6 +165,27 @@ export function KeysDrawer({
   );
 }
 
+type ProviderRow =
+  | { kind: "connect" | "meta"; provider: ChannelProvider }
+  | { kind: "soon"; code: string; name: string };
+
+/** One "Facebook & Instagram" row for both Meta providers; TikTok shown as coming soon, never connectable. */
+export function connectableRows(providers: ChannelProvider[]): ProviderRow[] {
+  const rows: ProviderRow[] = [];
+  let meta = false;
+  for (const p of providers) {
+    if (COMING_SOON_PROVIDERS.has(p.code)) continue;
+    if (META_PROVIDERS.has(p.code)) {
+      if (!meta) rows.push({ kind: "meta", provider: providers.find((x) => x.code === "facebook_page") ?? p });
+      meta = true;
+      continue;
+    }
+    rows.push({ kind: "connect", provider: p });
+  }
+  rows.push({ kind: "soon", code: "tiktok", name: "TikTok" });
+  return rows;
+}
+
 export function ChannelsView() {
   const { t, relative, dateTime } = useI18n();
   const { api, can } = useAuth();
@@ -179,6 +201,7 @@ export function ChannelsView() {
   const [disconnecting, setDisconnecting] = useState<ChannelConnection | null>(null);
   const [messagingFor, setMessagingFor] = useState<ChannelProvider | null>(null);
   const [setupFor, setSetupFor] = useState<ChannelConnection | null>(null);
+  const [metaOpen, setMetaOpen] = useState(false);
   const disconnect = useAction();
 
   const providerByCode = new Map((providers.state.status === "success" ? providers.state.data.items : []).map((p) => [p.code, p]));
@@ -192,6 +215,10 @@ export function ChannelsView() {
     }
     if (flow === "messaging") {
       setMessagingFor(provider);
+      return;
+    }
+    if (flow === "meta") {
+      setMetaOpen(true);
       return;
     }
     setBusy(reconnect?.id ?? provider.code);
@@ -301,7 +328,10 @@ export function ChannelsView() {
                     <td>
                       <div className={table.primaryCell}>
                         <strong>{c.display_name}</strong>
-                        <span>{provider?.name ?? c.provider}</span>
+                        <span>
+                          {provider?.name ?? c.provider}
+                          {META_PROVIDERS.has(c.provider) ? ` · ${t("messaging.metaPublishOnly")}` : null}
+                        </span>
                       </div>
                     </td>
                     <td>
@@ -368,24 +398,41 @@ export function ChannelsView() {
         <div className={table.wrap}>
           <table className={table.table} aria-labelledby="providers-heading" data-testid="providers">
             <tbody>
-              {providers.state.data.items.map((p) => (
-                <tr key={p.code}>
-                  <td>
-                    <strong style={{ fontWeight: "var(--font-weight-medium)" }}>{p.name}</strong>{" "}
-                    {p.sandbox ? <Badge dot={false}>{t("channels.sandbox")}</Badge> : null}
-                  </td>
-                  <td className={table.hideSm}>
-                    <Capabilities caps={p.capabilities} />
-                  </td>
-                  <td className={table.actions}>
-                    {canManage ? (
-                      <Button size="sm" loading={busy === p.code} onClick={() => startConnect(p, null)} aria-label={`${t("channels.connect")}: ${p.name}`}>
-                        {busy === p.code ? t("channels.connecting") : t("channels.connect")}
-                      </Button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
+              {connectableRows(providers.state.data.items).map((row) =>
+                row.kind === "soon" ? (
+                  <tr key={row.code} data-provider={row.code}>
+                    <td>
+                      <strong style={{ fontWeight: "var(--font-weight-medium)" }}>{row.name}</strong> <Badge dot={false}>{t("messaging.comingSoon")}</Badge>
+                    </td>
+                    <td className={table.muted} colSpan={2}>
+                      {t("messaging.tiktokSoon")}
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={row.provider.code} data-provider={row.provider.code}>
+                    <td>
+                      <strong style={{ fontWeight: "var(--font-weight-medium)" }}>{row.kind === "meta" ? t("messaging.metaCard") : row.provider.name}</strong>{" "}
+                      {row.provider.sandbox ? <Badge dot={false}>{t("channels.sandbox")}</Badge> : null}
+                      {row.kind === "meta" ? <span className={table.muted} style={{ display: "block", fontSize: "var(--font-size-xs)", marginTop: 2 }}>{t("messaging.metaPublishOnly")}</span> : null}
+                    </td>
+                    <td className={table.hideSm}>
+                      <Capabilities caps={row.provider.capabilities} />
+                    </td>
+                    <td className={table.actions}>
+                      {canManage ? (
+                        <Button
+                          size="sm"
+                          loading={busy === row.provider.code}
+                          onClick={() => startConnect(row.provider, null)}
+                          aria-label={`${t("channels.connect")}: ${row.kind === "meta" ? t("messaging.metaCard") : row.provider.name}`}
+                        >
+                          {busy === row.provider.code ? t("channels.connecting") : t("channels.connect")}
+                        </Button>
+                      ) : null}
+                    </td>
+                  </tr>
+                ),
+              )}
             </tbody>
           </table>
         </div>
@@ -400,6 +447,14 @@ export function ChannelsView() {
           setKeysFor(null);
           connections.reload();
           toast(t("channels.connectedToast", { name: c.display_name }));
+        }}
+      />
+      <MetaDrawer
+        open={metaOpen}
+        onOpenChange={setMetaOpen}
+        onConnected={(items) => {
+          connections.reload();
+          toast(t("messaging.metaConnected", { names: items.map((c) => c.display_name).join(", ") }));
         }}
       />
       <MessagingDrawer

@@ -3,11 +3,17 @@ export const KEY_PROVIDERS: ReadonlySet<string> = new Set(["woocommerce"]);
 /** Messaging channels connected with the seller's own bot/app credentials. */
 export const MESSAGING_PROVIDERS: ReadonlySet<string> = new Set(["telegram", "whatsapp_cloud"]);
 
-export type ConnectFlow = "oauth" | "keys" | "messaging";
+/** Facebook Page + its Instagram account, through the seller's own Meta app (one connect for both). */
+export const META_PROVIDERS: ReadonlySet<string> = new Set(["facebook_page", "instagram"]);
+/** Shown as "coming soon": no connect until the platform approves the app. */
+export const COMING_SOON_PROVIDERS: ReadonlySet<string> = new Set(["tiktok"]);
+
+export type ConnectFlow = "oauth" | "keys" | "messaging" | "meta";
 
 /** How a provider connects. Uses the providers endpoint's `auth_kind` when present. */
 export function connectFlow(providerCode: string, authKind?: "oauth" | "api_keys"): ConnectFlow {
   if (MESSAGING_PROVIDERS.has(providerCode)) return "messaging";
+  if (META_PROVIDERS.has(providerCode)) return "meta";
   if (KEY_PROVIDERS.has(providerCode)) return "keys";
   return authKind === "api_keys" ? "keys" : "oauth";
 }
@@ -50,4 +56,9 @@ export function validateKeys(form: KeysForm): Partial<Record<keyof KeysForm, Key
 /** Normalise the store URL the way sellers paste it ("https://shop.np/" → "https://shop.np"). */
 export function normalizeStoreUrl(url: string): string {
   return url.trim().replace(/\/+$/, "");
+}
+
+/** Facebook Page IDs are digits (the API accepts 5 to 25). */
+export function validPageId(value: string): boolean {
+  return /^\d{5,25}$/.test(value.trim());
 }

@@ -1,6 +1,9 @@
 import type { ApiClient } from "./client";
 import type {
   AiCredential,
+  AutopostInput,
+  AutopostSettings,
+  ConnectMetaInput,
   AiProviderCode,
   Campaign,
   CampaignInput,
@@ -408,10 +411,16 @@ export function createApi(client: ApiClient) {
       /** Telegram bot or the seller's own WhatsApp Business app. Secrets are sealed server-side, never returned. */
       connectMessaging: (body: { provider: MessagingProviderCode; fields: Record<string, string> }) =>
         client.request<ChannelConnection>("/channels/connect-messaging", { method: "POST", body, tenant: true }),
+      /** Facebook Page (+ its linked Instagram professional account) through the seller's own Meta app. */
+      connectMeta: (body: ConnectMetaInput) =>
+        client.request<{ items: ChannelConnection[] }>("/channels/connect-meta", { method: "POST", body, tenant: true }),
       /** WhatsApp: the callback URL and verify token the seller pastes into their Meta app. */
       webhookSetup: (id: string) => client.request<WebhookSetup>(`/channels/${encodeURIComponent(id)}/webhook-setup`, { tenant: true }),
     },
     content: {
+      /** Automatic posting when a product goes live (read: content.read; change: content.approve). */
+      getAutopost: () => client.request<AutopostSettings>("/content/autopost", { tenant: true }),
+      putAutopost: (body: AutopostInput) => client.request<AutopostSettings>("/content/autopost", { method: "PUT", body, tenant: true }),
       posts: (q: { from?: string; to?: string; status?: string } = {}) =>
         client.request<{ items: ContentPost[] }>("/content/posts", { tenant: true, query: { ...q } }),
       create: (body: ContentPostInput) => client.request<ContentPost>("/content/posts", { method: "POST", body, tenant: true }),

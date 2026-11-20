@@ -11,6 +11,7 @@ from app.domains.integrations.base import (
     PaymentAdapter,
 )
 from app.domains.integrations.messaging import TelegramAdapter, WhatsAppCloudAdapter
+from app.domains.integrations.meta import FacebookPageAdapter, InstagramAdapter
 from app.domains.integrations.nepal_payments import EsewaAdapter, KhaltiAdapter
 from app.domains.integrations.sandbox import (
     CashOnDeliveryAdapter,
@@ -28,6 +29,8 @@ _REGISTRY: dict[str, dict[str, type[Adapter]]] = {
         WooCommerceAdapter.code: WooCommerceAdapter,
         TelegramAdapter.code: TelegramAdapter,
         WhatsAppCloudAdapter.code: WhatsAppCloudAdapter,
+        FacebookPageAdapter.code: FacebookPageAdapter,
+        InstagramAdapter.code: InstagramAdapter,
     },
     "payment": {
         SandboxPaymentAdapter.code: SandboxPaymentAdapter,

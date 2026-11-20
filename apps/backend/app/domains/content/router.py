@@ -183,3 +183,33 @@ def cancel(
     db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, Any]:
     return service.post_view(service.cancel(db, ctx, post_id))
+
+
+# ----------------------------------------------------------------------------- autopost
+class AutopostIn(BaseModel):
+    enabled: bool
+    connection_ids: list[uuid.UUID] = Field(default_factory=list, max_length=10)
+    kind: Literal["post", "story"] = "post"
+    require_approval: bool = True
+
+
+@router.get("/autopost")
+def get_autopost(
+    ctx: TenantContext = Depends(require("content.read")), db: Session = Depends(get_db, scope="function")
+) -> dict[str, Any]:
+    from app.domains.content import autopost
+
+    return autopost.view(db, ctx.merchant_id)
+
+
+@router.put("/autopost")
+def put_autopost(
+    body: AutopostIn,
+    ctx: TenantContext = Depends(require("content.approve")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    """Post products automatically when they go live. Turning approval off needs content.approve."""
+    from app.domains.content import autopost
+
+    autopost.update_settings(db, ctx, **body.model_dump())
+    return autopost.view(db, ctx.merchant_id)

@@ -112,6 +112,25 @@ def connect_messaging(
     return service.connection_view(service.connect_messaging(db, ctx, body.provider, fields))
 
 
+class MetaIn(BaseModel):
+    page_id: str = Field(pattern=r"^\d{5,25}$")
+    page_access_token: SecretStr = Field(min_length=20, max_length=600)
+    with_instagram: bool = True
+
+
+@router.post("/connect-meta", status_code=201)
+def connect_meta(
+    body: MetaIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    """Facebook Page (and its linked Instagram account) through the seller's own Meta app."""
+    conns = service.connect_meta(
+        db, ctx, body.page_id, body.page_access_token.get_secret_value(), body.with_instagram
+    )
+    return {"items": [service.connection_view(c) for c in conns]}
+
+
 @router.get("/{connection_id}/webhook-setup")
 def webhook_setup(
     connection_id: uuid.UUID,

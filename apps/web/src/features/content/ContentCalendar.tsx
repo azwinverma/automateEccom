@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { isUnscheduledWork } from "@/lib/content/actions";
 import { addDays, addMonths, dayKey, monthGrid, timeOf, utcRange, weekDays } from "@/lib/content/calendar";
 import wf from "../shared/workflow.module.css";
+import { AutopostPanel } from "./AutopostPanel";
 import { ContentTabs } from "./ContentTabs";
 import styles from "./content.module.css";
 import { NewPostDrawer } from "./NewPostDrawer";
@@ -244,6 +245,8 @@ export function ContentCalendar() {
           </table>
         </div>
       )}
+
+      {can("content.read") ? <AutopostPanel /> : null}
 
       <PostDrawer
         post={openPost}

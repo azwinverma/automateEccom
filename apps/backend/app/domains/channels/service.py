@@ -52,9 +52,9 @@ OAUTH_STATE_TTL = timedelta(minutes=10)
 REFRESH_AHEAD = timedelta(minutes=10)
 MAX_PUBLISH_ATTEMPTS = 6
 MAX_WEBHOOK_ATTEMPTS = 8
-API_KEY_PROVIDERS = frozenset({"woocommerce", "telegram", "whatsapp_cloud"})
-# Messaging channels connected with the seller's own bot/app credentials (no Nivaro app review).
-MESSAGING_KEY_PROVIDERS = frozenset({"telegram", "whatsapp_cloud"})
+API_KEY_PROVIDERS = frozenset({"woocommerce", "telegram", "whatsapp_cloud", "facebook_page", "instagram"})
+# Channels connected with the seller's own bot/app credentials (no Nivaro app review).
+MESSAGING_KEY_PROVIDERS = frozenset({"telegram", "whatsapp_cloud", "facebook_page", "instagram"})
 
 
 @register_gauge("channels")
@@ -338,17 +338,15 @@ def connect_with_keys(
 def connect_messaging(
     db: Session, ctx: TenantContext, provider: str, fields: dict[str, str]
 ) -> ChannelConnection:
-    """Telegram bot / the seller's own WhatsApp Cloud app. Credentials are checked with a live call,
-    then sealed (AES-256-GCM envelope, AAD bound to merchant + connection). Never returned."""
-    from app.domains.integrations.messaging import _KeyedMessagingChannel
-
+    """Telegram bot, or the seller's own WhatsApp Cloud / Meta app (Facebook Page, Instagram).
+    Credentials are checked with a live call, then sealed (AES-256-GCM envelope, AAD bound to
+    merchant + connection). Never returned."""
     if provider not in MESSAGING_KEY_PROVIDERS:
         raise ValidationFailed("This channel doesn't connect this way", code="wrong_connect_method")
     cls = registry.get_class("channel", provider)
-    assert issubclass(cls, _KeyedMessagingChannel)
-    allowed = (*cls.credential_fields, *cls.optional_fields)
+    allowed = (*getattr(cls, "credential_fields", ()), *getattr(cls, "optional_fields", ()))
     creds = {k: str(v).strip() for k, v in fields.items() if k in allowed and str(v).strip()}
-    missing = [k for k in cls.credential_fields if k not in creds]
+    missing = [k for k in getattr(cls, "credential_fields", ()) if k not in creds]
     if missing:
         raise ValidationFailed(
             "Fill in every required field", code="missing_fields", details={"fields": missing}
@@ -360,6 +358,10 @@ def connect_messaging(
         account_id, display = adapter.account()  # type: ignore[attr-defined]
     except IntegrationError as e:
         INTEGRATION_CALLS.labels(provider, "connect_keys", e.code).inc()
+        if e.code == "instagram_not_linked":
+            raise ValidationFailed(
+                "This Page has no Instagram professional account linked", code="instagram_not_linked"
+            ) from e
         raise ValidationFailed(
             "We couldn't connect with those details",
             code="invalid_api_keys" if e.auth else "channel_unreachable",
@@ -367,6 +369,8 @@ def connect_messaging(
         ) from e
     if provider == "telegram":
         creds["bot_id"] = account_id
+    if provider == "instagram":
+        creds["ig_user_id"] = account_id
     existing = db.scalar(
         select(ChannelConnection).where(
             ChannelConnection.merchant_id == ctx.merchant_id,
@@ -426,6 +430,22 @@ def connect_messaging(
         payload={"connection_id": str(c.id), "provider": provider},
     )
     return c
+
+
+def connect_meta(
+    db: Session, ctx: TenantContext, page_id: str, page_access_token: str, with_instagram: bool
+) -> list[ChannelConnection]:
+    """Facebook Page, plus the Instagram account linked to it when asked (and when there is one)."""
+    fields = {"page_id": page_id, "page_access_token": page_access_token}
+    out = [connect_messaging(db, ctx, "facebook_page", fields)]
+    if with_instagram:
+        try:
+            with db.begin_nested():
+                out.append(connect_messaging(db, ctx, "instagram", fields))
+        except ValidationFailed as e:
+            if e.code != "instagram_not_linked":
+                raise
+    return out
 
 
 def webhook_setup(db: Session, ctx: TenantContext, connection_id: uuid.UUID) -> dict[str, Any]:

@@ -626,3 +626,8 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 
 **Decision.** Campaigns are sent only through a channel the customer already used to message the shop; every message carries an opt-out line and a STOP reply is honoured permanently; at most one campaign message per customer per 7 days, only 09:00–20:00 shop time, with a daily limit and a kill switch. WhatsApp customers outside the 24-hour window are deferred (templates not built).
 **Why.** Unsolicited marketing harms sellers' channel standing and customers' trust; Nepal sellers mostly sell over chat already.
+
+## ADR-085: Facebook/Instagram publish through the seller's own Meta app until Nivaro's app is reviewed (2026-11-20)
+
+**Decision.** Sellers paste a long-lived Page access token from their own Meta app; the adapters call the same Graph API endpoints Nivaro's reviewed app will use, so switching to OAuth later only changes how the token is obtained. Autopost is opt-in, approval-first by default, and once per product per account.
+**Why.** App Review takes weeks and Nivaro has no app yet; a seller's own app may post to Pages and Instagram accounts its admins manage without review. TikTok has no equivalent (unaudited apps post privately), so it waits for TikTok's audit.

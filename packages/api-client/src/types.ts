@@ -664,7 +664,7 @@ export interface ContentPost {
   hashtags: string[];
   asset_ids: string[];
   campaign: string | null;
-  source: "seller" | "ai_studio" | "ai_schedule" | (string & {});
+  source: "seller" | "ai_studio" | "ai_schedule" | "autopost" | (string & {});
   status: PostStatus;
   issues: StudioIssue[];
   scheduled_at: string | null;
@@ -2571,4 +2571,35 @@ export interface CampaignPreview {
   reachable: number;
   unreachable: Partial<Record<CampaignSkipReason, number>>;
   sample_en: string;
+}
+
+// ----------------------------------------------------------------------------- Meta (seller's own app) + autopost
+export interface ConnectMetaInput {
+  page_id: string;
+  page_access_token: string;
+  with_instagram?: boolean;
+}
+
+export interface AutopostAccount {
+  id: string;
+  provider: string;
+  display_name: string;
+}
+
+export interface AutopostSettings {
+  enabled: boolean;
+  connection_ids: string[];
+  kind: Exclude<PostKind, "reel">;
+  require_approval: boolean;
+  /** Connected accounts that can publish content. */
+  available: AutopostAccount[];
+  /** Used when the shop's busiest order hour isn't known yet. */
+  default_hour: number;
+}
+
+export interface AutopostInput {
+  enabled: boolean;
+  connection_ids: string[];
+  kind: Exclude<PostKind, "reel">;
+  require_approval: boolean;
 }
