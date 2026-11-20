@@ -10,6 +10,8 @@ from app.domains.integrations.base import (
     NotificationAdapter,
     PaymentAdapter,
 )
+from app.domains.integrations.messaging import TelegramAdapter, WhatsAppCloudAdapter
+from app.domains.integrations.nepal_payments import EsewaAdapter, KhaltiAdapter
 from app.domains.integrations.sandbox import (
     CashOnDeliveryAdapter,
     ConsoleEmailAdapter,
@@ -24,10 +26,15 @@ _REGISTRY: dict[str, dict[str, type[Adapter]]] = {
     "channel": {
         SandboxChannelAdapter.code: SandboxChannelAdapter,
         WooCommerceAdapter.code: WooCommerceAdapter,
+        TelegramAdapter.code: TelegramAdapter,
+        WhatsAppCloudAdapter.code: WhatsAppCloudAdapter,
     },
     "payment": {
         SandboxPaymentAdapter.code: SandboxPaymentAdapter,
         CashOnDeliveryAdapter.code: CashOnDeliveryAdapter,
+        # Seller-connected gateways: credentials come from payments.gateways, never from settings.
+        KhaltiAdapter.code: KhaltiAdapter,
+        EsewaAdapter.code: EsewaAdapter,
     },
     "courier": {
         ManualCourierAdapter.code: ManualCourierAdapter,
@@ -53,10 +60,27 @@ def available(kind: str) -> list[dict[str, object]]:
             "sandbox": c.is_sandbox,
             "capabilities": sorted(cap.value for cap in c.capabilities),
             **({"auth_fields": list(c.auth_fields)} if issubclass(c, CourierAdapter) else {}),
+            **(
+                {
+                    "auth_kind": c.auth_kind,
+                    "secret_fields": list(getattr(c, "credential_fields", ())),
+                    "optional_fields": list(getattr(c, "optional_fields", ())),
+                    "manual_webhook": bool(getattr(c, "needs_manual_webhook", False)),
+                }
+                if issubclass(c, ChannelAdapter)
+                else {}
+            ),
         }
         for c in _REGISTRY.get(kind, {}).values()
         if not (prod and c.is_sandbox)
     ]
+
+
+def get_class(kind: str, code: str) -> type[Adapter]:
+    cls = _REGISTRY.get(kind, {}).get(code)
+    if cls is None:
+        raise AdapterNotAvailable(f"{kind}:{code}")
+    return cls
 
 
 def get(

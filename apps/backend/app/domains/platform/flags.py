@@ -65,6 +65,7 @@ KILL_SWITCHES = {
     "ops.sales_agent_replies": "The AI Sales Agent stops replying; messages wait in the inbox",
     "ops.content_publishing": "Scheduled posts aren't published; they stay scheduled",
     "ops.intelligence_jobs": "Nightly intelligence jobs are skipped",
+    "ops.campaigns": "Retention campaigns stop sending (they continue where they left off when cleared)",
 }
 
 

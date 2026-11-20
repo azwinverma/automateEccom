@@ -131,6 +131,21 @@ def receive(db: Session, connection: ChannelConnection, raw: dict[str, Any]) -> 
     if conv.first_response_due_at is None:
         conv.first_response_due_at = now + FIRST_RESPONSE_SLA
     db.flush()
+    from app.domains.retention import service as retention
+
+    if retention.is_stop(m.text):
+        # Marketing opt-out: no more campaign messages. The seller still sees the chat; the AI stays out.
+        if retention.opt_out(db, cust):
+            stop_ne = conv.locale == "ne"
+            queue_reply(
+                db,
+                conv,
+                "अब हामी तपाईंलाई अफर पठाउने छैनौं। अर्डर वा प्रश्न भए यहीँ लेख्नुहोस्।"
+                if stop_ne
+                else "Done. We won't send you offers again. For orders or questions, just write here.",
+                author="system",
+            )
+        return msg
     outbox.publish(
         db,
         event_type="inbox.message_received",

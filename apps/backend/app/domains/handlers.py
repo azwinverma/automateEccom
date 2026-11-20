@@ -47,6 +47,7 @@ HANDLER_MODULES = (
     app.domains.media.video,
     app.domains.orders.service,
     app.domains.payments.service,
+    app.domains.retention.service,
     app.domains.returns.service,
     app.domains.studio.service,
 )

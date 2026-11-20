@@ -170,6 +170,12 @@ groups:
         annotations:
           summary: "Nightly intelligence hasn't succeeded in 26 hours"
           runbook: docs/runbooks/intelligence-recompute.md
+      - alert: CampaignSenderStale
+        expr: time() - job_last_success_timestamp_seconds{job="run_campaigns"} > 3 * 3600
+        labels: {severity: ticket}
+        annotations:
+          summary: "Retention campaigns haven't run in 3 hours"
+          runbook: docs/runbooks/README.md
       - alert: IntelligenceJobFailing
         expr: increase(job_runs_total{outcome="failure"}[6h]) > 0
         labels: {severity: ticket}

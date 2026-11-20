@@ -48,6 +48,10 @@
       "name": "Automation workflows"
     },
     {
+      "code": "marketing.campaigns",
+      "name": "Retention campaigns (win-back, repeat reminders, broadcasts)"
+    },
+    {
       "code": "automation.autopilot",
       "name": "Autopilot mode"
     },
@@ -282,7 +286,8 @@
           "intelligence.creative_genome": false,
           "intelligence.supplier": false,
           "intelligence.simulation": false,
-          "network.insights": false
+          "network.insights": false,
+          "marketing.campaigns": false
         },
         "limits": [
           {
@@ -423,7 +428,8 @@
           "intelligence.creative_genome": false,
           "intelligence.supplier": false,
           "intelligence.simulation": false,
-          "network.insights": false
+          "network.insights": false,
+          "marketing.campaigns": true
         },
         "limits": [
           {
@@ -564,7 +570,8 @@
           "intelligence.creative_genome": true,
           "intelligence.supplier": false,
           "intelligence.simulation": false,
-          "network.insights": false
+          "network.insights": false,
+          "marketing.campaigns": true
         },
         "limits": [
           {
@@ -705,7 +712,8 @@
           "intelligence.creative_genome": true,
           "intelligence.supplier": true,
           "intelligence.simulation": true,
-          "network.insights": false
+          "network.insights": false,
+          "marketing.campaigns": true
         },
         "limits": [
           {
@@ -846,7 +854,8 @@
           "intelligence.creative_genome": true,
           "intelligence.supplier": true,
           "intelligence.simulation": true,
-          "network.insights": false
+          "network.insights": false,
+          "marketing.campaigns": true
         },
         "limits": [
           {

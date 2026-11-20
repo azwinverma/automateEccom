@@ -614,3 +614,15 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 - **Why:** the hard-coded SSE header failed on S3-compatible stores without KMS, and presigned browser
   uploads can't carry server-chosen SSE headers anyway; production buckets should enforce default
   encryption.
+
+
+## ADR-083: Sellers connect payment gateways and messaging channels with their own credentials (2026-11-20)
+
+**Context.** Khalti/eSewa pay out to a merchant account, and Messenger/Instagram need Meta App Review for Nivaro's app. Waiting on platform-level approvals would keep Pay and Converse unusable.
+**Decision.** Each seller connects their own Khalti/eSewa merchant keys, Telegram bot token, or their own WhatsApp Business Cloud app (token, app secret, phone number id). Credentials are sealed with the existing envelope encryption (per-record data key, AAD bound to merchant + provider + row), opened only in memory for a call, never returned, never logged, and destroyed on disconnect. Payments are confirmed server-side with the gateway; redirects are never trusted.
+**Consequences.** No Nivaro app review is needed for these channels; sellers do a little setup (copying a callback URL and verify token for WhatsApp). Platform-level OAuth channels (Meta, TikTok) remain blocked on review.
+
+## ADR-084: Retention campaigns only reach customers who chatted, with opt-out and caps (2026-11-20)
+
+**Decision.** Campaigns are sent only through a channel the customer already used to message the shop; every message carries an opt-out line and a STOP reply is honoured permanently; at most one campaign message per customer per 7 days, only 09:00–20:00 shop time, with a daily limit and a kill switch. WhatsApp customers outside the 24-hour window are deferred (templates not built).
+**Why.** Unsolicited marketing harms sellers' channel standing and customers' trust; Nepal sellers mostly sell over chat already.

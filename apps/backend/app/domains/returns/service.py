@@ -811,6 +811,15 @@ def _original_payment(db: Session, o: Order) -> Payment | None:
     )
 
 
+def _refundable_by_provider(p: Payment | None) -> bool:
+    if p is None:
+        return False
+    try:
+        return registry.payment(p.provider).supports(PaymentCapability.REFUND)
+    except registry.AdapterNotAvailable:
+        return False
+
+
 def request_refund(
     db: Session,
     ctx: TenantContext,
@@ -845,6 +854,11 @@ def request_refund(
         raise ValidationFailed(
             "This order wasn't paid online. Record how you sent the money instead.",
             code="refund_method_unavailable",
+        )
+    if pay is not None and not _refundable_by_provider(pay):
+        raise ValidationFailed(
+            "Refund this payment from your gateway's own dashboard, then record the refund here.",
+            code="refund_via_gateway_dashboard",
         )
     policy = get_policy(db, ctx.merchant_id)
     needs_approval = amount_minor > policy.auto_refund_max_minor and not ctx.has("refunds.approve")
@@ -1020,7 +1034,7 @@ def _maybe_auto_refund(db: Session, r: ReturnRequest, o: Order, policy: ReturnPo
         r.refund_due_minor <= 0
         or r.refund_due_minor > policy.auto_refund_max_minor
         or r.signals
-        or _original_payment(db, o) is None
+        or not _refundable_by_provider(_original_payment(db, o))
     ):
         return
     from app.domains.automation import policy as decision_policy

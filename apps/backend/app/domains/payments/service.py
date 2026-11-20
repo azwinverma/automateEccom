@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import uuid
 from typing import Any
 
@@ -28,10 +30,11 @@ from app.core.ids import uuid7
 from app.domains.audit import service as audit
 from app.domains.channels.models import WebhookEvent
 from app.domains.integrations import registry
-from app.domains.integrations.base import IntegrationError, Money, PaymentStatus
+from app.domains.integrations.base import IntegrationError, Money, PaymentAdapter, PaymentStatus
 from app.domains.orders import service as orders
 from app.domains.orders.models import Order
-from app.domains.payments.models import CODRecord, Payment
+from app.domains.payments import gateways
+from app.domains.payments.models import CODRecord, Payment, PaymentGateway
 from app.domains.platform import outbox
 from app.domains.platform.models import OutboxEvent
 from app.domains.platform.outbox import handler
@@ -66,6 +69,32 @@ def _payment_confirmed(db: Session, ctx: TenantContext, o: Order, p: Payment) ->
 
 
 # ----------------------------------------------------------------------------- online
+def _link_token(pid: uuid.UUID) -> str:
+    key = get_settings().jwt_secret.get_secret_value().encode()
+    return hmac.new(key, f"pay-link:{pid}".encode(), hashlib.sha256).hexdigest()[:32]
+
+
+def link_token_ok(pid: uuid.UUID, token: str) -> bool:
+    return hmac.compare_digest(_link_token(pid), token or "")
+
+
+def public_checkout_url(pid: uuid.UUID) -> str:
+    return f"{get_settings().public_api_base_url}/pay/{pid}?t={_link_token(pid)}"
+
+
+def public_return_url(pid: uuid.UUID) -> str:
+    return f"{get_settings().public_api_base_url}/pay/{pid}/return?t={_link_token(pid)}"
+
+
+def adapter_for_payment(db: Session, p: Payment) -> PaymentAdapter:
+    if p.gateway_id is not None:
+        g = db.get(PaymentGateway, p.gateway_id)
+        if g is None:
+            raise IntegrationError("gateway_missing", p.provider)
+        return gateways.adapter_for(g)
+    return registry.payment(p.provider)
+
+
 def start_online_payment(
     db: Session, ctx: TenantContext, order_id: uuid.UUID, return_url: str | None
 ) -> Payment:
@@ -79,16 +108,30 @@ def start_online_payment(
     )
     if pending is not None:
         return pending  # same link again (double tap, page refresh)
-    code = get_settings().payment_provider
-    try:
-        if not code:
-            raise registry.AdapterNotAvailable("no payment provider")
-        adapter = registry.payment(code)
-    except registry.AdapterNotAvailable as e:
-        raise Conflict(
-            "Online payments aren't set up yet. Record the payment yourself or switch to cash on delivery.",
-            code="payment_provider_not_configured",
-        ) from e
+    gw = gateways.default_gateway(db, o.merchant_id)
+    pid = uuid7()
+    if gw is not None:
+        code = gw.provider
+        try:
+            adapter: PaymentAdapter = gateways.adapter_for(gw)
+        except IntegrationError as e:
+            raise Conflict(
+                "Your payment gateway's keys need attention in Settings → Payments.",
+                code="payment_gateway_error",
+            ) from e
+        return_url = public_return_url(pid)  # the customer comes back to us; we then verify with the gateway
+    else:
+        code = get_settings().payment_provider or ""
+        try:
+            if not code:
+                raise registry.AdapterNotAvailable("no payment provider")
+            adapter = registry.payment(code)
+        except registry.AdapterNotAvailable as e:
+            raise Conflict(
+                "Online payments aren't set up yet. Connect eSewa or Khalti in Settings → Payments, "
+                "record the payment yourself, or switch to cash on delivery.",
+                code="payment_provider_not_configured",
+            ) from e
     attempt = (
         db.scalar(
             select(func.count())
@@ -106,20 +149,29 @@ def start_online_payment(
             idempotency_key=key,
         )
     except IntegrationError as e:
+        if e.code == "amount_below_minimum":
+            raise Conflict(
+                "This amount is below the gateway's minimum payment.", code="amount_below_minimum"
+            ) from e
+        if e.code == "invalid_credentials" and gw is not None:
+            gw.status, gw.verified, gw.last_error_code = "error", False, "invalid_credentials"
         raise AppError(
             "The payment provider didn't respond. Try again shortly.", code="payment_provider_unavailable"
         ) from e
     p = Payment(
+        id=pid,
         merchant_id=o.merchant_id,
         order_id=o.id,
         kind="online",
         provider=code,
+        gateway_id=gw.id if gw is not None else None,
         method="wallet",
         status="pending",
         amount_minor=o.total_minor,
         currency=o.currency,
         provider_payment_id=res.provider_payment_id,
-        redirect_url=res.redirect_url,
+        # eSewa needs a signed browser form, which we host; Khalti gives us its own payment page.
+        redirect_url=res.redirect_url or public_checkout_url(pid),
         idempotency_key=key,
     )
     db.add(p)
@@ -144,11 +196,11 @@ def verify(db: Session, payment_id: uuid.UUID) -> Payment:
     ctx = TenantContext(merchant_id=p.merchant_id, actor=Actor.system("payments"))
     o = orders.get_order(db, ctx, p.order_id, lock=True)
     try:
-        res = registry.payment(p.provider).verify_payment(
+        res = adapter_for_payment(db, p).verify_payment(
             p.provider_payment_id, Money(p.amount_minor, p.currency)
         )
-    except IntegrationError as e:
-        log.warning("payment_verify_failed", payment_id=str(p.id), error=e.code)
+    except (IntegrationError, registry.AdapterNotAvailable) as e:
+        log.warning("payment_verify_failed", payment_id=str(p.id), error=getattr(e, "code", "unavailable"))
         return p  # stays pending; the next webhook/poll retries
     if res.status in (PaymentStatus.CAPTURED, PaymentStatus.AUTHORIZED):
         paid = res.amount.amount_minor if res.amount else None
@@ -167,6 +219,10 @@ def verify(db: Session, payment_id: uuid.UUID) -> Payment:
             )
             return p
         p.status = "paid"
+        if p.gateway_id is not None:
+            g = db.get(PaymentGateway, p.gateway_id)
+            if g is not None:
+                g.last_payment_at, g.verified = utcnow(), True  # a real payment proves the keys
         if o.status == "cancelled":
             o.needs_review = "paid_after_cancel"  # refund decision is the seller's (Phase 4 refunds)
             orders._event(db, o, ctx.actor, "payment_after_cancel", provider=p.provider, paid_minor=paid)

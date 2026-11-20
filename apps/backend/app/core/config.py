@@ -95,6 +95,9 @@ class Settings(BaseSettings):
     payment_webhook_secrets: dict[str, SecretStr] = Field(
         default_factory=lambda: {"sandbox_wallet": SecretStr("dev-sandbox-payment-secret")}
     )
+    # eSewa status-check endpoints (sources disagree on the sandbox host: confirm at onboarding).
+    esewa_status_url_test: str = "https://uat.esewa.com.np/api/epay/transaction/status/"
+    esewa_status_url_live: str = "https://epay.esewa.com.np/api/epay/transaction/status/"
     channel_webhook_secrets: dict[str, SecretStr] = Field(
         default_factory=lambda: {"sandbox_channel": SecretStr("dev-sandbox-webhook-secret")}
     )
@@ -139,6 +142,10 @@ class Settings(BaseSettings):
     @property
     def is_production_like(self) -> bool:
         return self.environment in (Environment.STAGING, Environment.PRODUCTION)
+
+    @property
+    def public_web_base_url(self) -> str:
+        return self.cors_origins[0] if self.cors_origins else "http://localhost:3010"
 
     @property
     def broker_url(self) -> str:

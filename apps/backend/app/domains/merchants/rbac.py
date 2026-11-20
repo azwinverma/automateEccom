@@ -34,7 +34,7 @@ DOMAIN_PERMISSIONS: dict[str, tuple[str, ...]] = {
     "orders": ("read", "write", "cancel"),
     "inventory": ("read", "adjust", "transfer"),
     "procurement": ("read", "write", "approve"),
-    "payments": ("read", "write"),
+    "payments": ("read", "write", "manage"),
     "fulfillment": ("read", "write"),
     "returns": ("read", "write", "approve"),
     "refunds": ("read", "create", "approve"),

@@ -45,6 +45,14 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
 
+## Seller connections + Converse + Retain (2026-11-20)
+
+- **Payment gateways per seller:** Khalti (KPG-2: initiate + lookup) and eSewa (ePay v2: signed form we host, HMAC-SHA256, status check). Seller's own merchant keys, sealed with envelope encryption (AAD = merchant + provider + row id), never returned or logged, destroyed on disconnect. Every payment is confirmed with the gateway (never the customer's redirect) and the amount compared. Public checkout/return pages are HMAC-signed links with a strict CSP. Owner/admin only (`payments.manage`). Tests: `tests/test_payment_gateways.py` (8).
+- **Converse on real channels:** Telegram bots and the seller's own WhatsApp Business Cloud app, connected with the seller's credentials (sealed). Webhooks verified per connection (Telegram secret token; Meta `X-Hub-Signature-256` with the seller's app secret; Meta verify-token handshake). The AI Sales Agent answers on them. WhatsApp's 24-hour rule is surfaced as `outside_reply_window`. Tests: `tests/test_messaging_channels.py` (4).
+- **Retain:** win-back, repeat-purchase reminders and broadcasts (`marketing.campaigns`, Growth+). Only customers who chatted on a connected channel; STOP opt-out (customer reply → never messaged again, confirmed); 1 campaign message / customer / 7 days; 09:00–20:00 shop time; daily limit; kill switch `ops.campaigns`; preview before start; conversions = orders within 7 days. Tests: `tests/test_retention.py` (6).
+- **AI keys:** the BYOK backend already existed (AIG-011); the web screen is added this round.
+- Migrations 0026 (payment_gateways) and 0027 (retention). Still NOT production ready (no staging).
+
 ## Production readiness round (2026-11-20)
 Not a roadmap phase: the Definition of Done's "Operations" items, verified locally because staging needs a
 hosting decision.

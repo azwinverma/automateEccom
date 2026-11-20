@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Index, String, UniqueConstraint, text
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, ForeignKey, Index, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base, IdMixin, TenantScoped, TimestampMixin
@@ -55,6 +55,9 @@ class Payment(IdMixin, TimestampMixin, TenantScoped, Base):
     paid_minor: Mapped[int | None] = mapped_column(BigInteger)  # what the provider confirmed
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
     provider_payment_id: Mapped[str | None] = mapped_column(String(120))
+    gateway_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("payment_gateways.id")
+    )  # seller's own gateway
     redirect_url: Mapped[str | None] = mapped_column(String(1000))
     reference: Mapped[str | None] = mapped_column(String(120))  # seller's bank/wallet reference
     failure_code: Mapped[str | None] = mapped_column(String(64))
@@ -84,3 +87,40 @@ class CODRecord(IdMixin, TimestampMixin, TenantScoped, Base):
     )
     fee_minor: Mapped[int] = mapped_column(BigInteger, default=0, server_default="0", nullable=False)
     settled_at: Mapped[datetime | None]
+
+
+class PaymentGateway(IdMixin, TimestampMixin, TenantScoped, Base):
+    """A seller's own payment-gateway merchant account (Khalti, eSewa). Secrets are envelope-encrypted
+    (AAD bound to merchant, provider and row id), never returned by the API and never logged."""
+
+    __tablename__ = "payment_gateways"
+    __table_args__ = (
+        CheckConstraint("status in ('active','error','disconnected')", name="status"),
+        CheckConstraint("mode in ('test','live')", name="mode"),
+        Index(
+            "uq_payment_gateway_provider",
+            "merchant_id",
+            "provider",
+            unique=True,
+            postgresql_where=text("status <> 'disconnected'"),
+        ),
+        Index(
+            "uq_payment_gateway_default",
+            "merchant_id",
+            unique=True,
+            postgresql_where=text("is_default and status <> 'disconnected'"),
+        ),
+    )
+
+    provider: Mapped[str] = mapped_column(String(40), nullable=False)
+    mode: Mapped[str] = mapped_column(String(8), default="test", nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    credentials_sealed: Mapped[str | None] = mapped_column(String(4096))
+    secret_last4: Mapped[str | None] = mapped_column(String(4))
+    public_id: Mapped[str | None] = mapped_column(String(80))  # e.g. eSewa product/merchant code (not secret)
+    verified: Mapped[bool | None] = mapped_column(Boolean)  # None: only a real payment can prove it
+    last_error_code: Mapped[str | None] = mapped_column(String(64))
+    last_payment_at: Mapped[datetime | None]
+    connected_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    disconnected_at: Mapped[datetime | None]

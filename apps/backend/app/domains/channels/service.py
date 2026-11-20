@@ -52,7 +52,9 @@ OAUTH_STATE_TTL = timedelta(minutes=10)
 REFRESH_AHEAD = timedelta(minutes=10)
 MAX_PUBLISH_ATTEMPTS = 6
 MAX_WEBHOOK_ATTEMPTS = 8
-API_KEY_PROVIDERS = frozenset({"woocommerce"})
+API_KEY_PROVIDERS = frozenset({"woocommerce", "telegram", "whatsapp_cloud"})
+# Messaging channels connected with the seller's own bot/app credentials (no Nivaro app review).
+MESSAGING_KEY_PROVIDERS = frozenset({"telegram", "whatsapp_cloud"})
 
 
 @register_gauge("channels")
@@ -88,7 +90,8 @@ def adapter_for(c: ChannelConnection) -> ChannelAdapter:
         secret = SealedSecret(c.access_token_sealed).open(_aad(c, "access"))
         if c.provider in API_KEY_PROVIDERS:
             creds.update(json.loads(secret))
-            config["store_url"] = c.external_account_id
+            if c.provider == "woocommerce":
+                config["store_url"] = c.external_account_id
         else:
             creds["access_token"] = secret
     return registry.channel(c.provider, credentials=creds, config=config)
@@ -332,6 +335,126 @@ def connect_with_keys(
     return c
 
 
+def connect_messaging(
+    db: Session, ctx: TenantContext, provider: str, fields: dict[str, str]
+) -> ChannelConnection:
+    """Telegram bot / the seller's own WhatsApp Cloud app. Credentials are checked with a live call,
+    then sealed (AES-256-GCM envelope, AAD bound to merchant + connection). Never returned."""
+    from app.domains.integrations.messaging import _KeyedMessagingChannel
+
+    if provider not in MESSAGING_KEY_PROVIDERS:
+        raise ValidationFailed("This channel doesn't connect this way", code="wrong_connect_method")
+    cls = registry.get_class("channel", provider)
+    assert issubclass(cls, _KeyedMessagingChannel)
+    allowed = (*cls.credential_fields, *cls.optional_fields)
+    creds = {k: str(v).strip() for k, v in fields.items() if k in allowed and str(v).strip()}
+    missing = [k for k in cls.credential_fields if k not in creds]
+    if provider == "whatsapp_cloud" and "phone_number_id" not in creds:
+        missing.append("phone_number_id")
+    if missing:
+        raise ValidationFailed(
+            "Fill in every required field", code="missing_fields", details={"fields": missing}
+        )
+    if any(len(v) > 600 or any(ch in v for ch in "\r\n\t ") for v in creds.values()):
+        raise ValidationFailed("One of the values doesn't look right", code="invalid_api_keys")
+    adapter = registry.channel(provider, credentials=creds, config={})
+    try:
+        account_id, display = adapter.account()  # type: ignore[attr-defined]
+    except IntegrationError as e:
+        INTEGRATION_CALLS.labels(provider, "connect_keys", e.code).inc()
+        raise ValidationFailed(
+            "We couldn't connect with those details",
+            code="invalid_api_keys" if e.auth else "channel_unreachable",
+            details={"provider_code": e.code},
+        ) from e
+    if provider == "telegram":
+        creds["bot_id"] = account_id
+    existing = db.scalar(
+        select(ChannelConnection).where(
+            ChannelConnection.merchant_id == ctx.merchant_id,
+            ChannelConnection.provider == provider,
+            ChannelConnection.external_account_id == account_id,
+            ChannelConnection.status != "disconnected",
+        )
+    )
+    taken = db.scalar(
+        select(ChannelConnection.id)
+        .where(
+            ChannelConnection.provider == provider,
+            ChannelConnection.external_account_id == account_id,
+            ChannelConnection.status != "disconnected",
+            ChannelConnection.merchant_id != ctx.merchant_id,
+        )
+        .execution_options(skip_tenant_filter=True)
+    )
+    if taken is not None:
+        raise Conflict("This account is already connected to another shop", code="account_in_use")
+    if existing is None:
+        entitlements.check_gauge(db, ctx.merchant_id, "channels")
+    c = existing or ChannelConnection(
+        id=uuid7(),
+        merchant_id=ctx.merchant_id,
+        provider=provider,
+        external_account_id=account_id,
+        connected_by_user_id=ctx.actor.id,
+    )
+    if existing is None:
+        db.add(c)
+    c.display_name = display[:120]
+    c.status, c.last_error_code, c.consecutive_failures, c.last_healthy_at = "connected", None, 0, utcnow()
+    c.capabilities = sorted(cap.value for cap in adapter.capabilities)
+    c.access_token_sealed = SealedSecret.seal(json.dumps(creds), _aad(c, "access")).blob
+    c.refresh_token_sealed, c.token_expires_at = None, None
+    c.webhooks_registered_at = None  # (re)register with the new credentials
+    if not c.webhook_secret_sealed:
+        c.webhook_secret_sealed = SealedSecret.seal(new_opaque_token(), _aad(c, "webhook")).blob
+    db.flush()
+    audit.record(
+        db,
+        action="channels.connected" if existing is None else "channels.reconnected",
+        resource_type="channel_connection",
+        resource_id=c.id,
+        actor=ctx.actor,
+        merchant_id=ctx.merchant_id,
+        meta=ctx.meta,
+        metadata={"provider": provider, "account": account_id},  # never a token
+    )
+    outbox.publish(
+        db,
+        event_type="channels.connected",
+        aggregate_type="channel_connection",
+        aggregate_id=c.id,
+        merchant_id=ctx.merchant_id,
+        payload={"connection_id": str(c.id), "provider": provider},
+    )
+    return c
+
+
+def webhook_setup(db: Session, ctx: TenantContext, connection_id: uuid.UUID) -> dict[str, Any]:
+    """What the seller pastes into their own Meta app (WhatsApp): callback URL and verify token."""
+    from app.core.config import get_settings
+
+    c = _get(db, ctx, connection_id)
+    if c.provider != "whatsapp_cloud" or not c.webhook_secret_sealed:
+        raise NotFound()
+    return {
+        "callback_url": f"{get_settings().public_api_base_url.rstrip('/')}/webhooks/{c.provider}/{c.id}",
+        "verify_token": SealedSecret(c.webhook_secret_sealed).open(_aad(c, "webhook")),
+        "fields": ["messages"],
+    }
+
+
+def webhook_credentials(c: ChannelConnection) -> dict[str, str]:
+    """Extra secrets a provider needs to check its webhook signatures (WhatsApp: the app secret)."""
+    if c.provider == "whatsapp_cloud" and c.access_token_sealed:
+        creds = json.loads(SealedSecret(c.access_token_sealed).open(_aad(c, "access")))
+        return {"app_secret": creds.get("app_secret", "")}
+    if c.provider == "telegram" and c.access_token_sealed:
+        creds = json.loads(SealedSecret(c.access_token_sealed).open(_aad(c, "access")))
+        return {"bot_id": creds.get("bot_id", "")}
+    return {}
+
+
 def urlparse_host(url: str) -> str:
     from urllib.parse import urlparse
 
@@ -363,7 +486,10 @@ def _register_webhooks(db: Session, ev: OutboxEvent) -> None:
     ):
         return
     adapter = adapter_for(c)
-    secret = new_opaque_token()
+    if c.provider in MESSAGING_KEY_PROVIDERS and c.webhook_secret_sealed:
+        secret = SealedSecret(c.webhook_secret_sealed).open(_aad(c, "webhook"))  # stays stable
+    else:
+        secret = new_opaque_token()
     url = f"{get_settings().public_api_base_url.rstrip('/')}/webhooks/{c.provider}/{c.id}"
     c.webhook_ids = adapter.register_webhooks(url, secret)  # type: ignore[attr-defined]
     c.webhook_secret_sealed = SealedSecret.seal(secret, _aad(c, "webhook")).blob
@@ -488,8 +614,9 @@ def ingest_webhook(
     connection: ChannelConnection | None = None,
 ) -> dict[str, int]:
     """Called by the public webhook endpoint. Returns counts; raises on bad signature."""
+    extra = webhook_credentials(connection) if connection is not None else {}
     try:
-        adapter = registry.channel(provider, credentials={"webhook_secret": webhook_secret})
+        adapter = registry.channel(provider, credentials={"webhook_secret": webhook_secret, **extra})
     except registry.AdapterNotAvailable as e:
         raise NotFound(code="provider_not_available") from e
     if not adapter.verify_webhook(headers, body):

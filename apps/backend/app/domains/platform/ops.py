@@ -35,6 +35,7 @@ JOBS = (
     "reconcile_channels",
     "sync_cod_settlements",
     "dispatch_outbox",
+    "run_campaigns",
 )
 _lock = threading.Lock()
 _last = 0.0

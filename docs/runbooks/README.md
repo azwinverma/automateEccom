@@ -21,5 +21,7 @@ heartbeat numbers in one go. Grafana: *Nivaro · Service health* and *Nivaro · 
 
 **Kill switches** (feature flags, `PUT /api/v1/admin/feature-flags/{key}` with `{"kill_switch": true}`,
 staff with MFA; audited): `ops.automation`, `ops.sales_agent_replies`, `ops.content_publishing`,
-`ops.intelligence_jobs`. A merchant override with `enabled=false` stops one shop only. Clearing the switch
-resumes work where it stopped (workflow runs continue from their step; scheduled posts publish).
+`ops.intelligence_jobs`, `ops.campaigns` (retention campaigns stop sending; use it first if customers
+complain about messages). A merchant override with `enabled=false` stops one shop only. Clearing the switch
+resumes work where it stopped (workflow runs continue from their step; scheduled posts publish; campaigns
+pick up the customers they hadn't reached).

@@ -50,6 +50,8 @@ celery.conf.update(
         "sync-cod-settlements": {"task": "app.worker.tasks.sync_cod_settlements", "schedule": 6 * 3600.0},
         # TWIN-003: periodic reconciliation (spec 03 default every 6 h).
         "reconcile-twin": {"task": "app.worker.tasks.reconcile_twin", "schedule": 6 * 3600.0},
+        # Retain: campaigns only send between 09:00 and 20:00 shop time; hourly is enough.
+        "run-campaigns": {"task": "app.worker.tasks.run_campaigns", "schedule": 3600.0},
     },
 )
 

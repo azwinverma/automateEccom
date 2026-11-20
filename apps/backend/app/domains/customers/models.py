@@ -37,6 +37,8 @@ class Customer(IdMixin, TimestampMixin, TenantScoped, Base):
     status: Mapped[str] = mapped_column(String(16), default="active", nullable=False)
     merged_into_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("customers.id", ondelete="SET NULL"))
     last_seen_at: Mapped[datetime | None]
+    # Marketing consent: set when the customer replies STOP; campaigns never message them again.
+    marketing_opt_out_at: Mapped[datetime | None]
 
 
 class CustomerIdentity(IdMixin, TimestampMixin, TenantScoped, Base):

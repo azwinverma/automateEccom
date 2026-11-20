@@ -62,11 +62,13 @@ def create_app() -> FastAPI:
     from app.domains.media.router import router as media
     from app.domains.merchants.router import router as merchants
     from app.domains.orders.router import router as orders
+    from app.domains.payments.router import public_router as payment_public
     from app.domains.payments.router import router as payments
     from app.domains.payments.router import webhooks_router as payment_webhooks
     from app.domains.platform.router import health_router
     from app.domains.platform.router import router as platform
     from app.domains.procurement.router import router as procurement
+    from app.domains.retention.router import router as retention
     from app.domains.returns.router import router as returns
     from app.domains.studio.router import router as studio
     from app.domains.twin.router import router as twin
@@ -77,6 +79,7 @@ def create_app() -> FastAPI:
     # Payment webhooks first: /webhooks/payments/{provider} must not be read as a channel's
     # /webhooks/{provider}/{connection_id}.
     app.include_router(payment_webhooks)
+    app.include_router(payment_public)  # /pay/{payment_id}: the customer's checkout and return
     app.include_router(courier_webhooks)  # /webhooks/couriers/{provider}/{account_id}
     app.include_router(webhooks_router)  # public: signature-verified, no user auth
     for r in (
@@ -97,6 +100,7 @@ def create_app() -> FastAPI:
         fulfillment,
         fulfillment_dev,  # dev-only simulator; each route 404s in staging/production
         returns,
+        retention,
         procurement,
         automation,
         intelligence,

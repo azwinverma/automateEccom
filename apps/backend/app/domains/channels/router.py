@@ -95,6 +95,32 @@ def connect_with_keys(
     return service.connection_view(c)
 
 
+class MessagingIn(BaseModel):
+    provider: str = Field(pattern="^(telegram|whatsapp_cloud)$")
+    # bot_token (Telegram); access_token, app_secret, phone_number_id, business_account_id (WhatsApp)
+    fields: dict[str, SecretStr] = Field(max_length=6)
+
+
+@router.post("/connect-messaging", status_code=201)
+def connect_messaging(
+    body: MessagingIn,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    """Connect a Telegram bot or the seller's own WhatsApp Business app. Secrets are sealed at once."""
+    fields = {k: v.get_secret_value() for k, v in body.fields.items()}
+    return service.connection_view(service.connect_messaging(db, ctx, body.provider, fields))
+
+
+@router.get("/{connection_id}/webhook-setup")
+def webhook_setup(
+    connection_id: uuid.UUID,
+    ctx: TenantContext = Depends(require("channels.manage")),
+    db: Session = Depends(get_db, scope="function"),
+) -> dict[str, Any]:
+    return service.webhook_setup(db, ctx, connection_id)
+
+
 @router.post("/oauth/callback", status_code=201)
 def oauth_callback(
     body: CallbackIn,
@@ -223,6 +249,25 @@ async def receive_webhook(provider: str, request: Request) -> JSONResponse:
             )
         raise
     return JSONResponse({"received": True, **stats})
+
+
+@webhooks_router.get("/webhooks/{provider}/{connection_id}", include_in_schema=False)
+def verify_connection_webhook(provider: str, connection_id: uuid.UUID, request: Request) -> Response:
+    """Meta's one-time callback check: echo hub.challenge only if hub.verify_token is this connection's."""
+    from app.core.db import session_scope
+    from app.core.security import constant_time_equals
+
+    q = request.query_params
+    with session_scope() as db:
+        found = service.connection_webhook_secret(db, connection_id)
+    if (
+        found is None
+        or found[0].provider != provider
+        or q.get("hub.mode") != "subscribe"
+        or not constant_time_equals(q.get("hub.verify_token", ""), found[1])
+    ):
+        return Response(status_code=403)
+    return Response(q.get("hub.challenge", "")[:200], media_type="text/plain")
 
 
 @webhooks_router.post("/webhooks/{provider}/{connection_id}")

@@ -162,6 +162,16 @@ def reconcile_twin() -> int:
         return twin.reconcile_all(db)
 
 
+@celery.task(name="app.worker.tasks.run_campaigns", ignore_result=True)
+@tracked("run_campaigns")
+def run_campaigns() -> dict[str, int]:
+    """Retain: send due campaign messages (consent, frequency cap, send hours and limits applied)."""
+    from app.domains.retention import service as retention
+
+    with session_scope() as db:
+        return retention.run_all(db)
+
+
 @celery.task(name="app.worker.tasks.nightly_intelligence", ignore_result=True)
 @tracked("nightly_intelligence")
 def nightly_intelligence() -> dict[str, int]:
