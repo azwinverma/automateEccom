@@ -23,6 +23,9 @@ import '../features/intelligence/presentation/memory_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/orders/presentation/order_screen.dart';
 import '../features/orders/presentation/orders_screen.dart';
+import '../features/procurement/presentation/po_detail_screen.dart';
+import '../features/procurement/presentation/po_list_screen.dart';
+import '../features/procurement/presentation/supplier_screen.dart';
 import '../features/returns/presentation/return_detail_screen.dart';
 import '../features/returns/presentation/returns_list_screen.dart';
 import '../features/settings/presentation/plan_usage_screen.dart';
@@ -154,6 +157,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/returns', builder: (_, __) => const ReturnsListScreen()),
       GoRoute(path: '/automation', builder: (_, __) => const WorkflowsScreen()),
       GoRoute(path: '/learned', builder: (_, __) => const MemoryScreen()),
+      GoRoute(
+        path: '/purchase-orders',
+        builder:
+            (_, s) => PurchaseOrdersScreen(
+              initialStatus: s.uri.queryParameters['status'],
+            ),
+      ),
+      GoRoute(
+        path: '/purchase-orders/:id',
+        builder: (_, s) => PurchaseOrderScreen(poId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/suppliers/:id',
+        builder: (_, s) => SupplierScreen(supplierId: s.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/what-sells',
         builder: (_, __) => const CreativeGenomeScreen(),

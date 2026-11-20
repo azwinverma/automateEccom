@@ -1,6 +1,8 @@
 .wrap {
   width: 100%;
   overflow-x: auto;
+  /* Contain absolutely positioned children (e.g. screen-reader-only labels) inside the scroller. */
+  position: relative;
   border-top: 1px solid var(--border-default);
 }
 

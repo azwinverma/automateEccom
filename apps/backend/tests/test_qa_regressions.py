@@ -146,21 +146,33 @@ def test_qa001_reset_requests_are_rate_limited_per_email(client):
 
 
 def test_qa010_login_is_rate_limited_per_ip_and_per_email(client):
-    """Brute-force protection: per-IP (30/min default) and per-email (10/5 min) limits answer 429."""
+    """Brute-force protection: per-IP (30/min default) and per-email (10/5 min) limits answer 429.
+
+    The limiter uses fixed windows, so a burst can straddle a window boundary. Sending up to
+    2 x limit + 1 attempts guarantees one window exceeds the limit (pigeonhole), so the test can't flake.
+    """
     email = f"rl-login-{uuid.uuid4().hex[:6]}@example.com"
-    codes = [
-        client.post(f"{API}/auth/login", json={"email": email, "password": "Wrong-Password-1"}).status_code
-        for _ in range(11)
-    ]
-    assert codes[:10].count(401) == 10 and codes[-1] == 429
-    ip_codes = [
-        client.post(
-            f"{API}/auth/login",
-            json={"email": f"x{i}-{uuid.uuid4().hex[:4]}@example.com", "password": "Nope-nope-1"},
-        ).status_code
-        for i in range(31)
-    ]
-    assert 429 in ip_codes
+    codes: list[int] = []
+    for _ in range(21):
+        codes.append(
+            client.post(
+                f"{API}/auth/login", json={"email": email, "password": "Wrong-Password-1"}
+            ).status_code
+        )
+        if codes[-1] == 429:
+            break
+    assert codes[-1] == 429 and set(codes[:-1]) == {401} and len(codes) >= 11
+    ip_codes: list[int] = []
+    for i in range(61):
+        ip_codes.append(
+            client.post(
+                f"{API}/auth/login",
+                json={"email": f"x{i}-{uuid.uuid4().hex[:4]}@example.com", "password": "Nope-nope-1"},
+            ).status_code
+        )
+        if ip_codes[-1] == 429:
+            break
+    assert ip_codes[-1] == 429
 
 
 def test_qa011_totp_code_is_accepted_only_once(client):

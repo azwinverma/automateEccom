@@ -3540,4 +3540,300 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get prSaved => 'नतिजा सेभ भयो';
+
+  @override
+  String get settingsPurchaseOrders => 'खरिद अर्डर';
+
+  @override
+  String get poTitle => 'खरिद अर्डर';
+
+  @override
+  String get poFilterAll => 'सबै';
+
+  @override
+  String get poStatusDraft => 'मस्यौदा';
+
+  @override
+  String get poStatusPending => 'स्वीकृतिको पर्खाइमा';
+
+  @override
+  String get poStatusApproved => 'स्वीकृत';
+
+  @override
+  String get poStatusSent => 'सप्लायरलाई पठाइयो';
+
+  @override
+  String get poStatusPartial => 'आंशिक रूपमा आयो';
+
+  @override
+  String get poStatusReceived => 'आइपुग्यो';
+
+  @override
+  String get poStatusCancelled => 'रद्द';
+
+  @override
+  String get poEmpty => 'यहाँ अहिलेसम्म खरिद अर्डर छैन';
+
+  @override
+  String poListItem(String number, String supplier) {
+    return '$number · $supplier';
+  }
+
+  @override
+  String poItems(String count) {
+    return 'सामान: $count';
+  }
+
+  @override
+  String get poFromSuggestion => 'सुझावबाट';
+
+  @override
+  String poTotal(String amount) {
+    return 'जम्मा $amount';
+  }
+
+  @override
+  String poGoods(String amount) {
+    return 'सामान $amount';
+  }
+
+  @override
+  String poExtras(String amount) {
+    return 'ढुवानी, भन्सार र अन्य $amount';
+  }
+
+  @override
+  String poExpected(String date) {
+    return '$date सम्ममा आउने';
+  }
+
+  @override
+  String poLineQty(String ordered, String received, String remaining) {
+    return 'अर्डर $ordered · आयो $received · बाँकी $remaining';
+  }
+
+  @override
+  String poLineDefective(String count) {
+    return '$count वटा बिग्रिएर आयो';
+  }
+
+  @override
+  String poLineCost(String price, String landed) {
+    return 'मूल्य $price · पुग्दाको लागत $landed';
+  }
+
+  @override
+  String get poLandedHint =>
+      'पुग्दाको लागत = मूल्य + ढुवानी, भन्सार र अन्य खर्चको भाग';
+
+  @override
+  String poBelowMoq(String moq) {
+    return 'सप्लायरको न्यूनतम $moq भन्दा कम';
+  }
+
+  @override
+  String get poApprovalAbove =>
+      'स्वीकृतिको पर्खाइमा: तपाईंको खरिद सीमाभन्दा माथि';
+
+  @override
+  String get poApprovalNeedsApprover =>
+      'मालिक वा म्यानेजरको स्वीकृतिको पर्खाइमा';
+
+  @override
+  String get poApprove => 'स्वीकृत गर्नुहोस्';
+
+  @override
+  String get poReturn => 'सच्याउन फिर्ता';
+
+  @override
+  String get poReturnTitle => 'के बदल्नुपर्छ?';
+
+  @override
+  String get poReturnReason => 'कारण';
+
+  @override
+  String get poCancel => 'रद्द';
+
+  @override
+  String get poManagersOnly =>
+      'मालिक र म्यानेजरले मात्र खरिद अर्डर स्वीकृत गर्न सक्छन्';
+
+  @override
+  String get poSubmit => 'स्वीकृतिका लागि पठाउनुहोस्';
+
+  @override
+  String get poMarkSent => 'पठाइएको भनी चिनो लगाउनुहोस्';
+
+  @override
+  String get poCopyOrder => 'अर्डरको पाठ कपी गर्नुहोस्';
+
+  @override
+  String get poCopied => 'अर्डर कपी भयो: WhatsApp, Viber वा इमेलमा टाँस्नुहोस्';
+
+  @override
+  String get poReceive => 'स्टक बुझ्नुहोस्';
+
+  @override
+  String get poReceiveTitle => 'के आइपुग्यो?';
+
+  @override
+  String get poReceiveGood => 'राम्रो';
+
+  @override
+  String get poReceiveDefective => 'बिग्रिएको';
+
+  @override
+  String get poReceiveLot => 'लट कोड (ऐच्छिक)';
+
+  @override
+  String get poReceiveSave => 'सेभ गर्नुहोस्';
+
+  @override
+  String get poReceiveEmpty => 'के आयो लेख्नुहोस्';
+
+  @override
+  String poReceiveLeft(String count) {
+    return '$count आउन बाँकी';
+  }
+
+  @override
+  String poReceiveOver(String count) {
+    return 'अर्डरभन्दा बढी: यो सामानमा $count मात्र बाँकी';
+  }
+
+  @override
+  String get poReceiveInvalid => 'पूर्ण अंक मात्र';
+
+  @override
+  String get poReceipts => 'डेलिभरीहरू';
+
+  @override
+  String poReceiptLine(String lot, String good, String defective) {
+    return '$lot: $good राम्रो, $defective बिग्रिएको';
+  }
+
+  @override
+  String get poDone => 'भयो';
+
+  @override
+  String get poSupplierOpen => 'सप्लायरको विवरण';
+
+  @override
+  String get supTitle => 'सप्लायर';
+
+  @override
+  String supTerms(String terms) {
+    return 'भुक्तानी सर्त: $terms';
+  }
+
+  @override
+  String supLead(String days) {
+    return 'सामान्य डेलिभरी समय: $days दिन';
+  }
+
+  @override
+  String supContact(String name) {
+    return 'सम्पर्क: $name';
+  }
+
+  @override
+  String get supPerfTitle => 'यो सप्लायर कस्तो छ';
+
+  @override
+  String get supPerfNone => 'अझै मापन भएको छैन: पहिले केही अर्डर बुझ्नुहोस्';
+
+  @override
+  String supPerfFrom(String received, String sold) {
+    return '$received बुझिएको र $sold बिक्रीबाट';
+  }
+
+  @override
+  String get supLanded => 'पुग्दाको लागत';
+
+  @override
+  String get supDefect => 'बिग्रिएर आएको';
+
+  @override
+  String get supQuality => 'गुणस्तरका कारण फिर्ता';
+
+  @override
+  String get supOnTime => 'समयमै';
+
+  @override
+  String get supLeadMeasured => 'डेलिभरी समय';
+
+  @override
+  String supLeadDays(String days) {
+    return '$days दिन';
+  }
+
+  @override
+  String get supProfit => 'प्रति थान नाफा';
+
+  @override
+  String get supProfitMissing => 'अझै पर्याप्त बिक्री छैन';
+
+  @override
+  String supNotIncluded(String items) {
+    return 'समावेश नभएको: $items';
+  }
+
+  @override
+  String get supNiCourier => 'कुरियर';
+
+  @override
+  String get supNiPackaging => 'प्याकेजिङ';
+
+  @override
+  String get supNiPayment => 'भुक्तानी शुल्क';
+
+  @override
+  String get supNiReturnShipping => 'फिर्ता ढुवानी';
+
+  @override
+  String get supNiNoSales => 'अझै बिक्री छैन';
+
+  @override
+  String recReorder(String title, String supplier) {
+    return '$supplier बाट $title फेरि मगाउनुहोस्';
+  }
+
+  @override
+  String recWhyReorder(
+    String days,
+    String perDay,
+    String available,
+    String incoming,
+    String lead,
+    String qty,
+  ) {
+    return '$days दिनमा सकिन्छ (दिनको $perDay, स्टकमा $available, बाटोमा $incoming)। डेलिभरीमा $lead दिन लाग्छ। $qty मगाउनुहोस्।';
+  }
+
+  @override
+  String recReorderMoq(String moq) {
+    return 'सप्लायरको न्यूनतम $moq';
+  }
+
+  @override
+  String get recReorderDone =>
+      'खरिद अर्डरको मस्यौदा तयार: स्वीकृतिका लागि पठाउनुहोस्';
+
+  @override
+  String get recOpenPos => 'खोल्नुहोस्';
+
+  @override
+  String recSupplierSwitch(String title, String to) {
+    return '$title $to बाट किन्नुहोस्';
+  }
+
+  @override
+  String recWhySupplierSwitch(String gain, String from) {
+    return 'बिग्रिएको र फिर्ता पछि पनि $from भन्दा प्रति थान $gain बढी कमाइ';
+  }
+
+  @override
+  String recImpactOrderValue(String amount) {
+    return 'अर्डर मूल्य $amount';
+  }
 }

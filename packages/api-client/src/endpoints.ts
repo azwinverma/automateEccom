@@ -137,6 +137,17 @@ import type {
   Payment,
   ProductStock,
   StockLevel,
+  PurchaseOrder,
+  PurchaseOrderInput,
+  PurchaseOrderPatchInput,
+  PurchaseOrderStatus,
+  ReceiveInput,
+  Supplier,
+  SupplierDetail,
+  SupplierInput,
+  SupplierPatchInput,
+  SupplierProduct,
+  SupplierProductInput,
 } from "./types";
 
 /** Options for idem endpoints: pass a stable key to make retries safe. */
@@ -610,7 +621,7 @@ export function createApi(client: ApiClient) {
     intelligence: {
       autopilotScore: (windowDays = 30) => client.request<AutopilotScore>("/intelligence/autopilot-score", { tenant: true, query: { window_days: windowDays } }),
       recommendations: (status: RecommendationView["status"] = "open") =>
-        client.request<{ items: RecommendationView[] }>("/intelligence/recommendations", { tenant: true, query: { status } }),
+        client.request<{ items: RecommendationView[]; currency?: string }>("/intelligence/recommendations", { tenant: true, query: { status } }),
       refreshRecommendations: () => client.request<{ created: number }>("/intelligence/recommendations/refresh", { method: "POST", tenant: true }),
       accept: (id: string) => client.request<RecommendationView>(`/intelligence/recommendations/${encodeURIComponent(id)}/accept`, { method: "POST", tenant: true }),
       reject: (id: string, reason: string) =>
@@ -662,6 +673,44 @@ export function createApi(client: ApiClient) {
         client.request<CreativeExperiment>("/intelligence/creative/experiments", { method: "POST", body, tenant: true }),
       stopExperiment: (id: string) =>
         client.request<CreativeExperiment>(`/intelligence/creative/experiments/${encodeURIComponent(id)}/stop`, { method: "POST", tenant: true }),
+    },
+    /** Phase 8: suppliers, purchase orders, receiving (plan feature `procurement`). */
+    procurement: {
+      suppliers: (includeArchived = false) =>
+        client.request<{ items: Supplier[]; performance_available: boolean; currency?: string }>("/procurement/suppliers", { tenant: true, query: { include_archived: includeArchived || undefined } }),
+      supplier: (id: string) => client.request<SupplierDetail>(`/procurement/suppliers/${encodeURIComponent(id)}`, { tenant: true }),
+      createSupplier: (body: SupplierInput) => client.request<Supplier>("/procurement/suppliers", { method: "POST", body, tenant: true }),
+      updateSupplier: (id: string, body: SupplierPatchInput) =>
+        client.request<Supplier>(`/procurement/suppliers/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      setSupplierProduct: (supplierId: string, variantId: string, body: SupplierProductInput) =>
+        client.request<{ items: SupplierProduct[] }>(`/procurement/suppliers/${encodeURIComponent(supplierId)}/products/${encodeURIComponent(variantId)}`, {
+          method: "PUT",
+          body,
+          tenant: true,
+        }),
+      removeSupplierProduct: (supplierId: string, variantId: string) =>
+        client.request<{ items: SupplierProduct[] }>(`/procurement/suppliers/${encodeURIComponent(supplierId)}/products/${encodeURIComponent(variantId)}`, {
+          method: "DELETE",
+          tenant: true,
+        }),
+      refreshPerformance: () => client.request<{ suppliers: number }>("/procurement/suppliers/performance/refresh", { method: "POST", tenant: true }),
+      purchaseOrders: (q: { status?: PurchaseOrderStatus; supplier_id?: string; limit?: number } = {}) =>
+        client.request<{ items: PurchaseOrder[] }>("/procurement/purchase-orders", { tenant: true, query: { ...q } }),
+      purchaseOrder: (id: string) => client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}`, { tenant: true }),
+      createPurchaseOrder: (body: PurchaseOrderInput, o?: IdemOptions) =>
+        client.request<PurchaseOrder>("/procurement/purchase-orders", { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      updatePurchaseOrder: (id: string, body: PurchaseOrderPatchInput) =>
+        client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}`, { method: "PATCH", body, tenant: true }),
+      submit: (id: string) => client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/submit`, { method: "POST", tenant: true }),
+      approve: (id: string) => client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/approve`, { method: "POST", tenant: true }),
+      reject: (id: string, reason: string) =>
+        client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/reject`, { method: "POST", body: { reason }, tenant: true }),
+      markSent: (id: string) => client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/send`, { method: "POST", tenant: true }),
+      cancel: (id: string, reason: string) =>
+        client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/cancel`, { method: "POST", body: { reason }, tenant: true }),
+      receive: (id: string, body: ReceiveInput, o?: IdemOptions) =>
+        client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/receipts`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
+      incoming: () => client.request<{ items: { variant_id: string; quantity: number }[] }>("/procurement/incoming", { tenant: true }),
     },
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {

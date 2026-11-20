@@ -543,3 +543,32 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
   that hide quietly without a feature (stock risk, Product Brain, COD risk, creative suggestions) don't call
   their API at all when the plan lacks it. Pages whose job is the feature still show the upsell on 403.
 - **Why:** avoids pointless 403s (noise in logs and alerts) found by the settings E2E's failed-request check.
+
+## ADR-073: PO approval uses the shop's PO limit and the approver permission (PRO-004, 2026-11-20)
+- **Decision:** above `po_minor` (Rules & limits; default 0) a PO always waits for an explicit approval
+  by someone with procurement.approve, even its creator. Below it, an approver's PO is approved on submit;
+  others wait. Reorder suggestions only create drafts, which go through the same path.
+- **Why:** spec 06 makes POs above the threshold R3; a separate approve click keeps buying deliberate and
+  audited without slowing small, routine orders once the seller raises the limit.
+
+## ADR-074: Landed cost becomes the product's moving-average cost (PRO-006, 2026-11-20)
+- **Decision:** freight, duty and other costs are allocated to lines by ordered value; each receipt stores
+  the landed unit cost per lot; the variant's cost becomes the weighted average of stock on hand and the
+  new good units at landed cost. Defective units aren't stocked; their cost shows up as the supplier's
+  defect cost. Every cost change is audited.
+- **Why:** true profit (ADR-065) needs the cost actually paid per sellable unit; order lines snapshot it.
+
+## ADR-075: No supplier email/WhatsApp sending yet; a share text instead (PRO-003, 2026-11-20)
+- **Decision:** "Mark sent" records the date; the PO offers a plain message to paste into WhatsApp,
+  Viber or email. No prices or terms are added that the seller didn't enter.
+- **Why:** sellers in Nepal order from suppliers by chat; sending needs a production email/WhatsApp
+  provider (not configured) and the seller's consent per supplier.
+
+## ADR-076: Supplier attribution by the lot on the shelf; true economics per unit (SPI-001/002, 2026-11-20)
+- **Decision:** a sold unit belongs to the latest lot of that variant received before the order. Contribution
+  per unit = selling price − landed − defect cost (defect_rate/(1−defect_rate) × landed) − return cost
+  (unrestockable value + average return shipping, per unit sold) − fees & fulfilment (shop P&L, "not
+  included" when missing). Switch suggestions need 20+ received units per supplier and a gain of at least
+  5% of the price (min NPR 20 per unit).
+- **Why:** spec 13's example: the cheaper supplier can be the less profitable one. Per-unit lot tracking
+  isn't recorded at sale time, so the shelf-lot rule is the honest approximation (GAP-SPI-LOT).

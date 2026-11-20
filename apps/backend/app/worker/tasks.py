@@ -176,6 +176,11 @@ def nightly_intelligence() -> dict[str, int]:
 
     with session_scope() as db:
         stats["creative_merchants"] = creative.run_all(db)
+    # Phase 8: supplier performance (before suggestions, which use it).
+    from app.domains.procurement import supplier_intel
+
+    with session_scope() as db:
+        stats["supplier_merchants"] = supplier_intel.compute_all(db)
     with session_scope() as db:
         stats["aps_snapshots"] = aps.snapshot_all(db)
     with session_scope() as db:

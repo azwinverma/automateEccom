@@ -6148,6 +6148,481 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Results saved'**
   String get prSaved;
+
+  /// No description provided for @settingsPurchaseOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase orders'**
+  String get settingsPurchaseOrders;
+
+  /// No description provided for @poTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase orders'**
+  String get poTitle;
+
+  /// No description provided for @poFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get poFilterAll;
+
+  /// No description provided for @poStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get poStatusDraft;
+
+  /// No description provided for @poStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get poStatusPending;
+
+  /// No description provided for @poStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get poStatusApproved;
+
+  /// No description provided for @poStatusSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to supplier'**
+  String get poStatusSent;
+
+  /// No description provided for @poStatusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly received'**
+  String get poStatusPartial;
+
+  /// No description provided for @poStatusReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get poStatusReceived;
+
+  /// No description provided for @poStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get poStatusCancelled;
+
+  /// No description provided for @poEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase orders here yet'**
+  String get poEmpty;
+
+  /// No description provided for @poListItem.
+  ///
+  /// In en, this message translates to:
+  /// **'{number} · {supplier}'**
+  String poListItem(String number, String supplier);
+
+  /// No description provided for @poItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items: {count}'**
+  String poItems(String count);
+
+  /// No description provided for @poFromSuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'From a suggestion'**
+  String get poFromSuggestion;
+
+  /// No description provided for @poTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {amount}'**
+  String poTotal(String amount);
+
+  /// No description provided for @poGoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Goods {amount}'**
+  String poGoods(String amount);
+
+  /// No description provided for @poExtras.
+  ///
+  /// In en, this message translates to:
+  /// **'Freight, duty and other {amount}'**
+  String poExtras(String amount);
+
+  /// No description provided for @poExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected by {date}'**
+  String poExpected(String date);
+
+  /// No description provided for @poLineQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered {ordered} · Received {received} · Left {remaining}'**
+  String poLineQty(String ordered, String received, String remaining);
+
+  /// No description provided for @poLineDefective.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} damaged on arrival'**
+  String poLineDefective(String count);
+
+  /// No description provided for @poLineCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Price {price} · Landed {landed}'**
+  String poLineCost(String price, String landed);
+
+  /// No description provided for @poLandedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Landed cost = price + its share of freight, duty and other costs'**
+  String get poLandedHint;
+
+  /// No description provided for @poBelowMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the supplier\'s minimum of {moq}'**
+  String poBelowMoq(String moq);
+
+  /// No description provided for @poApprovalAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval: above your purchase limit'**
+  String get poApprovalAbove;
+
+  /// No description provided for @poApprovalNeedsApprover.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for an owner or manager to approve'**
+  String get poApprovalNeedsApprover;
+
+  /// No description provided for @poApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get poApprove;
+
+  /// No description provided for @poReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return for changes'**
+  String get poReturn;
+
+  /// No description provided for @poReturnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What should change?'**
+  String get poReturnTitle;
+
+  /// No description provided for @poReturnReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get poReturnReason;
+
+  /// No description provided for @poCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get poCancel;
+
+  /// No description provided for @poManagersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only owners and managers can approve purchase orders'**
+  String get poManagersOnly;
+
+  /// No description provided for @poSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for approval'**
+  String get poSubmit;
+
+  /// No description provided for @poMarkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as sent'**
+  String get poMarkSent;
+
+  /// No description provided for @poCopyOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy order text'**
+  String get poCopyOrder;
+
+  /// No description provided for @poCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Order copied: paste it into WhatsApp, Viber or email'**
+  String get poCopied;
+
+  /// No description provided for @poReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive stock'**
+  String get poReceive;
+
+  /// No description provided for @poReceiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What arrived?'**
+  String get poReceiveTitle;
+
+  /// No description provided for @poReceiveGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get poReceiveGood;
+
+  /// No description provided for @poReceiveDefective.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged'**
+  String get poReceiveDefective;
+
+  /// No description provided for @poReceiveLot.
+  ///
+  /// In en, this message translates to:
+  /// **'Lot code (optional)'**
+  String get poReceiveLot;
+
+  /// No description provided for @poReceiveSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get poReceiveSave;
+
+  /// No description provided for @poReceiveEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what arrived'**
+  String get poReceiveEmpty;
+
+  /// No description provided for @poReceiveLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left to arrive'**
+  String poReceiveLeft(String count);
+
+  /// No description provided for @poReceiveOver.
+  ///
+  /// In en, this message translates to:
+  /// **'More than was ordered: {count} left on this item'**
+  String poReceiveOver(String count);
+
+  /// No description provided for @poReceiveInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole numbers only'**
+  String get poReceiveInvalid;
+
+  /// No description provided for @poReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get poReceipts;
+
+  /// No description provided for @poReceiptLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{lot}: {good} good, {defective} damaged'**
+  String poReceiptLine(String lot, String good, String defective);
+
+  /// No description provided for @poDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get poDone;
+
+  /// No description provided for @poSupplierOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier details'**
+  String get poSupplierOpen;
+
+  /// No description provided for @supTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier'**
+  String get supTitle;
+
+  /// No description provided for @supTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment terms: {terms}'**
+  String supTerms(String terms);
+
+  /// No description provided for @supLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual delivery time: {days} days'**
+  String supLead(String days);
+
+  /// No description provided for @supContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact: {name}'**
+  String supContact(String name);
+
+  /// No description provided for @supPerfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How this supplier performs'**
+  String get supPerfTitle;
+
+  /// No description provided for @supPerfNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not measured yet: receive a few orders first'**
+  String get supPerfNone;
+
+  /// No description provided for @supPerfFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {received} received and {sold} sold'**
+  String supPerfFrom(String received, String sold);
+
+  /// No description provided for @supLanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Landed cost'**
+  String get supLanded;
+
+  /// No description provided for @supDefect.
+  ///
+  /// In en, this message translates to:
+  /// **'Damaged on arrival'**
+  String get supDefect;
+
+  /// No description provided for @supQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality returns'**
+  String get supQuality;
+
+  /// No description provided for @supOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get supOnTime;
+
+  /// No description provided for @supLeadMeasured.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time'**
+  String get supLeadMeasured;
+
+  /// No description provided for @supLeadDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String supLeadDays(String days);
+
+  /// No description provided for @supProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit per unit'**
+  String get supProfit;
+
+  /// No description provided for @supProfitMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough sales yet'**
+  String get supProfitMissing;
+
+  /// No description provided for @supNotIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not included: {items}'**
+  String supNotIncluded(String items);
+
+  /// No description provided for @supNiCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'courier'**
+  String get supNiCourier;
+
+  /// No description provided for @supNiPackaging.
+  ///
+  /// In en, this message translates to:
+  /// **'packaging'**
+  String get supNiPackaging;
+
+  /// No description provided for @supNiPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'payment fees'**
+  String get supNiPayment;
+
+  /// No description provided for @supNiReturnShipping.
+  ///
+  /// In en, this message translates to:
+  /// **'return shipping'**
+  String get supNiReturnShipping;
+
+  /// No description provided for @supNiNoSales.
+  ///
+  /// In en, this message translates to:
+  /// **'no sales yet'**
+  String get supNiNoSales;
+
+  /// No description provided for @recReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder {title} from {supplier}'**
+  String recReorder(String title, String supplier);
+
+  /// No description provided for @recWhyReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs out in {days} days ({perDay}/day, {available} in stock, {incoming} on the way). Delivery takes {lead} days. Order {qty}.'**
+  String recWhyReorder(
+    String days,
+    String perDay,
+    String available,
+    String incoming,
+    String lead,
+    String qty,
+  );
+
+  /// No description provided for @recReorderMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplier minimum {moq}'**
+  String recReorderMoq(String moq);
+
+  /// No description provided for @recReorderDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft purchase order ready: submit it for approval'**
+  String get recReorderDone;
+
+  /// No description provided for @recOpenPos.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get recOpenPos;
+
+  /// No description provided for @recSupplierSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {title} from {to}'**
+  String recSupplierSwitch(String title, String to);
+
+  /// No description provided for @recWhySupplierSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Earns {gain} more per unit than {from}, after damaged units and returns'**
+  String recWhySupplierSwitch(String gain, String from);
+
+  /// No description provided for @recImpactOrderValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Order value {amount}'**
+  String recImpactOrderValue(String amount);
 }
 
 class _AppLocalizationsDelegate

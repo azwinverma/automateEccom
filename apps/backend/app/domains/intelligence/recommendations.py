@@ -173,7 +173,16 @@ def _restock(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     since = utcnow() - timedelta(days=30)
     profit_aware = entitlements.resolve(db, merchant_id).has("intelligence.profit")
     limits = profit.settings_row(db, merchant_id)
+    procurement_on = entitlements.resolve(db, merchant_id).has("procurement")
+    if procurement_on:
+        from app.domains.catalog.models import VariantSupplier
+
+        with_supplier = set(
+            db.scalars(select(VariantSupplier.variant_id).where(VariantSupplier.merchant_id == merchant_id))
+        )
     for lvl, v, p in low_stock(db, merchant_id, limit=20):
+        if procurement_on and v.id in with_supplier:
+            continue  # Phase 8: the reorder suggestion (supplier, lead time, quantity) covers it
         avail = lvl.on_hand - lvl.reserved
         sold = (
             db.scalar(
@@ -442,7 +451,25 @@ def _creative(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
     return out[:2]
 
 
-GENERATORS = (_autopilot, _courier, _restock, _returns, _profit, _creative)
+def _reorder(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """PRO-007 / SPI-004 (Phase 8)."""
+    from app.domains.procurement import supplier_intel
+
+    if not entitlements.resolve(db, merchant_id).has("procurement"):
+        return []
+    return supplier_intel.reorder_proposals(db, merchant_id)
+
+
+def _supplier_switch(db: Session, merchant_id: uuid.UUID) -> list[dict[str, Any]]:
+    """SPI-003 (Phase 8)."""
+    from app.domains.procurement import supplier_intel
+
+    if not entitlements.resolve(db, merchant_id).has("intelligence.supplier"):
+        return []
+    return supplier_intel.switch_proposals(db, merchant_id)
+
+
+GENERATORS = (_autopilot, _courier, _reorder, _restock, _returns, _profit, _creative, _supplier_switch)
 
 
 def generate(db: Session, merchant_id: uuid.UUID) -> int:
@@ -644,6 +671,50 @@ def _execute(db: Session, ctx: TenantContext, r: Recommendation) -> bool:
         memory.confirm_by_subject(db, ctx, params["subject_type"], params["subject_id"], params["fact_type"])
         if params.get("insight_id"):
             return_intel.mark_acted(db, ctx.merchant_id, uuid.UUID(params["insight_id"]))
+    elif t == "create_po_draft":
+        # A draft only: the PO still goes through submit → approval (PRO-004) before anything is bought.
+        from app.domains.procurement import service as procurement
+        from app.domains.procurement.models import PurchaseOrder
+
+        supplier_id = uuid.UUID(params["supplier_id"])
+        draft = db.scalar(
+            select(PurchaseOrder).where(
+                PurchaseOrder.supplier_id == supplier_id,
+                PurchaseOrder.status == "draft",
+                PurchaseOrder.source == "recommendation",
+            )
+        )
+        if draft is not None:
+            procurement.add_line(
+                db,
+                ctx,
+                draft,
+                uuid.UUID(params["variant_id"]),
+                int(params["quantity"]),
+                params.get("unit_cost_minor"),
+            )
+        else:
+            procurement.create_po(
+                db,
+                ctx,
+                {
+                    "supplier_id": supplier_id,
+                    "recommendation_id": r.id,
+                    "lines": [
+                        {
+                            "variant_id": uuid.UUID(params["variant_id"]),
+                            "quantity": int(params["quantity"]),
+                            "unit_cost_minor": params.get("unit_cost_minor"),
+                        }
+                    ],
+                },
+                idempotency_key=f"rec:{r.id}",
+                source="recommendation",
+            )
+    elif t == "set_preferred_supplier":
+        from app.domains.procurement import service as procurement
+
+        procurement.set_preferred(db, ctx, uuid.UUID(params["variant_id"]), uuid.UUID(params["supplier_id"]))
     elif t == "mark_insight_acted":
         from app.domains.intelligence import return_intel
 

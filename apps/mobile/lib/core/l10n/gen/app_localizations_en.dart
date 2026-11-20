@@ -3560,4 +3560,300 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prSaved => 'Results saved';
+
+  @override
+  String get settingsPurchaseOrders => 'Purchase orders';
+
+  @override
+  String get poTitle => 'Purchase orders';
+
+  @override
+  String get poFilterAll => 'All';
+
+  @override
+  String get poStatusDraft => 'Draft';
+
+  @override
+  String get poStatusPending => 'Waiting for approval';
+
+  @override
+  String get poStatusApproved => 'Approved';
+
+  @override
+  String get poStatusSent => 'Sent to supplier';
+
+  @override
+  String get poStatusPartial => 'Partly received';
+
+  @override
+  String get poStatusReceived => 'Received';
+
+  @override
+  String get poStatusCancelled => 'Cancelled';
+
+  @override
+  String get poEmpty => 'No purchase orders here yet';
+
+  @override
+  String poListItem(String number, String supplier) {
+    return '$number · $supplier';
+  }
+
+  @override
+  String poItems(String count) {
+    return 'Items: $count';
+  }
+
+  @override
+  String get poFromSuggestion => 'From a suggestion';
+
+  @override
+  String poTotal(String amount) {
+    return 'Total $amount';
+  }
+
+  @override
+  String poGoods(String amount) {
+    return 'Goods $amount';
+  }
+
+  @override
+  String poExtras(String amount) {
+    return 'Freight, duty and other $amount';
+  }
+
+  @override
+  String poExpected(String date) {
+    return 'Expected by $date';
+  }
+
+  @override
+  String poLineQty(String ordered, String received, String remaining) {
+    return 'Ordered $ordered · Received $received · Left $remaining';
+  }
+
+  @override
+  String poLineDefective(String count) {
+    return '$count damaged on arrival';
+  }
+
+  @override
+  String poLineCost(String price, String landed) {
+    return 'Price $price · Landed $landed';
+  }
+
+  @override
+  String get poLandedHint =>
+      'Landed cost = price + its share of freight, duty and other costs';
+
+  @override
+  String poBelowMoq(String moq) {
+    return 'Below the supplier\'s minimum of $moq';
+  }
+
+  @override
+  String get poApprovalAbove =>
+      'Waiting for approval: above your purchase limit';
+
+  @override
+  String get poApprovalNeedsApprover =>
+      'Waiting for an owner or manager to approve';
+
+  @override
+  String get poApprove => 'Approve';
+
+  @override
+  String get poReturn => 'Return for changes';
+
+  @override
+  String get poReturnTitle => 'What should change?';
+
+  @override
+  String get poReturnReason => 'Reason';
+
+  @override
+  String get poCancel => 'Cancel';
+
+  @override
+  String get poManagersOnly =>
+      'Only owners and managers can approve purchase orders';
+
+  @override
+  String get poSubmit => 'Submit for approval';
+
+  @override
+  String get poMarkSent => 'Mark as sent';
+
+  @override
+  String get poCopyOrder => 'Copy order text';
+
+  @override
+  String get poCopied => 'Order copied: paste it into WhatsApp, Viber or email';
+
+  @override
+  String get poReceive => 'Receive stock';
+
+  @override
+  String get poReceiveTitle => 'What arrived?';
+
+  @override
+  String get poReceiveGood => 'Good';
+
+  @override
+  String get poReceiveDefective => 'Damaged';
+
+  @override
+  String get poReceiveLot => 'Lot code (optional)';
+
+  @override
+  String get poReceiveSave => 'Save';
+
+  @override
+  String get poReceiveEmpty => 'Enter what arrived';
+
+  @override
+  String poReceiveLeft(String count) {
+    return '$count left to arrive';
+  }
+
+  @override
+  String poReceiveOver(String count) {
+    return 'More than was ordered: $count left on this item';
+  }
+
+  @override
+  String get poReceiveInvalid => 'Whole numbers only';
+
+  @override
+  String get poReceipts => 'Deliveries';
+
+  @override
+  String poReceiptLine(String lot, String good, String defective) {
+    return '$lot: $good good, $defective damaged';
+  }
+
+  @override
+  String get poDone => 'Done';
+
+  @override
+  String get poSupplierOpen => 'Supplier details';
+
+  @override
+  String get supTitle => 'Supplier';
+
+  @override
+  String supTerms(String terms) {
+    return 'Payment terms: $terms';
+  }
+
+  @override
+  String supLead(String days) {
+    return 'Usual delivery time: $days days';
+  }
+
+  @override
+  String supContact(String name) {
+    return 'Contact: $name';
+  }
+
+  @override
+  String get supPerfTitle => 'How this supplier performs';
+
+  @override
+  String get supPerfNone => 'Not measured yet: receive a few orders first';
+
+  @override
+  String supPerfFrom(String received, String sold) {
+    return 'From $received received and $sold sold';
+  }
+
+  @override
+  String get supLanded => 'Landed cost';
+
+  @override
+  String get supDefect => 'Damaged on arrival';
+
+  @override
+  String get supQuality => 'Quality returns';
+
+  @override
+  String get supOnTime => 'On time';
+
+  @override
+  String get supLeadMeasured => 'Delivery time';
+
+  @override
+  String supLeadDays(String days) {
+    return '$days days';
+  }
+
+  @override
+  String get supProfit => 'Profit per unit';
+
+  @override
+  String get supProfitMissing => 'Not enough sales yet';
+
+  @override
+  String supNotIncluded(String items) {
+    return 'Not included: $items';
+  }
+
+  @override
+  String get supNiCourier => 'courier';
+
+  @override
+  String get supNiPackaging => 'packaging';
+
+  @override
+  String get supNiPayment => 'payment fees';
+
+  @override
+  String get supNiReturnShipping => 'return shipping';
+
+  @override
+  String get supNiNoSales => 'no sales yet';
+
+  @override
+  String recReorder(String title, String supplier) {
+    return 'Reorder $title from $supplier';
+  }
+
+  @override
+  String recWhyReorder(
+    String days,
+    String perDay,
+    String available,
+    String incoming,
+    String lead,
+    String qty,
+  ) {
+    return 'Runs out in $days days ($perDay/day, $available in stock, $incoming on the way). Delivery takes $lead days. Order $qty.';
+  }
+
+  @override
+  String recReorderMoq(String moq) {
+    return 'Supplier minimum $moq';
+  }
+
+  @override
+  String get recReorderDone =>
+      'Draft purchase order ready: submit it for approval';
+
+  @override
+  String get recOpenPos => 'Open';
+
+  @override
+  String recSupplierSwitch(String title, String to) {
+    return 'Buy $title from $to';
+  }
+
+  @override
+  String recWhySupplierSwitch(String gain, String from) {
+    return 'Earns $gain more per unit than $from, after damaged units and returns';
+  }
+
+  @override
+  String recImpactOrderValue(String amount) {
+    return 'Order value $amount';
+  }
 }

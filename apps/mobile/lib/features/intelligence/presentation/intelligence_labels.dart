@@ -37,6 +37,12 @@ String _pct(Object? v) {
   return d == null ? '–' : (d * 100).round().toString();
 }
 
+String _titleVariant(Map<String, Object?> vars) => [
+  _v(vars, 'title'),
+  if (vars['variant'] != null && vars['variant'] != 'Default')
+    '(${_v(vars, 'variant')})',
+].join(' ');
+
 /// What the suggestion proposes, in plain words.
 String recommendationWhat(AppLocalizations l, Recommendation r) => switch (r
     .what) {
@@ -64,6 +70,11 @@ String recommendationWhat(AppLocalizations l, Recommendation r) => switch (r
   final w when w.startsWith('review_') && r.type == 'return_prevention' => l
       .recReviewReturns(_v(r.vars, 'title')),
   'review_price_or_cost' => l.recReviewPrice(_v(r.vars, 'title')),
+  'reorder' => l.recReorder(_titleVariant(r.vars), _v(r.vars, 'supplier')),
+  'switch_supplier' => l.recSupplierSwitch(
+    _titleVariant(r.vars),
+    _v(r.vars, 'to'),
+  ),
   'add_cost' => l.recAddCost(_v(r.vars, 'title')),
   final w when w.startsWith('creative_') && r.type == 'creative_tip' => l
       .recCreative(
@@ -76,8 +87,10 @@ String recommendationWhat(AppLocalizations l, Recommendation r) => switch (r
   _ => l.recOther,
 };
 
-String _money(AppLocalizations l, Object? minor) =>
-    minor is num ? Formatters.money(minor.toInt(), 'NPR', l.localeName) : '–';
+String _money(AppLocalizations l, Object? minor, [String currency = 'NPR']) =>
+    minor is num
+        ? Formatters.money(minor.toInt(), currency, l.localeName)
+        : '–';
 
 /// Why, from the evidence the backend computed (never new numbers).
 String? recommendationWhy(AppLocalizations l, Recommendation r) => switch (r
@@ -118,10 +131,25 @@ String? recommendationWhy(AppLocalizations l, Recommendation r) => switch (r
       ),
   ].join(' '),
   'losing_money' => l.recWhyLosing(
-    _money(l, (r.vars['contribution'] as num?)?.abs()),
+    _money(l, (r.vars['contribution'] as num?)?.abs(), r.currency),
     _v(r.vars, 'units'),
   ),
   'cost_not_set' => l.recWhyCostNotSet(_v(r.vars, 'units')),
+  'runs_out_before_delivery' => [
+    l.recWhyReorder(
+      _v(r.vars, 'days_left'),
+      _v(r.vars, 'per_day'),
+      _v(r.vars, 'available'),
+      _v(r.vars, 'incoming'),
+      _v(r.vars, 'lead_days'),
+      _v(r.vars, 'quantity'),
+    ),
+    if (r.vars['moq'] is num) l.recReorderMoq(_v(r.vars, 'moq')),
+  ].join(' '),
+  'true_economics' => l.recWhySupplierSwitch(
+    _money(l, r.vars['gain_per_unit'], r.currency),
+    _v(r.vars, 'from'),
+  ),
   'creative_pattern' =>
     r.vars['outcome'] == 'inquiries'
         ? l.recWhyCreativeInquiries(_v(r.vars, 'lift_pct'), _v(r.vars, 'n'))
@@ -131,7 +159,13 @@ String? recommendationWhy(AppLocalizations l, Recommendation r) => switch (r
 
 String? recommendationImpact(AppLocalizations l, Recommendation r) {
   final c30 = r.impact['contribution_30d_minor'];
-  if (c30 is num && c30 > 0) return l.recImpactContribution(_money(l, c30));
+  if (c30 is num && c30 > 0) {
+    return l.recImpactContribution(_money(l, c30, r.currency));
+  }
+  final order = r.impact['order_value_minor'];
+  if (order is num && order > 0) {
+    return l.recImpactOrderValue(_money(l, order, r.currency));
+  }
   final to = r.impact['score_to'];
   if (to is num) return l.recImpactScore('${(to * 100).round()}%');
   final pts = r.impact['success_gain_points'];

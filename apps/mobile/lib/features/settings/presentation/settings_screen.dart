@@ -202,6 +202,13 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const Divider(),
           _NavRow(
+            key: const Key('settings-purchase-orders'),
+            icon: Icons.local_shipping_outlined,
+            title: l.settingsPurchaseOrders,
+            onTap: () => context.push('/purchase-orders'),
+          ),
+          const Divider(),
+          _NavRow(
             key: const Key('settings-learned'),
             icon: Icons.lightbulb_outline,
             title: l.settingsLearned,

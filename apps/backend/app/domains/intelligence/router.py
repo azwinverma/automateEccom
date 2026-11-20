@@ -163,7 +163,10 @@ def list_recommendations(
     stmt = select(Recommendation).order_by(Recommendation.created_at.desc()).limit(100)
     if status:
         stmt = stmt.where(Recommendation.status == status)
-    return {"items": [recommendations.view(r) for r in db.scalars(stmt)]}
+    return {
+        "items": [recommendations.view(r) for r in db.scalars(stmt)],
+        "currency": _currency(db, ctx.merchant_id),
+    }
 
 
 @router.post("/recommendations/refresh")

@@ -89,9 +89,13 @@ class Recommendation {
     required this.confidence,
     required this.impact,
     required this.actionType,
+    this.currency = 'NPR',
   });
 
-  factory Recommendation.fromJson(Map<String, Object?> j) {
+  factory Recommendation.fromJson(
+    Map<String, Object?> j, {
+    String currency = 'NPR',
+  }) {
     final ex = (j['explanation'] as Map<String, Object?>?) ?? const {};
     final action = (j['action'] as Map<String, Object?>?) ?? const {};
     return Recommendation(
@@ -103,6 +107,7 @@ class Recommendation {
       confidence: (j['confidence'] as num?)?.toDouble() ?? 0,
       impact: (j['estimated_impact'] as Map<String, Object?>?) ?? const {},
       actionType: (action['type'] as String?) ?? 'none',
+      currency: currency,
     );
   }
 
@@ -114,6 +119,9 @@ class Recommendation {
   final double confidence;
   final Map<String, Object?> impact;
   final String actionType;
+
+  /// The shop's currency (top-level on the list response); money in vars/impact uses it.
+  final String currency;
 }
 
 @immutable
@@ -518,7 +526,10 @@ class IntelligenceApi {
       '/intelligence/recommendations',
       queryParameters: {'status': 'open'},
     );
-    return itemsOf(r.data).map(Recommendation.fromJson).toList();
+    final currency = (r.data?['currency'] as String?) ?? 'NPR';
+    return itemsOf(
+      r.data,
+    ).map((j) => Recommendation.fromJson(j, currency: currency)).toList();
   });
 
   Future<void> accept(String id) => apiCall(

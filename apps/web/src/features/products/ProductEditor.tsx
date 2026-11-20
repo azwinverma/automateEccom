@@ -35,6 +35,7 @@ import { CategoriesDrawer, categoryOptionLabel } from "./CategoriesDrawer";
 import { ChipInput } from "./ChipInput";
 import { CollectionsPicker } from "./CollectionsPicker";
 import { StockSection } from "../inventory/StockSection";
+import { IncomingNote } from "../procurement/IncomingNote";
 import { ProductBrainCard } from "../intelligence/ProductBrainCard";
 import { ListingsPanel } from "./ListingsPanel";
 import { PublishChecklist, StatusControl } from "./StatusControl";
@@ -527,6 +528,7 @@ export function EditorForm({ initial }: { initial: ProductDetail | null }) {
           {server && can("inventory.read") ? (
             <Section id="stock" title={t("inventory.section")} hint={t("inventory.hint")}>
               <StockSection productId={server.id} />
+              <IncomingNote variants={server.variants.map((v) => ({ id: v.id, title: v.title }))} />
             </Section>
           ) : null}
           {server ? (

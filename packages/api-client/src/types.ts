@@ -2119,3 +2119,186 @@ export interface CreativeRunStats {
   experiments: number;
 }
 
+
+// ============================================================================= Phase 8: procurement (PRO, SPI)
+export type SupplierStatus = "active" | "archived";
+
+export interface SupplierInput {
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  contact_name?: string | null;
+  address?: string | null;
+  default_lead_time_days?: number | null;
+  payment_terms?: string | null;
+  notes?: string | null;
+}
+
+export interface SupplierPatchInput extends Partial<SupplierInput> {
+  status?: SupplierStatus;
+}
+
+/** SPI-001: a supplier's performance with true economics per unit. */
+export interface SupplierPerformance {
+  supplier_id: string;
+  window_days: number;
+  received_units: number;
+  avg_unit_cost_minor: number | null;
+  avg_landed_cost_minor: number | null;
+  defect_rate: number | null;
+  sold_units: number;
+  return_rate: number | null;
+  quality_return_rate: number | null;
+  on_time_rate: number | null;
+  lead_time_days_avg: number | null;
+  lead_time_days_sd: number | null;
+  fill_rate: number | null;
+  contribution_per_unit_minor: number | null;
+  components: {
+    price: number | null;
+    landed: number | null;
+    defect_cost: number | null;
+    return_cost: number | null;
+    fees_fulfilment: number | null;
+  };
+  /** e.g. "courier", "packaging", "payment_fees", "return_shipping", "no_sales". */
+  not_included: string[];
+  purchase_orders: number;
+  lead_samples: number;
+  basis: "sold" | "no_sales_yet";
+  method_version: string;
+  computed_at: string;
+}
+
+export interface Supplier extends SupplierInput {
+  id: string;
+  status: SupplierStatus;
+  performance?: SupplierPerformance | null;
+}
+
+export interface SupplierProduct {
+  variant_id: string;
+  product_id: string;
+  title: string;
+  variant: string | null;
+  sku: string | null;
+  supplier_sku: string | null;
+  cost_minor: number | null;
+  moq: number | null;
+  lead_time_days: number | null;
+  is_preferred: boolean;
+  current_cost_minor: number | null;
+  price_minor: number;
+}
+
+export interface SupplierDetail extends Supplier {
+  products: SupplierProduct[];
+  performance: SupplierPerformance | null;
+  /** The shop's currency (ISO code) for every amount in this response. */
+  currency?: string;
+}
+
+export interface SupplierProductInput {
+  supplier_sku?: string | null;
+  cost_minor?: number | null;
+  moq?: number | null;
+  lead_time_days?: number | null;
+  is_preferred?: boolean;
+}
+
+export type PurchaseOrderStatus =
+  | "draft"
+  | "pending_approval"
+  | "approved"
+  | "sent"
+  | "partially_received"
+  | "received"
+  | "cancelled";
+
+export interface PurchaseOrderLine {
+  id: string;
+  variant_id: string;
+  product_id: string | null;
+  title: string | null;
+  variant: string | null;
+  sku: string | null;
+  quantity: number;
+  unit_cost_minor: number;
+  landed_unit_cost_minor: number | null;
+  received_quantity: number;
+  defective_quantity: number;
+  remaining: number;
+}
+
+export interface PurchaseReceipt {
+  id: string;
+  lot_code: string;
+  received_at: string;
+  note: string | null;
+  lines: { po_line_id: string; variant_id: string; quantity: number; defective_quantity: number; landed_unit_cost_minor: number }[];
+}
+
+export interface PurchaseOrder {
+  id: string;
+  number: string;
+  status: PurchaseOrderStatus;
+  source: "seller" | "recommendation";
+  supplier: { id: string; name: string | null; phone: string | null };
+  location_id: string | null;
+  currency: string;
+  subtotal_minor: number;
+  freight_minor: number;
+  duty_minor: number;
+  other_minor: number;
+  total_minor: number;
+  expected_at: string | null;
+  notes: string | null;
+  /** Why it waits: "above_threshold" (over the shop's PO limit) or "needs_approver". */
+  approval_reason: "above_threshold" | "needs_approver" | null;
+  submitted_at: string | null;
+  approved_at: string | null;
+  sent_at: string | null;
+  received_at: string | null;
+  cancelled_at: string | null;
+  cancel_reason: string | null;
+  recommendation_id: string | null;
+  version: number;
+  created_at: string;
+  lines: PurchaseOrderLine[];
+  receipts: PurchaseReceipt[];
+  warnings: { code: "below_moq"; variant_id: string; moq: number }[];
+  share_text: string;
+}
+
+export interface PurchaseOrderLineInput {
+  variant_id: string;
+  quantity: number;
+  unit_cost_minor?: number | null;
+}
+
+export interface PurchaseOrderInput {
+  supplier_id: string;
+  lines: PurchaseOrderLineInput[];
+  freight_minor?: number;
+  duty_minor?: number;
+  other_minor?: number;
+  expected_at?: string | null;
+  notes?: string | null;
+  location_id?: string | null;
+}
+
+export interface PurchaseOrderPatchInput {
+  version?: number;
+  lines?: PurchaseOrderLineInput[];
+  freight_minor?: number;
+  duty_minor?: number;
+  other_minor?: number;
+  expected_at?: string | null;
+  notes?: string | null;
+}
+
+export interface ReceiveInput {
+  lines: { po_line_id: string; quantity: number; defective_quantity?: number }[];
+  lot_code?: string | null;
+  note?: string | null;
+}

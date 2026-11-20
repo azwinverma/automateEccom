@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/api_error.dart';
 import '../../../core/errors/error_messages.dart';
@@ -44,7 +45,11 @@ class _RecommendationTileState extends ConsumerState<RecommendationTile> {
   bool _busy = false;
   String? _error;
 
-  Future<void> _run(Future<void> Function() call, String done) async {
+  Future<void> _run(
+    Future<void> Function() call,
+    String done, {
+    SnackBarAction? action,
+  }) async {
     final l = AppLocalizations.of(context);
     setState(() {
       _busy = true;
@@ -53,7 +58,9 @@ class _RecommendationTileState extends ConsumerState<RecommendationTile> {
     try {
       await call();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(done), action: action));
       ref
         ..invalidate(recommendationsProvider)
         ..invalidate(autopilotScoreProvider)
@@ -146,7 +153,21 @@ class _RecommendationTileState extends ConsumerState<RecommendationTile> {
                                 () => ref
                                     .read(intelligenceApiProvider)
                                     .accept(r.id),
-                                l.recApplied,
+                                // A reorder becomes a draft PO: offer to open it.
+                                r.actionType == 'create_po_draft'
+                                    ? l.recReorderDone
+                                    : l.recApplied,
+                                action:
+                                    r.actionType == 'create_po_draft'
+                                        ? SnackBarAction(
+                                          key: const Key('rec-open-pos'),
+                                          label: l.recOpenPos,
+                                          onPressed:
+                                              () => GoRouter.of(context).push(
+                                                '/purchase-orders?status=draft',
+                                              ),
+                                        )
+                                        : null,
                               ),
                       child: Text(l.recAccept),
                     ),

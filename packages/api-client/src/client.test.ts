@@ -364,4 +364,51 @@ describe("Phase 7 creative endpoints", () => {
       ["/media/videos/auto-reels", "POST", { asset_ids: ["a1"], aspect: "9:16", locale: "ne", show_price: true, seconds_per_slide: 3, genome_version: 3 }],
     ]);
   });
+
+  it("covers suppliers, purchase orders and receiving with idempotency keys", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.procurement.suppliers();
+    await api.procurement.suppliers(true);
+    await api.procurement.createSupplier({ name: "Bhaktapur Weavers", default_lead_time_days: 10 });
+    await api.procurement.setSupplierProduct("s1", "v 1", { cost_minor: 90000, moq: 50, is_preferred: true });
+    await api.procurement.removeSupplierProduct("s1", "v1");
+    await api.procurement.purchaseOrders({ status: "draft" });
+    await api.procurement.createPurchaseOrder({ supplier_id: "s1", lines: [{ variant_id: "v1", quantity: 40 }], freight_minor: 200000 }, { idempotencyKey: "po-key-0001" });
+    await api.procurement.submit("po1");
+    await api.procurement.approve("po1");
+    await api.procurement.reject("po1", "Wait for Tihar prices");
+    await api.procurement.markSent("po1");
+    await api.procurement.receive("po1", { lines: [{ po_line_id: "l1", quantity: 23, defective_quantity: 2 }], lot_code: "LOT-A" }, { idempotencyKey: "rcv-key-0001" });
+    await api.procurement.cancel("po1", "Supplier ran out");
+    await api.procurement.incoming();
+    const calls = fetchMock.mock.calls.map((c) => [
+      String(c[0]).replace("http://api.test/api/v1", ""),
+      c[1]!.method,
+      c[1]!.body ? JSON.parse(String(c[1]!.body)) : null,
+      (c[1]!.headers as Record<string, string>)["Idempotency-Key"] ?? null,
+    ]);
+    expect(calls).toEqual([
+      ["/procurement/suppliers", "GET", null, null],
+      ["/procurement/suppliers?include_archived=true", "GET", null, null],
+      ["/procurement/suppliers", "POST", { name: "Bhaktapur Weavers", default_lead_time_days: 10 }, null],
+      ["/procurement/suppliers/s1/products/v%201", "PUT", { cost_minor: 90000, moq: 50, is_preferred: true }, null],
+      ["/procurement/suppliers/s1/products/v1", "DELETE", null, null],
+      ["/procurement/purchase-orders?status=draft", "GET", null, null],
+      ["/procurement/purchase-orders", "POST", { supplier_id: "s1", lines: [{ variant_id: "v1", quantity: 40 }], freight_minor: 200000 }, "po-key-0001"],
+      ["/procurement/purchase-orders/po1/submit", "POST", null, null],
+      ["/procurement/purchase-orders/po1/approve", "POST", null, null],
+      ["/procurement/purchase-orders/po1/reject", "POST", { reason: "Wait for Tihar prices" }, null],
+      ["/procurement/purchase-orders/po1/send", "POST", null, null],
+      ["/procurement/purchase-orders/po1/receipts", "POST", { lines: [{ po_line_id: "l1", quantity: 23, defective_quantity: 2 }], lot_code: "LOT-A" }, "rcv-key-0001"],
+      ["/procurement/purchase-orders/po1/cancel", "POST", { reason: "Supplier ran out" }, null],
+      ["/procurement/incoming", "GET", null, null],
+    ]);
+  });
+
+  it("generates an idempotency key for a new purchase order when none is given", async () => {
+    const { api, fetchMock } = setup(() => json(201, {}), { getMerchantId: () => "m1" });
+    await api.procurement.createPurchaseOrder({ supplier_id: "s1", lines: [{ variant_id: "v1", quantity: 1 }] });
+    const key = (fetchMock.mock.calls[0]![1]!.headers as Record<string, string>)["Idempotency-Key"];
+    expect(key).toBeTruthy();
+  });
 });

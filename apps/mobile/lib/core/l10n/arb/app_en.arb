@@ -2217,5 +2217,303 @@
   "prSave": "Save results",
   "prInvalid": "Whole numbers only",
   "prNeedOne": "Enter at least one number",
-  "prSaved": "Results saved"
+  "prSaved": "Results saved",
+  "settingsPurchaseOrders": "Purchase orders",
+  "poTitle": "Purchase orders",
+  "poFilterAll": "All",
+  "poStatusDraft": "Draft",
+  "poStatusPending": "Waiting for approval",
+  "poStatusApproved": "Approved",
+  "poStatusSent": "Sent to supplier",
+  "poStatusPartial": "Partly received",
+  "poStatusReceived": "Received",
+  "poStatusCancelled": "Cancelled",
+  "poEmpty": "No purchase orders here yet",
+  "poListItem": "{number} · {supplier}",
+  "@poListItem": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "supplier": {
+        "type": "String"
+      }
+    }
+  },
+  "poItems": "Items: {count}",
+  "@poItems": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "poFromSuggestion": "From a suggestion",
+  "poTotal": "Total {amount}",
+  "@poTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "poGoods": "Goods {amount}",
+  "@poGoods": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "poExtras": "Freight, duty and other {amount}",
+  "@poExtras": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "poExpected": "Expected by {date}",
+  "@poExpected": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "poLineQty": "Ordered {ordered} · Received {received} · Left {remaining}",
+  "@poLineQty": {
+    "placeholders": {
+      "ordered": {
+        "type": "String"
+      },
+      "received": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "poLineDefective": "{count} damaged on arrival",
+  "@poLineDefective": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "poLineCost": "Price {price} · Landed {landed}",
+  "@poLineCost": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "landed": {
+        "type": "String"
+      }
+    }
+  },
+  "poLandedHint": "Landed cost = price + its share of freight, duty and other costs",
+  "poBelowMoq": "Below the supplier's minimum of {moq}",
+  "@poBelowMoq": {
+    "placeholders": {
+      "moq": {
+        "type": "String"
+      }
+    }
+  },
+  "poApprovalAbove": "Waiting for approval: above your purchase limit",
+  "poApprovalNeedsApprover": "Waiting for an owner or manager to approve",
+  "poApprove": "Approve",
+  "poReturn": "Return for changes",
+  "poReturnTitle": "What should change?",
+  "poReturnReason": "Reason",
+  "poCancel": "Cancel",
+  "poManagersOnly": "Only owners and managers can approve purchase orders",
+  "poSubmit": "Submit for approval",
+  "poMarkSent": "Mark as sent",
+  "poCopyOrder": "Copy order text",
+  "poCopied": "Order copied: paste it into WhatsApp, Viber or email",
+  "poReceive": "Receive stock",
+  "poReceiveTitle": "What arrived?",
+  "poReceiveGood": "Good",
+  "poReceiveDefective": "Damaged",
+  "poReceiveLot": "Lot code (optional)",
+  "poReceiveSave": "Save",
+  "poReceiveEmpty": "Enter what arrived",
+  "poReceiveLeft": "{count} left to arrive",
+  "@poReceiveLeft": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "poReceiveOver": "More than was ordered: {count} left on this item",
+  "@poReceiveOver": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "poReceiveInvalid": "Whole numbers only",
+  "poReceipts": "Deliveries",
+  "poReceiptLine": "{lot}: {good} good, {defective} damaged",
+  "@poReceiptLine": {
+    "placeholders": {
+      "lot": {
+        "type": "String"
+      },
+      "good": {
+        "type": "String"
+      },
+      "defective": {
+        "type": "String"
+      }
+    }
+  },
+  "poDone": "Done",
+  "poSupplierOpen": "Supplier details",
+  "supTitle": "Supplier",
+  "supTerms": "Payment terms: {terms}",
+  "@supTerms": {
+    "placeholders": {
+      "terms": {
+        "type": "String"
+      }
+    }
+  },
+  "supLead": "Usual delivery time: {days} days",
+  "@supLead": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "supContact": "Contact: {name}",
+  "@supContact": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "supPerfTitle": "How this supplier performs",
+  "supPerfNone": "Not measured yet: receive a few orders first",
+  "supPerfFrom": "From {received} received and {sold} sold",
+  "@supPerfFrom": {
+    "placeholders": {
+      "received": {
+        "type": "String"
+      },
+      "sold": {
+        "type": "String"
+      }
+    }
+  },
+  "supLanded": "Landed cost",
+  "supDefect": "Damaged on arrival",
+  "supQuality": "Quality returns",
+  "supOnTime": "On time",
+  "supLeadMeasured": "Delivery time",
+  "supLeadDays": "{days} days",
+  "@supLeadDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "supProfit": "Profit per unit",
+  "supProfitMissing": "Not enough sales yet",
+  "supNotIncluded": "Not included: {items}",
+  "@supNotIncluded": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "supNiCourier": "courier",
+  "supNiPackaging": "packaging",
+  "supNiPayment": "payment fees",
+  "supNiReturnShipping": "return shipping",
+  "supNiNoSales": "no sales yet",
+  "recReorder": "Reorder {title} from {supplier}",
+  "@recReorder": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "supplier": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhyReorder": "Runs out in {days} days ({perDay}/day, {available} in stock, {incoming} on the way). Delivery takes {lead} days. Order {qty}.",
+  "@recWhyReorder": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "perDay": {
+        "type": "String"
+      },
+      "available": {
+        "type": "String"
+      },
+      "incoming": {
+        "type": "String"
+      },
+      "lead": {
+        "type": "String"
+      },
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "recReorderMoq": "Supplier minimum {moq}",
+  "@recReorderMoq": {
+    "placeholders": {
+      "moq": {
+        "type": "String"
+      }
+    }
+  },
+  "recReorderDone": "Draft purchase order ready: submit it for approval",
+  "recOpenPos": "Open",
+  "recSupplierSwitch": "Buy {title} from {to}",
+  "@recSupplierSwitch": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "recWhySupplierSwitch": "Earns {gain} more per unit than {from}, after damaged units and returns",
+  "@recWhySupplierSwitch": {
+    "placeholders": {
+      "gain": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "recImpactOrderValue": "Order value {amount}",
+  "@recImpactOrderValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

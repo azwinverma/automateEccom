@@ -124,7 +124,7 @@ are done. The items below remain.
 | GAP-AI-REPLY-PHRASING | Med | Sales Agent replies are grounded bilingual templates; no LLM phrasing yet (ADR-043). AI intent classification only runs with a real key. | With a live key: LLM phrasing behind a numbers-must-match grounding guard + evals on real (consented) chats. |
 | ~~GAP-DELIVERY-FEE~~ | Closed 2026-11-04 | Merchant delivery-charge table (district > inside valley > default, free over a subtotal) fills chat orders and New order. | — |
 | GAP-MOBILE-ORDER-CREATE | Low | Mobile can't create orders, record payments, see draft field values, summarise or assign chats (web can). | Next mobile iteration. |
-| GAP-TEST-FLAKE-1104 | Low | One backend test failed once in a full run with coverage on 2026-11-04 (output not captured); it hasn't happened again in 4 more full runs or 6 repeats of the concurrency tests. | If CI shows a failure, capture `-rf` output and fix the root cause. |
+| ~~GAP-TEST-FLAKE-1104~~ | Closed 2026-11-20 | Likely cause found: the login rate-limit test (fixed-window limiter) failed when its burst straddled a minute boundary. The test now sends up to 2 × limit + 1 attempts (pigeonhole), so one window always exceeds the limit. | — |
 | GAP-NE-COPY-REVIEW | Low | New Phase 2 Nepali UI copy and chat templates need a native copy review. | Copy editor pass. |
 
 ## Phase 6 part A (2026-11-19)
@@ -160,6 +160,17 @@ are done. The items below remain.
 | GAP-CGN-ATTRIBUTION | Med | Window attribution only works for posts linked to a product; chats count as inquiries only when the channel sends a product/post reference. | Link posts to products in the composer by default; parse post links/UTMs in messages. |
 | GAP-CGN-VIDEO | Low | Genome inputs don't reach premium video concepts (premium video isn't built); Auto Reel hook type is suggested but not rendered differently. | With premium video / new reel templates. |
 | GAP-CGN-MOBILE | Low | Mobile shows patterns and post results but not experiments, the suggested time or reel settings. | Next mobile iteration. |
+
+## Phase 8 (2026-11-20)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-SPI-LOT | Med | Sales are linked to the latest lot received before the order, not to the actual unit's lot; mixed lots on the shelf blur supplier return rates. | Record lot on pick/pack (FIFO) when fulfilment scanning exists. |
+| GAP-PO-SEND | Med | POs aren't emailed or sent on WhatsApp; the seller copies a share text. No PO attachments (invoices, photos). | Production email/WhatsApp provider; reuse media uploads for attachments. |
+| GAP-PO-CURRENCY | Low | POs use the shop currency only; no foreign-currency purchases or exchange rates (imports from India/China). | Currency + rate per PO, converted at receipt into landed cost. |
+| GAP-PO-PAYMENTS | Low | Supplier payments/advances and payables aren't tracked. | Supplier payments with due dates; cash-flow view. |
+| GAP-SPI-COMPLAINTS | Low | "Complaints" are quality-related returns only; there's no separate supplier complaint log. | Add a complaint note on receipts and returns. |
+| GAP-AUT-PO-ACTION | Low | Workflows can't create PO drafts yet (low stock → draft PO); suggestions can. | Add create_po_draft as an R3 workflow action. |
+| GAP-E2E-SLEEP | Info | An E2E run during which the Mac slept produced 18 timeouts (17-minute files); the rerun with `caffeinate -i` passed 36/36. | Run long suites with caffeinate or in CI. |
 
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).

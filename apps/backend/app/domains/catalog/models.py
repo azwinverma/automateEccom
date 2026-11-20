@@ -58,11 +58,24 @@ class Supplier(IdMixin, TimestampMixin, TenantScoped, Base):
     """Minimal supplier reference; procurement (PRO-001) extends it."""
 
     __tablename__ = "catalog_suppliers"
-    __table_args__ = (Index("uq_supplier_name", "merchant_id", text("lower(name)"), unique=True),)
+    __table_args__ = (
+        Index("uq_supplier_name", "merchant_id", text("lower(name)"), unique=True),
+        CheckConstraint("status in ('active','archived')", name="status"),
+        CheckConstraint(
+            "default_lead_time_days is null or default_lead_time_days between 0 and 365", name="lead_time"
+        ),
+    )
 
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(32))
     notes: Mapped[str | None] = mapped_column(String(1000))
+    # PRO-001 (Phase 8): contact and terms.
+    contact_name: Mapped[str | None] = mapped_column(String(120))
+    email: Mapped[str | None] = mapped_column(String(254))
+    address: Mapped[str | None] = mapped_column(String(300))
+    default_lead_time_days: Mapped[int | None] = mapped_column(Integer)
+    payment_terms: Mapped[str | None] = mapped_column(String(120))
+    status: Mapped[str] = mapped_column(String(10), default="active", server_default="active", nullable=False)
 
 
 class Product(IdMixin, TimestampMixin, TenantScoped, Base):

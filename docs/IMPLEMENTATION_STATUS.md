@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-19 (Phase 7)._
+_Last updated: 2026-11-20 (Phase 8)._
 
 ## Summary
 
@@ -44,6 +44,28 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Phase 8 (Procurement + Supplier Intelligence): built 2026-11-20
+- **Built and tested:** suppliers with contact/terms and per-variant terms (price, MOQ, lead time,
+  preferred); purchase orders (idempotent, MOQ warnings, share text) with approval above the shop's PO
+  limit; partial receiving as lots with good vs defective units; landed cost (freight + duty + other by
+  line value) feeding the variant's moving-average cost, so profit uses true cost; supplier performance
+  (landed cost, defect rate, returns and quality returns via lot linkage, on-time, lead time ± sd, fill
+  rate, contribution per unit with components and "not included"); supplier-switch and reorder
+  suggestions on true economics (reorder = lead time + safety + 30 days, MOQ, incoming stock, never for
+  loss makers). Reorder replaces the Phase 6 restock suggestion when a supplier is linked.
+- **Web:** Inventory → Purchase orders / Suppliers (list, form with live landed cost, detail with
+  approval, send text, receiving, lots; supplier terms, products, performance), incoming stock on the
+  product page, new suggestion copy. **Mobile:** purchase orders list/detail, approve/return, receive
+  sheet, supplier performance card, permission-aware actions, new suggestion copy.
+- **Verified in E2E** (desktop + 360px, live API + worker): PO with freight → landed cost → pending
+  approval (limit 0) → approve → sent → partial receipt with a defective unit → full receipt → stock up
+  by good units only.
+- **Totals (2026-11-20):** backend 342 passed (24 migrations); web 310 + api-client 31; E2E 36/36;
+  mobile 175 passed + 1 live-only skipped; axe 0 violations and no 360px overflow on 6 purchasing pages
+  (light, dark, 360px).
+- **Phase 8 exit criterion** ("landed cost + supplier metrics computed; recommendations use true
+  economics") is met in code and tests; it still needs real purchasing data to be meaningful.
 
 ## Phase 7 (Creative Intelligence): built 2026-11-19, exit BLOCKED
 - **Built and tested:** post results from channel insights (adapter capability, sandbox) or typed in by the
@@ -442,13 +464,13 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | ANA-008 | profit dashboard | P6 | TESTED | ANA-007 | apps/backend/app/domains/intelligence/profit.py; web /analytics Profit tab; mobile profit_card | apps/backend/tests/test_intelligence_b.py; web Analytics tests; e2e phase6b | Missing data shown as Not included / Partial, never 0 (ADR-065) |
 | ANA-009 | Store Manager tools | P6 | NOT_STARTED | — | — | — |  |
 | ANA-010 | recommendations | P6 | TESTED | ANA-007 | apps/backend/app/domains/intelligence/recommendations.py::_profit, profit-aware _restock | apps/backend/tests/test_intelligence_b.py::test_suggestions_rank_by_profit_and_never_push_loss_makers | Ranks restock by 30-day contribution; never restocks loss makers or high-return items; informational only (no price changes) |
-| PRO-001 | suppliers | P8 | NOT_STARTED | — | — | — |  |
-| PRO-002 | supplier products | P8 | NOT_STARTED | — | — | — |  |
-| PRO-003 | purchase orders | P8 | NOT_STARTED | — | — | — |  |
-| PRO-004 | approvals | P8 | NOT_STARTED | — | — | — |  |
-| PRO-005 | receiving | P8 | NOT_STARTED | — | — | — |  |
-| PRO-006 | landed cost | P8 | NOT_STARTED | — | — | — |  |
-| PRO-007 | reorder recommendations | P8 | NOT_STARTED | — | — | — |  |
+| PRO-001 | suppliers | P8 | TESTED | CAT | catalog Supplier (contact, terms, status); apps/backend/app/domains/procurement/service.py create/update_supplier | apps/backend/tests/test_procurement.py::test_suppliers_and_their_products |  |
+| PRO-002 | supplier products | P8 | TESTED | PRO-001 | apps/backend/app/domains/procurement/service.py set_supplier_product / set_preferred (catalog_variant_suppliers) | apps/backend/tests/test_procurement.py::test_suppliers_and_their_products | First supplier for a variant becomes preferred |
+| PRO-003 | purchase orders | P8 | TESTED | PRO-002 | apps/backend/app/domains/procurement/models.py PurchaseOrder/Line; service create/update/submit/send/cancel | apps/backend/tests/test_procurement.py::test_po_approval_receiving_lots_and_landed_cost | Idempotent create; MOQ warning; share text instead of email (ADR-075) |
+| PRO-004 | approvals | P8 | TESTED | AUT-016 | apps/backend/app/domains/procurement/service.py::submit/approve/reject (po_minor threshold) | apps/backend/tests/test_procurement.py::test_staff_create_but_only_approvers_approve | Above the threshold always needs explicit approval (ADR-073) |
+| PRO-005 | receiving | P8 | TESTED | INV | apps/backend/app/domains/procurement/service.py::receive (receipts = lots, good vs defective, inventory ledger) | apps/backend/tests/test_procurement.py::test_po_approval_receiving_lots_and_landed_cost | Partial receiving; over-receipt refused; idempotent |
+| PRO-006 | landed cost | P8 | TESTED | PRO-005 | apps/backend/app/domains/procurement/service.py::landed_unit_costs + moving-average variant cost | apps/backend/tests/test_procurement.py::test_po_approval_receiving_lots_and_landed_cost | Freight/duty/other allocated by line value; order lines then snapshot landed cost (ADR-074) |
+| PRO-007 | reorder recommendations | P8 | TESTED | PBR-002 | apps/backend/app/domains/procurement/supplier_intel.py::reorder_proposals; recommendations create_po_draft | apps/backend/tests/test_procurement.py::test_reorder_suggestion_uses_lead_time_moq_and_creates_a_draft_for_approval | Creates a draft only; the PO still needs submit + approval |
 | ADM-001 | merchant lookup | P0+ | TESTED | IAM-005 | apps/backend/app/domains/admin/router.py, apps/web/src/features/console | test_admin_console, Console.test.tsx, e2e console-real-backend | Console UI: search + detail drawer (team, usage, channels, overrides, credits); suspend/reactivate with reason |
 | ADM-002 | usage/credits | P0+ | TESTED | BIL-006 | apps/backend/app/domains/admin/router.py | test_admin_console | Usage + balance; idempotent goodwill credit grants; limit overrides (validated, end keeps record) |
 | ADM-003 | provider health | P0+ | TESTED | AIG-008 | apps/backend/app/domains/admin/router.py, features/console/OpsViews.tsx | e2e console-real-backend | Console AI providers: key configured, circuit state, 1h success, latency |
@@ -539,10 +561,10 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | CGN-004 | genome inputs to Studio prompts, Auto Reel template choice, video concepts, schedule suggestions (genome_version recorded) | P7 | TESTED | CGN-002 | apps/backend/app/domains/intelligence/creative.py::suggestions/studio_guidance; studio run_job; media auto-reels + content schedule accept genome_version | apps/backend/tests/test_creative.py::test_genome_version_is_recorded_on_studio_drafts_reels_and_scheduled_posts | Video concepts not built (premium video not built) |
 | CGN-005 | Creative Genome panel + Store Manager tool | P7 | IMPLEMENTED | CGN-002 | web Content → What sells; mobile What sells card; creative_tip suggestion | web Creative.test.tsx; mobile creative_test; e2e phase7; axe | Store Manager tool not built (GAP-STORE-MANAGER) |
 | CGN-006 | impact measurement of genome-informed content vs baseline | P7 | TESTED | CGN-004 | apps/backend/app/domains/intelligence/creative.py::impact | apps/backend/tests/test_creative.py::test_impact_compares_genome_informed_posts_with_the_rest | Observational comparison, labelled as such |
-| SPI-001 | SupplierPerformanceMetric (landed cost, defect, return, on-time, lead-time variance, contribution/unit) | P8 | NOT_STARTED | — | — | — |  |
-| SPI-002 | batch/lot linkage receiving → returns/defects | P8 | NOT_STARTED | — | — | — |  |
-| SPI-003 | true-economics supplier recommendation with explanation | P8 | NOT_STARTED | — | — | — |  |
-| SPI-004 | reorder recommendation using true economics + lead time | P8 | NOT_STARTED | — | — | — |  |
+| SPI-001 | SupplierPerformanceMetric (landed cost, defect, return, on-time, lead-time variance, contribution/unit) | P8 | TESTED | PRO-005 | apps/backend/app/domains/procurement/supplier_intel.py::compute; models.SupplierPerformanceMetric | apps/backend/tests/test_procurement.py::test_true_economics_prefer_the_supplier_with_fewer_defects_and_returns | Complaints = quality returns; no separate complaints log |
+| SPI-002 | batch/lot linkage receiving → returns/defects | P8 | IMPLEMENTED | PRO-005 | apps/backend/app/domains/procurement/supplier_intel.py::_attribution (latest lot received before the order) | apps/backend/tests/test_procurement.py::test_true_economics_prefer_the_supplier_with_fewer_defects_and_returns | Approximation: lots aren't tracked per unit (GAP-SPI-LOT) |
+| SPI-003 | true-economics supplier recommendation with explanation | P8 | TESTED | SPI-001 | apps/backend/app/domains/procurement/supplier_intel.py::switch_proposals; set_preferred_supplier action | apps/backend/tests/test_procurement.py::test_true_economics_prefer_the_supplier_with_fewer_defects_and_returns |  |
+| SPI-004 | reorder recommendation using true economics + lead time | P8 | TESTED | SPI-001 | apps/backend/app/domains/procurement/supplier_intel.py::reorder_proposals (true economics, lead time ± sd, MOQ, incoming, profit limits) | apps/backend/tests/test_procurement.py::test_reorder_suggestion_uses_lead_time_moq_and_creates_a_draft_for_approval; test_loss_makers_are_not_reordered |  |
 | TWIN-001 | section registry (owner domain, TTL, max staleness per consumer) | P9 | NOT_STARTED | — | — | — |  |
 | TWIN-002 | event-driven incremental updaters (monotonic source_version) | P9 | NOT_STARTED | — | — | — |  |
 | TWIN-003 | periodic reconciliation + on-read freshness check + stale flag | P9 | NOT_STARTED | — | — | — |  |
@@ -578,4 +600,4 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 5, IMPLEMENTED 28, IN_PROGRESS 12, NOT_STARTED 54, TESTED 234. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 5, IMPLEMENTED 29, IN_PROGRESS 12, NOT_STARTED 43, TESTED 244. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).

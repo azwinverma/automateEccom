@@ -6,6 +6,7 @@ import { PageHeader, SectionHeader } from "@/components/ui/misc";
 import table from "@/components/ui/table.module.css";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useApiQuery } from "@/lib/api/hooks";
+import { InventoryTabs } from "../procurement/shared";
 
 export function InventoryView() {
   const { t, number } = useI18n();
@@ -13,6 +14,7 @@ export function InventoryView() {
   return (
     <>
       <PageHeader title={t("inventory.title")} subtitle={t("inventory.subtitle")} />
+      <InventoryTabs />
       <SectionHeader title={t("inventory.lowStock")} id="low-heading" />
       {low.state.status === "loading" ? (
         <TableSkeleton columns="1.6fr 1fr 1fr" label={t("common.loading")} />

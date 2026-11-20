@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion and Phases 2–7.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion and Phases 2–8.
 
 ## Overall status: **NOT_READY**
 
@@ -58,7 +58,7 @@ External checks that couldn't run are listed under "External tests pending".
 | Payments / COD | Verified online payments **PASS with sandbox wallet**; manual payments and COD trail **PASS**; Nepal gateway BLOCKED_EXTERNAL (GAP-PAY-NP); COD settlement Phase 3 |
 | Fulfillment / couriers / returns | **PASS with sandbox/manual couriers** (E2E COD → failed attempt → delivered → settled; return → pickup → inspection → refund). Real Nepal courier API BLOCKED_EXTERNAL |
 | Automation / Autopilot | **PASS** (Decision Policy, workflows, Control Center; E2E Assisted → Smart) |
-| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data. Phase 7 Creative Intelligence **PASS with sandbox/typed-in results** (exit BLOCKED_EXTERNAL on real channel insights); Phases 8–10 NOT_IMPLEMENTED |
+| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data. Phase 7 Creative Intelligence **PASS with sandbox/typed-in results** (exit BLOCKED_EXTERNAL on real channel insights); Phase 8 procurement + supplier intelligence **PASS** (E2E PO → approval → lots → stock); Phases 9–10 NOT_IMPLEMENTED |
 | Admin | API and Nivaro Console UI **PASS** (staff + MFA, E2E); plan/routing editors not built |
 
 ## Known risks
@@ -253,3 +253,23 @@ phase 6B flaky at 360px; new experiments had no progress until the next refresh.
 
 Exit BLOCKED_EXTERNAL: real channel insights need Meta/TikTok app approval. Overall status remains
 **NOT_READY**.
+
+## Update 2026-11-20 (Phase 8: Procurement + Supplier Intelligence)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 342 | 342 | 0 | 0 |
+| Web unit + API client | 341 | 341 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 36 | 36 | 0 | 0 |
+| Flutter | 176 | 175 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 8 pages (6 pages × 3 configs) | 18 | 18 | 0 | 0 |
+
+Found and fixed: the product picker's aria-controls pointed at a list that wasn't rendered (critical);
+supplier detail overflowed at 360px because grid children kept min-width:auto and a screen-reader-only
+label escaped the table scroller (the shared table wrapper is now position: relative); the login
+rate-limit regression test could flake on a minute boundary (fixed-window limiter), which explains the
+unexplained 2026-11-04 failure.
+
+One E2E run while the Mac slept timed out on 18 tests; the rerun with sleep prevented passed 36/36.
+
+Overall status remains **NOT_READY** (real courier API, Nepal payment gateway, live channels,
+production email/WhatsApp, staging, backups, pentest).
