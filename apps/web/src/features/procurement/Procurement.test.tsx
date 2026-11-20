@@ -109,7 +109,8 @@ describe("PurchaseOrderPage", () => {
     const onChange = vi.fn();
     api.procurement.approve.mockResolvedValue(po({ status: "approved", approved_at: new Date().toISOString() }));
     renderWithI18n(<PurchaseOrderPage po={po()} onChange={onChange} reload={vi.fn()} />);
-    expect(await screen.findByTestId("po-approval-reason")).toHaveTextContent("every purchase order needs one");
+    // The limit loads after the page: wait for it rather than reading the placeholder.
+    await waitFor(() => expect(screen.getByTestId("po-approval-reason")).toHaveTextContent("every purchase order needs one"));
     expect(screen.getByText(/Cotton Kurta: Below this supplier's minimum order of 50/)).toBeInTheDocument();
     expect(screen.getByTestId("po-total")).toHaveTextContent("43,000");
     await user.click(screen.getByRole("button", { name: "Approve" }));

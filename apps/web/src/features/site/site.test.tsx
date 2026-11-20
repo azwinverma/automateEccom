@@ -17,9 +17,9 @@ describe("public website", () => {
     expect(statuses(siteNe)).toEqual(statuses(siteEn));
   });
 
-  it("only claims what is built: capture, create and publish are the stages available now", () => {
-    expect(siteEn.loop.stages.filter((s) => s.status === "now").map((s) => s.name)).toEqual(["Capture", "Create", "Publish"]);
-    expect(siteEn.modules.items.filter((m) => m.status === "now").map((m) => m.key)).toEqual(["studio", "video", "publish"]);
+  it("only claims what is built: chat selling (needs Meta app review) and retention campaigns are still in development", () => {
+    expect(siteEn.loop.stages.filter((s) => s.status === "next").map((s) => s.name)).toEqual(["Converse", "Retain"]);
+    expect(siteEn.modules.items.filter((m) => m.status === "next").map((m) => m.key)).toEqual(["inbox"]);
   });
 
   it("never shows prices, testimonials or the pre-Nivaro name", () => {

@@ -209,3 +209,41 @@ def test_merchant_override_kills_for_one_shop_only(client, seller):
         assert killed(db, "ops.automation", mid) is True
         assert killed(db, "ops.automation", uuid.uuid4()) is False
         assert killed(db, "ops.not_a_flag") is False
+
+
+def test_seed_demo_gives_a_working_sign_in_for_every_role(client, monkeypatch, tmp_path):
+    import pyotp
+
+    from app import cli_demo
+
+    monkeypatch.setattr(cli_demo, "SHEET", tmp_path / "demo-users.txt")
+    cli_demo.seed_demo()
+    out = cli_demo.seed_demo()  # a re-run resets passwords and keeps one membership per person
+    expected = {"owner": "billing.manage", "admin": "procurement.approve", "manager": "refunds.approve"}
+    for u in out["users"]:
+        r = client.post(
+            "/api/v1/auth/login", json={"email": u["email"], "password": u["password"], "device_name": "t"}
+        )
+        assert r.status_code == 200, (u["role"], r.text)
+        body = r.json()
+        if u["role"] == "platform":
+            assert "mfa_token" in body and "access_token" not in body  # two-step verification is on
+            r = client.post(
+                "/api/v1/auth/mfa/verify",
+                json={"mfa_token": body["mfa_token"], "code": pyotp.TOTP(out["platform_totp_secret"]).now()},
+            )
+            assert r.status_code == 200, r.text
+            continue
+        h = {"Authorization": f"Bearer {body['access_token']}"}
+        mems = client.get("/api/v1/me", headers=h).json()["memberships"]
+        demo = [x for x in mems if x["merchant"]["slug"] == "nivaro-demo"]
+        assert len(demo) == 1 and demo[0]["role"] == u["role"], (u["role"], mems)
+        mid = demo[0]["merchant"]["id"]
+        perms = client.get("/api/v1/permissions/me", headers={**h, "X-Merchant-Id": mid}).json()
+        role, plist = perms.get("role"), set(perms.get("permissions", []))
+        assert role == u["role"]
+        if u["role"] in expected:
+            assert expected[u["role"]] in plist
+        if u["role"] in ("staff", "viewer"):
+            assert "refunds.approve" not in plist and "billing.manage" not in plist
+    assert cli_demo.demo_code().isdigit()

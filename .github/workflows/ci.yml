@@ -91,7 +91,7 @@ jobs:
       - name: SAST (Semgrep)
         run: pipx run semgrep==1.119.0 scan --config p/python --config p/typescript --config p/secrets --error --metrics=off
       - name: Filesystem + IaC scan (Trivy)
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (pinned by commit: action tags can be moved)
         with: { scan-type: fs, severity: "CRITICAL,HIGH", exit-code: "1", ignore-unfixed: true }
 
   images:
@@ -104,5 +104,5 @@ jobs:
       - name: Build web image
         run: docker build -f apps/web/Dockerfile -t commerce-os-web:ci .
       - name: Container scan (Trivy)
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0 (pinned by commit: action tags can be moved)
         with: { image-ref: "commerce-os-api:ci", severity: "CRITICAL,HIGH", exit-code: "1", ignore-unfixed: true }

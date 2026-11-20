@@ -64,6 +64,11 @@ scripts/mobile.sh chrome    # Flutter web on http://localhost:5310
 **Admin (platform staff):** register on the website, then `scripts/make-admin.sh you@example.com`. Then turn on
 two-step sign-in (Settings → Security) and sign in again; admin endpoints require an MFA-verified session.
 
+**Demo sign-ins for every role (local only):** `cd apps/backend && uv run python -m app.cli seed-demo` creates
+the `nivaro-demo` shop (Business plan) with an owner, admin, manager, staff and viewer, plus a platform-staff
+account with two-step sign-in already on. Passwords are random per run and saved to `.data/demo-users.txt`;
+`uv run python -m app.cli demo-code` prints the current two-step code. It refuses to run in staging/production.
+
 **AI:** without `COS_ANTHROPIC_API_KEY` (or OpenAI/Gemini) the sandbox provider produces placeholder drafts
 marked `[sandbox]`, so the flows work end to end without a key.
 

@@ -62,6 +62,10 @@ def main() -> None:
         ],
         default="all",
     )
+    sub.add_parser(
+        "seed-demo", help="Local only: demo shop with a sign-in for every role (passwords printed)"
+    )
+    sub.add_parser("demo-code", help="Local only: current two-step code for the demo platform-staff account")
     tr = sub.add_parser("twin-reconcile", help="Recompute Digital Store Twin sections")
     tr.add_argument("--merchant", default=None)
     args = p.parse_args()
@@ -75,6 +79,19 @@ def main() -> None:
         from app.cli_ops import run_ops
 
         run_ops(args)
+        return
+
+    if args.cmd == "seed-demo":
+        from app.cli_demo import SHEET, seed_demo
+
+        seed_demo()
+        print(SHEET.read_text())  # noqa: T201
+        print(f"Saved to {SHEET}")  # noqa: T201
+        return
+    if args.cmd == "demo-code":
+        from app.cli_demo import demo_code
+
+        print(demo_code())  # noqa: T201
         return
 
     if args.cmd == "seed-plans":
