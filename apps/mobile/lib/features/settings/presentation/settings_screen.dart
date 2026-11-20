@@ -12,6 +12,8 @@ import '../../../design/app_theme.dart';
 import '../../../design/theme_controller.dart';
 import '../../../design/tokens.g.dart';
 import '../../../design/widgets/section_header.dart';
+import '../../twin/data/twin_api.dart';
+import '../../twin/presentation/simulations_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -215,6 +217,16 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/learned'),
           ),
           const Divider(),
+          // Hidden when the plan doesn't include simulations (403).
+          if (!simulationsNotInPlan(ref.watch(simulationsProvider))) ...[
+            _NavRow(
+              key: const Key('settings-what-if'),
+              icon: Icons.insights_outlined,
+              title: l.settingsWhatIf,
+              onTap: () => context.push('/what-if'),
+            ),
+            const Divider(),
+          ],
           const SizedBox(height: AppSpace.s8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),

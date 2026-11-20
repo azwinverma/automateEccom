@@ -69,6 +69,7 @@ def create_app() -> FastAPI:
     from app.domains.procurement.router import router as procurement
     from app.domains.returns.router import router as returns
     from app.domains.studio.router import router as studio
+    from app.domains.twin.router import router as twin
 
     app.include_router(health_router)
     app.include_router(media_dev)
@@ -99,6 +100,7 @@ def create_app() -> FastAPI:
         procurement,
         automation,
         intelligence,
+        twin,
         exceptions,
         audit,
         platform,

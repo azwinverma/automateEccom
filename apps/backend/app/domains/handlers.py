@@ -20,6 +20,8 @@ import app.domains.orders.service
 import app.domains.payments.service
 import app.domains.returns.service
 import app.domains.studio.service
+import app.domains.twin.service
+import app.domains.twin.simulation
 from app.core.config import get_settings
 from app.core.crypto import SealedSecret
 from app.domains.accounts.models import User
@@ -39,6 +41,8 @@ HANDLER_MODULES = (
     app.domains.inbox.service,
     app.domains.intelligence.cod_risk,
     app.domains.intelligence.product_brain,
+    app.domains.twin.service,
+    app.domains.twin.simulation,
     app.domains.media.service,
     app.domains.media.video,
     app.domains.orders.service,

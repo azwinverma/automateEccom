@@ -152,6 +152,8 @@ class Proposal:
     # R2 opt-in owned by another policy (e.g. the returns policy's auto-approve). None = enabled_r2 list.
     enabled: bool | None = None
     inputs: dict[str, Any] = field(default_factory=dict)
+    # Spec 06 stale-data rule: Twin sections the decision relies on. Too old → a person decides.
+    twin_sections: tuple[str, ...] = ()
 
 
 def decide(db: Session, merchant_id: uuid.UUID, p: Proposal) -> DecisionRecord:
@@ -173,6 +175,9 @@ def decide(db: Session, merchant_id: uuid.UUID, p: Proposal) -> DecisionRecord:
         decision, rule = "BLOCK", "missing_capability"
     elif risk == "R4":
         decision, rule = "BLOCK", "prohibited"
+    elif p.twin_sections and (stale := _stale_sections(db, merchant_id, p.twin_sections)):
+        decision, rule = "REQUIRE_APPROVAL", "stale_data"
+        vars_["stale_sections"] = stale
     elif limit is not None and p.impact_minor is not None and p.impact_minor > limit:
         decision, rule = "REQUIRE_APPROVAL", "above_threshold"
         risk = "R3"
@@ -215,6 +220,12 @@ def decide(db: Session, merchant_id: uuid.UUID, p: Proposal) -> DecisionRecord:
     db.add(rec)
     db.flush()
     return rec
+
+
+def _stale_sections(db: Session, merchant_id: uuid.UUID, sections: tuple[str, ...]) -> list[str]:
+    from app.domains.twin.service import is_fresh_for
+
+    return [s for s in sections if not is_fresh_for(db, merchant_id, s, "automation")[0]]
 
 
 def resolve(db: Session, rec: DecisionRecord, outcome: str, user_id: uuid.UUID | None = None) -> None:

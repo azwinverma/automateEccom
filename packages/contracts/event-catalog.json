@@ -989,7 +989,6 @@
     {
       "type": "twin.updated",
       "version": 1,
-      "status": "planned",
       "maps_to": "StoreTwinUpdated",
       "description": "A Store Twin section changed materially.",
       "aggregate": "twin",
@@ -1002,6 +1001,9 @@
           },
           "source_version": {
             "type": "string"
+          },
+          "changes": {
+            "type": "object"
           }
         },
         "required": [
@@ -1011,9 +1013,28 @@
       }
     },
     {
+      "type": "simulation.requested",
+      "version": 1,
+      "maps_to": "SimulationRequested",
+      "description": "A what-if simulation was queued (runs asynchronously).",
+      "aggregate": "simulation",
+      "payload_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "simulation_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "simulation_id"
+        ]
+      }
+    },
+    {
       "type": "simulation.completed",
       "version": 1,
-      "status": "planned",
       "maps_to": "SimulationCompleted",
       "description": "A what-if simulation finished.",
       "aggregate": "simulation",

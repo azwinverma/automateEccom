@@ -148,6 +148,13 @@ import type {
   SupplierPatchInput,
   SupplierProduct,
   SupplierProductInput,
+  SimulationCalibration,
+  SimulationInput,
+  SimulationRunView,
+  TwinFreshness,
+  TwinSection,
+  TwinSectionName,
+  TwinSummary,
 } from "./types";
 
 /** Options for idem endpoints: pass a stable key to make retries safe. */
@@ -711,6 +718,21 @@ export function createApi(client: ApiClient) {
       receive: (id: string, body: ReceiveInput, o?: IdemOptions) =>
         client.request<PurchaseOrder>(`/procurement/purchase-orders/${encodeURIComponent(id)}/receipts`, { method: "POST", body, tenant: true, idempotent: idem(o) }),
       incoming: () => client.request<{ items: { variant_id: string; quantity: number }[] }>("/procurement/incoming", { tenant: true }),
+    },
+    /** Phase 9: Digital Store Twin (derived, read-only; shows as_of and stale). */
+    twin: {
+      summary: (sections?: TwinSectionName[]) =>
+        client.request<TwinSummary>("/twin/summary", { tenant: true, query: { sections: sections?.length ? sections.join(",") : undefined } }),
+      section: (name: TwinSectionName) => client.request<TwinSection>(`/twin/sections/${encodeURIComponent(name)}`, { tenant: true }),
+      reconcile: () => client.request<{ sections: number }>("/twin/reconcile", { method: "POST", tenant: true }),
+      freshness: () => client.request<TwinFreshness>("/twin/freshness", { tenant: true }),
+    },
+    /** Phase 9: what-if estimates. Queued (202) and run by the worker; poll `get` until completed/failed. */
+    simulations: {
+      create: (body: SimulationInput) => client.request<SimulationRunView>("/simulations", { method: "POST", body, tenant: true }),
+      list: () => client.request<{ items: SimulationRunView[]; currency?: string }>("/simulations", { tenant: true }),
+      get: (id: string) => client.request<SimulationRunView>(`/simulations/${encodeURIComponent(id)}`, { tenant: true }),
+      calibration: () => client.request<SimulationCalibration>("/simulations/calibration", { tenant: true }),
     },
     /** Development only (404 in staging/production): drive the sandbox courier. */
     devCourier: {

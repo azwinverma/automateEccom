@@ -6623,6 +6623,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order value {amount}'**
   String recImpactOrderValue(String amount);
+
+  /// No description provided for @twinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Store at a glance'**
+  String get twinTitle;
+
+  /// No description provided for @twinAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'As of {time}'**
+  String twinAsOf(String time);
+
+  /// No description provided for @twinStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Some numbers may be out of date'**
+  String get twinStale;
+
+  /// No description provided for @twinOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'{open} open orders'**
+  String twinOrders(String open);
+
+  /// No description provided for @twinToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to review'**
+  String twinToReview(String count);
+
+  /// No description provided for @twinStock.
+  ///
+  /// In en, this message translates to:
+  /// **'{out} out · {low} low stock'**
+  String twinStock(String out, String low);
+
+  /// No description provided for @twinCash.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} with couriers'**
+  String twinCash(String amount);
+
+  /// No description provided for @twinReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} returns open'**
+  String twinReturns(String count);
+
+  /// No description provided for @twinPosToApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} POs to approve'**
+  String twinPosToApprove(String count);
+
+  /// No description provided for @twinPosLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} POs late'**
+  String twinPosLate(String count);
+
+  /// No description provided for @twinAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} need attention'**
+  String twinAttention(String count);
+
+  /// No description provided for @settingsWhatIf.
+  ///
+  /// In en, this message translates to:
+  /// **'What if results'**
+  String get settingsWhatIf;
+
+  /// No description provided for @simEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No what-if estimates yet. Run one in the web app under Analytics.'**
+  String get simEmpty;
+
+  /// No description provided for @simEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate'**
+  String get simEstimate;
+
+  /// No description provided for @simNothingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changes until you act.'**
+  String get simNothingChanges;
+
+  /// No description provided for @simWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working it out…'**
+  String get simWorking;
+
+  /// No description provided for @simFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t estimate: {reason}'**
+  String simFailed(String reason);
+
+  /// No description provided for @simErrNotEnoughSales.
+  ///
+  /// In en, this message translates to:
+  /// **'not enough sales yet'**
+  String get simErrNotEnoughSales;
+
+  /// No description provided for @simErrNoVariants.
+  ///
+  /// In en, this message translates to:
+  /// **'the product has no active variants'**
+  String get simErrNoVariants;
+
+  /// No description provided for @simErrNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'the product no longer exists'**
+  String get simErrNotFound;
+
+  /// No description provided for @simErrGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'something went wrong'**
+  String get simErrGeneric;
+
+  /// No description provided for @simHeadDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% off {title} for {days} days'**
+  String simHeadDiscount(String pct, String title, String days);
+
+  /// No description provided for @simHeadPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {qty} × {title}'**
+  String simHeadPurchase(String qty, String title);
+
+  /// No description provided for @simConfidenceLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low confidence'**
+  String get simConfidenceLow;
+
+  /// No description provided for @simConfidenceMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium confidence'**
+  String get simConfidenceMedium;
+
+  /// No description provided for @simConfidenceHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High confidence'**
+  String get simConfidenceHigh;
+
+  /// No description provided for @simUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Sells about {expected} ({low}–{high}) vs {baseline} without the discount'**
+  String simUnits(String expected, String low, String high, String baseline);
+
+  /// No description provided for @simProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit {withDiscount} vs {withoutDiscount} without the discount'**
+  String simProfit(String withDiscount, String withoutDiscount);
+
+  /// No description provided for @simMoreProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more profit'**
+  String simMoreProfit(String amount);
+
+  /// No description provided for @simLessProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} less profit'**
+  String simLessProfit(String amount);
+
+  /// No description provided for @simMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin {before}% → {after}%'**
+  String simMargin(String before, String after);
+
+  /// No description provided for @simStockout.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% chance of selling out'**
+  String simStockout(String pct);
+
+  /// No description provided for @simStockDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock lasts about {days} days'**
+  String simStockDays(String days);
+
+  /// No description provided for @simStockoutBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% chance of running out before the delivery arrives ({days} days)'**
+  String simStockoutBefore(String pct, String days);
+
+  /// No description provided for @simCover.
+  ///
+  /// In en, this message translates to:
+  /// **'About {days} days of stock after it arrives'**
+  String simCover(String days);
+
+  /// No description provided for @simSellOut.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% chance it all sells within 60 days'**
+  String simSellOut(String pct);
+
+  /// No description provided for @simLeftover.
+  ///
+  /// In en, this message translates to:
+  /// **'About {count} left after 90 days'**
+  String simLeftover(String count);
+
+  /// No description provided for @simCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash tied up: {amount}'**
+  String simCash(String amount);
+
+  /// No description provided for @simWarningsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch out'**
+  String get simWarningsTitle;
+
+  /// No description provided for @simAssumptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assumptions'**
+  String get simAssumptionsTitle;
+
+  /// No description provided for @simWBelowMinMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin falls below your {pct}% minimum'**
+  String simWBelowMinMargin(String pct);
+
+  /// No description provided for @simWEarnsLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Earns {amount} less than not discounting'**
+  String simWEarnsLess(String amount);
+
+  /// No description provided for @simWLosesMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Loses {amount} on every unit'**
+  String simWLosesMoney(String amount);
+
+  /// No description provided for @simWStockoutLikely.
+  ///
+  /// In en, this message translates to:
+  /// **'Likely to sell out during the discount'**
+  String get simWStockoutLikely;
+
+  /// No description provided for @simWBelowMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the supplier\'s minimum order of {moq}'**
+  String simWBelowMoq(String moq);
+
+  /// No description provided for @simWMaySellOut.
+  ///
+  /// In en, this message translates to:
+  /// **'May sell out before the delivery arrives'**
+  String get simWMaySellOut;
+
+  /// No description provided for @simWSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow to sell: about {count} may be left after 90 days'**
+  String simWSlow(String count);
+
+  /// No description provided for @simABaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal demand: {perDay} a day (from {days} days in stock)'**
+  String simABaseline(String perDay, String days);
+
+  /// No description provided for @simAElasticityHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer response from your own {days} discount days (about {pct}% off)'**
+  String simAElasticityHistory(String days, String pct);
+
+  /// No description provided for @simAElasticityTypical.
+  ///
+  /// In en, this message translates to:
+  /// **'No discount history yet: using a typical customer response, so the range is wide'**
+  String get simAElasticityTypical;
+
+  /// No description provided for @simAStockCaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t sell more than the {stock} in stock or on order'**
+  String simAStockCaps(String stock);
+
+  /// No description provided for @simAStockNotTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock isn\'t tracked, so sales aren\'t capped'**
+  String get simAStockNotTracked;
+
+  /// No description provided for @simAOtherCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Other costs per unit stay the same'**
+  String get simAOtherCosts;
+
+  /// No description provided for @simAReturns.
+  ///
+  /// In en, this message translates to:
+  /// **'Returns stay like recent sales'**
+  String get simAReturns;
+
+  /// No description provided for @simANoSeasonality.
+  ///
+  /// In en, this message translates to:
+  /// **'No festival or season effect is included'**
+  String get simANoSeasonality;
+
+  /// No description provided for @simAVariantDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Demand: {perDay} a day ({sold} sold in 90 days)'**
+  String simAVariantDemand(String perDay, String sold);
+
+  /// No description provided for @simALeadMeasured.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery takes {days} days (measured from past orders)'**
+  String simALeadMeasured(String days);
+
+  /// No description provided for @simALeadTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery takes {days} days (supplier\'s terms)'**
+  String simALeadTerms(String days);
+
+  /// No description provided for @simALeadDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery takes {days} days (default: no supplier terms)'**
+  String simALeadDefault(String days);
+
+  /// No description provided for @simAIncoming.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} already on order arrive first'**
+  String simAIncoming(String count);
+
+  /// No description provided for @simAPoisson.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily sales vary randomly around the average'**
+  String get simAPoisson;
+
+  /// No description provided for @simAUnitLanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per unit includes freight and duty'**
+  String get simAUnitLanded;
+
+  /// No description provided for @simAUnitPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost per unit is the purchase price (no freight or duty yet)'**
+  String get simAUnitPurchase;
+
+  /// No description provided for @simNotIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not included: {items}'**
+  String simNotIncluded(String items);
+
+  /// No description provided for @simNIProfitCost.
+  ///
+  /// In en, this message translates to:
+  /// **'profit (product cost not set)'**
+  String get simNIProfitCost;
+
+  /// No description provided for @simNIUnitCost.
+  ///
+  /// In en, this message translates to:
+  /// **'unit cost'**
+  String get simNIUnitCost;
+
+  /// No description provided for @simNIProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'profit'**
+  String get simNIProfit;
 }
 
 class _AppLocalizationsDelegate

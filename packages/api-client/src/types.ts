@@ -2302,3 +2302,148 @@ export interface ReceiveInput {
   lot_code?: string | null;
   note?: string | null;
 }
+
+// ----------------------------------------------------------------------------- Phase 9: Store Twin + simulation
+export type TwinSectionName =
+  | "catalog"
+  | "inventory"
+  | "orders"
+  | "cod"
+  | "shipments"
+  | "returns"
+  | "suppliers"
+  | "automation"
+  | "exceptions"
+  | "content";
+
+export interface TwinSection {
+  section: TwinSectionName;
+  owner: string;
+  /** Typed per section; see the backend registry. Numbers only, never personal data. */
+  state: Record<string, unknown>;
+  as_of: string;
+  computed_at: string;
+  source_version: number;
+  age_s: number;
+  stale: boolean;
+  max_staleness_s: Record<string, number>;
+}
+
+export interface TwinSummary {
+  sections: Partial<Record<TwinSectionName, TwinSection>>;
+  registry: TwinSectionName[];
+  /** The shop's currency for money in the sections (e.g. cash with couriers). */
+  currency?: string;
+}
+
+export interface TwinFreshness {
+  target_p95_s: number;
+  p95_lag_s: number | null;
+  meets_target: boolean | null;
+  sections: { section: TwinSectionName; age_s: number; ttl_s: number | null; last_lag_ms: number | null; trigger: string }[];
+  note: string;
+}
+
+export type SimulationKind = "discount" | "purchase_quantity" | "ad_budget";
+export type SimulationStatus = "queued" | "running" | "completed" | "failed";
+
+export interface SimulationWarning {
+  code: string;
+  [k: string]: unknown;
+}
+
+export interface SimulationAssumption {
+  code: string;
+  vars: Record<string, unknown>;
+}
+
+export interface Range {
+  expected: number;
+  low: number;
+  high: number;
+}
+
+export interface DiscountOutputs {
+  label: "estimate";
+  product_id: string;
+  title: string;
+  days: number;
+  discount_pct: number;
+  price_minor: number;
+  discounted_price_minor: number;
+  demand_per_day: Range & { baseline: number };
+  units: Range & { baseline: number };
+  stock: number | null;
+  stock_days: number | null;
+  stockout_probability: number | null;
+  margin_pct: { before: number | null; after: number | null };
+  contribution_per_unit_minor: { before: number | null; after: number | null };
+  contribution_minor: { with_discount: Range | null; without_discount: number | null };
+  difference_minor: number | null;
+  return_rate: number | null;
+  warnings: SimulationWarning[];
+  not_included: string[];
+}
+
+export interface PurchaseOutputs {
+  label: "estimate";
+  variant_id: string;
+  title: string | null;
+  variant: string | null;
+  quantity: number;
+  supplier: string | null;
+  per_day: number;
+  lead_days: number;
+  available: number;
+  incoming: number;
+  stockout_before_arrival_probability: number;
+  stock_after_arrival: number;
+  cover_days_after_arrival: number | null;
+  sell_out_within_60d_probability: number;
+  units_sold_90d: number;
+  leftover_after_90d: number;
+  cash_tied_up_minor: number | null;
+  contribution_90d_minor: number | null;
+  warnings: SimulationWarning[];
+  not_included: string[];
+}
+
+export interface SimulationRunView {
+  id: string;
+  kind: SimulationKind;
+  status: SimulationStatus;
+  inputs: Record<string, unknown>;
+  outputs: DiscountOutputs | PurchaseOutputs | null;
+  assumptions: SimulationAssumption[];
+  confidence: "low" | "medium" | "high" | null;
+  label: "estimate";
+  executes_nothing: true;
+  method_version: string;
+  baseline_as_of: string | null;
+  error_code: string | null;
+  created_at: string | null;
+  completed_at: string | null;
+  actual: { units: number; discount_applied_pct: number; comparable: boolean } | null;
+  abs_pct_error: number | null;
+  /** The shop's currency for every amount in outputs/assumptions. */
+  currency?: string;
+}
+
+export interface SimulationInput {
+  kind: SimulationKind;
+  discount?: { product_id: string; discount_pct: number; days: number };
+  purchase?: { variant_id: string; quantity: number; supplier_id?: string | null };
+}
+
+export interface SimulationCalibration {
+  demand_backtest: {
+    holdout_days: number;
+    products: number;
+    mape: number | null;
+    median_ape: number | null;
+    items: { product_id: string; predicted: number; actual: number; abs_pct_error: number }[];
+    note: string;
+  };
+  discount_runs_compared: number;
+  discount_runs_mape: number | null;
+}

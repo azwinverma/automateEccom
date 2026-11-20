@@ -13,6 +13,7 @@ import { ControlCenter } from "../automation/ControlCenter";
 import { AutopilotScoreCard } from "../intelligence/AutopilotScoreCard";
 import { Recommendations } from "../intelligence/Recommendations";
 import { StockRiskList } from "../intelligence/StockRiskList";
+import { StoreGlance } from "../twin/StoreGlance";
 import styles from "./home.module.css";
 import { useExceptions } from "./useExceptions";
 
@@ -40,6 +41,7 @@ export function HomeView() {
         subtitle={t("home.subtitle", { business: membership?.merchant.name ?? "" })}
       />
 
+      <StoreGlance />
       <ControlCenter onChanged={exceptions.query.reload} />
       <Recommendations />
       <StockRiskList />
@@ -53,6 +55,7 @@ export function HomeView() {
           </InlineAlert>
         </div>
       ) : null}
+      <div id="exceptions" />
       {exceptions.query.state.status === "loading" ? (
         <ExceptionInbox state="loading" />
       ) : exceptions.query.state.status === "error" ? (

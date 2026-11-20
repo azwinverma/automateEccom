@@ -365,6 +365,33 @@ describe("Phase 7 creative endpoints", () => {
     ]);
   });
 
+  it("covers the Store Twin and simulations", async () => {
+    const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
+    await api.twin.summary();
+    await api.twin.summary(["orders", "inventory"]);
+    await api.twin.section("cod");
+    await api.twin.reconcile();
+    await api.twin.freshness();
+    await api.simulations.create({ kind: "discount", discount: { product_id: "p1", discount_pct: 20, days: 14 } });
+    await api.simulations.create({ kind: "purchase_quantity", purchase: { variant_id: "v1", quantity: 50 } });
+    await api.simulations.list();
+    await api.simulations.get("s 1");
+    await api.simulations.calibration();
+    const calls = fetchMock.mock.calls.map((c) => [String(c[0]).replace("http://api.test/api/v1", ""), c[1]!.method, c[1]!.body ? JSON.parse(String(c[1]!.body)) : null]);
+    expect(calls).toEqual([
+      ["/twin/summary", "GET", null],
+      ["/twin/summary?sections=orders%2Cinventory", "GET", null],
+      ["/twin/sections/cod", "GET", null],
+      ["/twin/reconcile", "POST", null],
+      ["/twin/freshness", "GET", null],
+      ["/simulations", "POST", { kind: "discount", discount: { product_id: "p1", discount_pct: 20, days: 14 } }],
+      ["/simulations", "POST", { kind: "purchase_quantity", purchase: { variant_id: "v1", quantity: 50 } }],
+      ["/simulations", "GET", null],
+      ["/simulations/s%201", "GET", null],
+      ["/simulations/calibration", "GET", null],
+    ]);
+  });
+
   it("covers suppliers, purchase orders and receiving with idempotency keys", async () => {
     const { api, fetchMock } = setup(() => json(200, {}), { getMerchantId: () => "m1" });
     await api.procurement.suppliers();

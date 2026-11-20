@@ -3856,4 +3856,285 @@ class AppLocalizationsEn extends AppLocalizations {
   String recImpactOrderValue(String amount) {
     return 'Order value $amount';
   }
+
+  @override
+  String get twinTitle => 'Store at a glance';
+
+  @override
+  String twinAsOf(String time) {
+    return 'As of $time';
+  }
+
+  @override
+  String get twinStale => 'Some numbers may be out of date';
+
+  @override
+  String twinOrders(String open) {
+    return '$open open orders';
+  }
+
+  @override
+  String twinToReview(String count) {
+    return '$count to review';
+  }
+
+  @override
+  String twinStock(String out, String low) {
+    return '$out out · $low low stock';
+  }
+
+  @override
+  String twinCash(String amount) {
+    return '$amount with couriers';
+  }
+
+  @override
+  String twinReturns(String count) {
+    return '$count returns open';
+  }
+
+  @override
+  String twinPosToApprove(String count) {
+    return '$count POs to approve';
+  }
+
+  @override
+  String twinPosLate(String count) {
+    return '$count POs late';
+  }
+
+  @override
+  String twinAttention(String count) {
+    return '$count need attention';
+  }
+
+  @override
+  String get settingsWhatIf => 'What if results';
+
+  @override
+  String get simEmpty =>
+      'No what-if estimates yet. Run one in the web app under Analytics.';
+
+  @override
+  String get simEstimate => 'Estimate';
+
+  @override
+  String get simNothingChanges => 'Nothing changes until you act.';
+
+  @override
+  String get simWorking => 'Working it out…';
+
+  @override
+  String simFailed(String reason) {
+    return 'Couldn\'t estimate: $reason';
+  }
+
+  @override
+  String get simErrNotEnoughSales => 'not enough sales yet';
+
+  @override
+  String get simErrNoVariants => 'the product has no active variants';
+
+  @override
+  String get simErrNotFound => 'the product no longer exists';
+
+  @override
+  String get simErrGeneric => 'something went wrong';
+
+  @override
+  String simHeadDiscount(String pct, String title, String days) {
+    return '$pct% off $title for $days days';
+  }
+
+  @override
+  String simHeadPurchase(String qty, String title) {
+    return 'Order $qty × $title';
+  }
+
+  @override
+  String get simConfidenceLow => 'Low confidence';
+
+  @override
+  String get simConfidenceMedium => 'Medium confidence';
+
+  @override
+  String get simConfidenceHigh => 'High confidence';
+
+  @override
+  String simUnits(String expected, String low, String high, String baseline) {
+    return 'Sells about $expected ($low–$high) vs $baseline without the discount';
+  }
+
+  @override
+  String simProfit(String withDiscount, String withoutDiscount) {
+    return 'Profit $withDiscount vs $withoutDiscount without the discount';
+  }
+
+  @override
+  String simMoreProfit(String amount) {
+    return '$amount more profit';
+  }
+
+  @override
+  String simLessProfit(String amount) {
+    return '$amount less profit';
+  }
+
+  @override
+  String simMargin(String before, String after) {
+    return 'Margin $before% → $after%';
+  }
+
+  @override
+  String simStockout(String pct) {
+    return '$pct% chance of selling out';
+  }
+
+  @override
+  String simStockDays(String days) {
+    return 'Stock lasts about $days days';
+  }
+
+  @override
+  String simStockoutBefore(String pct, String days) {
+    return '$pct% chance of running out before the delivery arrives ($days days)';
+  }
+
+  @override
+  String simCover(String days) {
+    return 'About $days days of stock after it arrives';
+  }
+
+  @override
+  String simSellOut(String pct) {
+    return '$pct% chance it all sells within 60 days';
+  }
+
+  @override
+  String simLeftover(String count) {
+    return 'About $count left after 90 days';
+  }
+
+  @override
+  String simCash(String amount) {
+    return 'Cash tied up: $amount';
+  }
+
+  @override
+  String get simWarningsTitle => 'Watch out';
+
+  @override
+  String get simAssumptionsTitle => 'Assumptions';
+
+  @override
+  String simWBelowMinMargin(String pct) {
+    return 'Margin falls below your $pct% minimum';
+  }
+
+  @override
+  String simWEarnsLess(String amount) {
+    return 'Earns $amount less than not discounting';
+  }
+
+  @override
+  String simWLosesMoney(String amount) {
+    return 'Loses $amount on every unit';
+  }
+
+  @override
+  String get simWStockoutLikely => 'Likely to sell out during the discount';
+
+  @override
+  String simWBelowMoq(String moq) {
+    return 'Below the supplier\'s minimum order of $moq';
+  }
+
+  @override
+  String get simWMaySellOut => 'May sell out before the delivery arrives';
+
+  @override
+  String simWSlow(String count) {
+    return 'Slow to sell: about $count may be left after 90 days';
+  }
+
+  @override
+  String simABaseline(String perDay, String days) {
+    return 'Normal demand: $perDay a day (from $days days in stock)';
+  }
+
+  @override
+  String simAElasticityHistory(String days, String pct) {
+    return 'Customer response from your own $days discount days (about $pct% off)';
+  }
+
+  @override
+  String get simAElasticityTypical =>
+      'No discount history yet: using a typical customer response, so the range is wide';
+
+  @override
+  String simAStockCaps(String stock) {
+    return 'Can\'t sell more than the $stock in stock or on order';
+  }
+
+  @override
+  String get simAStockNotTracked =>
+      'Stock isn\'t tracked, so sales aren\'t capped';
+
+  @override
+  String get simAOtherCosts => 'Other costs per unit stay the same';
+
+  @override
+  String get simAReturns => 'Returns stay like recent sales';
+
+  @override
+  String get simANoSeasonality => 'No festival or season effect is included';
+
+  @override
+  String simAVariantDemand(String perDay, String sold) {
+    return 'Demand: $perDay a day ($sold sold in 90 days)';
+  }
+
+  @override
+  String simALeadMeasured(String days) {
+    return 'Delivery takes $days days (measured from past orders)';
+  }
+
+  @override
+  String simALeadTerms(String days) {
+    return 'Delivery takes $days days (supplier\'s terms)';
+  }
+
+  @override
+  String simALeadDefault(String days) {
+    return 'Delivery takes $days days (default: no supplier terms)';
+  }
+
+  @override
+  String simAIncoming(String count) {
+    return '$count already on order arrive first';
+  }
+
+  @override
+  String get simAPoisson => 'Daily sales vary randomly around the average';
+
+  @override
+  String get simAUnitLanded => 'Cost per unit includes freight and duty';
+
+  @override
+  String get simAUnitPurchase =>
+      'Cost per unit is the purchase price (no freight or duty yet)';
+
+  @override
+  String simNotIncluded(String items) {
+    return 'Not included: $items';
+  }
+
+  @override
+  String get simNIProfitCost => 'profit (product cost not set)';
+
+  @override
+  String get simNIUnitCost => 'unit cost';
+
+  @override
+  String get simNIProfit => 'profit';
 }

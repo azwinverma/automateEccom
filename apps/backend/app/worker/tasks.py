@@ -148,6 +148,15 @@ def resume_workflows() -> int:
         return resume_due(db)
 
 
+@celery.task(name="app.worker.tasks.reconcile_twin", ignore_result=True)
+def reconcile_twin() -> int:
+    """TWIN-003: recompute every merchant's Twin sections to correct any drift."""
+    from app.domains.twin import service as twin
+
+    with session_scope() as db:
+        return twin.reconcile_all(db)
+
+
 @celery.task(name="app.worker.tasks.nightly_intelligence", ignore_result=True)
 def nightly_intelligence() -> dict[str, int]:
     """Phase 6: Courier Brain, Return Intelligence, Product Brain, Commerce Memory, Autopilot Score,
@@ -181,6 +190,11 @@ def nightly_intelligence() -> dict[str, int]:
 
     with session_scope() as db:
         stats["supplier_merchants"] = supplier_intel.compute_all(db)
+    # Phase 9: daily Twin snapshot (trends, simulation baselines).
+    from app.domains.twin import service as twin
+
+    with session_scope() as db:
+        stats["twin_snapshots"] = twin.snapshot_all(db)
     with session_scope() as db:
         stats["aps_snapshots"] = aps.snapshot_all(db)
     with session_scope() as db:

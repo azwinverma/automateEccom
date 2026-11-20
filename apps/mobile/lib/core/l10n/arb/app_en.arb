@@ -2515,5 +2515,377 @@
         "type": "String"
       }
     }
-  }
+  },
+  "twinTitle": "Store at a glance",
+  "twinAsOf": "As of {time}",
+  "@twinAsOf": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "twinStale": "Some numbers may be out of date",
+  "twinOrders": "{open} open orders",
+  "@twinOrders": {
+    "placeholders": {
+      "open": {
+        "type": "String"
+      }
+    }
+  },
+  "twinToReview": "{count} to review",
+  "@twinToReview": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "twinStock": "{out} out · {low} low stock",
+  "@twinStock": {
+    "placeholders": {
+      "out": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      }
+    }
+  },
+  "twinCash": "{amount} with couriers",
+  "@twinCash": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "twinReturns": "{count} returns open",
+  "@twinReturns": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "twinPosToApprove": "{count} POs to approve",
+  "@twinPosToApprove": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "twinPosLate": "{count} POs late",
+  "@twinPosLate": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "twinAttention": "{count} need attention",
+  "@twinAttention": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsWhatIf": "What if results",
+  "simEmpty": "No what-if estimates yet. Run one in the web app under Analytics.",
+  "simEstimate": "Estimate",
+  "simNothingChanges": "Nothing changes until you act.",
+  "simWorking": "Working it out…",
+  "simFailed": "Couldn't estimate: {reason}",
+  "@simFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "simErrNotEnoughSales": "not enough sales yet",
+  "simErrNoVariants": "the product has no active variants",
+  "simErrNotFound": "the product no longer exists",
+  "simErrGeneric": "something went wrong",
+  "simHeadDiscount": "{pct}% off {title} for {days} days",
+  "@simHeadDiscount": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simHeadPurchase": "Order {qty} × {title}",
+  "@simHeadPurchase": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "simConfidenceLow": "Low confidence",
+  "simConfidenceMedium": "Medium confidence",
+  "simConfidenceHigh": "High confidence",
+  "simUnits": "Sells about {expected} ({low}–{high}) vs {baseline} without the discount",
+  "@simUnits": {
+    "placeholders": {
+      "expected": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      },
+      "baseline": {
+        "type": "String"
+      }
+    }
+  },
+  "simProfit": "Profit {withDiscount} vs {withoutDiscount} without the discount",
+  "@simProfit": {
+    "placeholders": {
+      "withDiscount": {
+        "type": "String"
+      },
+      "withoutDiscount": {
+        "type": "String"
+      }
+    }
+  },
+  "simMoreProfit": "{amount} more profit",
+  "@simMoreProfit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simLessProfit": "{amount} less profit",
+  "@simLessProfit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simMargin": "Margin {before}% → {after}%",
+  "@simMargin": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "simStockout": "{pct}% chance of selling out",
+  "@simStockout": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "simStockDays": "Stock lasts about {days} days",
+  "@simStockDays": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simStockoutBefore": "{pct}% chance of running out before the delivery arrives ({days} days)",
+  "@simStockoutBefore": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simCover": "About {days} days of stock after it arrives",
+  "@simCover": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simSellOut": "{pct}% chance it all sells within 60 days",
+  "@simSellOut": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "simLeftover": "About {count} left after 90 days",
+  "@simLeftover": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "simCash": "Cash tied up: {amount}",
+  "@simCash": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simWarningsTitle": "Watch out",
+  "simAssumptionsTitle": "Assumptions",
+  "simWBelowMinMargin": "Margin falls below your {pct}% minimum",
+  "@simWBelowMinMargin": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "simWEarnsLess": "Earns {amount} less than not discounting",
+  "@simWEarnsLess": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simWLosesMoney": "Loses {amount} on every unit",
+  "@simWLosesMoney": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "simWStockoutLikely": "Likely to sell out during the discount",
+  "simWBelowMoq": "Below the supplier's minimum order of {moq}",
+  "@simWBelowMoq": {
+    "placeholders": {
+      "moq": {
+        "type": "String"
+      }
+    }
+  },
+  "simWMaySellOut": "May sell out before the delivery arrives",
+  "simWSlow": "Slow to sell: about {count} may be left after 90 days",
+  "@simWSlow": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "simABaseline": "Normal demand: {perDay} a day (from {days} days in stock)",
+  "@simABaseline": {
+    "placeholders": {
+      "perDay": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simAElasticityHistory": "Customer response from your own {days} discount days (about {pct}% off)",
+  "@simAElasticityHistory": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "simAElasticityTypical": "No discount history yet: using a typical customer response, so the range is wide",
+  "simAStockCaps": "Can't sell more than the {stock} in stock or on order",
+  "@simAStockCaps": {
+    "placeholders": {
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "simAStockNotTracked": "Stock isn't tracked, so sales aren't capped",
+  "simAOtherCosts": "Other costs per unit stay the same",
+  "simAReturns": "Returns stay like recent sales",
+  "simANoSeasonality": "No festival or season effect is included",
+  "simAVariantDemand": "Demand: {perDay} a day ({sold} sold in 90 days)",
+  "@simAVariantDemand": {
+    "placeholders": {
+      "perDay": {
+        "type": "String"
+      },
+      "sold": {
+        "type": "String"
+      }
+    }
+  },
+  "simALeadMeasured": "Delivery takes {days} days (measured from past orders)",
+  "@simALeadMeasured": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simALeadTerms": "Delivery takes {days} days (supplier's terms)",
+  "@simALeadTerms": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simALeadDefault": "Delivery takes {days} days (default: no supplier terms)",
+  "@simALeadDefault": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "simAIncoming": "{count} already on order arrive first",
+  "@simAIncoming": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "simAPoisson": "Daily sales vary randomly around the average",
+  "simAUnitLanded": "Cost per unit includes freight and duty",
+  "simAUnitPurchase": "Cost per unit is the purchase price (no freight or duty yet)",
+  "simNotIncluded": "Not included: {items}",
+  "@simNotIncluded": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "simNIProfitCost": "profit (product cost not set)",
+  "simNIUnitCost": "unit cost",
+  "simNIProfit": "profit"
 }

@@ -3836,4 +3836,284 @@ class AppLocalizationsNe extends AppLocalizations {
   String recImpactOrderValue(String amount) {
     return 'अर्डर मूल्य $amount';
   }
+
+  @override
+  String get twinTitle => 'पसल एक नजरमा';
+
+  @override
+  String twinAsOf(String time) {
+    return '$time सम्मको';
+  }
+
+  @override
+  String get twinStale => 'केही अंक पुराना हुन सक्छन्';
+
+  @override
+  String twinOrders(String open) {
+    return '$open खुला अर्डर';
+  }
+
+  @override
+  String twinToReview(String count) {
+    return '$count जाँच्न बाँकी';
+  }
+
+  @override
+  String twinStock(String out, String low) {
+    return '$out सकियो · $low कम स्टक';
+  }
+
+  @override
+  String twinCash(String amount) {
+    return '$amount कुरियरसँग';
+  }
+
+  @override
+  String twinReturns(String count) {
+    return '$count फिर्ता खुला';
+  }
+
+  @override
+  String twinPosToApprove(String count) {
+    return '$count खरिद अर्डर स्वीकृत गर्न बाँकी';
+  }
+
+  @override
+  String twinPosLate(String count) {
+    return '$count खरिद अर्डर ढिला';
+  }
+
+  @override
+  String twinAttention(String count) {
+    return '$count मा ध्यान चाहिन्छ';
+  }
+
+  @override
+  String get settingsWhatIf => '\"यस्तो गरे के हुन्छ\" नतिजा';
+
+  @override
+  String get simEmpty =>
+      'अहिलेसम्म कुनै अनुमान छैन। वेब एपको एनालिटिक्समा गएर चलाउनुहोस्।';
+
+  @override
+  String get simEstimate => 'अनुमान';
+
+  @override
+  String get simNothingChanges => 'तपाईंले कदम नचालेसम्म केही बदलिँदैन।';
+
+  @override
+  String get simWorking => 'हिसाब हुँदैछ…';
+
+  @override
+  String simFailed(String reason) {
+    return 'अनुमान गर्न सकिएन: $reason';
+  }
+
+  @override
+  String get simErrNotEnoughSales => 'बिक्री अझै पर्याप्त छैन';
+
+  @override
+  String get simErrNoVariants => 'यो उत्पादनको कुनै सक्रिय प्रकार छैन';
+
+  @override
+  String get simErrNotFound => 'यो उत्पादन अब छैन';
+
+  @override
+  String get simErrGeneric => 'केही गडबड भयो';
+
+  @override
+  String simHeadDiscount(String pct, String title, String days) {
+    return '$title मा $days दिन $pct% छुट';
+  }
+
+  @override
+  String simHeadPurchase(String qty, String title) {
+    return '$title $qty वटा अर्डर';
+  }
+
+  @override
+  String get simConfidenceLow => 'कम भरोसा';
+
+  @override
+  String get simConfidenceMedium => 'मध्यम भरोसा';
+
+  @override
+  String get simConfidenceHigh => 'उच्च भरोसा';
+
+  @override
+  String simUnits(String expected, String low, String high, String baseline) {
+    return 'करिब $expected ($low–$high) बिक्छ, छुट बिना $baseline';
+  }
+
+  @override
+  String simProfit(String withDiscount, String withoutDiscount) {
+    return 'नाफा $withDiscount, छुट बिना $withoutDiscount';
+  }
+
+  @override
+  String simMoreProfit(String amount) {
+    return '$amount बढी नाफा';
+  }
+
+  @override
+  String simLessProfit(String amount) {
+    return '$amount कम नाफा';
+  }
+
+  @override
+  String simMargin(String before, String after) {
+    return 'मार्जिन $before% → $after%';
+  }
+
+  @override
+  String simStockout(String pct) {
+    return 'स्टक सकिने सम्भावना $pct%';
+  }
+
+  @override
+  String simStockDays(String days) {
+    return 'स्टक करिब $days दिन टिक्छ';
+  }
+
+  @override
+  String simStockoutBefore(String pct, String days) {
+    return 'सामान आइपुग्नुअघि ($days दिन) सकिने सम्भावना $pct%';
+  }
+
+  @override
+  String simCover(String days) {
+    return 'आइपुगेपछि करिब $days दिनको स्टक';
+  }
+
+  @override
+  String simSellOut(String pct) {
+    return '६० दिनभित्र सबै बिक्ने सम्भावना $pct%';
+  }
+
+  @override
+  String simLeftover(String count) {
+    return '९० दिनपछि करिब $count बाँकी';
+  }
+
+  @override
+  String simCash(String amount) {
+    return 'अड्किने पैसा: $amount';
+  }
+
+  @override
+  String get simWarningsTitle => 'ध्यान दिनुहोस्';
+
+  @override
+  String get simAssumptionsTitle => 'अनुमानका आधार';
+
+  @override
+  String simWBelowMinMargin(String pct) {
+    return 'मार्जिन तपाईंको न्यूनतम $pct% भन्दा तल झर्छ';
+  }
+
+  @override
+  String simWEarnsLess(String amount) {
+    return 'छुट नदिँदा भन्दा $amount कम कमाइ';
+  }
+
+  @override
+  String simWLosesMoney(String amount) {
+    return 'प्रति थान $amount घाटा';
+  }
+
+  @override
+  String get simWStockoutLikely => 'छुटको बेला स्टक सकिन सक्छ';
+
+  @override
+  String simWBelowMoq(String moq) {
+    return 'आपूर्तिकर्ताको न्यूनतम अर्डर $moq भन्दा कम';
+  }
+
+  @override
+  String get simWMaySellOut => 'सामान आइपुग्नुअघि स्टक सकिन सक्छ';
+
+  @override
+  String simWSlow(String count) {
+    return 'बिस्तारै बिक्छ: ९० दिनपछि करिब $count बाँकी रहन सक्छ';
+  }
+
+  @override
+  String simABaseline(String perDay, String days) {
+    return 'सामान्य माग: दिनको $perDay ($days दिन स्टकमा रहँदाको)';
+  }
+
+  @override
+  String simAElasticityHistory(String days, String pct) {
+    return 'तपाईंकै $days छुट दिनको ग्राहक प्रतिक्रिया (करिब $pct% छुट)';
+  }
+
+  @override
+  String get simAElasticityTypical =>
+      'छुटको इतिहास छैन: सामान्य ग्राहक प्रतिक्रिया प्रयोग गरिएको, त्यसैले दायरा फराकिलो छ';
+
+  @override
+  String simAStockCaps(String stock) {
+    return 'स्टकमा वा अर्डरमा भएको $stock भन्दा बढी बिक्न सक्दैन';
+  }
+
+  @override
+  String get simAStockNotTracked => 'स्टक ट्र्याक नहुँदा बिक्रीको सीमा छैन';
+
+  @override
+  String get simAOtherCosts => 'प्रति थान अन्य खर्च उस्तै रहन्छ';
+
+  @override
+  String get simAReturns => 'फिर्ता हालको बिक्री जस्तै रहन्छ';
+
+  @override
+  String get simANoSeasonality => 'चाडपर्व वा मौसमको असर समावेश छैन';
+
+  @override
+  String simAVariantDemand(String perDay, String sold) {
+    return 'माग: दिनको $perDay (९० दिनमा $sold बिक्यो)';
+  }
+
+  @override
+  String simALeadMeasured(String days) {
+    return 'आइपुग्न $days दिन लाग्छ (पुराना अर्डरबाट नापिएको)';
+  }
+
+  @override
+  String simALeadTerms(String days) {
+    return 'आइपुग्न $days दिन लाग्छ (आपूर्तिकर्ताको सर्त)';
+  }
+
+  @override
+  String simALeadDefault(String days) {
+    return 'आइपुग्न $days दिन लाग्छ (आपूर्तिकर्ताको सर्त नभएकाले पूर्वनिर्धारित)';
+  }
+
+  @override
+  String simAIncoming(String count) {
+    return 'अर्डरमा रहेका $count पहिले आइपुग्छन्';
+  }
+
+  @override
+  String get simAPoisson => 'दैनिक बिक्री औसत वरिपरि घटबढ हुन्छ';
+
+  @override
+  String get simAUnitLanded => 'प्रति थान लागतमा ढुवानी र भन्सार समावेश छ';
+
+  @override
+  String get simAUnitPurchase =>
+      'प्रति थान लागत खरिद मूल्य मात्र हो (ढुवानी र भन्सार बाहेक)';
+
+  @override
+  String simNotIncluded(String items) {
+    return 'समावेश छैन: $items';
+  }
+
+  @override
+  String get simNIProfitCost => 'नाफा (उत्पादन लागत राखिएको छैन)';
+
+  @override
+  String get simNIUnitCost => 'प्रति थान लागत';
+
+  @override
+  String get simNIProfit => 'नाफा';
 }

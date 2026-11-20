@@ -48,6 +48,8 @@ celery.conf.update(
             "schedule": 600.0,
         },
         "sync-cod-settlements": {"task": "app.worker.tasks.sync_cod_settlements", "schedule": 6 * 3600.0},
+        # TWIN-003: periodic reconciliation (spec 03 default every 6 h).
+        "reconcile-twin": {"task": "app.worker.tasks.reconcile_twin", "schedule": 6 * 3600.0},
     },
 )
 

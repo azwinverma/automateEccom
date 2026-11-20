@@ -34,6 +34,7 @@ import '../features/settings/presentation/settings_screen.dart';
 import '../features/studio/presentation/capture_screen.dart';
 import '../features/studio/presentation/drafts_screen.dart';
 import '../features/studio/presentation/job_screen.dart';
+import '../features/twin/presentation/simulations_screen.dart';
 import 'splash_screen.dart';
 
 abstract final class Routes {
@@ -157,6 +158,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/returns', builder: (_, __) => const ReturnsListScreen()),
       GoRoute(path: '/automation', builder: (_, __) => const WorkflowsScreen()),
       GoRoute(path: '/learned', builder: (_, __) => const MemoryScreen()),
+      GoRoute(path: '/what-if', builder: (_, __) => const SimulationsScreen()),
+      GoRoute(
+        path: '/what-if/:id',
+        builder: (_, s) => SimulationDetailScreen(id: s.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/purchase-orders',
         builder:

@@ -24,6 +24,8 @@ import '../../intelligence/presentation/profit_card.dart';
 import '../../intelligence/presentation/recommendations_section.dart';
 import '../../returns/data/returns_api.dart';
 import '../../returns/presentation/returns_list_screen.dart';
+import '../../twin/data/twin_api.dart';
+import '../../twin/presentation/store_glance.dart';
 import 'widgets/autopilot_status_strip.dart';
 import 'widgets/exception_list.dart';
 import 'widgets/quick_actions.dart';
@@ -98,6 +100,7 @@ class HomeScreen extends ConsumerWidget {
               ..invalidate(recommendationsProvider)
               ..invalidate(profitSummaryProvider)
               ..invalidate(creativeGenomeProvider)
+              ..invalidate(twinSummaryProvider)
               ..invalidate(codOverviewProvider)
               ..invalidate(returnsPageProvider('to_decide'));
             await Future.wait<Object?>([
@@ -152,6 +155,7 @@ class HomeScreen extends ConsumerWidget {
               // The Control Center replaces the strip once its summary has loaded.
               if (!ref.watch(controlCenterProvider).hasValue)
                 AutopilotStatusStrip(status: autopilot),
+              const StoreGlanceStrip(),
               const AutopilotScoreCard(),
               const ProfitCard(),
               const CreativeGenomeCard(),

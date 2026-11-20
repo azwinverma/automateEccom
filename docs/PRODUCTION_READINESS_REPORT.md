@@ -1,6 +1,6 @@
 # Production Readiness Report: Nivaro
 
-> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion and Phases 2–8.
+> 2026-11-03 QA cycle (`docs/QA_TEST_REPORT.md`); updated 2026-11-19 after Phase 1 completion and Phases 2–9.
 
 ## Overall status: **NOT_READY**
 
@@ -58,7 +58,7 @@ External checks that couldn't run are listed under "External tests pending".
 | Payments / COD | Verified online payments **PASS with sandbox wallet**; manual payments and COD trail **PASS**; Nepal gateway BLOCKED_EXTERNAL (GAP-PAY-NP); COD settlement Phase 3 |
 | Fulfillment / couriers / returns | **PASS with sandbox/manual couriers** (E2E COD → failed attempt → delivered → settled; return → pickup → inspection → refund). Real Nepal courier API BLOCKED_EXTERNAL |
 | Automation / Autopilot | **PASS** (Decision Policy, workflows, Control Center; E2E Assisted → Smart) |
-| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data. Phase 7 Creative Intelligence **PASS with sandbox/typed-in results** (exit BLOCKED_EXTERNAL on real channel insights); Phase 8 procurement + supplier intelligence **PASS** (E2E PO → approval → lots → stock); Phases 9–10 NOT_IMPLEMENTED |
+| Analytics / intelligence | Phase 6 **PASS on synthetic data** (Autopilot Score, suggestions, Courier Brain, COD risk, true profit, Product Brain, Return Intelligence, Commerce Memory; E2E). Exit criteria need pilot data. Phase 7 Creative Intelligence **PASS with sandbox/typed-in results** (exit BLOCKED_EXTERNAL on real channel insights); Phase 8 procurement + supplier intelligence **PASS** (E2E PO → approval → lots → stock); Phase 9 Twin + simulation **PASS** (estimates only, never execute; ad-budget BLOCKED_EXTERNAL); Phase 10 NOT_IMPLEMENTED (needs privacy impact assessment + legal review) |
 | Admin | API and Nivaro Console UI **PASS** (staff + MFA, E2E); plan/routing editors not built |
 
 ## Known risks
@@ -273,3 +273,19 @@ One E2E run while the Mac slept timed out on 18 tests; the rerun with sleep prev
 
 Overall status remains **NOT_READY** (real courier API, Nepal payment gateway, live channels,
 production email/WhatsApp, staging, backups, pentest).
+
+## Update 2026-11-20 (Phase 9: Digital Store Twin + simulation)
+| | Total | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| Backend pytest | 351 | 351 | 0 | 0 |
+| Web unit + API client | 356 | 356 | 0 | 0 |
+| E2E (real backend + worker, desktop + 360px) | 38 | 38 | 0 | 0 |
+| Flutter | 187 | 186 | 0 | 1 (live flow; needs LIVE_API) |
+| axe on Phase 9 pages (2 pages × 3 configs) | 6 | 6 | 0 | 0 |
+
+Found and fixed: the Twin counted delivered orders as open; Twin shop totals were readable by staff (now
+analytics.read); a scrollable freshness table wasn't keyboard-focusable (WCAG 2.1.1); the phase 9 spec
+clicked "Estimate" before the product picker had loaded the product.
+
+Overall status remains **NOT_READY** (real courier API, Nepal payment gateway, live channels, ad accounts,
+production email/WhatsApp, staging, monitoring/alerts, backups, pentest).

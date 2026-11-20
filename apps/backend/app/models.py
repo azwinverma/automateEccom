@@ -28,3 +28,4 @@ def import_all() -> None:
     from app.domains.procurement import models as _procurement  # noqa: F401
     from app.domains.returns import models as _returns  # noqa: F401
     from app.domains.studio import models as _studio  # noqa: F401
+    from app.domains.twin import models as _twin  # noqa: F401

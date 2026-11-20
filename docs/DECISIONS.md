@@ -572,3 +572,23 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
   5% of the price (min NPR 20 per unit).
 - **Why:** spec 13's example: the cheaper supplier can be the less profitable one. Per-unit lot tracking
   isn't recorded at sale time, so the shelf-lot rule is the honest approximation (GAP-SPI-LOT).
+
+## ADR-077: The Twin is recomputed per section from Commerce Core, never patched (TWIN-001…003, 2026-11-20)
+- **Decision:** each section is a cheap aggregate query recomputed whole when one of its events arrives;
+  `source_version` is the event's creation time in µs and an older event never overwrites a newer
+  section. Reads past the TTL recompute synchronously; reconciliation runs every 6 h. Shop totals in the
+  Twin need analytics.read. "Open orders" excludes delivered orders.
+- **Why:** incremental patching of aggregates drifts; whole-section recompute is simple, correct and fast
+  at SMB volumes. Exact values (stock for an order, refund amounts) still come from Commerce Core.
+
+## ADR-078: Simulations are estimates from the shop's own history, with stated assumptions (SIM-002/003/005, 2026-11-20)
+- **Decision:** discount demand = baseline (Product Brain EWMA over in-stock days) × (1 − discount)^elasticity.
+  Elasticity comes from the shop's own discounted vs full-price days (≥ 5 and ≥ 10 days); otherwise a
+  typical range (−0.5 to −3, central −1.5) with low confidence. Demand is Poisson; sales are capped by
+  stock. Results list every assumption, give low/expected/high and never execute anything.
+- **Why:** spec 14 rules; sellers must see why a number is what it is and how sure Nivaro is.
+
+## ADR-079: The Decision Policy checks Twin freshness (spec 06 stale-data rule, 2026-11-20)
+- **Decision:** a Proposal may name the Twin sections it relies on; if any is older than its automation
+  max staleness the decision becomes REQUIRE_APPROVAL with rule `stale_data` and the stale sections.
+- **Why:** automation must not act on old state; a person can still decide.

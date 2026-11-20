@@ -172,6 +172,14 @@ are done. The items below remain.
 | GAP-AUT-PO-ACTION | Low | Workflows can't create PO drafts yet (low stock → draft PO); suggestions can. | Add create_po_draft as an R3 workflow action. |
 | GAP-E2E-SLEEP | Info | An E2E run during which the Mac slept produced 18 timeouts (17-minute files); the rerun with `caffeinate -i` passed 36/36. | Run long suites with caffeinate or in CI. |
 
+## Phase 9 (2026-11-20)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-ADS | Med | No ad-account connector, so ad-budget simulation (SIM-004) and ad spend in true profit are unavailable. | Meta/TikTok ads APIs after app approval. |
+| GAP-SIM-MODEL | Med | Discount model has no seasonality (needs a year of data) and a constant elasticity; purchase model assumes incoming stock arrives first and Poisson demand. | Seasonality index once 12 months exist; per-category elasticity priors from network data (Phase 10). |
+| GAP-TWIN-SLO | Med | The 60 s p95 freshness target is measured (report + histogram) but not alerted on or proven under real load. | Alerting with the monitoring stack (GAP-OBS). |
+| GAP-SIM-MOBILE | Low | Mobile shows simulation results but can't start one. | Add a "What if I order N?" action on PO/variant screens. |
+
 ## Security hardening still to do
 - SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.
@@ -186,5 +194,5 @@ are done. The items below remain.
 | GAP-EXCHANGE-PRICE | Low | Exchanges are limited to the same product at the same price (no top-up or partial refund). | Price-difference exchanges with a payment link or partial refund. |
 | GAP-AUT-SCHEDULE | Low | Workflows start from events only; no time-of-day/schedule triggers yet. | Schedule trigger (daily/weekly in the merchant's timezone) on the existing resume worker. |
 | GAP-AUT-ACTIONS | Med | Workflow actions cover messaging, courier booking/pickup, reattempts and return approval. Refunds, discounts, price changes and purchase orders aren't workflow actions yet (the policy thresholds for them exist). | Add as R2/R3 actions when the pricing/procurement domains exist (Phase 6/8). |
-| GAP-AUT-STALENESS | Info | The Decision Policy's data-freshness gate has nothing to check until the Digital Store Twin exists; facts are always read live today. | Wire max-staleness when Twin sections land (Phase 9). |
+| ~~GAP-AUT-STALENESS~~ | Closed 2026-11-20 | Twin sections exist; the Decision Policy refuses to auto-run on sections older than their automation max staleness (ADR-079). | — |
 

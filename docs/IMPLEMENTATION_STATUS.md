@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-20 (Phase 8)._
+_Last updated: 2026-11-20 (Phase 9)._
 
 ## Summary
 
@@ -44,6 +44,28 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Phase 9 (Digital Store Twin + simulation): built 2026-11-20
+- **Built and tested:** a 10-section derived Twin (catalog, inventory, orders, COD, shipments, returns,
+  suppliers, automation, exceptions, content) updated from domain events (monotonic source_version),
+  reconciled every 6 h, recomputed on read past its TTL, snapshotted daily, with a freshness report and a
+  lag histogram (target p95 < 60 s). The Decision Policy now refuses to auto-run when a Twin section it
+  relies on is older than the action's max staleness (closes GAP-AUT-STALENESS). Simulations run
+  asynchronously: discount (own-history elasticity or a labelled typical range, stock cap, stockout
+  probability, margin and contribution with vs without) and purchase quantity (stock-out before arrival,
+  cover after, sell-through, leftover, cash tied up); ad-budget is refused until ad spend is connected.
+  Every result is an estimate with assumptions, ranges and confidence, and executes nothing. Calibration:
+  14-day holdout backtest of the demand model and comparison with discounts the seller actually ran.
+- **Web:** Home "Store at a glance" strip (managers+), Analytics → What if (forms, polling, result,
+  recent runs, calibration), data-freshness panel. **Mobile:** glance strip, what-if results list/detail.
+- **Verified in E2E** (desktop + 360px): glance strip shows open orders; discount estimate on a brand-new
+  product explains it needs more selling days; purchase estimate comes back labelled with its assumptions;
+  no purchase order is created.
+- **Totals (2026-11-20):** backend 351 passed (25 migrations); web 324 + api-client 32; E2E 38/38;
+  mobile 186 passed + 1 live-only skipped; axe 0 violations and no 360px overflow on Home and What if.
+- **Exit criteria** ("Twin freshness SLOs met; simulations show assumptions/ranges and never
+  auto-execute"): the second is met; the SLO is measured but can only be proven on a deployed stack with
+  real event volume (GAP-OBS).
 
 ## Phase 8 (Procurement + Supplier Intelligence): built 2026-11-20
 - **Built and tested:** suppliers with contact/terms and per-variant terms (price, MOQ, lead time,
@@ -565,18 +587,18 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | SPI-002 | batch/lot linkage receiving → returns/defects | P8 | IMPLEMENTED | PRO-005 | apps/backend/app/domains/procurement/supplier_intel.py::_attribution (latest lot received before the order) | apps/backend/tests/test_procurement.py::test_true_economics_prefer_the_supplier_with_fewer_defects_and_returns | Approximation: lots aren't tracked per unit (GAP-SPI-LOT) |
 | SPI-003 | true-economics supplier recommendation with explanation | P8 | TESTED | SPI-001 | apps/backend/app/domains/procurement/supplier_intel.py::switch_proposals; set_preferred_supplier action | apps/backend/tests/test_procurement.py::test_true_economics_prefer_the_supplier_with_fewer_defects_and_returns |  |
 | SPI-004 | reorder recommendation using true economics + lead time | P8 | TESTED | SPI-001 | apps/backend/app/domains/procurement/supplier_intel.py::reorder_proposals (true economics, lead time ± sd, MOQ, incoming, profit limits) | apps/backend/tests/test_procurement.py::test_reorder_suggestion_uses_lead_time_moq_and_creates_a_draft_for_approval; test_loss_makers_are_not_reordered |  |
-| TWIN-001 | section registry (owner domain, TTL, max staleness per consumer) | P9 | NOT_STARTED | — | — | — |  |
-| TWIN-002 | event-driven incremental updaters (monotonic source_version) | P9 | NOT_STARTED | — | — | — |  |
-| TWIN-003 | periodic reconciliation + on-read freshness check + stale flag | P9 | NOT_STARTED | — | — | — |  |
-| TWIN-004 | StoreTwinSnapshot daily | P9 | NOT_STARTED | — | — | — |  |
-| TWIN-005 | API /twin/summary + Store Manager tool get_twin_section | P9 | NOT_STARTED | — | — | — |  |
-| TWIN-006 | freshness SLO monitoring | P9 | NOT_STARTED | — | — | — |  |
-| SIM-001 | SimulationRun model + async execution | P9 | NOT_STARTED | — | — | — |  |
-| SIM-002 | discount scenario (elasticity from own history, margin, stock duration, return impact) | P9 | NOT_STARTED | — | — | — |  |
-| SIM-003 | purchase-quantity scenario (stockout probability, cash tied up) | P9 | NOT_STARTED | — | — | — |  |
-| SIM-004 | ad-budget shift scenario (requires connected ad spend) | P9 | NOT_STARTED | — | — | — |  |
-| SIM-005 | assumptions/confidence/range presentation; no execution without separate approval | P9 | NOT_STARTED | — | — | — |  |
-| SIM-006 | backtest calibration of simulation estimates | P9 | NOT_STARTED | — | — | — |  |
+| TWIN-001 | section registry (owner domain, TTL, max staleness per consumer) | P9 | TESTED | — | apps/backend/app/domains/twin/service.py::SECTIONS (owner, events, TTL, max staleness per consumer, material keys) | apps/backend/tests/test_twin.py | 10 sections |
+| TWIN-002 | event-driven incremental updaters (monotonic source_version) | P9 | TESTED | TWIN-001 | apps/backend/app/domains/twin/service.py::_on_event / refresh (source_version = event µs, monotonic) | apps/backend/tests/test_twin.py::test_twin_sections_follow_events_monotonically_and_flag_material_changes | twin.updated only on material change |
+| TWIN-003 | periodic reconciliation + on-read freshness check + stale flag | P9 | TESTED | TWIN-002 | apps/backend/app/domains/twin/service.py::reconcile_all (every 6 h) + read() TTL recompute + stale flag | apps/backend/tests/test_twin.py::test_old_sections_are_recomputed_on_read_and_snapshots_are_daily |  |
+| TWIN-004 | StoreTwinSnapshot daily | P9 | TESTED | TWIN-003 | apps/backend/app/domains/twin/service.py::snapshot_all (nightly, idempotent per day) | apps/backend/tests/test_twin.py::test_old_sections_are_recomputed_on_read_and_snapshots_are_daily |  |
+| TWIN-005 | API /twin/summary + Store Manager tool get_twin_section | P9 | IMPLEMENTED | TWIN-003 | apps/backend/app/domains/twin/router.py /twin/summary, /twin/sections/{name} (analytics.read) | apps/backend/tests/test_twin.py | Store Manager tool not built (GAP-STORE-MANAGER) |
+| TWIN-006 | freshness SLO monitoring | P9 | IMPLEMENTED | TWIN-002 | apps/backend/app/domains/twin/service.py::freshness + twin_update_lag_seconds histogram | apps/backend/tests/test_twin.py | Report + metric; alerting needs monitoring infra (GAP-OBS) |
+| SIM-001 | SimulationRun model + async execution | P9 | TESTED | — | apps/backend/app/domains/twin/models.py::SimulationRun; simulation.py create/execute via outbox | apps/backend/tests/test_twin.py | Async via simulation.requested |
+| SIM-002 | discount scenario (elasticity from own history, margin, stock duration, return impact) | P9 | TESTED | PBR-002 | apps/backend/app/domains/twin/simulation.py::simulate_discount, elasticity | apps/backend/tests/test_twin.py::test_discount_uses_own_promotion_history_and_shows_the_trade_off; test_discount_without_history_uses_a_typical_range_and_caps_by_stock | Constant-elasticity model; typical range when no promotion history (ADR-078) |
+| SIM-003 | purchase-quantity scenario (stockout probability, cash tied up) | P9 | TESTED | SPI-001 | apps/backend/app/domains/twin/simulation.py::simulate_purchase | apps/backend/tests/test_twin.py::test_purchase_quantity_estimates_risk_cover_and_cash |  |
+| SIM-004 | ad-budget shift scenario (requires connected ad spend) | P9 | BLOCKED | ads | apps/backend/app/domains/twin/simulation.py::create refuses ad_budget (simulation_needs_ad_account) | apps/backend/tests/test_twin.py::test_simulation_rules_plan_and_ad_budget | Needs a connected ad account (GAP-ADS) |
+| SIM-005 | assumptions/confidence/range presentation; no execution without separate approval | P9 | TESTED | SIM-001 | views: label estimate, executes_nothing, assumptions, confidence, ranges; web What if; mobile results | apps/backend/tests/test_twin.py; web Twin.test.tsx; e2e phase9 | No action from a simulation; acting goes through its own approval |
+| SIM-006 | backtest calibration of simulation estimates | P9 | IMPLEMENTED | SIM-002 | apps/backend/app/domains/twin/simulation.py::demand_backtest, realized, calibration | apps/backend/tests/test_twin.py::test_calibration_backtests_demand_and_compares_realized_discounts | Thresholds for 'passing' calibration need real data |
 | NET-001 | privacy impact assessment + legal review (gate) | P10 | NOT_STARTED | — | — | — |  |
 | NET-002 | aggregation service (k ≥ 10, dominance ≤ 30%, suppression) — only cross-tenant reader | P10 | NOT_STARTED | — | — | — |  |
 | NET-003 | opt-out/opt-in controls (contribute vs consume) | P10 | NOT_STARTED | — | — | — |  |
@@ -600,4 +622,4 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 5, IMPLEMENTED 29, IN_PROGRESS 12, NOT_STARTED 43, TESTED 244. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 6, IMPLEMENTED 32, IN_PROGRESS 12, NOT_STARTED 31, TESTED 252. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
