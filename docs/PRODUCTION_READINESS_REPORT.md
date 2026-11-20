@@ -16,7 +16,7 @@ Nivaro is still **not production ready**, for reasons outside the code that exis
    API is integrated (own-rider/manual deliveries do work). Returns, exchanges and refunds (Phase 4) and automation with the
    Decision Policy and Control Center (Phase 5) are built, as are the Autopilot Score, suggestions,
    Courier Brain and COD risk (Phase 6 part A), which only have sandbox courier data to learn from.
-2. **No staging or production environment, monitoring, alerting, runbooks or backup regime exists.** These are Definition of Done requirements (24).
+2. **No staging or production environment exists.** Monitoring rules, dashboards, runbooks, kill switches and a backup/restore drill now exist and are verified locally (2026-11-20), but they only count once deployed with alert routing and managed backups (Definition of Done, 24).
 3. **No external integration has been exercised live:**
    - AI providers
    - Meta, TikTok and Shopify
@@ -289,3 +289,20 @@ clicked "Estimate" before the product picker had loaded the product.
 
 Overall status remains **NOT_READY** (real courier API, Nepal payment gateway, live channels, ad accounts,
 production email/WhatsApp, staging, monitoring/alerts, backups, pentest).
+
+## Update 2026-11-20 (production readiness round)
+| Check | Result |
+|---|---|
+| Backend pytest | 358 passed |
+| Web unit + API client | 324 + 32 passed (after Next.js 15.5.29) |
+| E2E (real backend + worker, desktop + 360px) | 38/38 |
+| Alert rules | 26 rules, promtool check + unit tests pass; live Prometheus: all rules healthy, both targets up |
+| Grafana | 2 dashboards provisioned; 35 panel queries valid |
+| Restore drill (QA data) | passed: checksum, Alembic head, no drift, row counts, ledger invariant; 1 s |
+| Compose production-like stack | API/worker/beat/web/Postgres/Redis/MinIO/Prometheus/Grafana up; S3 upload pipeline verified |
+| Load baseline (k6, 20 VUs) | 7,161 requests, 0 errors, read p95 248 ms, write p95 470 ms |
+| pip-audit / pnpm audit / bandit / gitleaks | clean after fixes (dnspython, Next.js); bandit 0 medium/high; gitleaks test fixtures only |
+
+Overall status remains **NOT_READY**: the remaining blockers are external decisions — a hosting target
+(staging, managed Postgres with PITR, Redis, bucket, alert routing), a git remote for CI, KMS, an email
+provider, real courier/payment/channel integrations, and a penetration test.

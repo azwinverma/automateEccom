@@ -368,6 +368,9 @@ def ingest_payment_webhook(
     except registry.AdapterNotAvailable as e:
         raise NotFound(code="provider_not_available") from e
     if not adapter.verify_webhook(headers, body):
+        from app.core.metrics import INTEGRATION_CALLS
+
+        INTEGRATION_CALLS.labels(adapter.code, "webhook", "bad_signature").inc()  # alerted on (spec 16)
         raise AppError("Invalid signature", code="webhook_signature_invalid")
     try:
         events = adapter.parse_webhook(headers, body)

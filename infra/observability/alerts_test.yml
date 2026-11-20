@@ -1,0 +1,72 @@
+# promtool test rules alerts_test.yml — unit tests for the alert rules.
+rule_files:
+  - alerts.yml
+evaluation_interval: 30s
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'outbox_pending_events'
+        values: '10+0x15'
+      - series: 'outbox_oldest_pending_seconds'
+        values: '400+0x15'
+      - series: 'outbox_dead_events'
+        values: '0 0 1 1 1 1'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: OutboxBacklog
+        exp_alerts:
+          - exp_labels: {severity: page}
+            exp_annotations:
+              summary: "Outbox backlog: >1,000 pending or oldest pending >5 min"
+              runbook: docs/runbooks/outbox-dlq-replay.md
+      - eval_time: 5m
+        alertname: OutboxDeadEvents
+        exp_alerts:
+          - exp_labels: {severity: page}
+            exp_annotations:
+              summary: "Outbox events exhausted retries (dead letter)"
+              runbook: docs/runbooks/outbox-dlq-replay.md
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{status="500",route="/x",method="GET"}'
+        values: '0+5x20'
+      - series: 'http_requests_total{status="200",route="/x",method="GET"}'
+        values: '0+100x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: ApiHighErrorRate
+        exp_alerts:
+          - exp_labels: {severity: page}
+            exp_annotations:
+              summary: "API 5xx rate above 1% for 5 minutes"
+              runbook: docs/runbooks/api-errors.md
+  - interval: 1m
+    input_series:
+      - series: 'http_requests_total{status="500",route="/x",method="GET"}'
+        values: '0+0x20'
+      - series: 'http_requests_total{status="200",route="/x",method="GET"}'
+        values: '0+100x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: ApiHighErrorRate
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'job_last_success_timestamp_seconds{job="nightly_intelligence"}'
+        values: '0+0x10'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: NightlyIntelligenceMissed
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'twin_section_max_age_seconds{section="orders"}'
+        values: '30000+0x60'
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: TwinSectionStale
+        exp_alerts:
+          - exp_labels: {severity: ticket, section: orders}
+            exp_annotations:
+              summary: "Twin section orders not refreshed for 7 hours (reconciliation runs every 6 h)"
+              runbook: docs/runbooks/intelligence-recompute.md

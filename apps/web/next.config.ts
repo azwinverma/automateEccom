@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(import.meta.dirname, "../.."),
   transpilePackages: ["@commerce-os/api-client", "@commerce-os/design-system"],
   poweredByHeader: false,
+  // Lint runs as its own CI step (`pnpm -r lint`, --max-warnings=0); the pruned Docker build has no ESLint plugins.
+  eslint: { ignoreDuringBuilds: true },
   reactStrictMode: true,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

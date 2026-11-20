@@ -17,13 +17,13 @@ Severity: **High** blocks production, **Med** blocks the related feature, **Low*
 | GAP-INFRA-TARGET | High | No hosting target (AWS / GCP / Fly / Render…). The staging deploy job is gated. | Your decision. Then: IaC, managed Postgres with PITR, managed Redis, bucket, secret manager. |
 | GAP-CI-RUN | High | The CI workflow has never run on GitHub (the repo has no remote). Jobs may need small fixes on first run. | Add a remote and push. |
 | GAP-KMS | High | Only the local KEK provider is implemented; production refuses to start without KMS. | Choose a KMS, then implement `KmsKeyProvider`. |
-| GAP-ALERTS | High | Metrics exist, but there are no dashboards, alert rules, SLOs or runbooks beyond `infra/staging/README.md`. | Define SLOs; alerts for outbox backlog/dead events, AI fallback rate, 5xx rate, login failure spikes. |
+| GAP-ALERTS | Med (was High) | Alert rules (26, promtool-tested), dashboards and runbooks now exist (infra/observability, docs/runbooks). Nothing routes alerts to a person yet and no Prometheus runs in a real environment. | Deploy Prometheus/Alertmanager (or a hosted equivalent) with the hosting decision; route page/ticket severities. |
 | GAP-EMAIL | High | Only the dev console mailer exists; production refuses to send. | Choose an email provider (SES / Postmark…) and implement the adapter. |
 | GAP-SMS | Med | No phone OTP or SMS (Nepal sellers often prefer phone). | SMS provider with Nepal coverage (Sparrow SMS / Aakash SMS…) needs an account. |
 | GAP-RLS | Med | Tenant isolation is enforced in the ORM; Postgres RLS is not enabled as a second layer. | Add RLS policies using `SET app.tenant_id`. |
 | GAP-RATE-GLOBAL | Med | Rate limits cover auth, invites and verification only; no global per-user/per-tenant API limit. | Middleware limit with per-plan `api_requests` metering. |
-| GAP-BACKUP-TEST | High | No backup/restore drill (needs a hosting target). | Run after GAP-INFRA-TARGET. |
-| GAP-S3 | Med | The S3 storage backend is written but untested; boto3 is not a dependency yet. | Add boto3 and test against MinIO in compose. |
+| ~~GAP-BACKUP-TEST~~ | Closed 2026-11-20 | Backup + restore drill scripts written and run on QA data (all checks passed, restore 1 s). Production PITR/off-site copies remain under GAP-BACKUP-PROD. | — |
+| ~~GAP-S3~~ | Closed 2026-11-20 | boto3 added; S3 backend verified against MinIO in compose (presigned browser upload → worker → derivatives). SSE configurable; public endpoint for presigned URLs. | — |
 | GAP-PROXY-IP | Low | The web BFF forwards `X-Forwarded-For`, but the backend trusts it only when `COS_TRUSTED_PROXY_COUNT > 0`. Not set in compose, so session IPs show the web server's IP in dev. | Set per environment topology. |
 
 ## AI
@@ -110,7 +110,7 @@ are done. The items below remain.
 | ID | Sev | Gap | Next step |
 |---|---|---|---|
 | GAP-CSP-NONCE | Low | CSP still allows `'unsafe-inline'` scripts (Next.js bootstrap). | Nonce-based CSP via middleware + `headers()` once rendering is per request. |
-| GAP-LOAD-TEST | Med | No throughput/load test (webhook floods, flash sale, video queue). Concurrency correctness is tested. | k6/Locust against staging. |
+| GAP-LOAD-TEST | Low (was Med) | Local k6 baseline exists (infra/load/baseline.js: 20 sellers, 0 errors, read p95 248 ms). Not yet run against staging-sized infrastructure, webhook floods or the video queue. | Rerun on staging; add webhook-flood and flash-sale scenarios. |
 | GAP-BACKUP-PROD | High (launch) | Only a local pg_dump/restore drill. No PITR, object-storage backup or DR runbook. | With the hosting decision (GAP-INFRA-TARGET). |
 | GAP-RATELIMIT-FAILOPEN | Low | Rate limits fail open when Redis is down (DB lockout still applies). | Accepted; revisit with a local fallback bucket if abuse appears. |
 | GAP-PENTEST | Med (launch) | No external security review. | Before paid launch: auth, tenancy, uploads. |
@@ -180,8 +180,15 @@ are done. The items below remain.
 | GAP-TWIN-SLO | Med | The 60 s p95 freshness target is measured (report + histogram) but not alerted on or proven under real load. | Alerting with the monitoring stack (GAP-OBS). |
 | GAP-SIM-MOBILE | Low | Mobile shows simulation results but can't start one. | Add a "What if I order N?" action on PO/variant screens. |
 
+## Production readiness round (2026-11-20)
+| ID | Sev | Gap | Next step |
+|---|---|---|---|
+| GAP-OBS | Med | Monitoring is code (rules, dashboards, runbooks) but not deployed; worker metrics need `COS_WORKER_METRICS_PORT` and, for prefork, `PROMETHEUS_MULTIPROC_DIR` in each environment. | Deploy with the hosting target; verify alerts fire end to end. |
+| GAP-RUNBOOK-DRILL | Low | Runbooks are written and their commands tested, but no game-day has exercised them with a real incident. | Run a game-day on staging (kill a worker, dead-letter events, expire tokens). |
+| GAP-MINIO-IMAGE | Info | Official MinIO images aren't pullable anonymously any more; compose uses Bitnami's legacy MinIO build (pinned). | Switch to the production bucket provider's local emulator or an internal registry mirror. |
+
 ## Security hardening still to do
-- SAST, secret and container scans are configured in CI but have not run (GAP-CI-RUN).
+- SAST, secret and container scans are configured in CI but have not run there (GAP-CI-RUN). Run locally on 2026-11-20: pip-audit (1 fixed), pnpm audit (Next.js patched), bandit (0 medium/high), gitleaks (test fixtures only).
 - No malware scanning yet. Uploads arrive in Phase 1 (MED-002), and scanning must ship with them.
 - No session/device anomaly notifications to users. A reuse-detection event exists, but nothing notifies the user yet.
 - Password breach check uses a small local deny-list, not HIBP k-anonymity.

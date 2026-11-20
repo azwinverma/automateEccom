@@ -43,6 +43,9 @@ def readyz() -> JSONResponse:
 
 @health_router.get("/metrics")
 def metrics() -> PlainTextResponse:
+    from app.domains.platform import ops
+
+    ops.collect()  # database/Redis-backed operational gauges (cached for 15 s)
     return PlainTextResponse(generate_latest().decode(), media_type=CONTENT_TYPE_LATEST)
 
 

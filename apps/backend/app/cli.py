@@ -27,7 +27,55 @@ def main() -> None:
     ev = sub.add_parser("run-evals", help="Run an AI eval suite and write a JSON report")
     ev.add_argument("suite")
     ev.add_argument("--threshold", type=float, default=0.85)
+    # --- operations (docs/runbooks) ---
+    sub.add_parser(
+        "ops-status", help="Print the operational gauges (outbox, webhooks, queues, freshness, jobs)"
+    )
+    orp = sub.add_parser(
+        "outbox-replay", help="Requeue dead (or pending-stuck) outbox events in bulk (audited)"
+    )
+    orp.add_argument("--status", choices=["dead"], default="dead")
+    orp.add_argument("--event-type", default=None)
+    orp.add_argument("--since", default=None, help="ISO timestamp: only events created after this")
+    orp.add_argument("--limit", type=int, default=500)
+    orp.add_argument("--dry-run", action="store_true")
+    wrp = sub.add_parser("webhook-replay", help="Replay dead/failed webhook events in bulk (audited)")
+    wrp.add_argument("--status", choices=["dead", "failed"], default="dead")
+    wrp.add_argument("--provider", default=None)
+    wrp.add_argument("--limit", type=int, default=500)
+    wrp.add_argument("--dry-run", action="store_true")
+    rc = sub.add_parser("recompute-intelligence", help="Recompute intelligence (e.g. after a method change)")
+    rc.add_argument("--merchant", default=None, help="merchant slug (default: all active merchants)")
+    rc.add_argument(
+        "--part",
+        choices=[
+            "all",
+            "courier",
+            "returns",
+            "product_brain",
+            "memory",
+            "creative",
+            "supplier",
+            "aps",
+            "recommendations",
+            "twin",
+        ],
+        default="all",
+    )
+    tr = sub.add_parser("twin-reconcile", help="Recompute Digital Store Twin sections")
+    tr.add_argument("--merchant", default=None)
     args = p.parse_args()
+    if args.cmd in (
+        "ops-status",
+        "outbox-replay",
+        "webhook-replay",
+        "recompute-intelligence",
+        "twin-reconcile",
+    ):
+        from app.cli_ops import run_ops
+
+        run_ops(args)
+        return
 
     if args.cmd == "seed-plans":
         from app.domains.billing.plans import DEFAULT_PATH, seed_from_file

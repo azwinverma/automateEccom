@@ -89,23 +89,30 @@ class S3Storage(ObjectStorage):
 
         s = get_settings()
         self.bucket = s.s3_bucket
-        self._s3 = boto3.client(
-            "s3",
-            endpoint_url=s.s3_endpoint_url,
-            region_name=s.s3_region,
-            aws_access_key_id=s.s3_access_key_id.get_secret_value() if s.s3_access_key_id else None,
-            aws_secret_access_key=s.s3_secret_access_key.get_secret_value()
+        creds = {
+            "region_name": s.s3_region,
+            "aws_access_key_id": s.s3_access_key_id.get_secret_value() if s.s3_access_key_id else None,
+            "aws_secret_access_key": s.s3_secret_access_key.get_secret_value()
             if s.s3_secret_access_key
             else None,
+        }
+        self._s3 = boto3.client("s3", endpoint_url=s.s3_endpoint_url, **creds)
+        # Presigned URLs must name a host the browser can reach; signing is local (no network call).
+        self._signer = (
+            boto3.client("s3", endpoint_url=s.s3_public_endpoint_url, **creds)
+            if s.s3_public_endpoint_url
+            else self._s3
         )
 
     def put(self, key: str, data: bytes, content_type: str) -> None:
+        s = get_settings()
+        extra: dict[str, str] = {}
+        if s.s3_sse != "none":
+            extra["ServerSideEncryption"] = s.s3_sse
+            if s.s3_sse == "aws:kms" and s.s3_kms_key_id:
+                extra["SSEKMSKeyId"] = s.s3_kms_key_id
         self._s3.put_object(
-            Bucket=self.bucket,
-            Key=_safe_key(key),
-            Body=data,
-            ContentType=content_type,
-            ServerSideEncryption="AES256",
+            Bucket=self.bucket, Key=_safe_key(key), Body=data, ContentType=content_type, **extra
         )
 
     def get(self, key: str) -> bytes:
@@ -115,14 +122,14 @@ class S3Storage(ObjectStorage):
         self._s3.delete_object(Bucket=self.bucket, Key=_safe_key(key))
 
     def signed_get_url(self, key: str, ttl_s: int = 300) -> str:
-        return self._s3.generate_presigned_url(
+        return self._signer.generate_presigned_url(
             "get_object",
             Params={"Bucket": self.bucket, "Key": _safe_key(key)},
             ExpiresIn=min(ttl_s, MAX_SIGNED_TTL),
         )
 
     def signed_put_url(self, key: str, content_type: str, ttl_s: int = 300) -> str:
-        return self._s3.generate_presigned_url(
+        return self._signer.generate_presigned_url(
             "put_object",
             Params={"Bucket": self.bucket, "Key": _safe_key(key), "ContentType": content_type},
             ExpiresIn=min(ttl_s, MAX_SIGNED_TTL),

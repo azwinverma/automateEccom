@@ -6,6 +6,7 @@ import app.domains.handlers  # noqa: F401  (registers outbox handlers)
 from app.core.db import session_scope
 from app.domains.billing.service import entitlements
 from app.domains.platform import idempotency, outbox
+from app.domains.platform.ops import tracked
 from app.models import import_all
 from app.worker.celery_app import celery
 
@@ -14,6 +15,7 @@ log = structlog.get_logger(__name__)
 
 
 @celery.task(name="app.worker.tasks.dispatch_outbox", ignore_result=True)
+@tracked("dispatch_outbox")
 def dispatch_outbox() -> dict[str, int]:
     stats = outbox.dispatch_batch()
     if any(stats.values()):
@@ -67,6 +69,7 @@ def refresh_channel_tokens() -> dict[str, int]:
 
 
 @celery.task(name="app.worker.tasks.reconcile_channels", ignore_result=True)
+@tracked("reconcile_channels")
 def reconcile_channels() -> dict[str, int]:
     from app.domains.channels.service import reconcile_all
 
@@ -130,6 +133,7 @@ def escalate_delivery_recoveries() -> int:
 
 
 @celery.task(name="app.worker.tasks.sync_cod_settlements", ignore_result=True)
+@tracked("sync_cod_settlements")
 def sync_cod_settlements() -> dict[str, int]:
     from app.domains.fulfillment.settlement import sync_all
 
@@ -149,6 +153,7 @@ def resume_workflows() -> int:
 
 
 @celery.task(name="app.worker.tasks.reconcile_twin", ignore_result=True)
+@tracked("reconcile_twin")
 def reconcile_twin() -> int:
     """TWIN-003: recompute every merchant's Twin sections to correct any drift."""
     from app.domains.twin import service as twin
@@ -158,9 +163,16 @@ def reconcile_twin() -> int:
 
 
 @celery.task(name="app.worker.tasks.nightly_intelligence", ignore_result=True)
+@tracked("nightly_intelligence")
 def nightly_intelligence() -> dict[str, int]:
     """Phase 6: Courier Brain, Return Intelligence, Product Brain, Commerce Memory, Autopilot Score,
     recommendations and their outcomes."""
+    from app.domains.platform.flags import killed
+
+    with session_scope() as db:
+        if killed(db, "ops.intelligence_jobs"):
+            log.warning("nightly_intelligence_skipped_by_kill_switch")
+            return {"skipped": 1}
     from app.domains.intelligence import (
         aps,
         courier_brain,

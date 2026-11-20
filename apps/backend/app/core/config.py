@@ -6,6 +6,7 @@ import os
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -68,10 +69,16 @@ class Settings(BaseSettings):
     storage_backend: str = "local"  # local | s3
     storage_local_root: Path = REPO_ROOT / ".data" / "objects"
     s3_endpoint_url: str | None = None
+    # Endpoint browsers use for presigned URLs when it differs from the one the API reaches (e.g. Docker).
+    s3_public_endpoint_url: str | None = None
     s3_bucket: str = "commerce-os-private"
     s3_region: str = "us-east-1"
     s3_access_key_id: SecretStr | None = None
     s3_secret_access_key: SecretStr | None = None
+    # Server-side encryption per object: AES256 (SSE-S3), aws:kms (+ s3_kms_key_id), or none = rely on the
+    # bucket's default encryption (required for presigned browser uploads anyway; MinIO without KMS).
+    s3_sse: Literal["AES256", "aws:kms", "none"] = "AES256"
+    s3_kms_key_id: str | None = None
 
     # Media
     media_max_upload_bytes: int = 20 * 1024 * 1024
@@ -102,6 +109,7 @@ class Settings(BaseSettings):
 
     # Observability
     otel_exporter_otlp_endpoint: str | None = None
+    worker_metrics_port: int | None = None  # Celery worker Prometheus endpoint (ops)
     metrics_enabled: bool = True
 
     # Outbox

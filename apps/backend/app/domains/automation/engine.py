@@ -357,8 +357,14 @@ def advance(db: Session, run: WorkflowRun) -> WorkflowRun:
     steps = _steps(db, run)
     by_id = {s["id"]: s for s in steps}
     w = db.get(Workflow, run.workflow_id)
+    from app.domains.platform.flags import killed
+
     for _ in range(MAX_STEPS + 1):
         if run.status not in ("running", "waiting") or run.current_step is None:
+            return run
+        if killed(db, "ops.automation", run.merchant_id):
+            # Kill switch: pause in place; resume_due retries every 5 minutes from the same step.
+            run.status, run.next_run_at = "waiting", utcnow() + timedelta(minutes=5)
             return run
         if w is None or w.status != "active":
             _finish(run, "cancelled", "workflow_paused")

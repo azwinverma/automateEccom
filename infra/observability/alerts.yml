@@ -1,0 +1,206 @@
+# Nivaro alert rules (specs/16 "Required dashboards & alerts", "Intelligence monitoring", SLOs).
+# Every alert links to its runbook in docs/runbooks. Severity: page = act now; ticket = same day.
+groups:
+  - name: api
+    rules:
+      - alert: ApiHighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+            / clamp_min(sum(rate(http_requests_total[5m])), 1e-9) > 0.01
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "API 5xx rate above 1% for 5 minutes"
+          runbook: docs/runbooks/api-errors.md
+      - alert: ApiHighLatency
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))) > 1
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "API p95 latency above 1s for 10 minutes"
+          runbook: docs/runbooks/api-errors.md
+      - alert: ApiDown
+        expr: up{job="nivaro-api"} == 0
+        for: 2m
+        labels: {severity: page}
+        annotations:
+          summary: "An API instance is not answering /metrics"
+          runbook: docs/runbooks/api-errors.md
+
+  - name: outbox
+    rules:
+      - alert: OutboxBacklog
+        expr: outbox_pending_events > 1000 or outbox_oldest_pending_seconds > 300
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Outbox backlog: >1,000 pending or oldest pending >5 min"
+          runbook: docs/runbooks/outbox-dlq-replay.md
+      - alert: OutboxDeadEvents
+        expr: outbox_dead_events > 0
+        for: 1m
+        labels: {severity: page}
+        annotations:
+          summary: "Outbox events exhausted retries (dead letter)"
+          runbook: docs/runbooks/outbox-dlq-replay.md
+      - alert: OutboxDispatcherStalled
+        expr: time() - job_last_success_timestamp_seconds{job="dispatch_outbox"} > 300
+        for: 2m
+        labels: {severity: page}
+        annotations:
+          summary: "The outbox dispatcher hasn't completed a batch in 5 minutes (worker/beat down?)"
+          runbook: docs/runbooks/outbox-dlq-replay.md
+
+  - name: webhooks
+    rules:
+      - alert: WebhookSignatureFailures
+        expr: sum by (provider) (increase(integration_calls_total{operation="webhook",outcome="bad_signature"}[10m])) > 20
+        labels: {severity: ticket}
+        annotations:
+          summary: "Many webhooks with bad signatures from {{ $labels.provider }} (secret rotated or attack)"
+          runbook: docs/runbooks/webhook-replay.md
+      - alert: WebhookProcessingLag
+        expr: webhook_oldest_unprocessed_seconds > 120
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Webhooks waiting more than 2 minutes to be processed (SLO p95 < 60s)"
+          runbook: docs/runbooks/webhook-replay.md
+      - alert: WebhookDeadEvents
+        expr: webhook_events_dead > 0
+        for: 1m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Webhook events exhausted retries"
+          runbook: docs/runbooks/webhook-replay.md
+
+  - name: ai
+    rules:
+      - alert: AiFallbackRateHigh
+        expr: |
+          sum(rate(ai_fallback_total[15m])) / clamp_min(sum(rate(ai_requests_total[15m])), 1e-9) > 0.2
+        for: 15m
+        labels: {severity: ticket}
+        annotations:
+          summary: "More than 20% of AI requests fall back to a secondary model"
+          runbook: docs/runbooks/provider-outage.md
+      - alert: AiCircuitOpen
+        expr: max by (provider, model) (ai_circuit_open) == 1
+        for: 5m
+        labels: {severity: ticket}
+        annotations:
+          summary: "AI circuit open for {{ $labels.provider }}:{{ $labels.model }}"
+          runbook: docs/runbooks/provider-outage.md
+      - alert: AiCostAboveBudget
+        expr: sum(increase(ai_cost_usd_total[1h])) > 5
+        labels: {severity: ticket}
+        annotations:
+          summary: "AI spend above USD 5 in the last hour (adjust to the real budget)"
+          runbook: docs/runbooks/provider-outage.md
+
+  - name: money-and-delivery
+    rules:
+      - alert: RefundErrors
+        expr: refunds_failed > 0
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "Refunds in failed state"
+          runbook: docs/runbooks/provider-outage.md
+      - alert: CodSettlementOverdue
+        expr: cod_settlement_overdue > 0
+        for: 1h
+        labels: {severity: ticket}
+        annotations:
+          summary: "COD cash has been with couriers for more than 7 days"
+          runbook: docs/runbooks/provider-outage.md
+      - alert: ShipmentsStuck
+        expr: shipments_stuck > 10
+        for: 1h
+        labels: {severity: ticket}
+        annotations:
+          summary: "Many live shipments without a tracking update for 3+ days"
+          runbook: docs/runbooks/provider-outage.md
+
+  - name: publishing
+    rules:
+      - alert: ExpiredConnections
+        expr: channel_connections_need_attention > 0
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Channel connections expired, revoked or in error"
+          runbook: docs/runbooks/token-expiry-storm.md
+      - alert: TokenExpiryStorm
+        expr: delta(channel_connections_need_attention[30m]) > 20
+        labels: {severity: page}
+        annotations:
+          summary: "Many channel connections expired in 30 minutes"
+          runbook: docs/runbooks/token-expiry-storm.md
+      - alert: PublishingFailures
+        expr: delta(content_posts_failed[1h]) > 10 or delta(listings_failed[1h]) > 20
+        labels: {severity: ticket}
+        annotations:
+          summary: "Post or listing failures climbing"
+          runbook: docs/runbooks/provider-outage.md
+
+  - name: queues
+    rules:
+      - alert: QueueBacklog
+        expr: celery_queue_backlog > 500
+        for: 10m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Celery queue {{ $labels.queue }} has more than 500 waiting messages"
+          runbook: docs/runbooks/outbox-dlq-replay.md
+      - alert: WorkerDown
+        expr: up{job="nivaro-worker"} == 0
+        for: 5m
+        labels: {severity: page}
+        annotations:
+          summary: "A worker is not answering its metrics endpoint"
+          runbook: docs/runbooks/outbox-dlq-replay.md
+
+  - name: intelligence
+    rules:
+      - alert: NightlyIntelligenceMissed
+        expr: time() - job_last_success_timestamp_seconds{job="nightly_intelligence"} > 26 * 3600
+        labels: {severity: ticket}
+        annotations:
+          summary: "Nightly intelligence hasn't succeeded in 26 hours"
+          runbook: docs/runbooks/intelligence-recompute.md
+      - alert: IntelligenceJobFailing
+        expr: increase(job_runs_total{outcome="failure"}[6h]) > 0
+        labels: {severity: ticket}
+        annotations:
+          summary: "Scheduled job {{ $labels.job }} failed"
+          runbook: docs/runbooks/intelligence-recompute.md
+      - alert: ProductBrainStale
+        expr: product_brain_max_age_seconds > 26 * 3600
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "A Product Brain profile is older than 26 hours (freshness SLO)"
+          runbook: docs/runbooks/intelligence-recompute.md
+      - alert: TwinSectionStale
+        expr: twin_section_max_age_seconds > 7 * 3600
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Twin section {{ $labels.section }} not refreshed for 7 hours (reconciliation runs every 6 h)"
+          runbook: docs/runbooks/intelligence-recompute.md
+      - alert: TwinUpdateLagSlo
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(twin_update_lag_seconds_bucket[30m]))) > 60
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "Twin event-driven update p95 above 60s (SLO)"
+          runbook: docs/runbooks/intelligence-recompute.md
+      - alert: OpsGaugeErrors
+        expr: increase(ops_collect_errors_total[30m]) > 5
+        labels: {severity: ticket}
+        annotations:
+          summary: "Operational gauge {{ $labels.gauge }} keeps failing to compute"
+          runbook: docs/runbooks/api-errors.md

@@ -54,3 +54,30 @@ def is_enabled(db: Session, key: str, merchant_id: uuid.UUID | None) -> bool:
         )
         override = o.enabled if o else None
     return evaluate(flag, override, merchant_id)
+
+
+# ----------------------------------------------------------------------------- operational kill switches
+# Server-side stops for risky automated subsystems (DoD "rollback/feature flag"; docs/runbooks). A flag's
+# kill switch stops the subsystem for everyone; a merchant override with enabled=False stops it for one
+# merchant. A missing flag means "on".
+KILL_SWITCHES = {
+    "ops.automation": "Workflow runs pause (they resume from the same step when cleared)",
+    "ops.sales_agent_replies": "The AI Sales Agent stops replying; messages wait in the inbox",
+    "ops.content_publishing": "Scheduled posts aren't published; they stay scheduled",
+    "ops.intelligence_jobs": "Nightly intelligence jobs are skipped",
+}
+
+
+def killed(db: Session, key: str, merchant_id: uuid.UUID | None = None) -> bool:
+    flag = db.get(FeatureFlag, key)
+    if flag is not None and flag.kill_switch:
+        return True
+    if merchant_id is not None:
+        o = db.scalar(
+            select(FeatureFlagOverride).where(
+                FeatureFlagOverride.flag_key == key, FeatureFlagOverride.merchant_id == merchant_id
+            )
+        )
+        if o is not None and o.enabled is False:
+            return True
+    return False

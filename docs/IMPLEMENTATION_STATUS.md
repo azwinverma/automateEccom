@@ -7,7 +7,7 @@ Statuses: NOT_STARTED · IN_PROGRESS · BLOCKED · IMPLEMENTED · TESTED · PROD
 
 Phases follow `specs/22_PHASED_ROADMAP.md` (v1, 2026-11-02): **0** Foundation · **1** Product-to-Publish · **2** Conversation-to-Order · **3** Order-to-Delivery · **4** Returns/Refunds/Exchanges · **5** Automation + Exception OS · **6** Commerce Intelligence Foundation · **7** Creative Intelligence · **8** Procurement/Supplier Intelligence · **9** Digital Store Twin + Simulation · **10** Network Intelligence & enterprise scale. Intelligence phases (6+) are gated on trustworthy operational data from 2–5.
 
-_Last updated: 2026-11-20 (Phase 9)._
+_Last updated: 2026-11-20 (production readiness round)._
 
 ## Summary
 
@@ -44,6 +44,39 @@ Totals (2026-11-02): backend 165 tests (87% coverage, 10 migrations); web 209 + 
   Remaining unblocked Phase 1 hardening: CHN-012 reconciliation, BIL-009 alert notifications, the
   FND-006 S3 path against MinIO, CNT-007 standalone translation, and AIG-008 health-aware ordering.
 - **Phase 2 has not started**, per the rule to finish the earliest phase first.
+
+## Production readiness round (2026-11-20)
+Not a roadmap phase: the Definition of Done's "Operations" items, verified locally because staging needs a
+hosting decision.
+- **Monitoring as code:** operational gauges computed from the database on scrape (outbox backlog/age/dead,
+  webhooks, queues, failed refunds, overdue COD, stuck shipments, connections, Twin/Product Brain age, data
+  quality, recommendations, job heartbeats); worker metrics endpoint with prometheus multiprocess mode;
+  26 alert rules covering every spec 16 alert (promtool-validated, unit-tested); Grafana dashboards
+  (service health, intelligence health) provisioned as code; compose `observability` profile.
+  Found and fixed: the outbox backlog gauge was set in the worker, so the API always reported 0; payment and
+  courier webhooks didn't count bad signatures.
+- **Runbooks** (docs/runbooks): API errors, outbox DLQ replay, webhook replay, provider outage, token
+  expiry storm, intelligence recompute, restore drill, deploy/rollback, incident response; every alert
+  links to one. Ops CLI: `ops-status`, `outbox-replay`, `webhook-replay`, `recompute-intelligence`,
+  `twin-reconcile` (dry-run, audited).
+- **Kill switches that work:** feature flags existed but nothing read them. `ops.automation`,
+  `ops.sales_agent_replies`, `ops.content_publishing`, `ops.intelligence_jobs` now stop those subsystems
+  (globally or per merchant) and resume cleanly when cleared.
+- **Backups:** `scripts/backup.sh` (pg_dump custom + checksum + retention) and `scripts/restore-drill.sh`
+  (checksum, restore to a scratch DB, Alembic head + no drift, row counts vs source, ledger invariant,
+  timing). Drill on QA data: passed, restore 1 s.
+- **Production-like stack:** full compose (API, worker prefork, beat, web, Postgres, Redis, MinIO,
+  Prometheus, Grafana) built and smoke-tested. Found and fixed: boto3 was never installed (the production
+  S3 backend couldn't start); SSE was hard-coded (fails on S3-compatible stores without KMS); presigned
+  URLs used the internal hostname; MinIO images moved off Docker Hub (pinned Bitnami's build); web image
+  build linted with missing plugins (lint stays a CI step).
+- **Load baseline** (k6, 20 virtual sellers, local single API process): 7,161 requests, 0 errors, reads
+  p95 248 ms, order creation p95 470 ms (thresholds p95 < 1 s / 1.5 s).
+- **Security scans:** pip-audit (fixed dnspython CVE-2026-128089), pnpm audit (Next.js 15.5.29 for 3
+  moderate advisories), bandit (0 medium/high), gitleaks over full history (10 findings, all fake test
+  fixtures → scoped allowlist).
+- **Still blocking PRODUCTION_READY:** a deployed staging environment, alert routing, managed backups/PITR
+  (all need GAP-INFRA-TARGET), CI run (GAP-CI-RUN), KMS, production email.
 
 ## Phase 9 (Digital Store Twin + simulation): built 2026-11-20
 - **Built and tested:** a 10-section derived Twin (catalog, inventory, orders, COD, shipments, returns,
@@ -293,11 +326,11 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | FND-003 | Docker local stack | P0 | TESTED | FND-004,005 | docker-compose.yml, apps/backend/Dockerfile, apps/web/Dockerfile | Manual: stack booted, register→worker email dispatch verified | Ports overridable (PG_PORT, REDIS_PORT, API_PORT); web behind `--profile web` |
 | FND-004 | PostgreSQL | P0 | TESTED | — | apps/backend/app/core/db.py, apps/backend/migrations/ | alembic upgrade/downgrade/check in CI | UUIDv7 PKs, naming convention, hide_parameters, statement timeout |
 | FND-005 | Redis/Celery | P0 | TESTED | FND-004 | apps/backend/app/worker/ | test_idempotency_outbox; container run | Celery acks_late, prefetch 1, beat schedule (outbox 2s, usage expiry 60s, idempotency purge 1h) |
-| FND-006 | object storage abstraction | P0 | IMPLEMENTED | — | apps/backend/app/domains/integrations/storage.py | test_platform::test_local_storage… | Local backend tested; S3 backend (boto3) not exercised — boto3 not yet a dependency |
+| FND-006 | object storage abstraction | P0 | TESTED | — | apps/backend/app/domains/integrations/storage.py (local + S3; SSE configurable; public endpoint for presigned URLs) | test_platform::test_local_storage…; compose S3 smoke 2026-11-20 (MinIO: presigned browser PUT → worker → 5 derivatives in a private, versioned bucket) | boto3 added; production bucket + KMS pending (GAP-INFRA-TARGET, GAP-KMS) |
 | FND-007 | CI | P0 | IMPLEMENTED | — | .github/workflows/ci.yml | — | Not yet run on GitHub (no remote). Jobs: backend, web, mobile, security, images |
 | FND-008 | staging CD | P0 | IN_PROGRESS | FND-007 | .github/workflows/deploy-staging.yml, infra/staging/README.md | — | Builds/pushes images; deploy gated: hosting target undecided (GAP-INFRA-TARGET) |
 | FND-009 | structured logging | P0 | TESTED | — | apps/backend/app/core/logging.py, core/middleware.py, core/errors.py | test_platform::test_log_redaction, test_auth::test_unhandled_db_error_log… | JSON logs; request_id/trace_id/merchant/user/error_code; key redaction; DB errors logged without row values |
-| FND-010 | tracing/metrics | P0 | IMPLEMENTED | — | apps/backend/app/core/tracing.py, core/metrics.py | test_platform::test_health_readiness_metrics | OTel spans per request + AI call; OTLP export when configured; Prometheus metrics. No dashboards/alerts yet |
+| FND-010 | tracing/metrics | P0 | TESTED | — | core/tracing.py, core/metrics.py, platform/ops.py (DB-backed gauges on scrape), worker metrics server (multiprocess), infra/observability (26 alert rules, 2 Grafana dashboards) | test_ops (gauges, error isolation, job heartbeats, CLI, kill switches); promtool check + unit tests; live Prometheus/Grafana against QA and the compose stack | Alert routing (pager/email) needs a monitoring host (GAP-INFRA-TARGET) |
 | FND-011 | feature flags | P0 | TESTED | — | apps/backend/app/domains/platform/flags.py, admin/router.py | test_platform::test_feature_flags… | Kill switch > override > rollout % > default |
 | FND-012 | transactional outbox | P0 | TESTED | FND-004 | apps/backend/app/domains/platform/outbox.py | test_idempotency_outbox (retry, DLQ, exactly-once per handler, rollback) | Event catalog contract + JSON-schema validation at publish |
 | FND-013 | idempotency service | P0 | TESTED | FND-004 | apps/backend/app/domains/platform/idempotency.py, api/idempotent.py | test_idempotency_outbox | HTTP replay/422/409 + worker run_once |
@@ -622,4 +655,4 @@ Phase 1 can start in parallel with closing the two open items above, which need 
 | BRD-015 | UX copy migration | BRD | TESTED | — | en/ne meta + brand keys, sign-in copy, "Soon" instead of phase codes, email subject/sign-off/sender, OpenAPI title | i18n parity tests; brand guard; backend suite | Nepali tagline needs native review |
 | BRD-016 | visual QA | BRD | IN_PROGRESS | — | brand-guard.test.ts; desktop + 390px screenshot review of auth, home, products, studio, content, channels, plan | 3 guard tests | Per-surface QA continues as surfaces are built |
 
-Status counts: BLOCKED 6, IMPLEMENTED 32, IN_PROGRESS 12, NOT_STARTED 31, TESTED 252. **PRODUCTION_READY: 0** (no staging/alerts/runbooks yet).
+Status counts: BLOCKED 6, IMPLEMENTED 30, IN_PROGRESS 12, NOT_STARTED 31, TESTED 254. **PRODUCTION_READY: 0** (no deployed staging environment, alert routing or managed backups yet).

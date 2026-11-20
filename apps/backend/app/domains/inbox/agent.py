@@ -450,6 +450,10 @@ def handle(db: Session, conv: Conversation, msg: Message) -> None:
     ent = entitlements.resolve(db, conv.merchant_id)
     if not ent.has("ai.sales_agent"):
         return  # plan without the Sales Agent: the seller answers from the inbox
+    from app.domains.platform.flags import killed
+
+    if killed(db, "ops.sales_agent_replies", conv.merchant_id):
+        return  # ops kill switch: messages stay unread in the inbox for the seller
     e = understand(msg.text)
     locale = e.locale  # answer in the script the customer just wrote in (Devanagari → Nepali)
     draft = db.scalar(

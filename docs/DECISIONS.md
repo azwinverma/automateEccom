@@ -592,3 +592,25 @@ The owner asked for the concept-board artwork itself to be the logo everywhere.
 - **Decision:** a Proposal may name the Twin sections it relies on; if any is older than its automation
   max staleness the decision becomes REQUIRE_APPROVAL with rule `stale_data` and the stale sections.
 - **Why:** automation must not act on old state; a person can still decide.
+
+## ADR-080: Operational gauges are computed from the database when /metrics is scraped (2026-11-20)
+- **Decision:** the API computes platform-wide operational gauges (outbox, webhooks, queues, failures,
+  freshness, job heartbeats via Redis) on scrape, cached 15 s, each gauge isolated so one failing query
+  never breaks the scrape. Workers expose their own metrics endpoint (multiprocess mode for prefork).
+  Labels are bounded (queue, section, job) — never merchant ids.
+- **Why:** gauges set inside workers were invisible to the API scrape (the outbox backlog always read 0);
+  the database is the source of truth for backlogs and failures.
+
+## ADR-081: Kill switches are feature flags read by the risky subsystems (2026-11-20)
+- **Decision:** `ops.automation`, `ops.sales_agent_replies`, `ops.content_publishing`,
+  `ops.intelligence_jobs`: a flag's kill switch stops the subsystem globally; a merchant override with
+  enabled=false stops one shop. Stopped work waits (runs pause at their step, posts stay scheduled,
+  messages stay in the inbox) and resumes when cleared. A missing flag means "on".
+- **Why:** incident response needs a stop button that doesn't require a deploy and loses nothing.
+
+## ADR-082: S3 encryption and presigned endpoints are configuration (2026-11-20)
+- **Decision:** `COS_S3_SSE` = AES256 (default) | aws:kms (+ key id) | none (bucket default encryption);
+  `COS_S3_PUBLIC_ENDPOINT_URL` signs browser URLs with a reachable host. boto3 is a runtime dependency.
+- **Why:** the hard-coded SSE header failed on S3-compatible stores without KMS, and presigned browser
+  uploads can't carry server-chosen SSE headers anyway; production buckets should enforce default
+  encryption.

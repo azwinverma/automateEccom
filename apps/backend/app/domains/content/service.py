@@ -357,7 +357,11 @@ def cancel(db: Session, ctx: TenantContext, post_id: uuid.UUID) -> ContentPost:
 
 # ----------------------------------------------------------------------------- scheduler (worker)
 def publish_due(db: Session, limit: int = 50) -> dict[str, int]:
+    from app.domains.platform.flags import killed
+
     stats = {"published": 0, "retrying": 0, "failed": 0}
+    if killed(db, "ops.content_publishing"):
+        return stats  # ops kill switch: posts stay scheduled and publish once it's cleared
     rows = db.scalars(
         select(ContentPost)
         .where(ContentPost.status == "scheduled", ContentPost.next_attempt_at <= utcnow())

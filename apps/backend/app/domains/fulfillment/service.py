@@ -853,6 +853,9 @@ def ingest_courier_webhook(
         raise NotFound(code="provider_not_available")
     adapter = couriers.adapter_for(a)
     if not adapter.verify_webhook(headers, body):
+        from app.core.metrics import INTEGRATION_CALLS
+
+        INTEGRATION_CALLS.labels(adapter.code, "webhook", "bad_signature").inc()  # alerted on (spec 16)
         raise AppError("Invalid signature", code="webhook_signature_invalid")
     try:
         updates = adapter.parse_tracking_webhook(headers, body)

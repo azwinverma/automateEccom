@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from celery import Celery
-from celery.signals import worker_process_init
+from celery.signals import worker_process_init, worker_process_shutdown, worker_ready
 
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -58,3 +58,39 @@ celery.conf.update(
 def _init(**_: object) -> None:
     configure_logging(settings.log_level, settings.log_json)
     configure_tracing(settings)
+
+
+@worker_ready.connect
+def _start_metrics_server(**_: object) -> None:
+    """Expose worker-side metrics (outbox dispatch, AI calls, job health, Twin lag) for Prometheus.
+
+    Set COS_WORKER_METRICS_PORT. With the prefork pool, child-process metrics need prometheus_client
+    multiprocess mode (PROMETHEUS_MULTIPROC_DIR); the solo/threads pools work as is.
+    """
+    port = get_settings().worker_metrics_port
+    if not port:
+        return
+    import os
+
+    from prometheus_client import CollectorRegistry, start_http_server
+
+    if os.environ.get("PROMETHEUS_MULTIPROC_DIR"):
+        # prefork pool: each child writes its samples to the directory; this collector merges them.
+        from prometheus_client import multiprocess
+
+        registry = CollectorRegistry()
+        multiprocess.MultiProcessCollector(registry)
+        start_http_server(port, registry=registry)
+    else:
+        start_http_server(port)
+
+
+@worker_process_shutdown.connect
+def _mark_metrics_process_dead(pid: int | None = None, **_: object) -> None:
+    """Multiprocess metrics: drop a dead child's live gauges so they don't linger."""
+    import os
+
+    if os.environ.get("PROMETHEUS_MULTIPROC_DIR"):
+        from prometheus_client import multiprocess
+
+        multiprocess.mark_process_dead(pid or os.getpid())

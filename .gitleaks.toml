@@ -1,0 +1,13 @@
+# Secret scanning config (CI: gitleaks). Extends the default rules; only test fixtures with obviously fake
+# values are allowlisted — never production code paths.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fake credentials in unit/e2e test fixtures (e.g. ck_1234567890)"
+paths = [
+  '''(^|/)apps/web/src/.*\.test\.tsx?$''',
+  '''(^|/)apps/web/e2e/.*\.spec\.ts$''',
+  '''(^|/)apps/mobile/test/.*_test\.dart$''',
+  '''(^|/)apps/backend/tests/.*\.py$''',
+]
