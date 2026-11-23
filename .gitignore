@@ -30,3 +30,8 @@ apps/backend/evals/reports/
 
 # Celery beat runtime state
 celerybeat-schedule*
+
+# Local credential notes: never commit
+creds
+creds.*
+*.creds

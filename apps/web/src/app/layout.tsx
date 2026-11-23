@@ -2,17 +2,28 @@ import "@commerce-os/design-system/tokens.css";
 import "./globals.css";
 import { tokens } from "@commerce-os/design-system/tokens";
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_Devanagari } from "next/font/google";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { getLocale, getTranslator } from "@/i18n/server";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { getTheme } from "@/lib/theme/server";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const devanagari = Noto_Sans_Devanagari({
-  subsets: ["devanagari"],
-  weight: ["400", "500", "600", "700"],
+// Fonts live in the repo (Fontsource 5.3.0 builds, SIL OFL; see ./fonts/*-OFL.txt), so builds never
+// depend on downloading from Google Fonts.
+const inter = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-inter",
+  display: "swap",
+});
+const devanagari = localFont({
+  src: [
+    { path: "./fonts/noto-sans-devanagari-devanagari-400-normal.woff2", weight: "400" },
+    { path: "./fonts/noto-sans-devanagari-devanagari-500-normal.woff2", weight: "500" },
+    { path: "./fonts/noto-sans-devanagari-devanagari-600-normal.woff2", weight: "600" },
+    { path: "./fonts/noto-sans-devanagari-devanagari-700-normal.woff2", weight: "700" },
+  ],
   variable: "--font-devanagari",
   display: "swap",
 });
