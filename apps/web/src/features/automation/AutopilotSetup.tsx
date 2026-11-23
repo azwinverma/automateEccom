@@ -20,6 +20,8 @@ const STATE_TONE: Record<SetupStepState, Tone> = { done: "success", partial: "in
 const MODES: AutomationModeChoice[] = ["assisted", "smart", "autopilot"];
 /** The server detail is English; show it only where it names the seller's own things. */
 const SHOW_DETAIL: ReadonlySet<SetupStepState> = new Set(["done", "partial"]);
+/** Steps whose server detail names the seller's own accounts or methods (others would repeat the help). */
+const DETAIL_KEYS: ReadonlySet<string> = new Set(["chat", "payments", "delivery"]);
 
 type T = ReturnType<typeof useI18n>["t"];
 
@@ -98,7 +100,7 @@ function StepItem({ step, index }: { step: SetupStep; index: number }) {
           <Badge tone={STATE_TONE[step.state]}>{t(`autopilotSetup.state.${step.state}`)}</Badge>
         </div>
         <p className={styles.help}>{t.dynamic(`autopilotSetup.stepHelp.${step.key}`) ?? step.detail}</p>
-        {SHOW_DETAIL.has(step.state) && step.key !== "workflows" && step.detail ? <p className={styles.detail}>{step.detail}</p> : null}
+        {SHOW_DETAIL.has(step.state) && DETAIL_KEYS.has(step.key) && step.detail ? <p className={styles.detail}>{step.detail}</p> : null}
         {step.workflows?.length ? (
           <ul className={styles.workflows}>
             {step.workflows.map((w) => (

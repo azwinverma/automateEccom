@@ -56,6 +56,10 @@ test("store at a glance; what-if estimates are labelled and never act", async ({
   }
   // One order stays open, so the glance strip has something to say.
   expect((await call("/orders", { ...H, body: { lines: [{ variant_id: vid, quantity: 1 }], address } })).status).toBe(201);
+  // The Twin updates from events on the worker: wait until it has counted the open order.
+  await expect
+    .poll(async () => (await call("/twin/summary?sections=orders", H)).json?.sections?.orders?.state?.open ?? 0, { timeout: 20_000 })
+    .toBe(1);
 
   await page.context().addCookies([{ name: "cos_locale", value: "en", url: process.env.E2E_BASE_URL! }]);
   await page.goto("/login?next=/home");
